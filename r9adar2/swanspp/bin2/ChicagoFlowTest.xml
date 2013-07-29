@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<java version="1.4.2_07" class="java.beans.XMLDecoder"> 
+ <object class="driver.JistExperiment"> 
+   <void property="duration"> 
+   <int>900</int> 
+  </void> 
+  <void property="degree"> 
+   <int>4</int> 
+  </void> 
+  <void property="maxLat"> 
+   <float>41.89553</float> 
+  </void> 
+  <void property="maxLong"> 
+   <float>-87.59737</float> 
+  </void> 
+  <void property="minLat"> 
+   <float>41.88425</float> 
+  </void> 
+  <void property="minLong"> 
+   <float>-87.63315</float> 
+  </void> 
+  <void property="mobility"> 
+   <int>6</int> 
+  </void> 
+  <void property="nodes"> 
+   <int>400</int> 
+  </void> 
+  <void property="penetrationRatio"> 
+   <float>1.0</float> 
+  </void> 
+  <void property="placement"> 
+   <int>3</int> 
+  </void> 
+  <void property="probability"> 
+   <double>0.3</double> 
+  </void> 
+  <void property="protocol"> 
+   <int>888</int> 
+  </void>   
+  <void property="exponent"> 
+   <double>2.6</double> 
+  </void> 
+    <void property="stdDeviation"> 
+   <double>0</double> 
+  </void> 
+    <void property="sendRate"> 
+   <double>2.0</double> 
+  </void> 
+  <void property="seed"> 
+   <int>9879674</int> 
+  </void> 
+  <void property="transmitters"> 
+   <int>1</int> 
+  </void> 
+  <void property="useCBR"> 
+   <boolean>true</boolean> 
+  </void> 
+      <void property="cbrPacketSize"> 
+   <int>1000</int> 
+  </void> 
+    <void property="cbrRate"> 
+   <int>1000</int> 
+  </void> 
+    <void property="useVisualizer"> 
+   <boolean>true</boolean> 
+  </void> 
+  <void property="useFlows"> 
+   <boolean>true</boolean> 
+  </void> 
+  <void property="flowFile"> 
+   <string>Flow/testFlow.flo</string> 
+  </void> 
+  
+    <void property="laneChangeModel">
+  <int>1</int>
+  </void>
+    <!-- GPSR options -->
+  <void property="bint_"> 
+   <double>1</double> 
+  </void> 
+    <void property="bexp_"> 
+   <double>4.5</double> 
+  </void> 
+  <void property="drop_debug_">
+  <boolean>true</boolean>
+  </void>
+  <void property="peri_proact_">
+  <boolean>true</boolean>
+  </void>
+  <void property="use_peri_">
+  <boolean>true</boolean>
+  </void>
+  <void property="use_planar_">
+  <boolean>true</boolean>
+  </void>
+   <void property="use_loop_detect_">
+  <boolean>true</boolean>
+  </void>
+  <void property="pint_">
+  <double>8.0</double>
+  </void>
+   <void property="mac_promisc">
+  <boolean>true</boolean>
+  </void>
+  <void property="radioNoiseType">
+  <int>1</int>
+  </void>
+  
+ </object> 
+</java> 

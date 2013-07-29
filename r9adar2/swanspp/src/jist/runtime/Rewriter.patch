@@ -1,0 +1,16 @@
+Index: Rewriter.java
+===================================================================
+RCS file: /cvs-jist/code/src/jist/runtime/Rewriter.java,v
+retrieving revision 1.118
+diff -u -r1.118 Rewriter.java
+--- Rewriter.java	4 Oct 2005 11:52:47 -0000	1.118
++++ Rewriter.java	25 Oct 2006 13:25:41 -0000
+@@ -199,6 +199,8 @@
+     "jargs.gnu.",
+     "bsh.",
+     "org.python.",
++    "org.apache.crimson.", // XMLDecoder stuff
++    "org.xml."
+   };
+ 
+   /**

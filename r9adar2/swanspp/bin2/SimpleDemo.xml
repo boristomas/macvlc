@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<java version="1.4.2_05" class="java.beans.XMLDecoder"> 
+ <object class="driver.JistExperiment"> 
+
+ <!-- timing -->
+  <void property="duration"> 
+   <int>900</int> 
+  </void> 
+  <void property="resolutionTime"> 
+   <int>60</int> 
+  </void> 
+  <void property="startTime"> 
+   <int>60</int> 
+  </void> 
+
+ <!-- environment -->
+  <void property="exponent"> 
+   <double>2.8</double> 
+  </void> 
+  <void property="stdDeviation"> 
+   <double>6.0</double> 
+  </void> 
+    <void property="loss"> 
+   <int>0</int> 
+  </void>
+  <void property="pathloss"> 
+   <int>1</int> 
+  </void> 
+  <void property="transmit"> 
+   <double>16</double> 
+  </void> 
+
+   <!-- mobility options -->
+  <void property="mobility"> 
+   <int>2</int> 
+  </void> 
+  <void property="max_speed"> 
+   <int>20</int> 
+  </void> 
+  <void property="min_speed"> 
+   <int>1</int> 
+  </void> 
+  <void property="mobility"> 
+   <int>2</int> 
+  </void> 
+    <void property="pause_time"> 
+   <int>5</int> 
+  </void> 
+  <void property="granularity"> 
+   <int>5</int> 
+  </void> 
+  
+   <!-- node options -->
+   <void property="nodes"> 
+   <int>50</int> 
+  </void> 
+   <void property="transmitters"> 
+   <int>10</int> 
+  </void> 
+    <void property="sendRate"> 
+   <double>1.0</double> 
+  </void> 
+  
+   <!-- placement options -->
+   <void property="placement"> 
+   <int>2</int> 
+  </void> 
+    <void property="spatial_mode"> 
+   <int>2</int> 
+  </void> 
+
+   <!-- field options -->
+   <void property="placement"> 
+   <int>2</int> 
+  </void> 
+    <void property="spatial_mode"> 
+   <int>2</int> 
+  </void> 
+   <void property="fieldX"> 
+   <int>673</int> 
+  </void> 
+  <void property="fieldY"> 
+   <int>703</int> 
+  </void> 
+
+ <!-- visualization options -->
+  <void property="useVisualizer"> 
+   <boolean>true</boolean> 
+  </void> 
+
+
+  <!-- other options -->
+  <void property="port"> 
+   <int>3001</int> 
+  </void> 
+  <void property="protocol"> 
+   <int>888</int> 
+  </void> 
+    <void property="help"> 
+   <boolean>false</boolean> 
+  </void> 
+ </object> 
+</java> 

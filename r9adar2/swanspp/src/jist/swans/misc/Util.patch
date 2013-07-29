@@ -1,0 +1,85 @@
+Index: Util.java
+===================================================================
+RCS file: /cvs-jist/code/src/jist/swans/misc/Util.java,v
+retrieving revision 1.18
+diff -u -r1.18 Util.java
+--- Util.java	6 Apr 2004 16:07:49 -0000	1.18
++++ Util.java	12 Jul 2005 18:58:31 -0000
+@@ -11,12 +11,21 @@
+ 
+ import jist.swans.Constants;
+ 
++import java.beans.XMLDecoder;
++import java.beans.XMLEncoder;
++import java.io.BufferedInputStream;
++import java.io.BufferedOutputStream;
++import java.io.BufferedWriter;
+ import java.io.File;
+ import java.io.BufferedReader;
++import java.io.FileOutputStream;
+ import java.io.FileReader;
++import java.io.FileWriter;
+ import java.io.IOException;
+ import java.io.FileInputStream;
+ import java.lang.reflect.Array;
++import java.text.SimpleDateFormat;
++import java.util.Date;
+ import java.util.Vector;
+ import java.util.Enumeration;
+ import java.util.NoSuchElementException;
+@@ -347,5 +356,55 @@
+     return setFlag(flags, mask, false);
+   }
+ 
++  /**
++   * Write an object to disk.
++   *
++   * @param name name of file to write
++   * @param o object to write
++   * @throws IOException on any input error
++   */
++  public static void writeObject(String name, Object o) throws IOException
++  {
++    XMLEncoder e = new XMLEncoder(
++            new BufferedOutputStream(
++                new FileOutputStream(name)));
++    e.writeObject(o);
++    e.close();
++  }
++  
++  /**
++   * Write a simulation result to disk.
++   *
++   * @param name name of file to write
++   * @param o string to write
++   * @throws IOException on any input error
++   */
++  public static void writeResult(String name, String o) throws IOException
++  {
++      Date today = new Date();
++    BufferedWriter bw = new BufferedWriter(
++                new FileWriter(name, true)); // append to file if it exists
++    
++    SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd H:mm:ss");
++    String datenewformat = formatter.format(today);
++    
++    // append date to results
++    o = datenewformat +"\t"+o+"\n";
++    
++    bw.write(o);
++    bw.close();
++  }
++  
++public static Object readObject(String name) throws IOException
++{
++        XMLDecoder e = new XMLDecoder(
++                new BufferedInputStream(
++                    new FileInputStream(name)));
++        Object result = e.readObject();
++        e.close();
++        return result;
++        
++}
++  
+ } // class: Util
+ 

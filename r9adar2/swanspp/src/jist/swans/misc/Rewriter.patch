@@ -1,0 +1,180 @@
+Index: Rewriter.java
+===================================================================
+RCS file: /cvs-jist/code/src/jist/runtime/Rewriter.java,v
+retrieving revision 1.117
+diff -u -r1.117 Rewriter.java
+--- Rewriter.java	13 Mar 2005 16:11:54 -0000	1.117
++++ Rewriter.java	15 Jul 2005 18:37:33 -0000
+@@ -1,6 +1,6 @@
+ //////////////////////////////////////////////////
+ // JIST (Java In Simulation Time) Project
+-// Timestamp: <Rewriter.java Sun 2005/03/13 11:11:00 barr rimbase.rimonbarr.com>
++// Timestamp: <Rewriter.java Tue 2004/04/06 11:24:57 barr pompom.cs.cornell.edu>
+ //
+ 
+ // Copyright (C) 2004 by Cornell University
+@@ -24,7 +24,7 @@
+  * implementation uses the Apache Byte-Code Engineering Library (BCEL).
+  *
+  * @author Rimon Barr &lt;barr+jist@cs.cornell.edu&gt;
+- * @version $Id: Rewriter.patch,v 1.1 2007/04/09 18:49:19 drchoffnes Exp $
++ * @version $Id: Rewriter.patch,v 1.1 2007/04/09 18:49:19 drchoffnes Exp $
+  * @since JIST1.0
+  */
+ 
+@@ -88,7 +88,7 @@
+   /**
+    * Prefix for all classes to capture continuation state.
+    */
+-  public static final String JIST_CONTINUATION_STATE_PREFIX = "_jistcont";
++  public static final String JIST_CONTINUATION_STATE_PREFIX = "_jistContinuation";
+ 
+   /**
+    * Logger instance.
+@@ -155,28 +155,6 @@
+   }
+ 
+   /**
+-   * List of methods that are pre-defined to be continuable.
+-   */
+-  public static java.lang.reflect.Member[] continuableMethod;
+-
+-  static
+-  {
+-    try
+-    {
+-      continuableMethod = new java.lang.reflect.Method[]
+-      {
+-        // these won't be auto-detected b/c jist.runtime isIgnored()
+-        JistAPI_Impl.method_sleepBlock,
+-        JistAPI_Impl.method_sleepBlockAPI,
+-      };
+-    }
+-    catch(Exception e)
+-    {
+-      throw new JistException("show not happen", e);
+-    }
+-  }
+-
+-  /**
+    * List of methods that are pre-defined to have every method blocking.
+    */
+   public static final Class[] blockingClass = 
+@@ -199,6 +177,8 @@
+     "jargs.gnu.",
+     "bsh.",
+     "org.python.",
++    "org.apache.crimson.", // XMLDecoder stuff
++    "org.xml."
+   };
+ 
+   /**
+@@ -336,10 +316,6 @@
+         log.debug("Found blocking method (blockingMethod): "+getSignature(blockingMethod[i]));
+       }
+     }
+-    for(int i=0; i<continuableMethod.length; i++)
+-    {
+-      addContinuable(getSignature(continuableMethod[i]));
+-    }
+   }
+ 
+   //////////////////////////////////////////////////
+@@ -434,7 +410,7 @@
+         else
+         {
+           // skip rewritting
+-          if(log.isInfoEnabled())
++          if(log.isDebugEnabled())
+           {
+             log.info("** Rewriting class SKIPPED: "+name);
+           }
+@@ -474,7 +450,7 @@
+     jcl = Repository.lookupClass(name);
+     if(jcl==null) throw new ClassNotFoundException(name);
+     // process installed rewriters
+-    if(!(isIgnored(name) || isDoNotRewrite(jcl)))
++    if(!isIgnored(name))
+     {
+       for(int i=rewriters.size()-1; i>=0; i--)
+       {
+@@ -1038,7 +1014,6 @@
+   public boolean isEntity(JavaClass c) throws ClassNotFoundException
+   {
+     if(c==null) return false;
+-    if(c.isInterface()) return false;
+     return Util.contains(getInterfaceNames(c), JistAPI.Entity.class.getName());
+   }
+ 
+@@ -1083,7 +1058,7 @@
+   {
+     return Util.contains(getInterfaceNames(c), JistAPI.Timeless.class.getName())
+       || timelessHash.containsKey(c.getClassName());
+-    // todo: or, if a class is determined to be immutable by static analysis!
++    // rimtodo: or, if a class is determined to be immutable by static analysis!
+   }
+ 
+   /**
+@@ -1113,7 +1088,7 @@
+     {
+       return isTimeless(((ObjectType)type).getClassName());
+     }
+-    // todo: arrays allowed to pass as timeless
++    // rimtodo: arrays allowed to pass as timeless
+     // return !(type instanceof ArrayType);
+     return true;
+   }
+@@ -1563,7 +1538,7 @@
+       return mm.getDeclaringClass().getName()+"."+mm.getName()+
+         getSignature(mm.getParameterTypes(), null);
+     }
+-    throw new RuntimeException("invalid member type: "+m);
++    throw new RuntimeException("invalid member type");
+   }
+ 
+   /**
+@@ -1644,10 +1619,8 @@
+       cl = pkgDot.substring(pkgIndex+1);
+       pkgDot = pkgDot.substring(0, pkgIndex+1);
+     }
+-    return pkgDot+Rewriter.JIST_CONTINUATION_STATE_PREFIX+"_"
+-      +cl+"_"+mg.getName()
+-      +"_"+Integer.toHexString(Util.escapeJavaIdent(mg.getSignature()).hashCode())
+-      +"_"+pc;
++    return pkgDot+Rewriter.JIST_CONTINUATION_STATE_PREFIX+"_"+cl+"_"+mg.getName()+"_"+
++      Util.escapeJavaIdent(mg.getSignature().replace('/','.'))+"_"+pc;
+   }
+ 
+   /**
+@@ -2370,7 +2343,7 @@
+         if(NEWs<0) NEWs=0;
+       }
+     }
+-    // todo: sometimes the actual entity object (as opposed to the entity
++    // rimtodo: sometimes the actual entity object (as opposed to the entity
+     //   reference) is needed for this.x() calls, so search for non-entity
+     //   invocations, and convert back in those cases using local controller.
+   }
+@@ -3159,12 +3132,10 @@
+         return t;
+       case Constants.T_VOID:
+         throw new VerifyError("unexpected type: VOID");
+-      case Constants.T_ADDRESS:
+-        throw new VerifyError("cannot store return address in continuation: do you perhaps have a blocking call inside a finally clause?");
+       case Constants.T_UNKNOWN:
+         if(t instanceof UninitializedObjectType)
+         {
+-          throw new VerifyError("Unable to preserve continuation due to "+t.getSignature()+" on stack. Is your blocking call within a constructor call?");
++          return t;
+         }
+         return null;
+       default:
+@@ -3427,7 +3398,7 @@
+       }
+     }
+ 
+-    // todo: adjust exception handling regions
++    // rimtodo: adjust exception handling regions
+   }
+ 
+   /**

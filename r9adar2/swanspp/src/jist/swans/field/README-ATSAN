@@ -1,0 +1,29 @@
+SENDER: EMRE ATSAN
+	Koc University, Istanbul, Turkey.
+email: eatsan@gmail.com
+
+
+ - Replace Mobility.java! Usage of mobility models can be like below!(Assuming modified for new models aodvsim.java driver exists!) 
+	E.g. driver.aodvsim -m direction:velocity,pauseTime
+	     driver.aodvsim -m boundless:MaxVelocity:MaxAcceleration:deltaT:maxAngularChange
+
+-------------------CONTENTS---------------------------
+
+ - Implementations of two new mobility models: Random Direction [1] & Boundless Simulation Area Mobility Models [2]
+ - Correction of some minor typos (in Mobility.java) in the Jist/SWANS version 1.0.6.
+	- # Mobility.java -> RandomWalk.next()  : Nodes can go out of bounds at some point in the simulation. Details of this 		   bug are;
+		*TYPO #1: In the implementaiton of Random Walk model, in the method that determines the next location of the 				node, called next(FieldInterface f, Integer id, Location loc, MobilityInfo info) there is an 
+			if-statement that checks whether the next location is out of bounds:
+	              ...
+	                if(lx>bounds.getX()) lx = bounds.getX()-lx;
+	                if(ly>bounds.getY()) ly = bounds.getY()-ly;
+
+			In these statements, if the new value of lx or ly is greater than bounds.getX() or bounds.getY(), than we assign it a negative value! For example, if bounds=[250,250] and [lx,ly]=[300,80] than [lx,ly] becomes [lx,ly]=[250-300,80]=[-50,80]. Actually, this value is out of bounds, however there is no validation at the start of the next() method that checks loc.inside(bounds). So, simulation continues to work even if it is wrong. 
+
+
+
+References:
+
+[1] Z.J. Haas and M.R. Pearlman. The performance of query control schemes for the Zone Routing Protocol. In the Proc. of ACM SIGCOMM, Vancouver, Canada, Sept. 1998.
+
+[2] Z. J. Haas. A new routing protocol for reconfigurable wireless networks. Proc. IEEE International Conference on Universal Personal Communications (ICUPC), Oct. 1997.

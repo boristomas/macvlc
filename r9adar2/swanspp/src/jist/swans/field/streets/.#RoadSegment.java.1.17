@@ -1,0 +1,624 @@
+/*
+ * C3 Project - Car to Car Communication
+ * Created on Dec 7, 2004, by David Choffnes &lt;drchoffnes@cs.northwestern.edu&gt;
+ *
+ * Copyright 2004, David Choffnes. All rights reserved.
+ * 
+ */
+package jist.swans.field.streets;
+
+import jist.swans.misc.Location;
+import jist.swans.misc.Location.Location2D;
+import jist.runtime.JistAPI;
+import jist.swans.Constants;
+import jist.swans.field.StreetMobilityInfo;
+import jist.swans.field.StreetMobilityRandom.StreetMobilityInfoRandom;
+
+import java.util.HashMap;
+import java.util.Vector;
+import java.util.Iterator;
+import java.util.LinkedList;
+/**
+ * @author David Choffnes &lt;drchoffnes@cs.northwestern.edu&gt;
+ *
+ * The RoadSegment class contains information about a piece of road between two
+ * intersections. 
+ */
+public class RoadSegment {
+    
+    /** number of bytes in a road segment object */
+    public final int ROAD_SEGMENT_SIZE = 41;
+    int startAddressLeft;
+    int endAddressLeft;
+    int startAddressRight;
+    int endAddressRight;
+    int streetIndex;
+    int shapeIndex;
+    int selfIndex; // this segment's index in the array of segments
+    Location startPoint;
+    Location endPoint;
+    char roadClass;  // the two numbers after 'A'
+    
+    // variables for runtime functions
+    /** number of vehicles on segment */
+    int numberOfCars=0;
+    // TODO: number of lanes for start and end
+    /** number of lanes in each direction in segment */
+    int numberOfLanes;
+    /** length of road segment */
+    float length;
+    /** maximum number of cars allowed in each lane for segment */
+    int maxCars;
+    /** average vehicle length in meters, 
+     * from http://www.ite.org/traffic/documents/AB00H1903.pdf 
+    */
+    static final int CAR_LENGTH = 8;
+    /** stationary space between vehicles in meters */
+    static final int SPACE = 1;
+
+    
+    // TODO: make these an array of lists
+    /** contains queue of cars on road heading toward endPoint */
+    LinkedList carsToEnd[];
+    /** contains queue of cars on road heading toward startPoint */
+    LinkedList carsToStart[];    
+
+
+    /**
+     * 
+     */
+    public RoadSegment() {
+        startPoint=null;
+        endPoint=null;
+    }
+    
+    /**
+     * @param startAddressLeft
+     * @param endAddressLeft
+     * @param startAddressRight
+     * @param endAddressRight
+     * @param streetIndex
+     * @param shapeIndex
+     * @param startPoint
+     * @param endPoint
+     * @param roadClass
+     */
+    public RoadSegment(int startAddressLeft, int endAddressLeft,
+            int startAddressRight, int endAddressRight, int streetIndex,
+            int shapeIndex, Location startPoint, Location endPoint, int selfIndex,
+            char roadClass) {
+        super();
+        this.startAddressLeft = startAddressLeft;
+        this.endAddressLeft = endAddressLeft;
+        this.startAddressRight = startAddressRight;
+        this.endAddressRight = endAddressRight;
+        this.streetIndex = streetIndex;
+        this.shapeIndex = shapeIndex;
+        this.startPoint = startPoint;
+        this.selfIndex = selfIndex;
+        this.endPoint = endPoint;
+        this.roadClass = roadClass;
+        
+        // set number of lanes per segment
+        // Primary Road with limited access/ Interstate Highway - unseparated
+        if (roadClass >= 11 && roadClass <= 14)
+           numberOfLanes=3;
+
+        // Primary Road with limited access/ Interstate Highway - separated
+        else if (roadClass >= 15 && roadClass <= 18)
+            numberOfLanes=3;
+
+        // Primary Road without limited access/ US Highway - unseparated
+        else if (roadClass >= 21 && roadClass <= 24)
+            numberOfLanes=3;
+
+        // Primary Road without limited access / US Highway - separated
+        else if (roadClass >= 25 && roadClass <= 28)
+            numberOfLanes=3;
+
+        // Secondary and Connecting Roads / State Highways - unseparated
+        else if (roadClass >= 31 && roadClass <= 34)
+            numberOfLanes=2;
+
+        // Secondary and Connecting Roads / State Highways - separated
+        else if (roadClass >= 35 && roadClass <= 38)
+            numberOfLanes=2;
+        
+        // Local, Rural, Neighborhood / City Street - unseparated
+        else if (roadClass >= 41 && roadClass <= 44)
+            numberOfLanes=1;
+
+        // Local, Rural, Neighborhood / City Street - separated
+        else if (roadClass >= 45 && roadClass <= 48)
+            numberOfLanes=2;
+        // access ramp
+        else if (roadClass >=62 && roadClass <=63)
+            numberOfLanes=1;
+        else 
+        {
+           System.err.println("Unknown road class " + (int)roadClass + " encountered\n");
+           numberOfLanes=1;
+        }
+        
+        // TODO number of lanes per direction
+        carsToEnd = new LinkedList[numberOfLanes];
+        carsToStart = new LinkedList[numberOfLanes];
+        
+        for (int i = 0; i < numberOfLanes; i++)
+        {
+            carsToEnd[i] = new LinkedList();
+            carsToStart[i] = new LinkedList();
+        }
+    }
+    /**
+     * Returns a reference to the lane that the car was added to. The
+     * lane chosen is the one with the fewest cars.
+     * 
+     * @param node id of node added to list... must use 1-based number
+     * @param rsEnd The point at the end of the segment in the direction of motion
+     * @return
+     */
+    public LinkedList addNode(Integer node, Location rsEnd)
+    {
+    	int index = -1; 
+    	int minCars = 1000; // really big
+    	
+        if (rsEnd.distance(this.endPoint)==0)
+        {
+            for (int i = 0; i < numberOfLanes; i++)
+            {
+               if (carsToEnd[i].size() < minCars)
+               {
+                   minCars = carsToEnd[i].size();
+                   index = i;
+               }
+            }
+	        if (minCars <= maxCars)
+	        {
+	            carsToEnd[index].add(node);
+	            // TODO anything else?   
+	            return carsToEnd[index];
+	        }
+	        else // no room for car
+	        {
+	            return null;
+	        }
+        }
+        else
+        {
+            for (int i = 0; i < numberOfLanes; i++)
+            {
+               if (carsToStart[i].size() < minCars)
+               {
+                   minCars = carsToStart[i].size();
+                   index = i;
+               }
+            }
+	        if (minCars <= maxCars)
+	        {
+	            carsToStart[index].add(node);
+	            // TODO anything else?   
+	            return carsToStart[index];
+	        }
+	        else // no room for car
+	        {
+	            return null;
+	        }
+        }
+    }
+    
+    /**
+     * This function returns the speed limit (meters/second) of a road based on its class 
+     * as specified in the CFCC field of TIGER files.
+     */
+    public float getSpeedLimit()
+    {
+       // Primary Road with limited access/ Interstate Highway - unseparated
+       if (roadClass >= 11 && roadClass <= 14)
+          return 31.2928f;
+
+       // Primary Road with limited access/ Interstate Highway - separated
+       else if (roadClass >= 15 && roadClass <= 18)
+          return 35.7632f;
+
+       // Primary Road without limited access/ US Highway - unseparated
+       else if (roadClass >= 21 && roadClass <= 24)
+          return 20.1168f;
+
+       // Primary Road without limited access / US Highway - separated
+       else if (roadClass >= 25 && roadClass <= 28)
+          return 22.352f;
+
+       // Secondary and Connecting Roads / State Highways - unseparated
+       else if (roadClass >= 31 && roadClass <= 34)
+          return 20.1168f;
+
+       // Secondary and Connecting Roads / State Highways - separated
+       else if (roadClass >= 35 && roadClass <= 38)
+          return 22.352f;
+       
+       // Local, Rural, Neighborhood / City Street - unseparated
+       else if (roadClass >= 41 && roadClass <= 44)
+          return 11.176f;
+
+       // Local, Rural, Neighborhood / City Street - separated
+       else if (roadClass >= 45 && roadClass <= 48)
+          return 13.4112f;
+       // access ramp
+       else if (roadClass >=62 && roadClass <=63)
+           return 13.4112f;
+       else 
+          System.err.println("Unknown road class " + (int)roadClass + " encountered\n");
+       	  return 11.0f;
+    }
+
+    /**
+     * Returns the distance along a road segment
+     * @param point
+     * @return
+     */
+    public float getDistance(Shape sh)
+    {
+    	int numPoints;
+    	float d = 0;
+        
+        // handle straight line
+        if (sh == null)
+           return endPoint.distance(startPoint);
+        
+        // handle segment with shape points
+        else
+        {
+            
+           numPoints = sh.points.length;
+
+           d = startPoint.distance(sh.points[0]);
+           for (int i = 0; i < numPoints-1; i++)
+           {
+              d += sh.points[i].distance(sh.points[i+1]);   
+           }
+           d += sh.points[numPoints-1].distance(endPoint);
+           return d;
+        }
+        
+    }
+
+    /**
+     * Gets the pause time at an intersection, in seconds
+     * @param next the next road taken
+     * @return pause time in seconds
+     * TODO come up with more realistic estimates
+     */
+//    public int getPauseTime(RoadSegment next, int numberOfRoads,
+//            boolean stoplights, int pauseTime)
+//    {
+//    }
+    
+    /**
+     * @return Returns the endAddressLeft.
+     */
+    public int getEndAddressLeft() {
+        return endAddressLeft;
+    }
+    /**
+     * @param endAddressLeft The endAddressLeft to set.
+     */
+    public void setEndAddressLeft(int endAddressLeft) {
+        this.endAddressLeft = endAddressLeft;
+    }
+    /**
+     * @return Returns the endAddressRight.
+     */
+    public int getEndAddressRight() {
+        return endAddressRight;
+    }
+    /**
+     * @param endAddressRight The endAddressRight to set.
+     */
+    public void setEndAddressRight(int endAddressRight) {
+        this.endAddressRight = endAddressRight;
+    }
+    /**
+     * @return Returns the endPoint.
+     */
+    public Location getEndPoint() {
+        return endPoint;
+    }
+    /**
+     * @param endPoint The endPoint to set.
+     */
+    public void setEndPoint(Location endPoint) {
+        this.endPoint = endPoint;
+    }
+    /**
+     * @return Returns the roadClass.
+     */
+    public char getRoadClass() {
+        return roadClass;
+    }
+    /**
+     * @param roadClass The roadClass to set.
+     */
+    public void setRoadClass(char roadClass) {
+        this.roadClass = roadClass;
+    }
+    /**
+     * @return Returns the shapeIndex.
+     */
+    public int getShapeIndex() {
+        return shapeIndex;
+    }
+    /**
+     * @param shapeIndex The shapeIndex to set.
+     */
+    public void setShapeIndex(int shapeIndex) {
+        this.shapeIndex = shapeIndex;
+    }
+    /**
+     * @return Returns the startAddressLeft.
+     */
+    public int getStartAddressLeft() {
+        return startAddressLeft;
+    }
+    /**
+     * @param startAddressLeft The startAddressLeft to set.
+     */
+    public void setStartAddressLeft(int startAddressLeft) {
+        this.startAddressLeft = startAddressLeft;
+    }
+    /**
+     * @return Returns the startAddressRight.
+     */
+    public int getStartAddressRight() {
+        return startAddressRight;
+    }
+    /**
+     * @param startAddressRight The startAddressRight to set.
+     */
+    public void setStartAddressRight(int startAddressRight) {
+        this.startAddressRight = startAddressRight;
+    }
+    /**
+     * @return Returns the startPoint.
+     */
+    public Location getStartPoint() {
+        return startPoint;
+    }
+    /**
+     * @param startPoint The startPoint to set.
+     */
+    public void setStartPoint(Location startPoint) {
+        this.startPoint = startPoint;
+    }
+    /**
+     * @return Returns the streetIndex.
+     */
+    public int getStreetIndex() {
+        return streetIndex;
+    }
+    /**
+     * @param streetIndex The streetIndex to set.
+     */
+    public void setStreetIndex(int streetIndex) {
+        this.streetIndex = streetIndex;
+    }
+    /**
+     * @return Returns the selfIndex.
+     */
+    public int getSelfIndex() {
+        return selfIndex;
+    }
+    /**
+     * @param selfIndex The selfIndex to set.
+     */
+    public void setSelfIndex(int selfIndex) {
+        this.selfIndex = selfIndex;
+    }
+
+    /**
+     * @return Returns the length of the road segment.
+     */
+    public float getLength() {
+        return length;
+    }
+    /**
+     * Sets segment length and maximum number of cars in segment
+     * @param sh The shape describing the segment.
+     */
+    public void setLength(Shape sh) {
+        this.length = getDistance(sh);
+        this.maxCars = (int)Math.max((Math.floor(length/(CAR_LENGTH+SPACE))), 1);
+    }
+    /**
+     * @return Returns the numberOfCars.
+     */
+    public int getNumberOfCars() {
+        return numberOfCars;
+    }
+    /**
+     * @param numberOfCars The numberOfCars to set.
+     */
+    public void setNumberOfCars(int numberOfCars) {
+        this.numberOfCars = numberOfCars;
+    }
+    /**
+     * @return Returns the maxCars for a direction.
+     */
+    public int getMaxCars() {
+        return maxCars;
+    }
+    /**
+     * @param maxCars The maxCars to set.
+     */
+    public void setMaxCars(int maxCars) {
+        this.maxCars = maxCars;
+    }
+    /**
+     * @return Returns the numberOfLanes.
+     */
+    public int getNumberOfLanes() {
+        return numberOfLanes;
+    }
+    /**
+     * @param numberOfLanes The numberOfLanes to set.
+     */
+    public void setNumberOfLanes(int numberOfLanes) {
+        this.numberOfLanes = numberOfLanes;
+    }
+    /**
+     * @return Returns the lane with the fewest number of cars
+     * in this direction.
+     */
+    public LinkedList getCarsToEnd() {
+        int index = -1;
+        int minCars = 1000;
+        
+        for (int i = 0; i < numberOfLanes; i++)
+        {
+           if (carsToEnd[i].size() < minCars)
+           {
+               minCars = carsToEnd[i].size();
+               index = i;
+           }
+        }
+        return carsToEnd[index];
+    }
+    /**
+     * @return Returns the lane wit hthe fewest number of cars 
+     * in this direction.
+     */
+    public LinkedList getCarsToStart() {
+        int index = -1;
+        int minCars = 1000;
+        
+        for (int i = 0; i < numberOfLanes; i++)
+        {
+           if (carsToStart[i].size() < minCars)
+           {
+               minCars = carsToStart[i].size();
+               index = i;
+           }
+        }
+        return carsToStart[index];
+    }
+    
+    /**
+     * @return Returns the space between the front of a car and
+     * the front of the car behind it (when stopped).
+     */
+    public float getCarSpacing(float speed, float beta, float gamma) {
+        return (CAR_LENGTH+SPACE)+speed*beta+speed*speed*gamma;
+    }
+
+    /**
+     * 
+     * @param id node number to remove... must use 1-based number
+     * @param rsEnd
+     * @param mobInfo
+     */
+    public void removeNode(Integer id, LinkedList currentLane, Vector mobInfo) {
+        
+        if (currentLane.size() >0)
+        {
+            // make sure it's at the front of the queue
+            if (((Integer)currentLane.getFirst()).intValue() == id.intValue())
+            {
+                currentLane.remove(id);
+            }
+            else 
+            {
+            	System.err.println("Tried to remove: "+id);
+            	
+            	printCarList(currentLane, mobInfo);
+            	
+                throw new RuntimeException("Removed node that wasn't" 
+                        + " at front of queue");
+            }
+            // TODO anything else?   
+            return;
+        }
+        else // empty list
+        {
+        	System.err.println("Tried to remove: "+id+" from segment "+selfIndex );
+        	
+        	printCarList(currentLane, mobInfo);
+        	
+            throw new RuntimeException("Tried to remove from " +
+                    "empty list!");
+        }       
+
+    }
+    
+    public String printCarList(LinkedList currentLane, Vector mobInfo)
+    {
+
+    	Iterator it;
+		
+    	it = currentLane.iterator();
+    	String s = "";
+    	Integer car;
+    	StreetMobilityInfo smri;
+    	while (it.hasNext())
+    	{
+    		
+    		car = (Integer)it.next();
+    		smri = (StreetMobilityInfo)mobInfo.get(car.intValue()-1);
+    		
+    		s += car +" - remaining: "+smri.getRemainingDist()+
+			" - next: "+smri.getNextCar() + "\n";
+
+    		System.out.println(car +" - remaining: "+smri.getRemainingDist()+
+    				" - next: "+smri.getNextCar());
+    		
+    	}
+    	
+    	return s;
+    	
+    }
+
+    /**
+     * @return
+     */
+    public String printStreetName(HashMap streets) {
+        
+        return "(" + startAddressLeft + "/" + startAddressRight +") - (" +
+        "(" + endAddressLeft + "/" + endAddressRight +")" + 
+        ((StreetName)streets.get(new Integer(streetIndex))).toString() + " ["+ selfIndex +"] " +
+         startPoint + " - " + endPoint;
+    }
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals(Object obj) {
+        // TODO Auto-generated method stub
+        return ((RoadSegment)obj).selfIndex == this.selfIndex;
+    }
+
+    public int getLane(LinkedList currentLane) {
+        
+        LinkedList lanes[] = carsToEnd;
+        
+        for (int i = 0; i < lanes.length; i++)
+        {
+            if (currentLane.equals(lanes[i])) return i;
+        }
+        
+        lanes = carsToStart;
+        
+        for (int i = 0; i < lanes.length; i++)
+        {
+            if (currentLane.equals(lanes[i])) return i;
+        }
+        return -1;
+    }
+
+    /**
+     * Returns the number of directions for this road
+     * @return
+     */
+    public int getNumberOfDirections() {
+        // TODO update when support for one-way streets is included in 
+        // map data.
+        return 2;
+    }
+}

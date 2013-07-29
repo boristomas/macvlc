@@ -1,0 +1,57 @@
+--- Locationv106.java	2004-04-06 11:07:48.000000000 -0500
++++ Location.java	2005-07-13 09:16:36.366799500 -0500
+@@ -18,7 +18,7 @@ import jist.runtime.JistAPI;
+  * Location (of a node).
+  *
+  * @author Rimon Barr &lt;barr+jist@cs.cornell.edu&gt;
+- * @version $Id: Location.patch,v 1.1 2007/04/09 18:49:20 drchoffnes Exp $
++ * @version $Id: Location.patch,v 1.1 2007/04/09 18:49:20 drchoffnes Exp $
+  * @since SWANS1.0
+  */
+ 
+@@ -241,6 +241,17 @@ public abstract class Location implement
+       return "("+x+","+y+")";
+     }
+ 
++    /* (non-Javadoc)
++     * @see jist.swans.misc.Location#bearing(jist.swans.misc.Location)
++     */
++    public Location bearing(Location nextPoint) {
++        Location2D l2d = (Location2D)nextPoint;
++        float dx=l2d.x - x; 
++        float dy=l2d.y - y;
++        float dist = this.distance(nextPoint);
++        return new Location.Location2D(dx/dist, dy/dist);
++    }
++
+   } // class: Location2D
+ 
+   //////////////////////////////////////////////////
+@@ -341,7 +352,27 @@ public abstract class Location implement
+       return "("+x+","+y+","+z+")";
+     }
+ 
++    /* (non-Javadoc)
++     * @see jist.swans.misc.Location#bearing(jist.swans.misc.Location)
++     */
++    public Location bearing(Location nextPoint) {
++            Location3D l3d = (Location3D)nextPoint;
++            float dx=l3d.x - x; 
++            float dy=l3d.y - y;
++            float dz = l3d.z - z;
++            float dist = this.distance(nextPoint);
++            return new Location.Location3D(dx/dist, dy/dist, z/dist);
++
++    }
++
+   } // class Location3D
+ 
++/**
++ * Returns the normalized direction from the current point to the next point.
++ * @param nextPoint the destination location
++ * @return the normalized bearing for this segment
++ */
++public abstract Location bearing(Location nextPoint);
++
+ } // interface Location
+ 

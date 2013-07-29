@@ -1,0 +1,27 @@
+Index: Field.java
+===================================================================
+RCS file: /cvs-jist/code/src/jist/swans/field/Field.java,v
+retrieving revision 1.57
+diff -u -r1.57 Field.java
+--- Field.java	6 Apr 2004 16:07:47 -0000	1.57
++++ Field.java	25 Oct 2006 13:27:02 -0000
+@@ -230,6 +230,19 @@
+      * linked list pointers.
+      */
+     protected RadioData prev, next;
++    
++    public Location getLocation()
++    {
++        return loc;
++    }
++    
++    /**
++     * return mobility info, accessed by higher layers for routing use
++    */
++    public Mobility.MobilityInfo getMobilityInfo()
++    {
++        return mobilityInfo;
++    }
+ 
+   } // class: RadioData
+ 
