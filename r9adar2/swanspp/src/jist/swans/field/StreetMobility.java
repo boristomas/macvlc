@@ -1769,7 +1769,7 @@ public abstract class StreetMobility implements Mobility {
         float dy = distance * (end.getY() - start.getY())/hyp;
 
         //TESTING RADAR CLASS--- GET BEARING OF CURRENT NODE
-        Radar testRadar = new Radar(); 
+        VLC testRadar = new VLC(); 
         testRadar.origin = new Location.Location2D(start.getX(), start.getY()); 						//set the location of the radar on the map
         
         //may need to use smi.getEndPoint() to get the destination location

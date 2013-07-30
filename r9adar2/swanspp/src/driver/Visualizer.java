@@ -161,9 +161,9 @@ public class Visualizer implements VisualizerInterface
     
     /** image for cars */
     static Image carImage[] = new Image[]{java.awt.Toolkit.getDefaultToolkit().getImage(
-            "swanspp/driver/images/small-tt.jpg"), 
+            "driver/images/small-tt.jpg"), 
             java.awt.Toolkit.getDefaultToolkit().getImage(
-            "swanspp/driver/images/small-bug.jpg")};
+            "driver/images/small-bug.jpg")};
 	/**
 	 * Layered pane put into content pane.
 	 */

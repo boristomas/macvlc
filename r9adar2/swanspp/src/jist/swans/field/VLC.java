@@ -1,7 +1,7 @@
 package jist.swans.field;
 import jist.swans.misc.Location;
 
-public class Radar {
+public class VLC {
 	
 	float distanceLimit = 250; 	//distance limit the radar can see in front of it
 	int visionAngle = 30; 		//The viewing angle the of the radar, default is 30 degrees 
@@ -11,13 +11,13 @@ public class Radar {
 	Location cornerPoint2; 			//serving as the right most (x,y) point on the triange as looking away from the car with the radar installed
 	
 
-	Radar()										//constructor
+	VLC()										//constructor
 	{
 		this.distanceLimit = 250; 
 		this.visionAngle = 30; 
 	}
 	
-	Radar(Location origin, float distanceLimit, int visionAngle)		//overloaded constructor where can specificy the origin (point at which the vision angle is created), the distance limit of the radar, and the angle
+	VLC(Location origin, float distanceLimit, int visionAngle)		//overloaded constructor where can specificy the origin (point at which the vision angle is created), the distance limit of the radar, and the angle
 	{
 		this.origin = origin; 
 		this.distanceLimit = distanceLimit;
@@ -25,27 +25,27 @@ public class Radar {
 	}
 	
 	//getters--needed because we have created private fields.
-	public Location getBottomBoundaryPoint(Radar radar)				 
+	public Location getBottomBoundaryPoint(VLC radar)				 
 	{
 		return radar.cornerPoint1; 
 	}
 	
-	public Location getTopBoundaryPoint(Radar radar)
+	public Location getTopBoundaryPoint(VLC radar)
 	{
 		return radar.cornerPoint2; 
 	}
 	
-	public Location getOrigin(Radar radar)
+	public Location getOrigin(VLC radar)
 	{
 		return radar.origin; 
 	}
 	
-	public int getVisionAngle(Radar radar)
+	public int getVisionAngle(VLC radar)
 	{
 		return radar.visionAngle;
 	}
 
-	public float getDistanceLimit(Radar radar)
+	public float getDistanceLimit(VLC radar)
 	{
 		return radar.distanceLimit; 
 	}
