@@ -1769,13 +1769,13 @@ public abstract class StreetMobility implements Mobility {
         float dy = distance * (end.getY() - start.getY())/hyp;
 
         //TESTING RADAR CLASS--- GET BEARING OF CURRENT NODE
-        VLC testRadar = new VLC(); 
-        testRadar.origin = new Location.Location2D(start.getX(), start.getY()); 						//set the location of the radar on the map
+        VLC vlcDevice = new VLC(); 
+        vlcDevice.origin = new Location.Location2D(start.getX(), start.getY()); 						//set the location of the radar on the map
         
         //may need to use smi.getEndPoint() to get the destination location
-        float bearingAngle = testRadar.getBearing(testRadar.origin, end); 					//get the bearing between current location and destination
-        testRadar.cornerPoint1 = testRadar.getRadarCornerPoint(bearingAngle - (testRadar.visionAngle/2), testRadar.origin, testRadar.distanceLimit, testRadar.visionAngle);
-        testRadar.cornerPoint2 = testRadar.getRadarCornerPoint(bearingAngle + (testRadar.visionAngle/2), testRadar.origin, testRadar.distanceLimit, testRadar.visionAngle);
+        float bearingAngle = vlcDevice.getBearing(vlcDevice.origin, end); 					//get the bearing between current location and destination
+        vlcDevice.cornerPoint1 = vlcDevice.getVLCCornerPoint(bearingAngle - (vlcDevice.visionAngle/2), vlcDevice.origin, vlcDevice.distanceLimit, vlcDevice.visionAngle);
+        vlcDevice.cornerPoint2 = vlcDevice.getVLCCornerPoint(bearingAngle + (vlcDevice.visionAngle/2), vlcDevice.origin, vlcDevice.distanceLimit, vlcDevice.visionAngle);
 
         //get the neighbors of the vehicle within a certain distance radius
         PriorityList openList = new PriorityList();
@@ -1788,7 +1788,7 @@ public abstract class StreetMobility implements Mobility {
         AStarNode node = (AStarNode)openList.removeFirst(); 
 		
 		//List neighbors = node.getNeighbors();													//get the neighboring road segments to the current segment being traveled
-        List neighbors = node.getNeighbors(testRadar.origin, testRadar.distanceLimit);
+        List neighbors = node.getNeighbors(vlcDevice.origin, vlcDevice.distanceLimit);
 		
 		//for all neighbors within a certain radius away..
 		                     
@@ -1810,7 +1810,7 @@ public abstract class StreetMobility implements Mobility {
 		for(int ii=1;ii<numNodes; ii++) 
 		{
 			nodeLocations[ii] = jist.swans.field.Field.getRadioData(ii).getLocation();				
-			nodeVisibleToRadar[ii] = testRadar.visibleToRadar(nodeLocations[ii].getX(), nodeLocations[ii].getY(),testRadar.origin.getX(), testRadar.origin.getY(), testRadar.cornerPoint2.getX(), testRadar.cornerPoint2.getY(), testRadar.cornerPoint1.getX(), testRadar.cornerPoint1.getY());
+			nodeVisibleToRadar[ii] = vlcDevice.visibleToVLCdevice(nodeLocations[ii].getX(), nodeLocations[ii].getY(),vlcDevice.origin.getX(), vlcDevice.origin.getY(), vlcDevice.cornerPoint2.getX(), vlcDevice.cornerPoint2.getY(), vlcDevice.cornerPoint1.getX(), vlcDevice.cornerPoint1.getY());
 		}
 		//System.out.println("okay?");
 		
@@ -1866,7 +1866,7 @@ public abstract class StreetMobility implements Mobility {
 						carLocsForRadarToCheck[i] = ((StreetMobilityInfo) sm).pointAt(neighborSMI.current.getEndPoint(), neighborSMI, neighborSMI.remainingDist);
 						if(!carLocsForRadarToCheck[i].equals(null))
 						{
-								if(testRadar.visibleToRadar(carLocsForRadarToCheck[i].getX(), carLocsForRadarToCheck[i].getY(), testRadar.origin.getX(), testRadar.origin.getY(), testRadar.cornerPoint2.getX(), testRadar.cornerPoint2.getY(), testRadar.cornerPoint1.getX(), testRadar.cornerPoint1.getY()) == true)
+								if(vlcDevice.visibleToVLCdevice(carLocsForRadarToCheck[i].getX(), carLocsForRadarToCheck[i].getY(), vlcDevice.origin.getX(), vlcDevice.origin.getY(), vlcDevice.cornerPoint2.getX(), vlcDevice.cornerPoint2.getY(), vlcDevice.cornerPoint1.getX(), vlcDevice.cornerPoint1.getY()) == true)
 								{
 									detectedNeighbors++; 
 								}
@@ -1904,8 +1904,7 @@ public abstract class StreetMobility implements Mobility {
 		
 		SegmentNode.masterNeighborList = new LinkedList(); 									//reinitialize masterNeighborList so it is ready for the next move and let the garbage collector pick up the loose LinkedList.
 		
-        return new Location.Location2D(start.getX()+dx, 
-                start.getY()+dy);
+        return new Location.Location2D(start.getX()+dx, start.getY()+dy);
     }
     
     /**

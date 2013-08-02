@@ -62,6 +62,7 @@ import jist.swans.mac.Mac802_11;
 import jist.swans.mac.MacAddress;
 import jist.swans.mac.MacDumb;
 import jist.swans.mac.MacInterface;
+import jist.swans.mac.MacVLC;
 import jist.swans.misc.Location;
 import jist.swans.misc.Mapper;
 import jist.swans.misc.Message;
@@ -76,6 +77,7 @@ import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioNoise;
 import jist.swans.radio.RadioNoiseAdditive;
 import jist.swans.radio.RadioNoiseIndep;
+import jist.swans.radio.RadioVLC;
 import jist.swans.route.RouteAodv;
 import jist.swans.route.RouteDsr_Ns2;
 import jist.swans.route.RouteDsr;
@@ -129,6 +131,8 @@ public class GenericDriver {
 
         if (nodes != null) {
             // radio
+        	radio = new RadioVLC(i, radioInfo);
+        	/*
             switch (je.radioNoiseType) {
             case Constants.RADIO_NOISE_INDEP:
                 radio = new RadioNoiseIndep(i, radioInfo);
@@ -142,7 +146,7 @@ public class GenericDriver {
 
             default:
                 throw new RuntimeException("Invalid radio model!");
-            }
+            }*/
 
             // placement
             location = place.getNextLocation();
@@ -155,6 +159,7 @@ public class GenericDriver {
             field.startMobility(radio.getRadioInfo().getUnique().getID());
         } else // nodes that are not participating in transmission
          {
+        	//BT: should never happen.
             // radio
             radio = new RadioNoiseIndep(i, radioInfo);
             // placement
@@ -188,10 +193,11 @@ public class GenericDriver {
             }
         }
 
-        MacInterface mac = new Mac802_11(new MacAddress(i), radio.getRadioInfo());
+        MacInterface mac = new MacVLC(new MacAddress(i), radio.getRadioInfo());
         MacInterface macProxy = null;
-
-        switch (je.mac) {
+        macProxy = ((MacVLC)mac).getProxy();
+        
+        /*BT switch (je.mac) {
         case Constants.MAC_802_11:
             mac = new Mac802_11(new MacAddress(i), radio.getRadioInfo());
             ((Mac802_11) mac).setRadioEntity(radio.getProxy());
@@ -205,7 +211,7 @@ public class GenericDriver {
             macProxy = ((MacDumb) mac).getProxy();
 
             break;
-        }
+        }*/
 
         if (mobility instanceof StreetMobility) {
             StreetMobility sm = (StreetMobility) mobility;
@@ -217,10 +223,9 @@ public class GenericDriver {
         final NetAddress address = new NetAddress(i);
         NetIp net = new NetIp(address, protMap, inLoss, outLoss /*, ipStats*/);
 
-        if (je.mac == Constants.MAC_802_11) {
-            ((Mac802_11) mac).setNetEntity(net.getProxy(),
-                (byte) Constants.NET_INTERFACE_DEFAULT);
-        }
+        //BT if (je.mac == Constants.MAC_802_11) {
+            ((MacVLC)mac).setNetEntity(net.getProxy(), (byte) Constants.NET_INTERFACE_DEFAULT);
+       //BT }
 
         // transport
         TransUdp udp = new TransUdp();
@@ -229,9 +234,7 @@ public class GenericDriver {
         radio.setFieldEntity(field.getProxy());
         radio.setMacEntity(macProxy);
 
-        byte intId = net.addInterface(macProxy,
-                new MessageQueue.DropMessageQueue(Constants.NET_PRIORITY_NUM,
-                    300));
+        byte intId = net.addInterface(macProxy, new MessageQueue.DropMessageQueue(Constants.NET_PRIORITY_NUM,300));
         mac.setRadioEntity(radio.getProxy());
         mac.setNetEntity(net.getProxy(), intId);
         udp.setNetEntity(net.getProxy());

@@ -21,10 +21,8 @@ import jist.swans.misc.Mapper;
 import jist.swans.misc.Message;
 import jist.swans.misc.Util;
 import jist.swans.route.RouteInterface;
-
 import jist.swans.Constants;
 import jist.swans.Main;
-
 import jist.runtime.JistAPI;
 import jist.runtime.JistAPI.Continuation;
 
@@ -70,7 +68,8 @@ public class NetIp implements NetInterface
       * add packet to list of undelivered packets
       * @param msg The mesasge entity that was sent
       */
-     public void addPacket(NetMessage.Ip msg, MacAddress nextHop)
+     @SuppressWarnings("unchecked")
+	public void addPacket(NetMessage.Ip msg, MacAddress nextHop)
      {
      	packets.put(new Integer(msg.hashCode()), nextHop);
      }

@@ -3,21 +3,37 @@ import jist.swans.misc.Location;
 
 public class VLC {
 	
-	float distanceLimit = 250; 	//distance limit the radar can see in front of it
-	int visionAngle = 30; 		//The viewing angle the of the radar, default is 30 degrees 
+	//TODO: currently there is only one device but should be 4x2=8
+	float distanceLimit = 250; 	//distance limit the vlc device can see in front of it
+	int visionAngle = 60; 		//The viewing angle the of the vlc device, default is 60 degrees 
 	
-	Location origin; 					//serving as the (x,y) point closest to the vechicle as looking away from the car with the radar installed
-	Location cornerPoint1; 		//serving as the left most (x,y) point on the triangle as looking away from the car with the radar installed
-	Location cornerPoint2; 			//serving as the right most (x,y) point on the triange as looking away from the car with the radar installed
+	/**
+	 * serving as the (x,y) point closest to the vehicle as looking away from the car with the vlc device installed
+	 */
+	Location origin; 					
+	/**
+	 * serving as the left most (x,y) point on the triangle as looking away from the car with the vlc device installed
+	 */
+	Location cornerPoint1; 
+	/**
+	 * serving as the right most (x,y) point on the triangle as looking away from the car with the vlc device installed
+	 */
+	Location cornerPoint2; 			
 	
 
-	VLC()										//constructor
+	VLC() //constructor
 	{
 		this.distanceLimit = 250; 
-		this.visionAngle = 30; 
+		this.visionAngle = 60; 
 	}
 	
-	VLC(Location origin, float distanceLimit, int visionAngle)		//overloaded constructor where can specificy the origin (point at which the vision angle is created), the distance limit of the radar, and the angle
+	/**
+	 * overloaded constructor where can specify the origin (point at which the vision angle is created), the distance limit of the vlc device, and the angle
+	 * @param origin
+	 * @param distanceLimit
+	 * @param visionAngle
+	 */
+	VLC(Location origin, float distanceLimit, int visionAngle)		
 	{
 		this.origin = origin; 
 		this.distanceLimit = distanceLimit;
@@ -25,35 +41,35 @@ public class VLC {
 	}
 	
 	//getters--needed because we have created private fields.
-	public Location getBottomBoundaryPoint(VLC radar)				 
+	public Location getBottomBoundaryPoint(VLC vlcDevice)				 
 	{
-		return radar.cornerPoint1; 
+		return vlcDevice.cornerPoint1; 
 	}
 	
-	public Location getTopBoundaryPoint(VLC radar)
+	public Location getTopBoundaryPoint(VLC vlcDevice)
 	{
-		return radar.cornerPoint2; 
+		return vlcDevice.cornerPoint2; 
 	}
 	
-	public Location getOrigin(VLC radar)
+	public Location getOrigin(VLC vlcDevice)
 	{
-		return radar.origin; 
+		return vlcDevice.origin; 
 	}
 	
-	public int getVisionAngle(VLC radar)
+	public int getVisionAngle(VLC vlcDevice)
 	{
-		return radar.visionAngle;
+		return vlcDevice.visionAngle;
 	}
 
-	public float getDistanceLimit(VLC radar)
+	public float getDistanceLimit(VLC vlcDevice)
 	{
-		return radar.distanceLimit; 
+		return vlcDevice.distanceLimit; 
 	}
 	//**end getters
 	
 	/**
 	 * calculateBottomBoundaryPoint and calculateTopBoundaryPoint mostly used for testing and self discovery purposes. Not used in actual simulation.
-	 * The two methods will find corner points of a radar boundary and are predecessors for the getRadarBounds method 
+	 * The two methods will find corner points of a vlc device boundary and are predecessors for the getVLCBounds method 
 	 */
 	public Location calculateBottomBoundaryPoint(Location origin, float distanceLimit, int visionAngle)				//given an origin point, viewing distance and an angle, return the left boundary point 
 	{
@@ -61,7 +77,7 @@ public class VLC {
 		float xCoordinate = origin.getX() + distanceLimit; 
 		float yCoordinate = (float) (origin.getY() - (distanceLimit/(Math.tan(remainingAngle*Math.PI/180))));	
 		
-		cornerPoint1 = new Location.Location2D(xCoordinate, yCoordinate); 						//create a new location based on the coordinate
+		cornerPoint1 = new Location.Location2D(xCoordinate, yCoordinate); //create a new location based on the coordinate
 		
 		return cornerPoint1; 
 		
@@ -78,15 +94,15 @@ public class VLC {
 	}
 	
 	/**
-     * Is the location being checked visible to our radar system?
+     * Is the location being checked visible to vlc device?
      * 
      * @param p1,p2 are the coordinates to be checked corresponding to the x,y values
      * @param x1,y1 are the x,y coordinates of the first point on the triangle, probably the origin -- or starting location of the node/car
-     * @param x2,y2 are the x,y coordinates of the second point on the triangle, 1 corner point calculated by the getRadarBounds method
-     * @param x3,y3 are the x,y coordinates of the third point on the triangle, a second point calculated by the getRadarBounds method
-     * @return true/false of whether or not the location falls within our calculated radar bounds. 
+     * @param x2,y2 are the x,y coordinates of the second point on the triangle, 1 corner point calculated by the getVLCBounds method
+     * @param x3,y3 are the x,y coordinates of the third point on the triangle, a second point calculated by the getVLCBounds method
+     * @return true/false of whether or not the location falls within our calculated vlc bounds. 
      */
-	public boolean visibleToRadar(float p1, float p2, float x1, float y1, float x2, float y2, float x3, float y3)		
+	public boolean visibleToVLCdevice(float p1, float p2, float x1, float y1, float x2, float y2, float x3, float y3)		
 	{		
 		
 		if(tripletOrientation(x1,y1,x2,y2,p1,p2)*tripletOrientation(x1,y1,x2,y2,x3,y3)>0 && tripletOrientation(x2,y2,x3,y3,p1,p2)*tripletOrientation(x2,y2,x3,y3,x1,y1)>0 && tripletOrientation(x3,y3,x1,y1,p1,p2)*tripletOrientation(x3,y3,x1,y1,x2,y2)>0)
@@ -107,7 +123,7 @@ public class VLC {
 	/**
 	 * @param start is the starting point
 	 * @param end is the destination
-	 * returns an angle we call theta to discover the radar bounds via the getRadarBounds() method
+	 * returns an angle we call theta to discover the vlc device bounds via the getVLCBounds() method
 	 */
 	public float getBearing(Location start, Location end)
 	{
@@ -126,13 +142,13 @@ public class VLC {
 	}
 	
 	/**
-	 * This method will need to be called two times. Each call will detect one corner point of the radar's view
+	 * This method will need to be called two times. Each call will detect one corner point of the vlc device's view
 	 * @param theta: the angle of the bearing +- visionAngle
 	 * @param origin: starting point
-	 * @param distanceLimit: the max distance the radar can see
-	 * @param visionAngle: the angle at which the radar can see from the front of the car
+	 * @param distanceLimit: the max distance the vlc device can see
+	 * @param visionAngle: the angle at which the vlc device can see from the front of the car
 	 */
-	public Location getRadarCornerPoint(float theta, Location origin, float distanceLimit, int visionAngle)
+	public Location getVLCCornerPoint(float theta, Location origin, float distanceLimit, int visionAngle)
 	{
 		Location cornerPoint; 
 		int quadrant = 0; 
