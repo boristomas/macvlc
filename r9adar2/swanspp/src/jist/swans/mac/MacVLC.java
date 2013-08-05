@@ -9,22 +9,38 @@
 
 package jist.swans.mac;
 
+import java.awt.Color;
+import java.awt.Polygon;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.swing.JEditorPane;
 
 import driver.JistExperiment;
 import driver.Visualizer;
-
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.Main;
+import jist.swans.field.Field;
 import jist.swans.field.StreetMobility;
+import jist.swans.field.StreetMobilityInfo;
+import jist.swans.field.Mobility.MobilityInfo;
+import jist.swans.field.streets.RoadSegment;
+import jist.swans.field.streets.SegmentNode;
+import jist.swans.misc.AStarNode;
+import jist.swans.misc.Location;
 import jist.swans.misc.Message;
 import jist.swans.misc.Util;
+import jist.swans.misc.AStarSearch.PriorityList;
 import jist.swans.net.NetInterface;
 import jist.swans.net.NetMessage;
 import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioInterface;
 import jist.swans.route.RouteGPSR;
+import jist.swans.route.geo.LocationDatabase;
 import jist.swans.trans.TransUdp;
 
 /**
@@ -40,1344 +56,1487 @@ import jist.swans.trans.TransUdp;
 public class MacVLC implements MacInterface.Mac802_11
 {
 
-  ////////////////////////////////////////////////////
-  // short 802.11 lexicon:
-  //   slot - minimum time to sense medium
-  //   nav  - network allocation vector (virtual carrier sense)
-  //   sifs - short inter frame space
-  //   pifs - point coordination inter frame space
-  //   difs - distributed inter frame space
-  //   eifs - extended inter frame space
-  //   cw   - collision (avoidance) window
-  //   DSSS - Direct Sequence Spread spectrum
-  //   FHSS - Frequency Hopping Spread Spectrum
-  //
+	////////////////////////////////////////////////////
+	// short 802.11 lexicon:
+	//   slot - minimum time to sense medium
+	//   nav  - network allocation vector (virtual carrier sense)
+	//   sifs - short inter frame space
+	//   pifs - point coordination inter frame space
+	//   difs - distributed inter frame space
+	//   eifs - extended inter frame space
+	//   cw   - collision (avoidance) window
+	//   DSSS - Direct Sequence Spread spectrum
+	//   FHSS - Frequency Hopping Spread Spectrum
+	//
 
-  //////////////////////////////////////////////////
-  // constants
-  //
+	//////////////////////////////////////////////////
+	// constants
+	//
 
-  /** Physical specification constant: 802_11b-1999 Supplement 2_4GHz Direct Sequence. */
-  public static final boolean DSSS = true;
+	/** Physical specification constant: 802_11b-1999 Supplement 2_4GHz Direct Sequence. */
+	public static final boolean DSSS = true;
 
-  /** Physical specification constant: 802_11b-1999 2_4GHz Frequency Hopping. */
-  public static final boolean FHSS = false;
-  static
-  {
-    if(!DSSS ^ FHSS)
-    {
-      throw new RuntimeException("select either DSSS or FHSS");
-    }
-  }
+	/** Physical specification constant: 802_11b-1999 2_4GHz Frequency Hopping. */
+	public static final boolean FHSS = false;
+	static
+	{
+		if(!DSSS ^ FHSS)
+		{
+			throw new RuntimeException("select either DSSS or FHSS");
+		}
+	}
 
-  /** Length of PHY preamble. */
-  public static final long PREAMBLE = 144;
-  /** Length of short PHY preamble.*/
-  public static final long PREAMBLE_SHORT = 72;
+	/** Length of PHY preamble. */
+	public static final long PREAMBLE = 144;
+	/** Length of short PHY preamble.*/
+	public static final long PREAMBLE_SHORT = 72;
 
-  /** Length of PLCP Header in bits. */
-  public static final long PLCP_HEADER = 48;
+	/** Length of PLCP Header in bits. */
+	public static final long PLCP_HEADER = 48;
 
-  /** PHY synchronization bits. */
-  public static final long SYNCHRONIZATION_SHORT = PREAMBLE_SHORT + PLCP_HEADER;
+	/** PHY synchronization bits. */
+	public static final long SYNCHRONIZATION_SHORT = PREAMBLE_SHORT + PLCP_HEADER;
 
-  /** PHY synchronization bits. */
-  public static final long SYNCHRONIZATION = PREAMBLE + PLCP_HEADER;
-  /** Receive-Transmit turnaround time. */
-  public static final long RX_TX_TURNAROUND = 5*Constants.MICRO_SECOND;
+	/** PHY synchronization bits. */
+	public static final long SYNCHRONIZATION = PREAMBLE + PLCP_HEADER;
+	/** Receive-Transmit turnaround time. */
+	public static final long RX_TX_TURNAROUND = 5*Constants.MICRO_SECOND;
 
-  /** Air propagation delay. */
-  public static final long PROPAGATION = Constants.MICRO_SECOND;
+	/** Air propagation delay. */
+	public static final long PROPAGATION = Constants.MICRO_SECOND;
 
-  /** Minimum time to sense medium. */
-  public static final long SLOT_TIME;
-  static
-  {
-    if(DSSS) SLOT_TIME = 20*Constants.MICRO_SECOND;
-    if(FHSS) SLOT_TIME = 50*Constants.MICRO_SECOND;
-  }
+	/** Minimum time to sense medium. */
+	public static final long SLOT_TIME;
+	static
+	{
+		if(DSSS) SLOT_TIME = 20*Constants.MICRO_SECOND;
+		if(FHSS) SLOT_TIME = 50*Constants.MICRO_SECOND;
+	}
 
-  /**
-   * Short interframe space. Minimum wait time between two frames in the same
-   * communication session.
-   */
-  public static final long SIFS;
-  static
-  {
-    if(DSSS) SIFS = 10*Constants.MICRO_SECOND;
-    if(FHSS) SIFS = 28*Constants.MICRO_SECOND;
-  }
+	/**
+	 * Short interframe space. Minimum wait time between two frames in the same
+	 * communication session.
+	 */
+	public static final long SIFS;
+	static
+	{
+		if(DSSS) SIFS = 10*Constants.MICRO_SECOND;
+		if(FHSS) SIFS = 28*Constants.MICRO_SECOND;
+	}
 
-  /**
-   * Point coordination inter frame space. Wait used by the access point (point
-   * coordinator) to gain access to the medium before any of the stations.
-   */
-  public static final long PIFS = SIFS + SLOT_TIME;
+	/**
+	 * Point coordination inter frame space. Wait used by the access point (point
+	 * coordinator) to gain access to the medium before any of the stations.
+	 */
+	public static final long PIFS = SIFS + SLOT_TIME;
 
-  /**
-   * Distributed inter frame space. Wait used by stations to gain access to the medium.
-   */
-  public static final long DIFS = SIFS + 2*SLOT_TIME;
+	/**
+	 * Distributed inter frame space. Wait used by stations to gain access to the medium.
+	 */
+	public static final long DIFS = SIFS + 2*SLOT_TIME;
 
-  /** Transmit start SIFS. */
-  public static final long TX_SIFS = SIFS - RX_TX_TURNAROUND;
+	/** Transmit start SIFS. */
+	public static final long TX_SIFS = SIFS - RX_TX_TURNAROUND;
 
-  /** Transmit start DIFS. */
-  public static final long TX_DIFS = DIFS - RX_TX_TURNAROUND;
+	/** Transmit start DIFS. */
+	public static final long TX_DIFS = DIFS - RX_TX_TURNAROUND;
 
-  /**
-   * Extended inter frame space. Wait used by stations to gain access to the
-   * medium after an error.
-   */
-  public static final long EIFS = SIFS + DIFS + SYNCHRONIZATION*(Constants.SECOND/JistExperiment.getJistExperiment().getBandwidth()) +
-    8*MacMessage.Ack.SIZE*Constants.MICRO_SECOND;
+	/**
+	 * Extended inter frame space. Wait used by stations to gain access to the
+	 * medium after an error.
+	 */
+	public static final long EIFS = SIFS + DIFS + SYNCHRONIZATION*(Constants.SECOND/JistExperiment.getJistExperiment().getBandwidth()) +
+			8*MacMessage.Ack.SIZE*Constants.MICRO_SECOND;
 
-  /**
-   * Threshold packet size to activate RTS. Default=3000. Broadcast packets
-   * never use RTS. Set to zero to always use RTS.
-   */ 
-  public static final int THRESHOLD_RTS = 3000;
+	/**
+	 * Threshold packet size to activate RTS. Default=3000. Broadcast packets
+	 * never use RTS. Set to zero to always use RTS.
+	 */ 
+	public static final int THRESHOLD_RTS = 3000;
 
-  /**
-   * Threshold packet size for fragmentation. Default=2346. Broadcast packets
-   * are not fragmented.
-   */
-  public static final int THRESHOLD_FRAGMENT = 2346;
+	/**
+	 * Threshold packet size for fragmentation. Default=2346. Broadcast packets
+	 * are not fragmented.
+	 */
+	public static final int THRESHOLD_FRAGMENT = 2346;
 
-  /** Retransmissions attempted for short packets (those without RTS). */
-  public static final byte RETRY_LIMIT_SHORT = 7;
+	/** Retransmissions attempted for short packets (those without RTS). */
+	public static final byte RETRY_LIMIT_SHORT = 7;
 
-  /** Retransmissions attempted for long packets (those with RTS). */
-  public static final byte RETRY_LIMIT_LONG  = 4;
+	/** Retransmissions attempted for long packets (those with RTS). */
+	public static final byte RETRY_LIMIT_LONG  = 4;
 
-  /** Minimum collision window (for backoff). */
-  public static final short CW_MIN;
-  static
-  {
-    if(DSSS) CW_MIN = 31;
-    if(FHSS) CW_MIN = 15;
-  }
-  
-  /** Maximum collision window (for backoff). */
-  public static final short CW_MAX = 1023;
+	/** Minimum collision window (for backoff). */
+	public static final short CW_MIN;
+	static
+	{
+		if(DSSS) CW_MIN = 31;
+		if(FHSS) CW_MIN = 15;
+	}
 
-  /** Invalid sequence number. */
-  public static final short SEQ_INVALID = -1;
+	/** Maximum collision window (for backoff). */
+	public static final short CW_MAX = 1023;
 
-  /** Sequence number cache size. */
-  public static final short SEQ_CACHE_SIZE = 5;
+	/** Invalid sequence number. */
+	public static final short SEQ_INVALID = -1;
 
-  // mac modes
+	/** Sequence number cache size. */
+	public static final short SEQ_CACHE_SIZE = 5;
 
-  /** mac mode: idle. */
-  public static final byte MAC_MODE_SIDLE          = 0;
-  /** mac mode: waiting for difs or eifs timer. */
-  public static final byte MAC_MODE_DIFS           = 1;
-  /** mac mode: waiting for backoff. */
-  public static final byte MAC_MODE_SBO            = 2;
-  /** mac mode: waiting for virtual carrier sense. */
-  public static final byte MAC_MODE_SNAV           = 3;
-  /** mac mode: waiting for virtual carrier sense to RTS. */
-  public static final byte MAC_MODE_SNAV_RTS       = 4;
-  /** mac mode: waiting for CTS packet. */
-  public static final byte MAC_MODE_SWFCTS         = 5;
-  /** mac mode: waiting for DATA packet. */
-  public static final byte MAC_MODE_SWFDATA        = 6;
-  /** mac mode: waiting for ACK packet. */
-  public static final byte MAC_MODE_SWFACK         = 7;
-  /** mac mode: transmitting RTS packet. */
-  public static final byte MAC_MODE_XRTS           = 8;
-  /** mac mode: transmitting CTS packet. */
-  public static final byte MAC_MODE_XCTS           = 9;
-  /** mac mode: transmitting unicast DATA packet. */
-  public static final byte MAC_MODE_XUNICAST       = 10;
-  /** mac mode: transmitting broadcast DATA packet. */
-  public static final byte MAC_MODE_XBROADCAST     = 11;
-  /** mac mode: transmitting ACK packet. */
-  public static final byte MAC_MODE_XACK           = 12;
+	// mac modes
 
-  public static String getModeString(byte mode)
-  {
-    switch(mode)
-    {
-      case MAC_MODE_SIDLE: return "IDLE";
-      case MAC_MODE_DIFS: return "DIFS";
-      case MAC_MODE_SBO: return "BO";
-      case MAC_MODE_SNAV: return "NAV";
-      case MAC_MODE_SNAV_RTS: return "NAV_RTS";
-      case MAC_MODE_SWFCTS: return "WF_CTS";
-      case MAC_MODE_SWFDATA: return "WF_DATA";
-      case MAC_MODE_SWFACK: return "WF_ACK";
-      case MAC_MODE_XRTS: return "X_RTS";
-      case MAC_MODE_XCTS: return "X_CTS";
-      case MAC_MODE_XUNICAST: return "X_UNICAST";
-      case MAC_MODE_XBROADCAST: return "X_BROADCAST";
-      case MAC_MODE_XACK: return "X_ACK";
-      default: throw new RuntimeException("unknown mode: "+mode);
-    }
-  }
+	/** mac mode: idle. */
+	public static final byte MAC_MODE_SIDLE          = 0;
+	/** mac mode: waiting for difs or eifs timer. */
+	public static final byte MAC_MODE_DIFS           = 1;
+	/** mac mode: waiting for backoff. */
+	public static final byte MAC_MODE_SBO            = 2;
+	/** mac mode: waiting for virtual carrier sense. */
+	public static final byte MAC_MODE_SNAV           = 3;
+	/** mac mode: waiting for virtual carrier sense to RTS. */
+	public static final byte MAC_MODE_SNAV_RTS       = 4;
+	/** mac mode: waiting for CTS packet. */
+	public static final byte MAC_MODE_SWFCTS         = 5;
+	/** mac mode: waiting for DATA packet. */
+	public static final byte MAC_MODE_SWFDATA        = 6;
+	/** mac mode: waiting for ACK packet. */
+	public static final byte MAC_MODE_SWFACK         = 7;
+	/** mac mode: transmitting RTS packet. */
+	public static final byte MAC_MODE_XRTS           = 8;
+	/** mac mode: transmitting CTS packet. */
+	public static final byte MAC_MODE_XCTS           = 9;
+	/** mac mode: transmitting unicast DATA packet. */
+	public static final byte MAC_MODE_XUNICAST       = 10;
+	/** mac mode: transmitting broadcast DATA packet. */
+	public static final byte MAC_MODE_XBROADCAST     = 11;
+	/** mac mode: transmitting ACK packet. */
+	public static final byte MAC_MODE_XACK           = 12;
 
-  //////////////////////////////////////////////////
-  // locals
-  //
+	public static String getModeString(byte mode)
+	{
+		switch(mode)
+		{
+		case MAC_MODE_SIDLE: return "IDLE";
+		case MAC_MODE_DIFS: return "DIFS";
+		case MAC_MODE_SBO: return "BO";
+		case MAC_MODE_SNAV: return "NAV";
+		case MAC_MODE_SNAV_RTS: return "NAV_RTS";
+		case MAC_MODE_SWFCTS: return "WF_CTS";
+		case MAC_MODE_SWFDATA: return "WF_DATA";
+		case MAC_MODE_SWFACK: return "WF_ACK";
+		case MAC_MODE_XRTS: return "X_RTS";
+		case MAC_MODE_XCTS: return "X_CTS";
+		case MAC_MODE_XUNICAST: return "X_UNICAST";
+		case MAC_MODE_XBROADCAST: return "X_BROADCAST";
+		case MAC_MODE_XACK: return "X_ACK";
+		default: throw new RuntimeException("unknown mode: "+mode);
+		}
+	}
 
-  // entity hookup
-  /** Self-referencing mac entity reference. */
-  protected final MacInterface.Mac802_11 self;
-  /** Radio downcall entity reference. */
-  protected RadioInterface radioEntity;
-  /** Network upcall entity interface. */
-  protected NetInterface netEntity;
-  /** network interface number. */
-  protected byte netId;
+	//////////////////////////////////////////////////
+	// locals
+	//
 
-  // properties
+	// entity hookup
+	/** Self-referencing mac entity reference. */
+	protected final MacInterface.Mac802_11 self;
+	/** Radio downcall entity reference. */
+	protected RadioInterface radioEntity;
+	/** Network upcall entity interface. */
+	protected NetInterface netEntity;
+	/** network interface number. */
+	protected byte netId;
 
-  /** link bandwidth (units: bytes/second). */
-  protected final int bandwidth;
+	// properties
 
-  /** mac address of this interface. */
-  protected MacAddress localAddr;
+	/** link bandwidth (units: bytes/second). */
+	protected final int bandwidth;
 
-  /** whether mac is in promiscuous mode. */
-  protected boolean promisc;
+	/** mac address of this interface. */
+	protected MacAddress localAddr;
 
-  // status
+	/** whether mac is in promiscuous mode. */
+	protected boolean promisc;
 
-  /** current mac mode. */
-  protected byte mode;
+	// status
 
-  /** radio mode used for carrier sense. */
-  protected byte radioMode;
+	/** current mac mode. */
+	protected byte mode;
 
-  /** whether last reception had an error. */
-  protected boolean needEifs;
+	/** radio mode used for carrier sense. */
+	protected byte radioMode;
 
-  // timer
+	/** whether last reception had an error. */
+	protected boolean needEifs;
 
-  /** timer identifier. */
-  protected byte timerId;
+	// timer
 
-  // backoff
+	/** timer identifier. */
+	protected byte timerId;
 
-  /** backoff time remaining. */
-  protected long bo;
+	// backoff
 
-  /** backoff start time. */
-  protected long boStart;
+	/** backoff time remaining. */
+	protected long bo;
 
-  /** current contention window size. */
-  protected short cw;
+	/** backoff start time. */
+	protected long boStart;
 
-  // nav
+	/** current contention window size. */
+	protected short cw;
 
-  /** virtual carrier sense; next time when network available. */
-  protected long nav;
+	// nav
 
-  // sequence numbers
+	/** virtual carrier sense; next time when network available. */
+	protected long nav;
 
-  /** sequence number counter. */
-  protected short seq;
+	// sequence numbers
 
-  /** received sequence number cache list. */
-  protected SeqEntry seqCache;
+	/** sequence number counter. */
+	protected short seq;
 
-  /** size of received sequence number cache list. */
-  protected byte seqCacheSize;
+	/** received sequence number cache list. */
+	protected SeqEntry seqCache;
 
-  // retry counts
+	/** size of received sequence number cache list. */
+	protected byte seqCacheSize;
 
-  /** short retry counter. */
-  protected byte shortRetry;
+	// retry counts
 
-  /** long retry counter. */
-  protected byte longRetry;
+	/** short retry counter. */
+	protected byte shortRetry;
 
-  // current packet
+	/** long retry counter. */
+	protected byte longRetry;
 
-  /** packet currently being transmitted. */
-  protected Message packet;
+	// current packet
 
-  /** next hop of packet current being transmitted. */
-  protected MacAddress packetNextHop;
+	/** packet currently being transmitted. */
+	protected Message packet;
 
-  
-  /** hook-up to MobilityInfo */
-  protected StreetMobility sm =null;
+	/** next hop of packet current being transmitted. */
+	protected MacAddress packetNextHop;
 
-private double airTime;
 
-// stats
-/** collects network stats */
-public static MacStats stats = new MacStats();
+	/** hook-up to MobilityInfo */
+	protected StreetMobility sm =null;
 
-/** mapping of dropped packet type to counts */
+	private double airTime;
+
+	// stats
+	/** collects network stats */
+	public static MacStats stats = new MacStats();
+
+	/** mapping of dropped packet type to counts */
 	protected HashMap droppedPackets;
 
 
-  //////////////////////////////////////////////////
-  // initialization 
-  //
-
-  /**
-   * Instantiate new 802_11b entity.
-   *
-   * @param addr local mac address
-   * @param radioInfo radio properties
-   * @param newstats mac stats object
-   */
-  public MacVLC(MacAddress addr, RadioInfo radioInfo, 
-          boolean promisc)
-  {
-//    stats = newStats;
-    droppedPackets = new HashMap();
-    // properties
-    bandwidth = radioInfo.getShared().getBandwidth() / 8;
-
-    // proxy
-    self = (MacInterface.Mac802_11)JistAPI.proxy(this, MacInterface.Mac802_11.class);
-    
-    init(addr, radioInfo, promisc);
-  }  
-  
-  /**
-   * Instantiate new 802_11b entity.
-   *
-   * @param addr local mac address
-   * @param radioInfo radio properties
-   */
-  public MacVLC(MacAddress addr, RadioInfo radioInfo)
-  {
-	  
-      bandwidth = radioInfo.getShared().getBandwidth() / 8;
-      // proxy
-      self = (MacInterface.Mac802_11)JistAPI.proxy(this, MacInterface.Mac802_11.class);
-      init(addr, radioInfo, Constants.MAC_PROMISCUOUS_DEFAULT);
-  }
-  
-  void init(MacAddress addr, RadioInfo radioInfo, boolean promisc)
-  {
-      
-      // properties
-
-      localAddr = addr;
-      this.promisc = promisc;
-      // status
-      mode = MAC_MODE_SIDLE;
-      radioMode = Constants.RADIO_MODE_IDLE;
-      needEifs = false;
-      // timer identifier
-      timerId = 0;
-      // backoff
-      bo = 0;
-      boStart = 0;
-      cw = CW_MIN;
-      // virtual carrier sense
-      nav = -1;
-      // sequence numbers
-      seq = 0;
-      seqCache = null;
-      seqCacheSize = 0;
-      // retry counts
-      shortRetry = 0;
-      longRetry = 0;
-      // current packet
-      packet = null;
-      packetNextHop = null;
-
-  }
-
-  //////////////////////////////////////////////////
-  // entity hookup
-  //
-
-  /**
-   * Return proxy entity of this mac.
-   *
-   * @return self-referencing proxy entity.
-   */
-  public MacInterface.Mac802_11 getProxy()
-  {
-    return this.self;
-  }
-
-  /**
-   * Hook up with the radio entity.
-   *
-   * @param radio radio entity
-   */
-  public void setRadioEntity(RadioInterface radio)
-  {
-    if(!JistAPI.isEntity(radio)) throw new IllegalArgumentException("expected entity");
-    this.radioEntity = radio;
-  }
-
-  /**
-   * Hook up with the network entity.
-   *
-   * @param net network entity
-   * @param netid network interface number
-   */
-  public void setNetEntity(NetInterface net, byte netid)
-  {
-    if(!JistAPI.isEntity(net)) throw new IllegalArgumentException("expected entity");
-    this.netEntity = net;
-    this.netId = netid;
-  }
-
-  //////////////////////////////////////////////////
-  // accessors
-  //
-
-  /**
-   * Set promiscuous mode (whether to pass all packets through).
-   *
-   * @param promisc promiscuous flag
-   */
-  public void setPromiscuous(boolean promisc)
-  {
-    this.promisc = promisc;
-  }
-
-  //////////////////////////////////////////////////
-  // mac states
-  //
-
-  /**
-   * Set the current mac mode.
-   *
-   * @param mode new mac mode
-   */
-  private void setMode(byte mode)
-  {
-    this.mode = mode;
-  }
-
-  /**
-   * Return whether the mac is currently waiting for a response.
-   *
-   * @return whether mac waiting for response
-   */
-  public boolean isAwaitingResponse()
-  {
-    switch(mode)
-    {
-      case MAC_MODE_SWFCTS:
-      case MAC_MODE_SWFDATA:
-      case MAC_MODE_SWFACK:
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  /**
-   * Return whether the mac is currently transmitting.
-   *
-   * @return whether mac is currently transmitting
-   */
-  public boolean isTransmitting()
-  {
-    switch(mode)
-    {
-      case MAC_MODE_XRTS:
-      case MAC_MODE_XCTS:
-      case MAC_MODE_XUNICAST:
-      case MAC_MODE_XBROADCAST:
-      case MAC_MODE_XACK:
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  //////////////////////////////////////////////////
-  // packet queries
-  //
-
-  /**
-   * Return whether mac currently has a packet to send.
-   *
-   * @return whether mac has packet to send.
-   */
-  public boolean hasPacket()
-  {
-    return packet!=null;
-  }
-
-  /**
-   * Return whether current packet is to be broadcast.
-   *
-   * @return whether current packet is to be broadcast.
-   */
-  private boolean isBroadcast()
-  {
-    return MacAddress.ANY.equals(packetNextHop);
-  }
-
-  /**
-   * Return whether current packet large enough to require RTS.
-   *
-   * @return does current packet require RTS.
-   */
-  private boolean shouldRTS()
-  {
-    return packet.getSize()>THRESHOLD_RTS && !isBroadcast();
-  }
-
-  /**
-   * Return whether current packet requires fragmentation.
-   *
-   * @return does current packet require fragmentation.
-   */
-  private boolean shouldFragment()
-  {
-    return packet.getSize()>THRESHOLD_FRAGMENT && !isBroadcast();
-  }
-
-  /**
-   * Compute packet transmission time at current bandwidth.
-   *
-   * @param msg packet to transmit
-   * @return time to transmit given packet at current bandwidth
-   */
-  private long transmitTime(Message msg)
-  {
-    int size = msg.getSize();
-    if(size==Constants.ZERO_WIRE_SIZE)
-    {
-      return Constants.EPSILON_DELAY;
-    }
-    return (SYNCHRONIZATION + size) * Constants.SECOND/bandwidth;
-  }
-
-  //////////////////////////////////////////////////
-  // backoff
-  //
-
-  /**
-   * Return whether there is a backoff.
-   *
-   * @return whether backoff non-zero.
-   */
-  private boolean hasBackoff()
-  {
-    return bo > 0;
-  }
-
-  /**
-   * Reset backoff counter to zero.
-   */
-  private void clearBackoff()
-  {
-    bo = 0;
-  }
-
-  /**
-   * Set new random backoff, if current backoff timer has elapsed.
-   */
-  private void setBackoff()
-  {
-    if(!hasBackoff())
-    {
-      bo = Constants.random.nextInt(cw) * SLOT_TIME;
-    }
-  }
-
-  /**
-   * Pause the current backoff (invoked when the channel becomes busy).
-   */
-  private void pauseBackoff()
-  {
-    bo -= JistAPI.getTime() - boStart;
-    if(Main.ASSERT) Util.assertion(bo>=0);
-  }
-
-  /**
-   * Perform backoff.
-   */
-  private void backoff()
-  {
-    if(Main.ASSERT) Util.assertion(bo>=0);
-    boStart = JistAPI.getTime();
-    startTimer(bo, MAC_MODE_SBO);
-  }
-
-  /**
-   * Increase Collision Window.
-   */
-  private void incCW()
-  {
-    cw = (short)Math.min(2*cw+1, CW_MAX);
-  }
-
-  /**
-   * Decrease Collision Windows.
-   */
-  private void decCW()
-  {
-    cw = CW_MIN;
-  }
-
-  //////////////////////////////////////////////////
-  // nav
-  //
-
-  /**
-   * Return whether the virtual carrier sense (network allocation vector)
-   * indicates that the channel is reserved.
-   *
-   * @return virtual carrier sense
-   */
-  private boolean waitingNav()
-  {
-    return nav > JistAPI.getTime();
-  }
-
-  /**
-   * Clear the virtual carrier sense (network allocation vector).
-   */
-  private void resetNav()
-  {
-    nav = -1;
-  }
-
-  /**
-   * Determine whether channel is idle according to both physical and virtual
-   * carrier sense.
-   *
-   * @return physical and virtual carrier sense
-   */
-  private boolean isCarrierIdle()
-  {
-    return !waitingNav() && isRadioIdle();
-  }
-
-  //////////////////////////////////////////////////
-  // sequence numbers
-  //
-
-  /**
-   * Local class to used manage sequence number records.
-   */
-  private static class SeqEntry
-  {
-    /** src node address. */
-    public MacAddress from = MacAddress.NULL;
-    /** sequence number. */
-    public short seq = 0;
-    /** next record. */
-    public SeqEntry next = null;
-  }
-
-  /**
-   * Increment local sequence counter.
-   *
-   * @return new sequence number.
-   */
-  private short incSeq()
-  {
-    seq = (short)((seq+1)%MacMessage.Data.MAX_SEQ);
-    return seq;
-  }
-
-  /**
-   * Return latest seen sequence number from given address.
-   *
-   * @param from source address
-   * @return latest sequence number from given address
-   */
-  private short getSeqEntry(MacAddress from)
-  {
-    SeqEntry curr = seqCache, prev = null;
-    short seq = SEQ_INVALID;
-    while(curr!=null)
-    {
-      if(from.equals(curr.from))
-      {
-        seq = curr.seq;
-        if(prev!=null)
-        {
-          prev.next = curr.next;
-          curr.next = seqCache;
-          seqCache = curr;
-        }
-        break;
-      }
-      prev = curr;
-      curr = curr.next;
-    }
-    return seq;
-  }
-
-  /**
-   * Update latest sequence number entry for given address.
-   *
-   * @param from source address
-   * @param seq latest sequence number
-   */
-  private void updateSeqEntry(MacAddress from, short seq)
-  {
-    SeqEntry curr = seqCache, prev = null;
-    while(curr!=null)
-    {
-      if(seqCacheSize==SEQ_CACHE_SIZE && curr.next==null)
-      {
-        curr.from = from;
-        curr.seq = seq;
-        break;
-      }
-      if(from.equals(curr.from))
-      {
-        curr.seq = seq;
-        if(prev!=null)
-        {
-          prev.next = curr.next;
-          curr.next = seqCache;
-          seqCache = curr;
-        }
-        break;
-      }
-      prev = curr;
-      curr = curr.next;
-    }
-    if(curr==null)
-    {
-      if(Main.ASSERT) Util.assertion(seqCacheSize < SEQ_CACHE_SIZE);
-      curr = new SeqEntry();
-      curr.from = from;
-      curr.seq = seq;
-      curr.next = seqCache;
-      seqCache = curr;
-      seqCacheSize++;
-    }
-  }
-
-  //////////////////////////////////////////////////
-  // send-related functions
-  //
-
-  // MacInterface interface
-  public void send(Message msg, MacAddress nextHop)
-  {
-    if(Main.ASSERT) Util.assertion(!hasPacket());
-    if(Main.ASSERT) Util.assertion(nextHop!=null);
-    packet = msg;
-    packetNextHop = nextHop;
-    if(mode==MAC_MODE_SIDLE)
-    {
-      if(!isCarrierIdle())
-      {
-        setBackoff();
-      }
-      doDifs();
-    }
-  }
-
-  private void doDifs()
-  {
-    if(isRadioIdle())
-    {
-      if(waitingNav())
-      {
-        startTimer(nav-JistAPI.getTime(), MAC_MODE_SNAV);
-      }
-      else
-      {
-        startTimer(needEifs ? EIFS : DIFS, MAC_MODE_DIFS);
-      }
-    }
-    else
-    {
-      idle();
-    }
-  }
-
-  // MacInterface.Mac802_11 interface
-  public void cfDone(boolean backoff, boolean delPacket)
-  {
-    if(backoff)
-    {
-      setBackoff();
-    }
-    doDifs();
-    if(delPacket)
-    {
-      packet = null;
-      packetNextHop = null;
-      netEntity.pump(netId);
-    }
-  }
-
-  private void sendPacket()
-  {
-    if(shouldRTS())
-    {
-      sendRts();
-    }
-    else
-    {
-      sendData(false);
-    }
-  }
-
-  private void sendRts()
-  {
-    // create rts packet
-    MacMessage.Rts rts = new MacMessage.Rts(packetNextHop, localAddr, (int)(
-          ((MacMessage.Ack.SIZE
-            +MacMessage.Cts.SIZE
-            +MacMessage.Data.HEADER_SIZE
-            +2*SYNCHRONIZATION) 
-           * Constants.SECOND/bandwidth)
-          + 4*PROPAGATION
-          + 3*SIFS
-         
-          + transmitTime(packet)));
-    // set mode and transmit
-    setMode(MAC_MODE_XRTS);
-    long delay = RX_TX_TURNAROUND, duration = transmitTime(rts);
-    radioEntity.transmit(rts, delay, duration);
-    // wait for EOT, schedule CTS wait timer
-    JistAPI.sleep(delay+duration);
-    self.startTimer((MacMessage.Cts.SIZE+SYNCHRONIZATION)*Constants.SECOND/bandwidth 
-        + (PROPAGATION + SIFS)
-        + SLOT_TIME
-        + PROPAGATION
-        + Constants.EPSILON_DELAY,
-        MAC_MODE_SWFCTS);
-  }
-
-  private void sendCts(MacMessage.Rts rts)
-  {
-    // create cts packet
-    MacMessage.Cts cts = new MacMessage.Cts(rts.getSrc(), (int)(
-          rts.getDuration() 
-          - (MacMessage.Cts.SIZE+SYNCHRONIZATION)*Constants.SECOND/bandwidth
-           - PROPAGATION - SIFS));
-    // set mode and transmit
-    setMode(MAC_MODE_XCTS);
-    long delay = SIFS, duration = transmitTime(cts);
-    radioEntity.transmit(cts, delay, duration);
-    // wait for EOT, schedule DATA wait timer
-    JistAPI.sleep(delay+duration);
-    self.startTimer(cts.getDuration()
-        - (MacMessage.Ack.SIZE+SYNCHRONIZATION)*Constants.SECOND/bandwidth
-        - (PROPAGATION + SIFS)
-        + SLOT_TIME
-        + Constants.EPSILON_DELAY,
-        MAC_MODE_SWFDATA);
-  }
-
-  private void sendData(boolean afterCts)
-  {
-    if(isBroadcast())
-    {
-      sendDataBroadcast();
-    }
-    else
-    {
-      sendDataUnicast(afterCts);
-    }
-  }
-
-  private void sendDataBroadcast()
-  {
-    // create data packet
-    MacMessage.Data data = new MacMessage.Data(
-        packetNextHop, localAddr, 
-        0, packet);
-    // set mode and transmit
-    setMode(MAC_MODE_XBROADCAST);
-    long delay = RX_TX_TURNAROUND, duration = transmitTime(data);
-    radioEntity.transmit(data, delay, duration);
-    // wait for EOT, check for outgoing packet
-    JistAPI.sleep(delay+duration);
-    self.cfDone(true, true);
-  }
-
-  private void sendDataUnicast(boolean afterCts)
-  {
-    // create data packet
-    MacMessage.Data data = new MacMessage.Data(
-        packetNextHop, localAddr, (int)(
-          (MacMessage.Ack.SIZE+SYNCHRONIZATION)*Constants.SECOND/bandwidth
-          + (PROPAGATION + SIFS)
-          + PROPAGATION),
-        incSeq(), (byte)0, false, 
-        (shouldRTS() ? longRetry : shortRetry) > 0,
-        packet);
-    // set mode and transmit
-    setMode(MAC_MODE_XUNICAST);
-    long delay = afterCts ? SIFS : RX_TX_TURNAROUND, duration = transmitTime(data);
-    radioEntity.transmit(data, delay, duration);
-
-//    if (stats.DISTANCE_TRACKING)
-//    {
-//	    if (((NetMessage.Ip)packet).getPayload() instanceof TransUdp.UdpMessage)
-//	    {
-//	        stats.addHoppingPacket(data, // add packet to list to be received
-//	           stats.field.getRadioData(
-//	                        new Integer(Integer.parseInt(localAddr.toString()))).getLocation().distance(
-//	                                stats.field.getRadioData(
-//	                                        new Integer(Integer.parseInt(packetNextHop.toString()))).getLocation()));
-//	    }
-//    }
-    
-    // wait for EOT, and schedule ACK timer
-    JistAPI.sleep(delay+duration);
-    self.startTimer(MacMessage.Ack.SIZE+SYNCHRONIZATION*Constants.SECOND/bandwidth
-        + ( PROPAGATION + SIFS)
-        + SLOT_TIME
-        + PROPAGATION,
-        MAC_MODE_SWFACK);
-  }
-
-  private void sendAck(MacMessage.Data data)
-  {
-    // create ack
-    MacMessage.Ack ack = new MacMessage.Ack(data.getSrc(), 0);
-    // set mode and transmit
-    setMode(MAC_MODE_XACK);
-    long delay = SIFS, duration = transmitTime(ack);
-    radioEntity.transmit(ack, delay, duration);
-    // wait for EOT, check for outgoing packet
-    JistAPI.sleep(delay+duration);
-    self.cfDone(false, false);
-  }
-
-  //////////////////////////////////////////////////
-  // retry
-  //
-
-  private void retry()
-  {
-    // use long retry count for frames larger than RTS_THRESHOLD
-    if(shouldRTS() && mode!=MAC_MODE_SWFCTS)
-    {
-      if(longRetry < RETRY_LIMIT_LONG)
-      {
-        longRetry++;
-        retryYes();
-      }
-      else
-      {
-        longRetry = 0;
-        retryNo();
-      }
-    }
-    else
-    {
-      if(shortRetry < RETRY_LIMIT_SHORT)
-      {
-        shortRetry++;
-        retryYes();
-      }
-      else
-      {
-        shortRetry = 0;
-        retryNo();
-      }
-    }
-  }
-
-  private void retryYes()
-  {
-    incCW();
-    setBackoff();
-    doDifs();
-  }
-
-  private void retryNo()
-  {
-
-    decCW();
-    switch (mode) // TODO check that this is right
-    {
-    	case MAC_MODE_SWFCTS:
-	        stats.droppedCtsPackets++;
-	        break;
-        case MAC_MODE_SWFACK:
-            if (!packetNextHop.equals(MacAddress.ANY))
-            	netEntity.packetDropped(packet, packetNextHop);
-            if (stats.TRACK_ACKS)
-            {
-                NetMessage.Ip msg = (NetMessage.Ip)packet;
-                if (msg.getPayload() instanceof TransUdp.UdpMessage)
-                {
-                    if (!stats.messageReceived(packet))
-                    {
-	                    stats.droppedDataPackets++;
-	                    //stats.removeHoppingPacket(packet);
-                    }
-                }
-                
-                stats.droppedAckPackets++;
-                //stats.removeHoppingPacket(packet);
-            }
-            
-            break;
-        default:
-            System.out.println("Gave up on transmitting "+getModeString(mode));
-    }
-                
-    
-    cfDone(true, true);
-  }
-
-
-  //////////////////////////////////////////////////
-  // receive-related functions
-  //
-
-  // MacInterface
-  public void peek(Message msg)
-  {
-    needEifs = true;
-    if (mode == MAC_MODE_SNAV_RTS) 
-    {
-      idle();
-    }
-  }
-
-  // MacInterface
-  public void receive(Message msg)
-  {
-    receivePacket((MacMessage)msg);
-  }
-
-  private void receivePacket(MacMessage msg)
-  {
-    needEifs = false;
-    MacAddress dst = msg.getDst();
-    if(localAddr.equals(dst))
-    {
-      switch(msg.getType())
-      {
-        case MacMessage.TYPE_RTS:
-          receiveRts((MacMessage.Rts)msg);
-          break;
-        case MacMessage.TYPE_CTS:
-          receiveCts((MacMessage.Cts)msg);
-          break;
-        case MacMessage.TYPE_ACK:
-          receiveAck((MacMessage.Ack)msg);
-          break;
-        case MacMessage.TYPE_DATA:
-          receiveData((MacMessage.Data)msg);
-          break;
-        default:
-          throw new RuntimeException("illegal frame type");
-      }
-    }
-    else if(MacAddress.ANY.equals(dst))
-    {
-      switch(msg.getType())
-      {
-        case MacMessage.TYPE_DATA:
-          receiveData((MacMessage.Data)msg);
-          break;
-        default:
-          throw new RuntimeException("illegal frame type");
-      }
-    }
-    else
-    {
-      // does not belong to node
-      receiveForeign(msg);
-    }
-  }
-
-  private void receiveRts(MacMessage.Rts rts)
-  {
-    if(!isAwaitingResponse() && !waitingNav())
-    {
-      cancelTimer();
-      sendCts(rts);
-    } 
-  }
-
-  private void receiveCts(MacMessage.Cts cts)
-  {
-    if(mode==MAC_MODE_SWFCTS)
-    {
-      cancelTimer();
-      // not in standard, but ns2 does
-      // decCW();
-      shortRetry = 0;
-      sendData(true);
-    }
-  }
-
-  private void receiveAck(MacMessage.Ack ack)
-  {
-    if(mode==MAC_MODE_SWFACK)
-    {
-      cancelTimer();
-      shortRetry = 0;
-      longRetry = 0;
-      decCW();
-      cfDone(true, true);
-    }
-  }
-
-  private void receiveData(MacMessage.Data msg)
-  {
-    // not in standard, but ns-2 does.
-    // decCW();
-    // shortRetry = 0;
-    if(mode==MAC_MODE_SWFDATA || !isAwaitingResponse())
-    {
-      if(MacAddress.ANY.equals(msg.getDst()))
-      {
-        netEntity.receive(msg.getBody(), msg.getSrc(), netId, false);
-        cfDone(false, false);
-      }
-      else
-      {
-        cancelTimer();
-        sendAck(msg);
-        // duplicate suppression
-        if(!(msg.getRetry() && getSeqEntry(msg.getSrc())==msg.getSeq()))
-        {
-          updateSeqEntry(msg.getSrc(), msg.getSeq());
-          netEntity.receive(msg.getBody(), msg.getSrc(), netId, false);
-        }
-      }
-    }
-  }
-
-  private void receiveForeign(MacMessage msg)
-  {
-    long currentTime = JistAPI.getTime();
-    long nav2 = currentTime + msg.getDuration() + Constants.EPSILON_DELAY;
-    if(nav2 > this.nav)
-    {
-      this.nav = nav2;
-      if (isRadioIdle() && hasPacket())
-      {
-        // This is what we should do.
-        //
-        //if (msg.getType()==MacMessage.TYPE_RTS) 
-        //{
-        // If RTS-ing node failed to get a CTS and start sending then
-        // reset the NAV (MAC layer virtual carrier sense) for this
-        // bystander node.
-        //   startTimer(PROPAGATION + SIFS + 
-        //     SYNCHRONIZATION + MacMessage.Cts.SIZE*Constants.SECOND/bandwidth + 
-        //     PROPAGATION + 2*SLOT_TIME, 
-        //     MAC_MODE_SNAV_RTS);
-        //} 
-        //else 
-        //{
-        //   startTimer(NAV - currentTime, MAC_MODE_SNAV);
-        //}
-
-        // This is for ns-2 comparison.
-        startTimer(nav - currentTime, MAC_MODE_SNAV);
-      }
-    }
-    if (promisc && msg.getType()==MacMessage.TYPE_DATA)
-    {
-      MacMessage.Data macDataMsg = (MacMessage.Data)msg;
-      netEntity.receive(macDataMsg.getBody(), macDataMsg.getSrc(), netId, true);
-    }
-  }
-
-  //////////////////////////////////////////////////
-  // radio mode
-  //
-
-  // MacInterface
-  public void setRadioMode(byte mode)
-  {
-    this.radioMode = mode;
-    switch(mode)
-    {
-      case Constants.RADIO_MODE_IDLE:
-        radioIdle();
-        break;
-      case Constants.RADIO_MODE_SENSING:
-        radioBusy();
-        break;
-      case Constants.RADIO_MODE_RECEIVING:
-        radioBusy();
-        /*
+	//////////////////////////////////////////////////
+	// initialization 
+	//
+
+	/**
+	 * Instantiate new 802_11b entity.
+	 *
+	 * @param addr local mac address
+	 * @param radioInfo radio properties
+	 * @param newstats mac stats object
+	 */
+	public MacVLC(MacAddress addr, RadioInfo radioInfo, boolean promisc)
+	{
+		SourceNodeID = addr.hashCode();//BT: store node ID;
+		droppedPackets = new HashMap();
+		// properties
+		bandwidth = radioInfo.getShared().getBandwidth() / 8;
+
+		// proxy
+		self = (MacInterface.Mac802_11)JistAPI.proxy(this, MacInterface.Mac802_11.class);
+
+		init(addr, radioInfo, promisc);
+	}
+
+	/**
+	 * nodeID for source radio.
+	 */
+	public int SourceNodeID;
+	/**
+	 * Instantiate new 802_11b entity.
+	 *
+	 * @param addr local mac address
+	 * @param radioInfo radio properties
+	 */
+	public MacVLC(MacAddress addr, RadioInfo radioInfo)
+	{  
+		SourceNodeID = addr.hashCode();//BT: store node ID;
+		bandwidth = radioInfo.getShared().getBandwidth() / 8;
+		// proxy
+		self = (MacInterface.Mac802_11)JistAPI.proxy(this, MacInterface.Mac802_11.class);
+		init(addr, radioInfo, Constants.MAC_PROMISCUOUS_DEFAULT);
+	}
+
+	void init(MacAddress addr, RadioInfo radioInfo, boolean promisc)
+	{
+
+		// properties
+
+		localAddr = addr;
+		this.promisc = promisc;
+		// status
+		mode = MAC_MODE_SIDLE;
+		radioMode = Constants.RADIO_MODE_IDLE;
+		needEifs = false;
+		// timer identifier
+		timerId = 0;
+		// backoff
+		bo = 0;
+		boStart = 0;
+		cw = CW_MIN;
+		// virtual carrier sense
+		nav = -1;
+		// sequence numbers
+		seq = 0;
+		seqCache = null;
+		seqCacheSize = 0;
+		// retry counts
+		shortRetry = 0;
+		longRetry = 0;
+		// current packet
+		packet = null;
+		packetNextHop = null;
+
+	}
+
+	//////////////////////////////////////////////////
+	// entity hookup
+	//
+
+	/**
+	 * Return proxy entity of this mac.
+	 *
+	 * @return self-referencing proxy entity.
+	 */
+	public MacInterface.Mac802_11 getProxy()
+	{
+		return this.self;
+	}
+
+	/**
+	 * Hook up with the radio entity.
+	 *
+	 * @param radio radio entity
+	 */
+	public void setRadioEntity(RadioInterface radio)
+	{
+		if(!JistAPI.isEntity(radio)) throw new IllegalArgumentException("expected entity");
+		this.radioEntity = radio;
+	}
+
+	/**
+	 * Hook up with the network entity.
+	 *
+	 * @param net network entity
+	 * @param netid network interface number
+	 */
+	public void setNetEntity(NetInterface net, byte netid)
+	{
+		if(!JistAPI.isEntity(net)) throw new IllegalArgumentException("expected entity");
+		this.netEntity = net;
+		this.netId = netid;
+	}
+
+	//////////////////////////////////////////////////
+	// accessors
+	//
+
+	/**
+	 * Set promiscuous mode (whether to pass all packets through).
+	 *
+	 * @param promisc promiscuous flag
+	 */
+	public void setPromiscuous(boolean promisc)
+	{
+		this.promisc = promisc;
+	}
+
+	//////////////////////////////////////////////////
+	// mac states
+	//
+
+	/**
+	 * Set the current mac mode.
+	 *
+	 * @param mode new mac mode
+	 */
+	private void setMode(byte mode)
+	{
+		this.mode = mode;
+	}
+
+	/**
+	 * Return whether the mac is currently waiting for a response.
+	 *
+	 * @return whether mac waiting for response
+	 */
+	public boolean isAwaitingResponse()
+	{
+		switch(mode)
+		{
+		case MAC_MODE_SWFCTS:
+		case MAC_MODE_SWFDATA:
+		case MAC_MODE_SWFACK:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	/**
+	 * Return whether the mac is currently transmitting.
+	 *
+	 * @return whether mac is currently transmitting
+	 */
+	public boolean isTransmitting()
+	{
+		switch(mode)
+		{
+		case MAC_MODE_XRTS:
+		case MAC_MODE_XCTS:
+		case MAC_MODE_XUNICAST:
+		case MAC_MODE_XBROADCAST:
+		case MAC_MODE_XACK:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	//////////////////////////////////////////////////
+	// packet queries
+	//
+
+	/**
+	 * Return whether mac currently has a packet to send.
+	 *
+	 * @return whether mac has packet to send.
+	 */
+	public boolean hasPacket()
+	{
+		return packet!=null;
+	}
+
+	/**
+	 * Return whether current packet is to be broadcast.
+	 *
+	 * @return whether current packet is to be broadcast.
+	 */
+	private boolean isBroadcast()
+	{
+		return MacAddress.ANY.equals(packetNextHop);
+	}
+
+	/**
+	 * Return whether current packet large enough to require RTS.
+	 *
+	 * @return does current packet require RTS.
+	 */
+	private boolean shouldRTS()
+	{
+		return packet.getSize()>THRESHOLD_RTS && !isBroadcast();
+	}
+
+	/**
+	 * Return whether current packet requires fragmentation.
+	 *
+	 * @return does current packet require fragmentation.
+	 */
+	private boolean shouldFragment()
+	{
+		return packet.getSize()>THRESHOLD_FRAGMENT && !isBroadcast();
+	}
+
+	/**
+	 * Compute packet transmission time at current bandwidth.
+	 *
+	 * @param msg packet to transmit
+	 * @return time to transmit given packet at current bandwidth
+	 */
+	private long transmitTime(Message msg)
+	{
+		int size = msg.getSize();
+		if(size==Constants.ZERO_WIRE_SIZE)
+		{
+			return Constants.EPSILON_DELAY;
+		}
+		return (SYNCHRONIZATION + size) * Constants.SECOND/bandwidth;
+	}
+
+	//////////////////////////////////////////////////
+	// backoff
+	//
+
+	/**
+	 * Return whether there is a backoff.
+	 *
+	 * @return whether backoff non-zero.
+	 */
+	private boolean hasBackoff()
+	{
+		return bo > 0;
+	}
+
+	/**
+	 * Reset backoff counter to zero.
+	 */
+	private void clearBackoff()
+	{
+		bo = 0;
+	}
+
+	/**
+	 * Set new random backoff, if current backoff timer has elapsed.
+	 */
+	private void setBackoff()
+	{
+		if(!hasBackoff())
+		{
+			bo = Constants.random.nextInt(cw) * SLOT_TIME;
+		}
+	}
+
+	/**
+	 * Pause the current backoff (invoked when the channel becomes busy).
+	 */
+	private void pauseBackoff()
+	{
+		bo -= JistAPI.getTime() - boStart;
+		if(Main.ASSERT) Util.assertion(bo>=0);
+	}
+
+	/**
+	 * Perform backoff.
+	 */
+	private void backoff()
+	{
+		if(Main.ASSERT) Util.assertion(bo>=0);
+		boStart = JistAPI.getTime();
+		startTimer(bo, MAC_MODE_SBO);
+	}
+
+	/**
+	 * Increase Collision Window.
+	 */
+	private void incCW()
+	{
+		cw = (short)Math.min(2*cw+1, CW_MAX);
+	}
+
+	/**
+	 * Decrease Collision Windows.
+	 */
+	private void decCW()
+	{
+		cw = CW_MIN;
+	}
+
+	//////////////////////////////////////////////////
+	// nav
+	//
+
+	/**
+	 * Return whether the virtual carrier sense (network allocation vector)
+	 * indicates that the channel is reserved.
+	 *
+	 * @return virtual carrier sense
+	 */
+	private boolean waitingNav()
+	{
+		return nav > JistAPI.getTime();
+	}
+
+	/**
+	 * Clear the virtual carrier sense (network allocation vector).
+	 */
+	private void resetNav()
+	{
+		nav = -1;
+	}
+
+	/**
+	 * Determine whether channel is idle according to both physical and virtual
+	 * carrier sense.
+	 *
+	 * @return physical and virtual carrier sense
+	 */
+	private boolean isCarrierIdle()
+	{
+		return !waitingNav() && isRadioIdle();
+	}
+
+	//////////////////////////////////////////////////
+	// sequence numbers
+	//
+
+	/**
+	 * Local class to used manage sequence number records.
+	 */
+	private static class SeqEntry
+	{
+		/** src node address. */
+		public MacAddress from = MacAddress.NULL;
+		/** sequence number. */
+		public short seq = 0;
+		/** next record. */
+		public SeqEntry next = null;
+	}
+
+	/**
+	 * Increment local sequence counter.
+	 *
+	 * @return new sequence number.
+	 */
+	private short incSeq()
+	{
+		seq = (short)((seq+1)%MacMessage.Data.MAX_SEQ);
+		return seq;
+	}
+
+	/**
+	 * Return latest seen sequence number from given address.
+	 *
+	 * @param from source address
+	 * @return latest sequence number from given address
+	 */
+	private short getSeqEntry(MacAddress from)
+	{
+		SeqEntry curr = seqCache, prev = null;
+		short seq = SEQ_INVALID;
+		while(curr!=null)
+		{
+			if(from.equals(curr.from))
+			{
+				seq = curr.seq;
+				if(prev!=null)
+				{
+					prev.next = curr.next;
+					curr.next = seqCache;
+					seqCache = curr;
+				}
+				break;
+			}
+			prev = curr;
+			curr = curr.next;
+		}
+		return seq;
+	}
+
+	/**
+	 * Update latest sequence number entry for given address.
+	 *
+	 * @param from source address
+	 * @param seq latest sequence number
+	 */
+	private void updateSeqEntry(MacAddress from, short seq)
+	{
+		SeqEntry curr = seqCache, prev = null;
+		while(curr!=null)
+		{
+			if(seqCacheSize==SEQ_CACHE_SIZE && curr.next==null)
+			{
+				curr.from = from;
+				curr.seq = seq;
+				break;
+			}
+			if(from.equals(curr.from))
+			{
+				curr.seq = seq;
+				if(prev!=null)
+				{
+					prev.next = curr.next;
+					curr.next = seqCache;
+					seqCache = curr;
+				}
+				break;
+			}
+			prev = curr;
+			curr = curr.next;
+		}
+		if(curr==null)
+		{
+			if(Main.ASSERT) Util.assertion(seqCacheSize < SEQ_CACHE_SIZE);
+			curr = new SeqEntry();
+			curr.from = from;
+			curr.seq = seq;
+			curr.next = seqCache;
+			seqCache = curr;
+			seqCacheSize++;
+		}
+	}
+
+	//////////////////////////////////////////////////
+	// send-related functions
+	//
+
+	// MacInterface interface
+	@SuppressWarnings("unused")
+	public void send(Message msg, MacAddress nextHop)
+	{
+		//jist.swans.misc.Location SourceNode;
+		//jist.swans.misc.Location DestinationNode;
+		//int DestinationNodeID = nextHop.hashCode();
+		//jist.runtime.Controller.activeController.getSimulationTime();
+
+		/*  if(DestinationNodeID == -1)
+		  return;
+	  SourceNode = JistExperiment.getJistExperiment().visualizer.getField().getRadioData(SourceNodeID).getLocation();
+	  DestinationNode = JistExperiment.getJistExperiment().visualizer.getField().getRadioData(DestinationNodeID).getLocation();
+		 */
+		if(Main.ASSERT) Util.assertion(!hasPacket());
+		if(Main.ASSERT) Util.assertion(nextHop!=null);
+		packet = msg;
+		packetNextHop = nextHop;
+		if(mode==MAC_MODE_SIDLE)
+		{
+			if(!isCarrierIdle())
+			{
+				setBackoff();
+			}
+			doDifs();
+		}
+	}
+
+	private void doDifs()
+	{
+		if(isRadioIdle())
+		{
+			if(waitingNav())
+			{
+				startTimer(nav-JistAPI.getTime(), MAC_MODE_SNAV);
+			}
+			else
+			{
+				startTimer(needEifs ? EIFS : DIFS, MAC_MODE_DIFS);
+			}
+		}
+		else
+		{
+			idle();
+		}
+	}
+
+	// MacInterface.Mac802_11 interface
+	public void cfDone(boolean backoff, boolean delPacket)
+	{
+		if(backoff)
+		{
+			setBackoff();
+		}
+		doDifs();
+		if(delPacket)
+		{
+			packet = null;
+			packetNextHop = null;
+			netEntity.pump(netId);
+		}
+	}
+
+	private void sendPacket()
+	{
+		if(shouldRTS())
+		{
+			sendRts();
+		}
+		else
+		{
+			sendData(false);
+		}
+	}
+
+	private void sendRts()
+	{
+		// create rts packet
+		MacMessage.Rts rts = new MacMessage.Rts(packetNextHop, localAddr, (int)(
+				((MacMessage.Ack.SIZE
+						+MacMessage.Cts.SIZE
+						+MacMessage.Data.HEADER_SIZE
+						+2*SYNCHRONIZATION) 
+						* Constants.SECOND/bandwidth)
+						+ 4*PROPAGATION
+						+ 3*SIFS
+
+						+ transmitTime(packet)));
+		// set mode and transmit
+		setMode(MAC_MODE_XRTS);
+		long delay = RX_TX_TURNAROUND, duration = transmitTime(rts);
+		radioEntity.transmit(rts, delay, duration);
+		// wait for EOT, schedule CTS wait timer
+		JistAPI.sleep(delay+duration);
+		self.startTimer((MacMessage.Cts.SIZE+SYNCHRONIZATION)*Constants.SECOND/bandwidth 
+				+ (PROPAGATION + SIFS)
+				+ SLOT_TIME
+				+ PROPAGATION
+				+ Constants.EPSILON_DELAY,
+				MAC_MODE_SWFCTS);
+	}
+
+	private void sendCts(MacMessage.Rts rts)
+	{
+		// create cts packet
+		MacMessage.Cts cts = new MacMessage.Cts(rts.getSrc(), (int)(
+				rts.getDuration() 
+				- (MacMessage.Cts.SIZE+SYNCHRONIZATION)*Constants.SECOND/bandwidth
+				- PROPAGATION - SIFS));
+		// set mode and transmit
+		setMode(MAC_MODE_XCTS);
+		long delay = SIFS, duration = transmitTime(cts);
+		radioEntity.transmit(cts, delay, duration);
+		// wait for EOT, schedule DATA wait timer
+		JistAPI.sleep(delay+duration);
+		self.startTimer(cts.getDuration()
+				- (MacMessage.Ack.SIZE+SYNCHRONIZATION)*Constants.SECOND/bandwidth
+				- (PROPAGATION + SIFS)
+				+ SLOT_TIME
+				+ Constants.EPSILON_DELAY,
+				MAC_MODE_SWFDATA);
+	}
+
+	private void sendData(boolean afterCts)
+	{
+		if(isBroadcast())
+		{
+			sendDataBroadcast();
+		}
+		else
+		{
+			sendDataUnicast(afterCts);
+		}
+	}
+	//bt
+	/**
+	 * This method will need to be called two times. Each call will detect one corner point of the vlc device's view
+	 * @param theta: the angle of the bearing +- visionAngle
+	 * @param origin: starting point
+	 * @param distanceLimit: the max distance the vlc device can see
+	 * @param visionAngle: the angle at which the vlc device can see from the front of the car
+	 */
+	public Location getVLCCornerPoint(float theta, Location origin, float distanceLimit, int visionAngle)
+	{
+		Location cornerPoint; 
+		int quadrant = 0; 
+		float hypotenuse = (float)(distanceLimit/Math.cos(((visionAngle/2)*Math.PI)/(180))); 
+
+		//first detect what quadrant theta falls, to see how bearing affects corner points
+		if(theta >= 0 && theta <= 90)
+		{
+			quadrant = 1;
+
+			cornerPoint = new Location.Location2D((float) (hypotenuse * Math.cos((Math.PI*(theta))/(180))), (float) (hypotenuse * Math.sin((Math.PI*(theta))/(180))));			
+		}
+		else if(theta > 90 && theta <= 180)
+		{
+			quadrant = 2; 	
+			cornerPoint = new Location.Location2D((float) (-1 * hypotenuse * Math.cos((Math.PI*(90*quadrant-theta))/(180))), (float) (hypotenuse * Math.sin((Math.PI*(90*quadrant-theta))/(180)))); 
+		}
+		else if(theta > 180 && theta <= 270)
+		{
+			quadrant = 3;
+			//x coordinate needs sin function here. the Y axis between the 3rd and 4th quadrants is being used to compute the angle.
+			//likewise, cos needs to be used here to find the y coordinate.
+			cornerPoint = new Location.Location2D((float) (-1 * hypotenuse * Math.sin((Math.PI*(90*quadrant-theta))/(180))), (float) (-1 * hypotenuse * Math.cos((Math.PI*(90*quadrant-theta))/(180))));					
+		}
+		else
+		{
+			quadrant = 4;		
+			cornerPoint = new Location.Location2D((float) (hypotenuse * Math.cos((Math.PI*(90*quadrant-theta))/(180))), (float) (-1 * hypotenuse * Math.sin((Math.PI*(90*quadrant-theta))/(180))));
+		}
+
+		return cornerPoint; 
+	}
+	/**
+	 * Is the location being checked visible to vlc device?
+	 * 
+	 * @param p1,p2 are the coordinates to be checked corresponding to the x,y values
+	 * @param x1,y1 are the x,y coordinates of the first point on the triangle, probably the origin -- or starting location of the node/car
+	 * @param x2,y2 are the x,y coordinates of the second point on the triangle, 1 corner point calculated by the getVLCBounds method
+	 * @param x3,y3 are the x,y coordinates of the third point on the triangle, a second point calculated by the getVLCBounds method
+	 * @return true/false of whether or not the location falls within our calculated vlc bounds. 
+	 */
+	public boolean visibleToVLCdevice(float p1, float p2, float x1, float y1, float x2, float y2, float x3, float y3)		
+	{		
+
+		if(tripletOrientation(x1,y1,x2,y2,p1,p2)*tripletOrientation(x1,y1,x2,y2,x3,y3)>0 && tripletOrientation(x2,y2,x3,y3,p1,p2)*tripletOrientation(x2,y2,x3,y3,x1,y1)>0 && tripletOrientation(x3,y3,x1,y1,p1,p2)*tripletOrientation(x3,y3,x1,y1,x2,y2)>0)
+		{
+			return true;
+		}
+		else
+		{
+			return false; 
+		}
+	}
+
+	public float tripletOrientation(float x1, float y1, float x2, float y2, float x3, float y3)
+	{
+		return x1*(y2 - y3) + x2*(y3 - y1) + x3*(y1 - y2);  
+	}
+
+
+	private Location cornerPoint1;
+	private Location cornerPoint2;
+	float distanceLimit = 250; 	//distance limit the vlc device can see in front of it, def:250
+	int visionAngle = 60; 		//The viewing angle the of the vlc device, default is 60 degrees 
+
+	private LinkedList<Integer> getQualifiyingNodes()
+	{
+		LinkedList<Integer> returnNodes = new LinkedList<Integer>();
+
+		//float bearingAngle = JistExperiment.getJistExperiment().visualizer.getField().getRadioData(SourceNodeID).getMobilityInfo().getBearingAsAngle();
+		float bearingAngle = Field.getRadioData(SourceNodeID).getMobilityInfo().getBearingAsAngle();
+
+		cornerPoint1 = getVLCCornerPoint(bearingAngle - (visionAngle/2), Field.getRadioData(SourceNodeID).getLocation(), distanceLimit, visionAngle);
+		cornerPoint2 = getVLCCornerPoint(bearingAngle + (visionAngle/2), Field.getRadioData(SourceNodeID).getLocation(), distanceLimit, visionAngle);
+
+		//go over all nodes, check if they're inside current radar's range
+		/*Polygon poly = new Polygon();
+		poly.addPoint((int)Field.getRadioData(SourceNodeID).getLocation().getX(), (int)Field.getRadioData(SourceNodeID).getLocation().getY());
+		poly.addPoint((int)cornerPoint1.getX(), (int)cornerPoint1.getY());
+		poly.addPoint((int)cornerPoint2.getX(), (int)cornerPoint2.getY());
+		JistExperiment.getJistExperiment().visualizer.drawPolygon(poly);//(10, Field.getRadioData(i).getLocation());//ip, color);.drawAnimatedTransmitCircle(i, Color.RED);
+		JistExperiment.getJistExperiment().visualizer.pause();*/
+	 
+		for(int i=1;i<JistExperiment.getJistExperiment().getNodes(); i++) 
+		{
+			if(SourceNodeID != i)
+			{
+				if(visibleToVLCdevice(Field.getRadioData(i).getLocation().getX(), Field.getRadioData(i).getLocation().getY(),Field.getRadioData(SourceNodeID).getLocation().getX(), Field.getRadioData(SourceNodeID).getLocation().getY(), cornerPoint2.getX(), cornerPoint2.getY(), cornerPoint1.getX(), cornerPoint1.getY()))
+				{
+					returnNodes.add(i);
+				}
+			}
+		}
+		System.out.print("VLC visible nodes for me= " +SourceNodeID + " are : ");
+		for (Integer item : returnNodes) {
+			System.out.print(item.toString() + ", ");
+		}
+		System.out.println("");
+		return returnNodes;
+	}
+	private void sendDataBroadcast()
+	{
+		//bt: send to all nodes in triangle range
+
+		MacMessage.Data msg;
+		for (Integer item : getQualifiyingNodes()) 
+		{
+			//msg = new MacMessage.Data( new MacAddress(item), localAddr, 0, packet);
+			packetNextHop = new MacAddress(item);
+			sendDataUnicast(false);
+			//send(msg, new MacAddress(item));
+		}
+		/*
+		// create data packet
+		MacMessage.Data data = new MacMessage.Data(
+				packetNextHop, localAddr, 
+				0, packet);
+		// set mode and transmit
+		setMode(MAC_MODE_XBROADCAST);
+		long delay = RX_TX_TURNAROUND, duration = transmitTime(data);
+		radioEntity.transmit(data, delay, duration);
+		// wait for EOT, check for outgoing packet
+		JistAPI.sleep(delay+duration);
+		self.cfDone(true, true);*/
+	}
+
+	private void sendDataUnicast(boolean afterCts)
+	{
+		if(!getQualifiyingNodes().contains(packetNextHop.hashCode()))
+		{
+			//bt drop
+			System.out.println("VLC: dropped because node is not in LOS  from: "+SourceNodeID + " to: " +packetNextHop.toString() );
+			return;
+		}
+		System.out.println("VLC: not dropped because node is in LOS ");
+		
+		// create data packet
+		MacMessage.Data data = new MacMessage.Data(
+				packetNextHop, localAddr, (int)(
+						(MacMessage.Ack.SIZE+SYNCHRONIZATION)*Constants.SECOND/bandwidth
+						+ (PROPAGATION + SIFS)
+						+ PROPAGATION),
+						incSeq(), (byte)0, false, 
+						(shouldRTS() ? longRetry : shortRetry) > 0,
+						packet);
+		// set mode and transmit
+		setMode(MAC_MODE_XUNICAST);
+		xfcf long delay = afterCts ? SIFS : RX_TX_TURNAROUND, duration = transmitTime(data);
+
+		radioEntity.transmit(data, delay, duration);
+
+		//    if (stats.DISTANCE_TRACKING)
+		//    {
+		//	    if (((NetMessage.Ip)packet).getPayload() instanceof TransUdp.UdpMessage)
+		//	    {
+		//	        stats.addHoppingPacket(data, // add packet to list to be received
+		//	           stats.field.getRadioData(
+		//	                        new Integer(Integer.parseInt(localAddr.toString()))).getLocation().distance(
+		//	                                stats.field.getRadioData(
+		//	                                        new Integer(Integer.parseInt(packetNextHop.toString()))).getLocation()));
+		//	    }
+		//    }
+
+		// wait for EOT, and schedule ACK timer
+		JistAPI.sleep(delay+duration);
+		self.startTimer(MacMessage.Ack.SIZE+SYNCHRONIZATION*Constants.SECOND/bandwidth
+				+ ( PROPAGATION + SIFS)
+				+ SLOT_TIME
+				+ PROPAGATION,
+				MAC_MODE_SWFACK);
+		self.cfDone(true, true);
+	}
+
+	private void sendAck(MacMessage.Data data)
+	{
+		// create ack
+		MacMessage.Ack ack = new MacMessage.Ack(data.getSrc(), 0);
+		// set mode and transmit
+		setMode(MAC_MODE_XACK);
+		long delay = SIFS, duration = transmitTime(ack);
+		radioEntity.transmit(ack, delay, duration);
+		// wait for EOT, check for outgoing packet
+		JistAPI.sleep(delay+duration);
+		self.cfDone(false, false);
+	}
+
+	//////////////////////////////////////////////////
+	// retry
+	//
+
+	private void retry()
+	{
+		// use long retry count for frames larger than RTS_THRESHOLD
+		if(shouldRTS() && mode!=MAC_MODE_SWFCTS)
+		{
+			if(longRetry < RETRY_LIMIT_LONG)
+			{
+				longRetry++;
+				retryYes();
+			}
+			else
+			{
+				longRetry = 0;
+				retryNo();
+			}
+		}
+		else
+		{
+			if(shortRetry < RETRY_LIMIT_SHORT)
+			{
+				shortRetry++;
+				retryYes();
+			}
+			else
+			{
+				shortRetry = 0;
+				retryNo();
+			}
+		}
+	}
+
+	private void retryYes()
+	{
+		incCW();
+		setBackoff();
+		doDifs();
+	}
+
+	private void retryNo()
+	{
+
+		decCW();
+		switch (mode) // TODO check that this is right
+		{
+		case MAC_MODE_SWFCTS:
+			stats.droppedCtsPackets++;
+			break;
+		case MAC_MODE_SWFACK:
+			if (!packetNextHop.equals(MacAddress.ANY))
+				netEntity.packetDropped(packet, packetNextHop);
+			if (stats.TRACK_ACKS)
+			{
+				NetMessage.Ip msg = (NetMessage.Ip)packet;
+				if (msg.getPayload() instanceof TransUdp.UdpMessage)
+				{
+					if (!stats.messageReceived(packet))
+					{
+						stats.droppedDataPackets++;
+						//stats.removeHoppingPacket(packet);
+					}
+				}
+
+				stats.droppedAckPackets++;
+				//stats.removeHoppingPacket(packet);
+			}
+
+			break;
+		default:
+			System.out.println("Gave up on transmitting "+getModeString(mode));
+		}
+
+
+		cfDone(true, true);
+	}
+
+
+	//////////////////////////////////////////////////
+	// receive-related functions
+	//
+
+	// MacInterface
+	public void peek(Message msg)
+	{
+		needEifs = true;
+		if (mode == MAC_MODE_SNAV_RTS) 
+		{
+			idle();
+		}
+	}
+
+	// MacInterface
+	public void receive(Message msg)
+	{
+		receivePacket((MacMessage)msg);
+	}
+
+	private void receivePacket(MacMessage msg)
+	{
+		needEifs = false;
+		MacAddress dst = msg.getDst();
+		if(localAddr.equals(dst))
+		{
+			switch(msg.getType())
+			{
+			case MacMessage.TYPE_RTS:
+				receiveRts((MacMessage.Rts)msg);
+				break;
+			case MacMessage.TYPE_CTS:
+				receiveCts((MacMessage.Cts)msg);
+				break;
+			case MacMessage.TYPE_ACK:
+				receiveAck((MacMessage.Ack)msg);
+				break;
+			case MacMessage.TYPE_DATA:
+				receiveData((MacMessage.Data)msg);
+				break;
+			default:
+				throw new RuntimeException("illegal frame type");
+			}
+		}
+		else if(MacAddress.ANY.equals(dst))
+		{
+			switch(msg.getType())
+			{
+			case MacMessage.TYPE_DATA:
+				receiveData((MacMessage.Data)msg);
+				break;
+			default:
+				throw new RuntimeException("illegal frame type");
+			}
+		}
+		else
+		{
+			// does not belong to node
+			receiveForeign(msg);
+		}
+	}
+
+	private void receiveRts(MacMessage.Rts rts)
+	{
+		if(!isAwaitingResponse() && !waitingNav())
+		{
+			cancelTimer();
+			sendCts(rts);
+		} 
+	}
+
+	private void receiveCts(MacMessage.Cts cts)
+	{
+		if(mode==MAC_MODE_SWFCTS)
+		{
+			cancelTimer();
+			// not in standard, but ns2 does
+			// decCW();
+			shortRetry = 0;
+			sendData(true);
+		}
+	}
+
+	private void receiveAck(MacMessage.Ack ack)
+	{
+		if(mode==MAC_MODE_SWFACK)
+		{
+			cancelTimer();
+			shortRetry = 0;
+			longRetry = 0;
+			decCW();
+			cfDone(true, true);
+		}
+	}
+
+	private void receiveData(MacMessage.Data msg)
+	{
+		// not in standard, but ns-2 does.
+		// decCW();
+		// shortRetry = 0;
+		if(mode==MAC_MODE_SWFDATA || !isAwaitingResponse())
+		{
+			if(MacAddress.ANY.equals(msg.getDst()))
+			{
+				netEntity.receive(msg.getBody(), msg.getSrc(), netId, false);
+				cfDone(false, false);
+			}
+			else
+			{
+				cancelTimer();
+				sendAck(msg);
+				// duplicate suppression
+				if(!(msg.getRetry() && getSeqEntry(msg.getSrc())==msg.getSeq()))
+				{
+					updateSeqEntry(msg.getSrc(), msg.getSeq());
+					netEntity.receive(msg.getBody(), msg.getSrc(), netId, false);
+				}
+			}
+		}
+	}
+
+	private void receiveForeign(MacMessage msg)
+	{
+		long currentTime = JistAPI.getTime();
+		long nav2 = currentTime + msg.getDuration() + Constants.EPSILON_DELAY;
+		if(nav2 > this.nav)
+		{
+			this.nav = nav2;
+			if (isRadioIdle() && hasPacket())
+			{
+				// This is what we should do.
+				//
+				//if (msg.getType()==MacMessage.TYPE_RTS) 
+				//{
+				// If RTS-ing node failed to get a CTS and start sending then
+				// reset the NAV (MAC layer virtual carrier sense) for this
+				// bystander node.
+				//   startTimer(PROPAGATION + SIFS + 
+				//     SYNCHRONIZATION + MacMessage.Cts.SIZE*Constants.SECOND/bandwidth + 
+				//     PROPAGATION + 2*SLOT_TIME, 
+				//     MAC_MODE_SNAV_RTS);
+				//} 
+				//else 
+				//{
+				//   startTimer(NAV - currentTime, MAC_MODE_SNAV);
+				//}
+
+				// This is for ns-2 comparison.
+				startTimer(nav - currentTime, MAC_MODE_SNAV);
+			}
+		}
+		if (promisc && msg.getType()==MacMessage.TYPE_DATA)
+		{
+			MacMessage.Data macDataMsg = (MacMessage.Data)msg;
+			netEntity.receive(macDataMsg.getBody(), macDataMsg.getSrc(), netId, true);
+		}
+	}
+
+	//////////////////////////////////////////////////
+	// radio mode
+	//
+
+	// MacInterface
+	public void setRadioMode(byte mode)
+	{
+		this.radioMode = mode;
+		switch(mode)
+		{
+		case Constants.RADIO_MODE_IDLE:
+			radioIdle();
+			break;
+		case Constants.RADIO_MODE_SENSING:
+			radioBusy();
+			break;
+		case Constants.RADIO_MODE_RECEIVING:
+			radioBusy();
+			/*
           todo:
           ExaminePotentialIncomingMessage(newMode, receiveDuration, potentialIncomingPacket);
-        */
-        break;
-      case Constants.RADIO_MODE_SLEEP:
-        radioBusy();
-        break;
-    }
-  }
+			 */
+			break;
+		case Constants.RADIO_MODE_SLEEP:
+			radioBusy();
+			break;
+		}
+	}
 
-  private boolean isRadioIdle()
-  {
-    return radioMode==Constants.RADIO_MODE_IDLE;
-  }
+	private boolean isRadioIdle()
+	{
+		return radioMode==Constants.RADIO_MODE_IDLE;
+	}
 
-  private void radioBusy()
-  {
-    switch(mode)
-    {
-      case MAC_MODE_SBO:
-        pauseBackoff();
-        idle();
-        break;
-      case MAC_MODE_DIFS:
-      case MAC_MODE_SNAV:
-        idle();
-        break;
-      case MAC_MODE_SIDLE:
-      case MAC_MODE_SWFCTS:
-      case MAC_MODE_SWFDATA:
-      case MAC_MODE_SWFACK:    
-      case MAC_MODE_XBROADCAST:
-      case MAC_MODE_XUNICAST:
-      // TODO drc: dunno if the following ones should be here...
-      case MAC_MODE_XACK:
-        // don't care
-        break;
-      default:
-        // rimtodo: really unexpected?
-        //throw new RuntimeException("unexpected mode: "+getModeString(mode));
-          System.err.println("unexpected mode: "+getModeString(mode));
-    }
-  }
+	private void radioBusy()
+	{
+		switch(mode)
+		{
+		case MAC_MODE_SBO:
+			pauseBackoff();
+			idle();
+			break;
+		case MAC_MODE_DIFS:
+		case MAC_MODE_SNAV:
+			idle();
+			break;
+		case MAC_MODE_SIDLE:
+		case MAC_MODE_SWFCTS:
+		case MAC_MODE_SWFDATA:
+		case MAC_MODE_SWFACK:    
+		case MAC_MODE_XBROADCAST:
+		case MAC_MODE_XUNICAST:
+			// TODO drc: dunno if the following ones should be here...
+		case MAC_MODE_XACK:
+			// don't care
+			break;
+		default:
+			// rimtodo: really unexpected?
+			//throw new RuntimeException("unexpected mode: "+getModeString(mode));
+			System.err.println("unexpected mode: "+getModeString(mode));
+		}
+	}
 
-  private void radioIdle()
-  {
-    switch(mode)
-    {
-      case MAC_MODE_SIDLE:
-          // TODO drc: are these in the right place
-      case MAC_MODE_SNAV: // not sure, but maybe we want to do Difs here
-          
-        doDifs();
-        break;
-      case MAC_MODE_SWFCTS:
-      case MAC_MODE_SWFDATA:
-      case MAC_MODE_SWFACK:
-      case MAC_MODE_DIFS:
-      case MAC_MODE_SBO:
-      case MAC_MODE_XUNICAST:
-      case MAC_MODE_XBROADCAST:
-      case MAC_MODE_XACK:
-      case MAC_MODE_XCTS: // drc: added here (and below) due to exception
-      case MAC_MODE_XRTS:
-        // don't care          
-        break;
-      default:
-        // rimtodo: really unexpected?
-        //throw new RuntimeException("unexpected mode: "+getModeString(mode));
-          System.err.println("unexpected mode: "+getModeString(mode));
-    }
-  }
+	private void radioIdle()
+	{
+		switch(mode)
+		{
+		case MAC_MODE_SIDLE:
+			// TODO drc: are these in the right place
+		case MAC_MODE_SNAV: // not sure, but maybe we want to do Difs here
 
-  //////////////////////////////////////////////////
-  // timer routines
-  //
+			doDifs();
+			break;
+		case MAC_MODE_SWFCTS:
+		case MAC_MODE_SWFDATA:
+		case MAC_MODE_SWFACK:
+		case MAC_MODE_DIFS:
+		case MAC_MODE_SBO:
+		case MAC_MODE_XUNICAST:
+		case MAC_MODE_XBROADCAST:
+		case MAC_MODE_XACK:
+		case MAC_MODE_XCTS: // drc: added here (and below) due to exception
+		case MAC_MODE_XRTS:
+			// don't care          
+			break;
+		default:
+			// rimtodo: really unexpected?
+			//throw new RuntimeException("unexpected mode: "+getModeString(mode));
+			System.err.println("unexpected mode: "+getModeString(mode));
+		}
+	}
 
-  // MacInterface
-  public void startTimer(long delay, byte mode)
-  {
-    cancelTimer();
-    setMode(mode);
-    JistAPI.sleep(delay);
-    self.timeout(timerId);
-  }
+	//////////////////////////////////////////////////
+	// timer routines
+	//
 
-  /**
-   * Cancel timer event, by incrementing the timer identifer.
-   */
-  private void cancelTimer()
-  {
-    timerId++;
-  }
+	// MacInterface
+	public void startTimer(long delay, byte mode)
+	{
+		cancelTimer();
+		setMode(mode);
+		JistAPI.sleep(delay);
+		self.timeout(timerId);
+	}
 
-  private void idle()
-  {
-    cancelTimer();
-    setMode(MAC_MODE_SIDLE);
-  }
+	/**
+	 * Cancel timer event, by incrementing the timer identifer.
+	 */
+	private void cancelTimer()
+	{
+		timerId++;
+	}
 
-  // MacInterface
-  public void timeout(int timerId)
-  {
-    if(timerId!=this.timerId) return;
-    switch(mode)
-    {
-    	case MAC_MODE_SIDLE:
-    	    idle();
-    	    break;
-      case MAC_MODE_DIFS:
-        if(hasBackoff())
-        {
-          backoff();
-        }
-        else if(hasPacket())
-        {
-          sendPacket();
-        }
-        else
-        {
-          idle();
-          if (packet==null && packetNextHop==null) 
-              netEntity.pump(netId); // DRC: TODO check
-        }
-        break;
-      case MAC_MODE_SBO:
-        if(Main.ASSERT) Util.assertion(boStart + bo == JistAPI.getTime());
-        clearBackoff();
-        if(hasPacket())
-        {
-          sendPacket();
-        }
-        else
-        {
-          idle();
-        }
-        break;
-      case MAC_MODE_SNAV_RTS:
-      case MAC_MODE_SNAV:
-        resetNav();
-        doDifs();
-        break;
-      case MAC_MODE_SWFDATA:
-        setBackoff();
-        doDifs();
-        break;
+	private void idle()
+	{
+		cancelTimer();
+		setMode(MAC_MODE_SIDLE);
+	}
 
-      case MAC_MODE_SWFACK:
-          stats.retries++;
-      case MAC_MODE_SWFCTS:    
-        retry();
-        break;
-      default:
-        //throw new RuntimeException("unexpected mode: "+mode);
-        System.err.println("unexpected mode: "+getModeString(mode));
-    }
-  }
+	// MacInterface
+	public void timeout(int timerId)
+	{
+		if(timerId!=this.timerId) return;
+		switch(mode)
+		{
+		case MAC_MODE_SIDLE:
+			idle();
+			break;
+		case MAC_MODE_DIFS:
+			if(hasBackoff())
+			{
+				backoff();
+			}
+			else if(hasPacket())
+			{
+				sendPacket();
+			}
+			else
+			{
+				idle();
+				if (packet==null && packetNextHop==null) 
+					netEntity.pump(netId); // DRC: TODO check
+			}
+			break;
+		case MAC_MODE_SBO:
+			if(Main.ASSERT) Util.assertion(boStart + bo == JistAPI.getTime());
+			clearBackoff();
+			if(hasPacket())
+			{
+				sendPacket();
+			}
+			else
+			{
+				idle();
+			}
+			break;
+		case MAC_MODE_SNAV_RTS:
+		case MAC_MODE_SNAV:
+			resetNav();
+			doDifs();
+			break;
+		case MAC_MODE_SWFDATA:
+			setBackoff();
+			doDifs();
+			break;
 
-/**
- * @param sm The StreetMobility object to set.
- */
-public void setSm(StreetMobility sm) {
-    this.sm = sm;
-}
+		case MAC_MODE_SWFACK:
+			stats.retries++;
+		case MAC_MODE_SWFCTS:    
+			retry();
+			break;
+		default:
+			//throw new RuntimeException("unexpected mode: "+mode);
+			System.err.println("unexpected mode: "+getModeString(mode));
+		}
+	}
 
-/* (non-Javadoc)
- * @see jist.swans.mac.MacInterface.Mac802_11#getRadioActivity()
- */
-public void updateRadioActivity(double airTime) {
-    this.airTime = airTime;
-}
+	/**
+	 * @param sm The StreetMobility object to set.
+	 */
+	public void setSm(StreetMobility sm) {
+		this.sm = sm;
+	}
 
-@Override
-public String toString() {
-	return localAddr.toString();
-}
+	/* (non-Javadoc)
+	 * @see jist.swans.mac.MacInterface.Mac802_11#getRadioActivity()
+	 */
+	public void updateRadioActivity(double airTime) {
+		this.airTime = airTime;
+	}
+
+	@Override
+	public String toString() {
+		return localAddr.toString();
+	}
 }
 

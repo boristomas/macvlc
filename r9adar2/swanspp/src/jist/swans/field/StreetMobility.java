@@ -293,7 +293,6 @@ public abstract class StreetMobility implements Mobility {
      */
     private void updateLocations() {
         Iterator it = segments.iterator();
-        
         // fix segments
         while (it.hasNext())
         {
@@ -1771,7 +1770,7 @@ public abstract class StreetMobility implements Mobility {
         //TESTING RADAR CLASS--- GET BEARING OF CURRENT NODE
         VLC vlcDevice = new VLC(); 
         vlcDevice.origin = new Location.Location2D(start.getX(), start.getY()); 						//set the location of the radar on the map
-        
+      
         //may need to use smi.getEndPoint() to get the destination location
         float bearingAngle = vlcDevice.getBearing(vlcDevice.origin, end); 					//get the bearing between current location and destination
         vlcDevice.cornerPoint1 = vlcDevice.getVLCCornerPoint(bearingAngle - (vlcDevice.visionAngle/2), vlcDevice.origin, vlcDevice.distanceLimit, vlcDevice.visionAngle);

@@ -154,7 +154,6 @@ public class GenericDriver {
             if (location == null) {
                 return;
             }
-
             field.addRadio(radio.getRadioInfo(), radio.getProxy(), location);
             field.startMobility(radio.getRadioInfo().getUnique().getID());
         } else // nodes that are not participating in transmission
@@ -195,7 +194,7 @@ public class GenericDriver {
 
         MacInterface mac = new MacVLC(new MacAddress(i), radio.getRadioInfo());
         MacInterface macProxy = null;
-        macProxy = ((MacVLC)mac).getProxy();
+   //     macProxy = ((MacVLC)mac).getProxy();
         
         /*BT switch (je.mac) {
         case Constants.MAC_802_11:
@@ -224,7 +223,8 @@ public class GenericDriver {
         NetIp net = new NetIp(address, protMap, inLoss, outLoss /*, ipStats*/);
 
         //BT if (je.mac == Constants.MAC_802_11) {
-            ((MacVLC)mac).setNetEntity(net.getProxy(), (byte) Constants.NET_INTERFACE_DEFAULT);
+         //   ((MacVLC)mac).setNetEntity(net.getProxy(), (byte) Constants.NET_INTERFACE_DEFAULT);
+            macProxy = ((MacVLC)mac).getProxy();
        //BT }
 
         // transport
@@ -904,8 +904,7 @@ public class GenericDriver {
      * @param nodes set of all nodes
      * @param myRandom the random object to use
      */
-    private static void generateCBRTraffic(JistExperiment je, Vector sources,
-        Vector nodes, Random myRandom) {
+    private static void generateCBRTraffic(JistExperiment je, Vector sources, Vector nodes, Random myRandom) {
         long delayInterval = (long) (((double) je.cbrPacketSize / je.cbrRate) * 1 * Constants.SECOND);
         long iterations = (long) Math.ceil(((double) je.duration * (double) Constants.SECOND) / delayInterval);
         byte[] data = new byte[je.cbrPacketSize];
@@ -914,7 +913,6 @@ public class GenericDriver {
 
         System.out.println("Messages to send: " +
             (iterations * je.transmitters));
-
         int[] dests = new int[je.transmitters];
         boolean[] chosen = new boolean[nodes.size()];
 

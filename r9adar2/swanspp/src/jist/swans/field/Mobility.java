@@ -74,6 +74,11 @@ public interface Mobility
         boolean isStopped = false;
         public float getSpeed(){return 0L;};
         public Location getBearing(){return null;};
+        public float getBearingAsAngle()
+  	  {
+  			// TODO Auto-generated method stub
+  			return 0;
+  	  }
         public void setStopped(boolean stop){ isStopped = stop;};
         public boolean isStopped(){return isStopped;};
     };
@@ -88,6 +93,7 @@ public interface Mobility
      * @return
      */
     Location getBearing();
+    float getBearingAsAngle();
     
     public void setStopped(boolean stop);
     public boolean isStopped();
@@ -167,6 +173,11 @@ public interface Mobility
     public float speed;
     /** bearing */
     public Location bearing;
+    public float getBearingAsAngle()
+	  {
+			// TODO Auto-generated method stub
+			return 0;
+	  }
     
     public boolean isStopped;
     
@@ -584,6 +595,11 @@ public static class RandomDirectionInfo implements MobilityInfo
 		// TODO Auto-generated method stub
 		return null;
 	}
+	public float getBearingAsAngle()
+	  {
+			// TODO Auto-generated method stub
+			return 0;
+	  }
 
 	public float getSpeed() {
 		// TODO Auto-generated method stub
@@ -747,6 +763,11 @@ public static class BoundlessSimulationAreaInfo implements MobilityInfo
 		  this.direction= direction;
 	  }
 
+	  public float getBearingAsAngle()
+	  {
+			// TODO Auto-generated method stub
+			return 0;
+	  }
 	public Location getBearing() {
 		// TODO Auto-generated method stub
 		return null;

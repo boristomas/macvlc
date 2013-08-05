@@ -34,7 +34,6 @@ package jist.swans.field;
 import java.util.LinkedList;
 
 import driver.VisualizerInterface;
-
 import jist.swans.field.Mobility.MobilityInfo;
 import jist.swans.field.streets.Intersection;
 import jist.swans.field.streets.RoadSegment;
@@ -169,6 +168,27 @@ public class StreetMobilityInfo implements MobilityInfo {
             return current.getEndPoint().bearing(current.getStartPoint());
         }
     }
+    
+	/**
+	 * @param start is the starting point
+	 * @param end is the destination
+	 * returns an angle we call theta to discover the vlc device bounds via the getVLCBounds() method
+	 */
+	public float getBearingAsAngle()
+	{
+		float bearingAngle = 0.0f;
+		
+		bearingAngle = (float) Math.toDegrees(Math.atan2(current.getEndPoint().getY() - current.getStartPoint().getY(), current.getEndPoint().getX() - current.getStartPoint().getX()));
+		
+		if(bearingAngle < 0)
+		{
+			return bearingAngle + 360; 
+		}
+		else
+		{
+			return bearingAngle;
+		}
+	}
 
     /**
      * @return
