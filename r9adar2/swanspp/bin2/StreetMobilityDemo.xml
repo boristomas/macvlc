@@ -4,7 +4,7 @@
 
  <!-- timing -->
   <void property="duration"> 
-   <int>900</int> 
+   <int>90</int> 
   </void> 
   <void property="resolutionTime"> 
    <int>60</int> 
@@ -69,7 +69,7 @@
    <int>50</int> 
   </void> 
    <void property="transmitters"> 
-   <int>50</int> 
+   <int>10</int> 
   </void> 
     <void property="sendRate"> 
    <double>1.0</double> 

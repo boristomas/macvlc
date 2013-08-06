@@ -95,6 +95,7 @@ public abstract class MacMessage implements Message
    * @return packet destination address
    */
   public abstract MacAddress getDst();
+  public abstract MacAddress getSrc();
 
   /**
    * Return packet transmission duration.
@@ -241,6 +242,7 @@ public abstract class MacMessage implements Message
      * packet destination address.
      */
     private MacAddress dst;
+    private MacAddress src;
 
     /**
      * packet transmission duration.
@@ -257,10 +259,11 @@ public abstract class MacMessage implements Message
      * @param dst packet destination address
      * @param duration packet transmission duration
      */
-    public Cts(MacAddress dst, int duration)
+    public Cts(MacAddress dst, MacAddress src, int duration)
     {
       super(TYPE_CTS, false);
       this.dst = dst;
+      this.src = src;
       this.duration = duration;
     }
 
@@ -276,6 +279,10 @@ public abstract class MacMessage implements Message
     public MacAddress getDst()
     {
       return dst;
+    }
+    public MacAddress getSrc()
+    {
+      return src;
     }
 
     /**
@@ -340,6 +347,7 @@ public abstract class MacMessage implements Message
      * packet transmission duration.
      */
     private int duration;
+    private MacAddress src;
 
     //////////////////////////////////////////////////
     // initialization
@@ -351,10 +359,11 @@ public abstract class MacMessage implements Message
      * @param dst packet destination address
      * @param duration packet transmission duration
      */
-    public Ack(MacAddress dst, int duration)
+    public Ack(MacAddress dst, MacAddress src,int duration)
     {
       super(TYPE_ACK, false);
       this.dst = dst;
+      this.src = src;
       this.duration = duration;
     }
 
@@ -370,6 +379,10 @@ public abstract class MacMessage implements Message
     public MacAddress getDst()
     {
       return dst;
+    }
+    public MacAddress getSrc()
+    {
+      return src;
     }
 
     /**

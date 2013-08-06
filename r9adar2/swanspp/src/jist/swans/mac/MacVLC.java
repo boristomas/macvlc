@@ -881,7 +881,7 @@ public class MacVLC implements MacInterface.Mac802_11
 	private void sendCts(MacMessage.Rts rts)
 	{
 		// create cts packet
-		MacMessage.Cts cts = new MacMessage.Cts(rts.getSrc(), (int)(
+		MacMessage.Cts cts = new MacMessage.Cts(rts.getSrc(), rts.getDst(), (int)(
 				rts.getDuration() 
 				- (MacMessage.Cts.SIZE+SYNCHRONIZATION)*Constants.SECOND/bandwidth
 				- PROPAGATION - SIFS));
@@ -910,127 +910,19 @@ public class MacVLC implements MacInterface.Mac802_11
 			sendDataUnicast(afterCts);
 		}
 	}
-	//bt
-	/**
-	 * This method will need to be called two times. Each call will detect one corner point of the vlc device's view
-	 * @param theta: the angle of the bearing +- visionAngle
-	 * @param origin: starting point
-	 * @param distanceLimit: the max distance the vlc device can see
-	 * @param visionAngle: the angle at which the vlc device can see from the front of the car
-	 */
-	public Location getVLCCornerPoint(float theta, Location origin, float distanceLimit, int visionAngle)
-	{
-		Location cornerPoint; 
-		int quadrant = 0; 
-		float hypotenuse = (float)(distanceLimit/Math.cos(((visionAngle/2)*Math.PI)/(180))); 
 
-		//first detect what quadrant theta falls, to see how bearing affects corner points
-		if(theta >= 0 && theta <= 90)
-		{
-			quadrant = 1;
-
-			cornerPoint = new Location.Location2D((float) (hypotenuse * Math.cos((Math.PI*(theta))/(180))), (float) (hypotenuse * Math.sin((Math.PI*(theta))/(180))));			
-		}
-		else if(theta > 90 && theta <= 180)
-		{
-			quadrant = 2; 	
-			cornerPoint = new Location.Location2D((float) (-1 * hypotenuse * Math.cos((Math.PI*(90*quadrant-theta))/(180))), (float) (hypotenuse * Math.sin((Math.PI*(90*quadrant-theta))/(180)))); 
-		}
-		else if(theta > 180 && theta <= 270)
-		{
-			quadrant = 3;
-			//x coordinate needs sin function here. the Y axis between the 3rd and 4th quadrants is being used to compute the angle.
-			//likewise, cos needs to be used here to find the y coordinate.
-			cornerPoint = new Location.Location2D((float) (-1 * hypotenuse * Math.sin((Math.PI*(90*quadrant-theta))/(180))), (float) (-1 * hypotenuse * Math.cos((Math.PI*(90*quadrant-theta))/(180))));					
-		}
-		else
-		{
-			quadrant = 4;		
-			cornerPoint = new Location.Location2D((float) (hypotenuse * Math.cos((Math.PI*(90*quadrant-theta))/(180))), (float) (-1 * hypotenuse * Math.sin((Math.PI*(90*quadrant-theta))/(180))));
-		}
-
-		return cornerPoint; 
-	}
-	/**
-	 * Is the location being checked visible to vlc device?
-	 * 
-	 * @param p1,p2 are the coordinates to be checked corresponding to the x,y values
-	 * @param x1,y1 are the x,y coordinates of the first point on the triangle, probably the origin -- or starting location of the node/car
-	 * @param x2,y2 are the x,y coordinates of the second point on the triangle, 1 corner point calculated by the getVLCBounds method
-	 * @param x3,y3 are the x,y coordinates of the third point on the triangle, a second point calculated by the getVLCBounds method
-	 * @return true/false of whether or not the location falls within our calculated vlc bounds. 
-	 */
-	public boolean visibleToVLCdevice(float p1, float p2, float x1, float y1, float x2, float y2, float x3, float y3)		
-	{		
-
-		if(tripletOrientation(x1,y1,x2,y2,p1,p2)*tripletOrientation(x1,y1,x2,y2,x3,y3)>0 && tripletOrientation(x2,y2,x3,y3,p1,p2)*tripletOrientation(x2,y2,x3,y3,x1,y1)>0 && tripletOrientation(x3,y3,x1,y1,p1,p2)*tripletOrientation(x3,y3,x1,y1,x2,y2)>0)
-		{
-			return true;
-		}
-		else
-		{
-			return false; 
-		}
-	}
-
-	public float tripletOrientation(float x1, float y1, float x2, float y2, float x3, float y3)
-	{
-		return x1*(y2 - y3) + x2*(y3 - y1) + x3*(y1 - y2);  
-	}
-
-
-	private Location cornerPoint1;
-	private Location cornerPoint2;
-	float distanceLimit = 250; 	//distance limit the vlc device can see in front of it, def:250
-	int visionAngle = 60; 		//The viewing angle the of the vlc device, default is 60 degrees 
-
-	private LinkedList<Integer> getQualifiyingNodes()
-	{
-		LinkedList<Integer> returnNodes = new LinkedList<Integer>();
-
-		//float bearingAngle = JistExperiment.getJistExperiment().visualizer.getField().getRadioData(SourceNodeID).getMobilityInfo().getBearingAsAngle();
-		float bearingAngle = Field.getRadioData(SourceNodeID).getMobilityInfo().getBearingAsAngle();
-
-		cornerPoint1 = getVLCCornerPoint(bearingAngle - (visionAngle/2), Field.getRadioData(SourceNodeID).getLocation(), distanceLimit, visionAngle);
-		cornerPoint2 = getVLCCornerPoint(bearingAngle + (visionAngle/2), Field.getRadioData(SourceNodeID).getLocation(), distanceLimit, visionAngle);
-
-		//go over all nodes, check if they're inside current radar's range
-		/*Polygon poly = new Polygon();
-		poly.addPoint((int)Field.getRadioData(SourceNodeID).getLocation().getX(), (int)Field.getRadioData(SourceNodeID).getLocation().getY());
-		poly.addPoint((int)cornerPoint1.getX(), (int)cornerPoint1.getY());
-		poly.addPoint((int)cornerPoint2.getX(), (int)cornerPoint2.getY());
-		JistExperiment.getJistExperiment().visualizer.drawPolygon(poly);//(10, Field.getRadioData(i).getLocation());//ip, color);.drawAnimatedTransmitCircle(i, Color.RED);
-		JistExperiment.getJistExperiment().visualizer.pause();*/
-	 
-		for(int i=1;i<JistExperiment.getJistExperiment().getNodes(); i++) 
-		{
-			if(SourceNodeID != i)
-			{
-				if(visibleToVLCdevice(Field.getRadioData(i).getLocation().getX(), Field.getRadioData(i).getLocation().getY(),Field.getRadioData(SourceNodeID).getLocation().getX(), Field.getRadioData(SourceNodeID).getLocation().getY(), cornerPoint2.getX(), cornerPoint2.getY(), cornerPoint1.getX(), cornerPoint1.getY()))
-				{
-					returnNodes.add(i);
-				}
-			}
-		}
-		System.out.print("VLC visible nodes for me= " +SourceNodeID + " are : ");
-		for (Integer item : returnNodes) {
-			System.out.print(item.toString() + ", ");
-		}
-		System.out.println("");
-		return returnNodes;
-	}
 	private void sendDataBroadcast()
 	{
 		//bt: send to all nodes in triangle range
 
 		MacMessage.Data msg;
-		for (Integer item : getQualifiyingNodes()) 
+	/*	for (Integer item : getQualifiyingNodes()) 
 		{
 			//msg = new MacMessage.Data( new MacAddress(item), localAddr, 0, packet);
 			packetNextHop = new MacAddress(item);
 			sendDataUnicast(false);
 			//send(msg, new MacAddress(item));
-		}
+		}*/
 		/*
 		// create data packet
 		MacMessage.Data data = new MacMessage.Data(
@@ -1047,14 +939,14 @@ public class MacVLC implements MacInterface.Mac802_11
 
 	private void sendDataUnicast(boolean afterCts)
 	{
-		if(!getQualifiyingNodes().contains(packetNextHop.hashCode()))
+	/*	if(!getQualifiyingNodes().contains(packetNextHop.hashCode()))
 		{
 			//bt drop
 			System.out.println("VLC: dropped because node is not in LOS  from: "+SourceNodeID + " to: " +packetNextHop.toString() );
 			return;
 		}
 		System.out.println("VLC: not dropped because node is in LOS ");
-		
+		*/
 		// create data packet
 		MacMessage.Data data = new MacMessage.Data(
 				packetNextHop, localAddr, (int)(
@@ -1066,7 +958,7 @@ public class MacVLC implements MacInterface.Mac802_11
 						packet);
 		// set mode and transmit
 		setMode(MAC_MODE_XUNICAST);
-		xfcf long delay = afterCts ? SIFS : RX_TX_TURNAROUND, duration = transmitTime(data);
+		long delay = afterCts ? SIFS : RX_TX_TURNAROUND, duration = transmitTime(data);
 
 		radioEntity.transmit(data, delay, duration);
 
@@ -1090,12 +982,13 @@ public class MacVLC implements MacInterface.Mac802_11
 				+ PROPAGATION,
 				MAC_MODE_SWFACK);
 		self.cfDone(true, true);
+		//radioEntity.endTransmit();
 	}
 
 	private void sendAck(MacMessage.Data data)
 	{
 		// create ack
-		MacMessage.Ack ack = new MacMessage.Ack(data.getSrc(), 0);
+		MacMessage.Ack ack = new MacMessage.Ack(data.getSrc(), data.getDst(), 0);
 		// set mode and transmit
 		setMode(MAC_MODE_XACK);
 		long delay = SIFS, duration = transmitTime(ack);
@@ -1230,7 +1123,7 @@ public class MacVLC implements MacInterface.Mac802_11
 			}
 		}
 		else if(MacAddress.ANY.equals(dst))
-		{
+		{//bcast
 			switch(msg.getType())
 			{
 			case MacMessage.TYPE_DATA:

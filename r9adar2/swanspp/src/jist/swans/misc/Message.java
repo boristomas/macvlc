@@ -19,6 +19,8 @@ package jist.swans.misc;
 
 public interface Message extends jist.runtime.JistAPI.Timeless
 {
+//	int getSource();
+	//int getDestination();
 
   /** A null/empty message. */
   Message NULL = new MessageBytes(MessageBytes.EMPTY);

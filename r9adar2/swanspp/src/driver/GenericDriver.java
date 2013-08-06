@@ -62,7 +62,6 @@ import jist.swans.mac.Mac802_11;
 import jist.swans.mac.MacAddress;
 import jist.swans.mac.MacDumb;
 import jist.swans.mac.MacInterface;
-import jist.swans.mac.MacVLC;
 import jist.swans.misc.Location;
 import jist.swans.misc.Mapper;
 import jist.swans.misc.Message;
@@ -132,11 +131,10 @@ public class GenericDriver {
         if (nodes != null) {
             // radio
         	radio = new RadioVLC(i, radioInfo);
-        	/*
-            switch (je.radioNoiseType) {
+        	
+  /*bt          switch (je.radioNoiseType) {
             case Constants.RADIO_NOISE_INDEP:
                 radio = new RadioNoiseIndep(i, radioInfo);
-
                 break;
 
             case Constants.RADIO_NOISE_ADDITIVE:
@@ -146,19 +144,19 @@ public class GenericDriver {
 
             default:
                 throw new RuntimeException("Invalid radio model!");
-            }*/
-
+            }
+*/
             // placement
             location = place.getNextLocation();
 
             if (location == null) {
                 return;
             }
+
             field.addRadio(radio.getRadioInfo(), radio.getProxy(), location);
             field.startMobility(radio.getRadioInfo().getUnique().getID());
         } else // nodes that are not participating in transmission
          {
-        	//BT: should never happen.
             // radio
             radio = new RadioNoiseIndep(i, radioInfo);
             // placement
@@ -192,11 +190,10 @@ public class GenericDriver {
             }
         }
 
-        MacInterface mac = new MacVLC(new MacAddress(i), radio.getRadioInfo());
+        MacInterface mac = new Mac802_11(new MacAddress(i), radio.getRadioInfo());
         MacInterface macProxy = null;
-   //     macProxy = ((MacVLC)mac).getProxy();
-        
-        /*BT switch (je.mac) {
+
+        switch (je.mac) {
         case Constants.MAC_802_11:
             mac = new Mac802_11(new MacAddress(i), radio.getRadioInfo());
             ((Mac802_11) mac).setRadioEntity(radio.getProxy());
@@ -210,7 +207,7 @@ public class GenericDriver {
             macProxy = ((MacDumb) mac).getProxy();
 
             break;
-        }*/
+        }
 
         if (mobility instanceof StreetMobility) {
             StreetMobility sm = (StreetMobility) mobility;
@@ -222,10 +219,10 @@ public class GenericDriver {
         final NetAddress address = new NetAddress(i);
         NetIp net = new NetIp(address, protMap, inLoss, outLoss /*, ipStats*/);
 
-        //BT if (je.mac == Constants.MAC_802_11) {
-         //   ((MacVLC)mac).setNetEntity(net.getProxy(), (byte) Constants.NET_INTERFACE_DEFAULT);
-            macProxy = ((MacVLC)mac).getProxy();
-       //BT }
+        if (je.mac == Constants.MAC_802_11) {
+            ((Mac802_11) mac).setNetEntity(net.getProxy(),
+                (byte) Constants.NET_INTERFACE_DEFAULT);
+        }
 
         // transport
         TransUdp udp = new TransUdp();
@@ -234,7 +231,9 @@ public class GenericDriver {
         radio.setFieldEntity(field.getProxy());
         radio.setMacEntity(macProxy);
 
-        byte intId = net.addInterface(macProxy, new MessageQueue.DropMessageQueue(Constants.NET_PRIORITY_NUM,300));
+        byte intId = net.addInterface(macProxy,
+                new MessageQueue.DropMessageQueue(Constants.NET_PRIORITY_NUM,
+                    300));
         mac.setRadioEntity(radio.getProxy());
         mac.setNetEntity(net.getProxy(), intId);
         udp.setNetEntity(net.getProxy());
@@ -904,7 +903,8 @@ public class GenericDriver {
      * @param nodes set of all nodes
      * @param myRandom the random object to use
      */
-    private static void generateCBRTraffic(JistExperiment je, Vector sources, Vector nodes, Random myRandom) {
+    private static void generateCBRTraffic(JistExperiment je, Vector sources,
+        Vector nodes, Random myRandom) {
         long delayInterval = (long) (((double) je.cbrPacketSize / je.cbrRate) * 1 * Constants.SECOND);
         long iterations = (long) Math.ceil(((double) je.duration * (double) Constants.SECOND) / delayInterval);
         byte[] data = new byte[je.cbrPacketSize];
@@ -913,6 +913,7 @@ public class GenericDriver {
 
         System.out.println("Messages to send: " +
             (iterations * je.transmitters));
+
         int[] dests = new int[je.transmitters];
         boolean[] chosen = new boolean[nodes.size()];
 

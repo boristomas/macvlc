@@ -13,7 +13,6 @@ import jist.swans.misc.Message;
 import jist.swans.misc.Util;
 import jist.swans.Constants;
 import jist.swans.Main;
-
 import jist.runtime.JistAPI;
 
 /** 
@@ -138,6 +137,46 @@ public final class RadioNoiseIndep extends RadioNoise
       if(signals==0) setMode(Constants.RADIO_MODE_IDLE);
     }
   }
+  //////////////////////////////////////////////////
+  // transmission
+  //
+
+  // RadioInterface interface
+  /** {@inheritDoc} */
+  public void transmit(Message msg, long delay, long duration)
+  {  
+    // radio in sleep mode
+    if(mode==Constants.RADIO_MODE_SLEEP) return;
+    // ensure not currently transmitting
+    if(mode==Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio already transmitting");
+    // clear receive buffer
+    assert(signalBuffer==null);
+    signalBuffer = null;
+    
+    // use default delay, if necessary
+    if(delay==Constants.RADIO_NOUSER_DELAY) delay = Constants.RADIO_PHY_DELAY;
+    // set mode to transmitting
+    setMode(Constants.RADIO_MODE_TRANSMITTING);
+    // schedule message propagation delay
+    JistAPI.sleep(delay);
+    fieldEntity.transmit(radioInfo, msg, duration);
+    // schedule end of transmission
+    JistAPI.sleep(duration);
+    self.endTransmit();
+  }
+
+  // RadioInterface interface
+  /** {@inheritDoc} */
+  public void endTransmit()
+  {
+    // radio in sleep mode
+    if(mode==Constants.RADIO_MODE_SLEEP) return;
+    // check that we are currently transmitting
+    if(mode!=Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio is not transmitting");
+    // set mode
+    setMode(signals>0 ? Constants.RADIO_MODE_RECEIVING : Constants.RADIO_MODE_IDLE);
+  }
+
 
 } // class: RadioNoiseIndep
 

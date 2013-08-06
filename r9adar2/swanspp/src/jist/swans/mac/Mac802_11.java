@@ -850,7 +850,7 @@ public static MacStats stats = new MacStats();
   private void sendCts(MacMessage.Rts rts)
   {
     // create cts packet
-    MacMessage.Cts cts = new MacMessage.Cts(rts.getSrc(), (int)(
+    MacMessage.Cts cts = new MacMessage.Cts(rts.getSrc(), rts.getDst(), (int)(
           rts.getDuration() 
           - (MacMessage.Cts.SIZE+SYNCHRONIZATION)*Constants.SECOND/bandwidth
            - PROPAGATION - SIFS));
@@ -935,7 +935,7 @@ public static MacStats stats = new MacStats();
   private void sendAck(MacMessage.Data data)
   {
     // create ack
-    MacMessage.Ack ack = new MacMessage.Ack(data.getSrc(), 0);
+    MacMessage.Ack ack = new MacMessage.Ack(data.getSrc(), data.getDst(), 0);
     // set mode and transmit
     setMode(MAC_MODE_XACK);
     long delay = SIFS, duration = transmitTime(ack);

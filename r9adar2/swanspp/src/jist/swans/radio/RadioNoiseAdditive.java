@@ -13,7 +13,6 @@ import java.awt.Color;
 import java.util.HashMap;
 
 import driver.Visualizer;
-
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.Main;
@@ -306,6 +305,46 @@ public class RadioNoiseAdditive extends RadioNoise
         throw new RuntimeException("unknown radio mode");
     }
   } // function: endReceive
+  //////////////////////////////////////////////////
+  // transmission
+  //
+
+  // RadioInterface interface
+  /** {@inheritDoc} */
+  public void transmit(Message msg, long delay, long duration)
+  {  
+    // radio in sleep mode
+    if(mode==Constants.RADIO_MODE_SLEEP) return;
+    // ensure not currently transmitting
+    if(mode==Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio already transmitting");
+    // clear receive buffer
+    assert(signalBuffer==null);
+    signalBuffer = null;
+    
+    // use default delay, if necessary
+    if(delay==Constants.RADIO_NOUSER_DELAY) delay = Constants.RADIO_PHY_DELAY;
+    // set mode to transmitting
+    setMode(Constants.RADIO_MODE_TRANSMITTING);
+    // schedule message propagation delay
+    JistAPI.sleep(delay);
+    fieldEntity.transmit(radioInfo, msg, duration);
+    // schedule end of transmission
+    JistAPI.sleep(duration);
+    self.endTransmit();
+  }
+
+  // RadioInterface interface
+  /** {@inheritDoc} */
+  public void endTransmit()
+  {
+    // radio in sleep mode
+    if(mode==Constants.RADIO_MODE_SLEEP) return;
+    // check that we are currently transmitting
+    if(mode!=Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio is not transmitting");
+    // set mode
+    setMode(signals>0 ? Constants.RADIO_MODE_RECEIVING : Constants.RADIO_MODE_IDLE);
+  }
+
 
 } // class: RadioNoiseAdditive
 

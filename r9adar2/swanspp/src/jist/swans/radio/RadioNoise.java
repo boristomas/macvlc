@@ -19,14 +19,13 @@ import java.util.Map.Entry;
 import driver.Visualizer;
 import jist.swans.field.FieldInterface;
 import jist.swans.mac.Mac802_11;
+import jist.swans.mac.MacAddress;
 import jist.swans.mac.MacInterface;
 import jist.swans.mac.MacStats;
 import jist.swans.misc.Message;
 import jist.swans.mac.MacMessage;
 import jist.swans.net.NetMessage;
-
 import jist.swans.Constants;
-
 import jist.runtime.JistAPI;
 
 /** 
@@ -266,8 +265,7 @@ protected long seqNumber;
   protected void lockSignal(Message msg, double power_mW, long duration)
   {
       if (TRACK_DROPS && signalBuffer!=null){
-    	  stats.updateDrops(msg, signalBuffer, radioInfo.getUnique().getID(), 
-    			  mode);
+    	  stats.updateDrops(msg, signalBuffer, radioInfo.getUnique().getID(), mode);
       }
       seqNumber++;
     signalBuffer = msg;
@@ -284,47 +282,7 @@ protected long seqNumber;
     signalBuffer = null;
     signalPower_mW = 0;
     signalFinish = -1;
-  }
-
-  //////////////////////////////////////////////////
-  // transmission
-  //
-
-  // RadioInterface interface
-  /** {@inheritDoc} */
-  public void transmit(Message msg, long delay, long duration)
-  {
-    // radio in sleep mode
-    if(mode==Constants.RADIO_MODE_SLEEP) return;
-    // ensure not currently transmitting
-    if(mode==Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio already transmitting");
-    // clear receive buffer
-    assert(signalBuffer==null);
-    signalBuffer = null;
-    // use default delay, if necessary
-    if(delay==Constants.RADIO_NOUSER_DELAY) delay = Constants.RADIO_PHY_DELAY;
-    // set mode to transmitting
-    setMode(Constants.RADIO_MODE_TRANSMITTING);
-    // schedule message propagation delay
-    JistAPI.sleep(delay);
-    fieldEntity.transmit(radioInfo, msg, duration);
-    // schedule end of transmission
-    JistAPI.sleep(duration);
-    self.endTransmit();
-  }
-
-  // RadioInterface interface
-  /** {@inheritDoc} */
-  public void endTransmit()
-  {
-    // radio in sleep mode
-    if(mode==Constants.RADIO_MODE_SLEEP) return;
-    // check that we are currently transmitting
-    if(mode!=Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio is not transmitting");
-    // set mode
-    setMode(signals>0 ? Constants.RADIO_MODE_RECEIVING : Constants.RADIO_MODE_IDLE);
-  }
-  
+  }  
   public void recordActivity(long congestionInterval)
   {
       long currentTime = JistAPI.getTime();
