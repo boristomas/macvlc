@@ -4,8 +4,8 @@ import jist.swans.misc.Location;
 public class VLC {
 	
 	//TODO: currently there is only one device but should be 4x2=8
-	float distanceLimit = 250; 	//distance limit the vlc device can see in front of it
-	int visionAngle = 60; 		//The viewing angle the of the vlc device, default is 60 degrees 
+	float distanceLimit = 2350; 	//distance limit the vlc device can see in front of it
+	int visionAngle = 350; 		//The viewing angle the of the vlc device, default is 60 degrees 
 	
 	/**
 	 * serving as the (x,y) point closest to the vehicle as looking away from the car with the vlc device installed

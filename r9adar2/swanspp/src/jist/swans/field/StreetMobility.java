@@ -331,7 +331,7 @@ public abstract class StreetMobility implements Mobility {
         Location centerLine;
         RoadSegment oldRs;
                
-        if (v!=null) v.updateTime(JistAPI.getTime());
+         if (v!=null) v.updateTime(JistAPI.getTime());
         if (info.isStopped()){
             JistAPI.sleep(Constants.SECOND);
             f.moveRadio(id, loc);

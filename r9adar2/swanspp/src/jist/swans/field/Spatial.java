@@ -409,6 +409,7 @@ public abstract class Spatial
     /** {@inheritDoc} */
     public Field.RadioData move(Field.RadioData rd, Location l2)
     {
+    	//System.out.println("BiT: nodeid= " + rd.info.getUnique().getID().toString() + " old loc = " + rd.loc.toString() + " new loc = " + l2.toString() + " -420");
       if(l2.inside(bl, tr))
       {
         rd.loc = l2;
@@ -419,6 +420,7 @@ public abstract class Spatial
         del(rd);
         return rd;
       }
+      
     }
 
     /** {@inheritDoc} */
@@ -825,12 +827,14 @@ public abstract class Spatial
     /** {@inheritDoc} */
     public Field.RadioData move(Field.RadioData rd, Location l2)
     {
+    	//System.out.println("BiT: nodeid= " + rd.info.getUnique().getID().toString() + " old loc = " + rd.loc.toString() + " new loc = " + l2.toString() + " -830");
       if(Main.ASSERT) Util.assertion(rd.loc.inside(bl, tr));
       rd = getBin(rd.loc).move(rd, l2);
       if(rd==null) return null;
+      rd.loc = l2;
       if(l2.inside(bl, tr))
       {
-        rd.loc = l2;
+        
         getBin(l2).add(rd);
         return null;
       }

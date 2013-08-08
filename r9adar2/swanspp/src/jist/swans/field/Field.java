@@ -15,7 +15,6 @@ import jist.swans.misc.Message;
 import jist.swans.misc.Location;
 import jist.swans.misc.Util;
 import jist.swans.Constants;
-
 import jist.runtime.JistAPI;
 
 import org.apache.log4j.Logger;
@@ -321,7 +320,9 @@ public class Field implements FieldInterface
     }
     // update spatial data structure
     RadioData rd = getRadioData(id);
+   // rd.loc = loc;
     spatial.moveInside(rd, loc);
+ //   System.out.println("BiT: nodeid= " + rd.info.getUnique().getID().toString() + " old loc = " + rd.loc.toString() + " new loc = " + loc.toString() + " -320");
     // schedule next step
     if(rd.mobilityInfo!=null)
     {
