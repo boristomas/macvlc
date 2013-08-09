@@ -130,7 +130,8 @@ public class GenericDriver {
 
         if (nodes != null) {
             // radio
-        	radio = new RadioVLC(i, radioInfo);
+        	location = place.getNextLocation();//bt
+        	radio = new RadioVLC(i, radioInfo, location);
         	
   /*bt          switch (je.radioNoiseType) {
             case Constants.RADIO_NOISE_INDEP:
@@ -147,7 +148,7 @@ public class GenericDriver {
             }
 */
             // placement
-            location = place.getNextLocation();
+            
 
             if (location == null) {
                 return;

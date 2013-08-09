@@ -66,10 +66,10 @@
 
    <!-- node options -->
    <void property="nodes"> 
-   <int>500</int> 
+   <int>50</int> 
   </void> 
    <void property="transmitters"> 
-   <int>100</int> 
+   <int>20</int> 
   </void> 
     <void property="sendRate"> 
    <double>1.0</double> 
