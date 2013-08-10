@@ -10,6 +10,7 @@
 package jist.swans.radio;
 
 import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -27,6 +28,7 @@ import jist.swans.misc.Util;
 import jist.swans.Constants;
 import jist.swans.Main;
 import jist.runtime.JistAPI;
+import jsi.rtree.RTree;
 
 /** 
  * <code>RadioNoiseIndep</code> implements a radio with an independent noise model.
@@ -79,8 +81,8 @@ public final class RadioVLC extends RadioNoise
 		private float sensorBearingRelative;
 		private float tmpx;
 		private float tmpy;
-		
-		
+
+
 		public VLCsensor(int sensorID, RadioVLC node, float distancelimit, float visionAngle,Location originalLoc, float offsetX, float offsetY, float bearing, SensorModes mode) 
 		{
 			this.node = node;
@@ -99,11 +101,11 @@ public final class RadioVLC extends RadioNoise
 			tmpx= (float) ((NodeLocation.getX()+ offsetX)* Math.cos(NodeBearing) - (NodeLocation.getY() + offsetY) * Math.sin(NodeBearing));
 			tmpy= (float) ((NodeLocation.getX()+ offsetX)* Math.sin(NodeBearing) + (NodeLocation.getY() + offsetY) * Math.cos(NodeBearing));
 			sensorLocation = new Location.Location2D(tmpx, tmpy);
-			
+
 			sensorLocation1 = getVLCCornerPoint(sensorBearingRelative - (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
 			sensorLocation2 = getVLCCornerPoint(sensorBearingRelative + (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
 		}
-		
+
 		/**
 		 * This method will need to be called two times. Each call will detect one corner point of the vlc device's view
 		 * @param theta: the angle of the bearing +- visionAngle
@@ -147,7 +149,7 @@ public final class RadioVLC extends RadioNoise
 
 		/*public LinkedList<Location> getCoverageNodes()
 		{
-			
+
 		}*/
 
 	}//VLCsensor
@@ -164,7 +166,13 @@ public final class RadioVLC extends RadioNoise
 	private Location cornerPoint2;
 	float distanceLimit = 250; 	//distance limit the vlc device can see in front of it, def:250
 	int visionAngle = 60; 		//The viewing angle the of the vlc device, default is 60 degrees
-
+	private float offsetx;
+	private float offsety;
+	public jsi.Rectangle outlineShape;
+	float tmpx1, tmpy1, tmpx2, tmpy2;
+	float NodeBearing;
+	Location NodeLocation;
+	
 	//////////////////////////////////////////////////
 	// initialize
 	//
@@ -194,15 +202,16 @@ public final class RadioVLC extends RadioNoise
 		setThresholdSNR(thresholdSNR);
 		//http://en.wikipedia.org/wiki/Rotation_matrix
 		Random rand = new Random();
-		
-		float offsetx = (float) (vehicleLength + rand.nextGaussian()*vehicleDevLength);
-		//float offsety = (float) (vehicleWidth + rand.nextGaussian()*vehicleDevWidth);
+
+		offsetx = (float) (vehicleLength + rand.nextGaussian()*vehicleDevLength);
+		offsety = (float) (vehicleWidth + rand.nextGaussian()*vehicleDevWidth);
 		float offsety= 0; 
-		
+
 		sensors.add(new VLCsensor(1, this, 250, 60, location, offsetx, offsety, 0, SensorModes.Send));//front Tx
 		sensors.add(new VLCsensor(2, this, 250, 80, location, offsetx, offsety, 0, SensorModes.Receive));//front Rx
 		sensors.add(new VLCsensor(3, this, 250, 60, location, -1*offsetx, offsety, 180, SensorModes.Send));//back Tx
 		sensors.add(new VLCsensor(4, this, 250, 80, location, -1*offsetx, offsety, 180, SensorModes.Receive));//front Rx
+		checkLocation();
 	}
 
 	//////////////////////////////////////////////////
@@ -218,7 +227,7 @@ public final class RadioVLC extends RadioNoise
 	{
 		this.thresholdSNR = snrThreshold;
 	}
-	
+
 	public void checkLocation()
 	{
 		newLocation = Field.getRadioData(NodeID).getLocation();
@@ -235,9 +244,31 @@ public final class RadioVLC extends RadioNoise
 			//ima promjena lokacije
 		}
 		currentLocation= newLocation;
-		for (VLCsensor sensor : sensors) {
+		for (VLCsensor sensor : sensors) 
+		{
 			sensor.UpdateShape(currentLocation, Field.getRadioData(NodeID).getMobilityInfo().getBearingAsAngle());
 		}
+		//update node shape (rectangle)
+		
+		NodeBearing = Field.getRadioData(NodeID).getMobilityInfo().getBearingAsAngle();
+		NodeLocation =Field.getRadioData(NodeID).getLocation(); 
+		/*tmpx1 = NodeLocation.getX();
+		tmpy1 = NodeLocation.getY();
+		tmpx2 =tmpx1;
+		tmpy2 = tmpy1;
+		
+		tmpx1 = tmpx1 + offsetx;
+		tmpy1 = tmpy1 + offsety;
+		tmpx2 = tmpx2 - offsetx;
+		tmpy2 = tmpy2 - offsety;*/
+		
+		
+		tmpx1= (float) ((NodeLocation.getX() +offsetx)* Math.cos(NodeBearing) - (NodeLocation.getY() + offsety) * Math.sin(NodeBearing));
+		tmpy1= (float) ((NodeLocation.getY() +offsety)* Math.cos(NodeBearing) - (NodeLocation.getX() + offsetx) * Math.sin(NodeBearing));
+		tmpx2= (float) ((NodeLocation.getX() -offsetx)* Math.cos(NodeBearing) - (NodeLocation.getY() - offsety) * Math.sin(NodeBearing));
+		tmpy2= (float) ((NodeLocation.getY() -offsety)* Math.cos(NodeBearing) - (NodeLocation.getX() - offsetx) * Math.sin(NodeBearing));
+		outlineShape = new jsi.Rectangle(tmpx1, tmpy1, tmpx2, tmpy2);
+		
 	}
 
 	//////////////////////////////////////////////////
@@ -248,7 +279,7 @@ public final class RadioVLC extends RadioNoise
 	/** {@inheritDoc} */
 	public void receive(Message msg, Double powerObj_mW, Long durationObj)
 	{ 
-		
+
 		final double power_mW = powerObj_mW.doubleValue();
 		final long duration = durationObj.longValue();
 		// ignore if below sensitivity
@@ -258,12 +289,12 @@ public final class RadioVLC extends RadioNoise
 		}
 		checkLocation();
 		// discard message if below threshold
-		if(!CanTalk(((MacMessage)msg).getSrc().hashCode(), radioInfo.unique.getID()))
-		{
-			//System.out.println("TALK rcv :( ");
-			return;
-		}
-
+			if(!CanTalk(((MacMessage)msg).getSrc().hashCode(), radioInfo.unique.getID(), SensorModes.Receive))
+			{
+				//System.out.println("TALK rcv :( ");
+				return;
+			}
+		
 		System.out.println("TALK rcv :) msg hc: " + msg.hashCode() + " from: " +((MacMessage)msg).getSrc().hashCode()+ " to: " + radioInfo.unique.getID()  );
 		//System.out.println("TALK rcv :) ");
 
@@ -326,8 +357,7 @@ public final class RadioVLC extends RadioNoise
 	// RadioInterface interface
 	/** {@inheritDoc} */
 	public void transmit(Message msg, long delay, long duration)
-	{  
-		
+	{
 		// radio in sleep mode
 		if(mode==Constants.RADIO_MODE_SLEEP) return;
 		// ensure not currently transmitting
@@ -339,7 +369,7 @@ public final class RadioVLC extends RadioNoise
 
 		if(((MacMessage)msg).getDst().hashCode() != -1)
 		{
-			if(!CanTalk(((MacMessage)msg).getSrc().hashCode(), ((MacMessage)msg).getDst().hashCode()))
+			if(!CanTalk(((MacMessage)msg).getSrc().hashCode(), ((MacMessage)msg).getDst().hashCode(), SensorModes.Send))
 			{
 				//	System.out.println("TALK :( ");
 				return;
@@ -377,14 +407,29 @@ public final class RadioVLC extends RadioNoise
 
 
 	//bt
-	private boolean CanTalk(int SourceID, int DestinationID)
+	private boolean CanTalk(int SourceID, int DestinationID, SensorModes mode)
 	{
 		//  System.out.println("can we talk? me= " +SourceID + " him= "+ DestinationID);
 		if(DestinationID != -1)
 		{
-			if(getQualifiyingNodes(SourceID).contains(DestinationID) && getQualifiyingNodes(DestinationID).contains(SourceID))
+			if(mode == SensorModes.Send)
+			{//znaci sourceid šalje
+				if(getQualifiyingNodes(SourceID, mode).contains(DestinationID) && getQualifiyingNodes(DestinationID, SensorModes.Receive).contains(SourceID))
+				{
+					return true;
+				}
+			}
+			else if( mode == SensorModes.Receive)
+			{//znaci source sluša poruke
+				if(getQualifiyingNodes(SourceID, mode).contains(DestinationID) && getQualifiyingNodes(DestinationID, SensorModes.Send).contains(SourceID))
+				{
+					return true;
+				}
+			}
+			else
 			{
-				return true;
+				//should never happen, use send or receive
+				return false;
 			}
 		}
 		else
@@ -411,7 +456,6 @@ public final class RadioVLC extends RadioNoise
 		if(theta >= 0 && theta <= 90)
 		{
 			quadrant = 1;
-
 			cornerPoint = new Location.Location2D(origin.getX()+ (float) (hypotenuse * Math.cos((Math.PI*(theta))/(180))),origin.getY()+ (float) (hypotenuse * Math.sin((Math.PI*(theta))/(180))));			
 		}
 		else if(theta > 90 && theta <= 180)
@@ -463,14 +507,62 @@ public final class RadioVLC extends RadioNoise
 
 
 
-
-	private LinkedList<Integer> getQualifiyingNodes(int SourceNodeID)
+	/**
+	 * Gets the list of nodeIDs that source can see
+	 * @param SourceNodeID
+	 * @return
+	 */
+	private LinkedList<Integer> getQualifiyingNodes(int SourceNodeID, SensorModes mode)
 	{
-		//		int SourceNodeID= radioInfo.getUnique().getID();
+		jsi.SpatialIndex tree = new RTree();
+		
+		
+		tree.nearest(p, v, furthestDistance);
+		//tu sam stao: treba dodati u rtree id + rectangle (outlineshape) za svaki node.
 		LinkedList<Integer> returnNodes = new LinkedList<Integer>();
+		for(int i=1;i<JistExperiment.getJistExperiment().getNodes(); i++) 
+		{
+			
+			float ba= Field.getRadioData(i).getMobilityInfo().getBearingAsAngle();
+			Location cp1 = getVLCCornerPoint(ba - (visionAngle/2), Field.getRadioData(i).getLocation(), distanceLimit, visionAngle);
+			Location cp2 = getVLCCornerPoint(ba + (visionAngle/2), Field.getRadioData(i).getLocation(), distanceLimit, visionAngle);
+			if(SourceNodeID != i)
+			{
+				boolean stopSearch = false;
+				for (VLCsensor sensor : sensors) 
+				{
 
+					if(stopSearch)
+						break;
+					if(sensor.mode == mode)
+					{
+						for (VLCsensor sensor2 : Field.getRadioData(i).vlcdevice.sensors) 
+						{
+							if(sensor2.mode != mode)
+							{//znaci obrnuto je
+								if(visibleToVLCdevice(sensor2.sensorLocation.getX(), sensor2.sensorLocation.getY(),sensor.sensorLocation.getX(), sensor.sensorLocation.getY(), sensor.sensorLocation1.getX(), sensor.sensorLocation1.getY(), sensor.sensorLocation2.getX(), sensor.sensorLocation2.getY()))
+								{
+									stopSearch = true;
+									returnNodes.add(i);
+									break;
+								}
+							}
+						}
+					}
+				}//for my sensors
+
+/*				if(visibleToVLCdevice(Field.getRadioData(i).getLocation().getX(), Field.getRadioData(i).getLocation().getY(),Field.getRadioData(SourceNodeID).getLocation().getX(), Field.getRadioData(SourceNodeID).getLocation().getY(), cornerPoint2.getX(), cornerPoint2.getY(), cornerPoint1.getX(), cornerPoint1.getY()))
+				{
+					returnNodes.add(i);
+				}*/
+			}//if not me
+		}//for all nodes
+
+		
+		
+		
 		//float bearingAngle = JistExperiment.getJistExperiment().visualizer.getField().getRadioData(SourceNodeID).getMobilityInfo().getBearingAsAngle();
-		float bearingAngle = Field.getRadioData(SourceNodeID).getMobilityInfo().getBearingAsAngle();
+		/*float bearingAngle = Field.getRadioData(SourceNodeID).getMobilityInfo().getBearingAsAngle();
 
 		cornerPoint1 = getVLCCornerPoint(bearingAngle - (visionAngle/2), Field.getRadioData(SourceNodeID).getLocation(), distanceLimit, visionAngle);
 		cornerPoint2 = getVLCCornerPoint(bearingAngle + (visionAngle/2), Field.getRadioData(SourceNodeID).getLocation(), distanceLimit, visionAngle);
@@ -480,7 +572,6 @@ public final class RadioVLC extends RadioNoise
 
 		for(int i=1;i<JistExperiment.getJistExperiment().getNodes(); i++) 
 		{
-
 			float ba= Field.getRadioData(i).getMobilityInfo().getBearingAsAngle();
 			Location cp1 = getVLCCornerPoint(ba - (visionAngle/2), Field.getRadioData(i).getLocation(), distanceLimit, visionAngle);
 			Location cp2 = getVLCCornerPoint(ba + (visionAngle/2), Field.getRadioData(i).getLocation(), distanceLimit, visionAngle);

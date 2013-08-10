@@ -269,7 +269,7 @@ public class ndp
     NetIp net = new NetIp(new NetAddress(i), protMap, plIn, plOut);
     AppHeartbeat app = new AppHeartbeat(i, false);
     // hookup entities
-    field.addRadio(radio.getRadioInfo(), radio.getProxy(), placement.getNextLocation());
+    field.addRadio(radio.getRadioInfo(), radio.getProxy(), placement.getNextLocation(),null);
     field.startMobility(radio.getRadioInfo().getUnique().getID());
     radio.setFieldEntity(field.getProxy());
     radio.setMacEntity(mac.getProxy());

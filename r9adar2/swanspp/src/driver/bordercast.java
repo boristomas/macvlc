@@ -563,7 +563,7 @@ public class bordercast
 
     // placement
     Location location = place.getNextLocation();
-    field.addRadio(radio.getRadioInfo(), radio.getProxy(), location);
+    field.addRadio(radio.getRadioInfo(), radio.getProxy(), location,null);
     field.startMobility(radio.getRadioInfo().getUnique().getID());
 
     // node entity hookup

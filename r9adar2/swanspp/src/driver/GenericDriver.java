@@ -154,7 +154,7 @@ public class GenericDriver {
                 return;
             }
 
-            field.addRadio(radio.getRadioInfo(), radio.getProxy(), location);
+            field.addRadio(radio.getRadioInfo(), radio.getProxy(), location, (RadioVLC)radio);
             field.startMobility(radio.getRadioInfo().getUnique().getID());
         } else // nodes that are not participating in transmission
          {
@@ -167,7 +167,7 @@ public class GenericDriver {
                 return;
             }
 
-            field.addRadio(radio.getRadioInfo(), radio.getProxy(), location);
+            field.addRadio(radio.getRadioInfo(), radio.getProxy(), location, (RadioVLC)radio);
             field.startMobility(radio.getRadioInfo().getUnique().getID());
 
             // add node to GUI

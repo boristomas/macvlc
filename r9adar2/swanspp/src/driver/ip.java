@@ -171,7 +171,7 @@ public class ip
     PacketLoss pl = new PacketLoss.Zero();
     NetIp net = new NetIp(addr, protMap, pl, pl);
     // hookup
-    field.addRadio(radio.getRadioInfo(), radio.getProxy(), location);
+    field.addRadio(radio.getRadioInfo(), radio.getProxy(), location,null);
     radio.setFieldEntity(field.getProxy());
     radio.setMacEntity(mac.getProxy());
     mac.setRadioEntity(radio.getProxy());

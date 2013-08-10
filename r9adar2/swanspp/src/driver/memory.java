@@ -70,7 +70,7 @@ public class memory
     catch(ClassNotFoundException e) { throw new RuntimeException(e); }
     catch(NoSuchMethodException e) { throw new RuntimeException(e); }
     // field hookup
-    field.addRadio(radio.getRadioInfo(), radio.getProxy(), placement.getNextLocation());
+    field.addRadio(radio.getRadioInfo(), radio.getProxy(), placement.getNextLocation(),null);
     // radio hookup
     radio.setFieldEntity(field.getProxy());
     radio.setMacEntity(mac.getProxy());

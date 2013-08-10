@@ -73,7 +73,7 @@ public class heartbeat
     AppHeartbeat app = new AppHeartbeat(i, true);
 
     // hookup entities
-    field.addRadio(radio.getRadioInfo(), radio.getProxy(), placement.getNextLocation());
+    field.addRadio(radio.getRadioInfo(), radio.getProxy(), placement.getNextLocation(),null);
     field.startMobility(radio.getRadioInfo().getUnique().getID());
     radio.setFieldEntity(field.getProxy());
     radio.setMacEntity(mac.getProxy());

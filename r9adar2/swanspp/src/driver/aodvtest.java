@@ -159,7 +159,7 @@ public class aodvtest
 
     //hookup entities
     Location location = new Location.Location2D(x, y);
-    field.addRadio(radio.getRadioInfo(), radio.getProxy(), location);
+    field.addRadio(radio.getRadioInfo(), radio.getProxy(), location,null);
     field.startMobility(radio.getRadioInfo().getUnique().getID());
 
     //radio hookup

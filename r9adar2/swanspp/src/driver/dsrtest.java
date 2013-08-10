@@ -131,8 +131,8 @@ public class dsrtest
       // field hookup
       Location location1 = new Location.Location2D(0, 0);
       Location location2 = new Location.Location2D(0, 1);
-      field.addRadio(radio1.getRadioInfo(), radio1.getProxy(), location1);
-      field.addRadio(radio2.getRadioInfo(), radio2.getProxy(), location2);
+      field.addRadio(radio1.getRadioInfo(), radio1.getProxy(), location1,null);
+      field.addRadio(radio2.getRadioInfo(), radio2.getProxy(), location2,null);
       // radio hookup
       radio1.setFieldEntity(field.getProxy());
       radio2.setFieldEntity(field.getProxy());
@@ -223,9 +223,9 @@ public class dsrtest
       Location location1 = new Location.Location2D(0, 0);
       Location location2 = new Location.Location2D(0, 600);
       Location location3 = new Location.Location2D(0, 1200);
-      field.addRadio(radio1.getRadioInfo(), radio1.getProxy(), location1);
-      field.addRadio(radio2.getRadioInfo(), radio2.getProxy(), location2);
-      field.addRadio(radio3.getRadioInfo(), radio3.getProxy(), location3);
+      field.addRadio(radio1.getRadioInfo(), radio1.getProxy(), location1,null);
+      field.addRadio(radio2.getRadioInfo(), radio2.getProxy(), location2,null);
+      field.addRadio(radio3.getRadioInfo(), radio3.getProxy(), location3,null);
       // radio hookup
       radio1.setFieldEntity(field.getProxy());
       radio2.setFieldEntity(field.getProxy());

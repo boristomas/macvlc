@@ -585,7 +585,7 @@ public class CBR
 
       // placement
       Location location = place.getNextLocation();
-      field.addRadio(radio.getRadioInfo(), radio.getProxy(), location);
+      field.addRadio(radio.getRadioInfo(), radio.getProxy(), location,null);
 
       // node entity hookup
       radio.setFieldEntity(field.getProxy());

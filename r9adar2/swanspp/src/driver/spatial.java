@@ -200,7 +200,7 @@ public class spatial
     for(int i=0; i<nodes; i++)
     {
       RadioNoiseIndep radio = new RadioNoiseIndep(i, radioInfoShared);
-      field.addRadio(radio.getRadioInfo(), radio.getProxy(), placement.getNextLocation());
+      field.addRadio(radio.getRadioInfo(), radio.getProxy(), placement.getNextLocation(),null);
     }
     return field;
   }
