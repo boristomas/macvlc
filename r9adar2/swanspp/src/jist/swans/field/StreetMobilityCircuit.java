@@ -37,9 +37,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Vector;
 
-import jist.swans.field.Mobility.MobilityInfo;
 import jist.swans.field.StreetMobilityOD.StreetMobilityInfoOD;
-import jist.swans.field.streets.RoadSegment;
 import jist.swans.misc.Location;
 import jist.swans.misc.Location.Location2D;
 

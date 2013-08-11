@@ -9,13 +9,22 @@
 
 package jist.runtime;
 
-import java.io.*;
-import java.util.*;
-import java.net.*;
-import java.rmi.*;
-import java.rmi.server.*;
-import java.rmi.registry.*;
-import org.apache.bcel.classfile.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
+import java.util.Properties;
+import java.util.Vector;
+
+import org.apache.bcel.classfile.ClassParser;
+import org.apache.bcel.classfile.JavaClass;
 
 /** 
  * All the JiST client-server related remote classes.

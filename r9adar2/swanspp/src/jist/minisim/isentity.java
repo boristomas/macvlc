@@ -9,7 +9,6 @@
 
 package jist.minisim;
 
-import java.lang.reflect.*;
 import jist.runtime.JistAPI;
 
 /**

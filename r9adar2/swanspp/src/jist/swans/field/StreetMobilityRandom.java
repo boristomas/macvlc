@@ -35,9 +35,7 @@ import java.awt.Color;
 import java.util.LinkedList;
 import java.util.Random;
 
-import jist.swans.Constants;
 import jist.swans.field.streets.Intersection;
-import jist.swans.field.streets.LaneChangeModel;
 import jist.swans.field.streets.RoadSegment;
 import jist.swans.field.streets.StreetName;
 import jist.swans.misc.Location;

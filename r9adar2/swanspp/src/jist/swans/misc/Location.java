@@ -9,10 +9,9 @@
 
 package jist.swans.misc;
 
+import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.Main;
-
-import jist.runtime.JistAPI;
 
 /** 
  * Location (of a node).

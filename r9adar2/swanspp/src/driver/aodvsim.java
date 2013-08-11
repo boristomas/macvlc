@@ -9,37 +9,7 @@
 
 package driver;
 
-import jist.swans.field.Field;
-import jist.swans.field.Mobility;
-import jist.swans.field.Placement;
-import jist.swans.field.Fading;
-import jist.swans.field.Spatial;
-import jist.swans.field.PathLoss;
-import jist.swans.radio.RadioNoise;
-import jist.swans.radio.RadioNoiseIndep;
-import jist.swans.radio.RadioInfo;
-import jist.swans.mac.MacAddress;
-import jist.swans.mac.MacDumb;
-import jist.swans.net.NetAddress;
-import jist.swans.net.NetMessage;
-import jist.swans.net.NetIp;
-import jist.swans.net.PacketLoss;
-import jist.swans.trans.TransUdp;
-import jist.swans.route.RouteInterface;
-import jist.swans.route.RouteAodv;
-import jist.swans.misc.Util;
-import jist.swans.misc.Mapper;
-import jist.swans.misc.Location;
-import jist.swans.misc.Message;
-import jist.swans.Constants;
-
-import jist.runtime.JistAPI;
-
-import jargs.gnu.*;
-
-import java.util.Date;
-import java.util.Random;
-import java.util.Vector;
+import jargs.gnu.CmdLineParser;import java.util.Date;import java.util.Random;import java.util.Vector;import jist.runtime.JistAPI;import jist.swans.Constants;import jist.swans.field.Fading;import jist.swans.field.Field;import jist.swans.field.Mobility;import jist.swans.field.PathLoss;import jist.swans.field.Placement;import jist.swans.field.Spatial;import jist.swans.mac.MacAddress;import jist.swans.mac.MacDumb;import jist.swans.misc.Location;import jist.swans.misc.Mapper;import jist.swans.misc.Message;import jist.swans.misc.Util;import jist.swans.net.NetAddress;import jist.swans.net.NetIp;import jist.swans.net.NetMessage;import jist.swans.net.PacketLoss;import jist.swans.radio.RadioInfo;import jist.swans.radio.RadioNoise;import jist.swans.radio.RadioNoiseIndep;import jist.swans.route.RouteAodv;import jist.swans.route.RouteInterface;import jist.swans.trans.TransUdp;
 
 
 /**

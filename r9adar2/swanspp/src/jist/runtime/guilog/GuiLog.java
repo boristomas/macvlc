@@ -9,33 +9,40 @@
 
 package jist.runtime.guilog;
 
-import jist.runtime.Event;
-import jist.runtime.Controller;
-import jist.runtime.Util;
-
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-
-import java.lang.reflect.*;
-import java.awt.*;
-import java.awt.event.*;
-
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Hashtable;
-import java.util.Arrays;
-import java.util.Vector;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 
-import javax.swing.*;
+import javax.swing.AbstractCellEditor;
 import javax.swing.ImageIcon;
-
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JOptionPane;
-
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
@@ -44,7 +51,9 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import java.awt.Dimension;
+import jist.runtime.Controller;
+import jist.runtime.Event;
+import jist.runtime.Util;
 
 /**
  * <p>Title: GuiLog</p>

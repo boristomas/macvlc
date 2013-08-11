@@ -9,25 +9,24 @@
 
 package jist.swans.trans;
 
-import jist.swans.net.NetAddress;
-import jist.swans.misc.Message;
-import jist.swans.misc.MessageBytes;
-import jist.swans.trans.TransTcp.TcpMessage;
-import jist.swans.Constants;
-
-import jist.runtime.JistAPI;
-import jist.runtime.Channel;
-
-import java.nio.channels.SocketChannel;
-import java.net.SocketImplFactory;
-import java.net.SocketImpl;
+import java.io.IOException;
 import java.net.InetAddress;
-import java.net.SocketAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.SocketImpl;
+import java.net.SocketImplFactory;
 import java.net.UnknownHostException;
+import java.nio.channels.SocketChannel;
+
+import jist.runtime.Channel;
+import jist.runtime.JistAPI;
+import jist.swans.Constants;
 import jist.swans.app.io.InputStream;
 import jist.swans.app.io.OutputStream;
-import java.io.IOException;
+import jist.swans.misc.Message;
+import jist.swans.misc.MessageBytes;
+import jist.swans.net.NetAddress;
+import jist.swans.trans.TransTcp.TcpMessage;
 
 /**
  * SWANS Implementation of Socket entity.

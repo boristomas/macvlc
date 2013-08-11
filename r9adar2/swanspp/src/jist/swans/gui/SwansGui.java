@@ -9,7 +9,7 @@
 
 package jist.swans.gui;
 
-import javax.swing.*;
+import javax.swing.JFrame;
 
 import jist.runtime.JistAPI;
 

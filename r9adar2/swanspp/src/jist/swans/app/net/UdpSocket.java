@@ -9,21 +9,20 @@
 
 package jist.swans.app.net;
 
-import jist.swans.app.AppInterface;
-import jist.swans.trans.TransInterface;
-import jist.swans.net.NetAddress;
-import jist.swans.misc.Message;
-import jist.swans.misc.MessageBytes;
-import jist.swans.Constants;
-
-import jist.runtime.JistAPI;
-import jist.runtime.Channel;
-
 import java.net.DatagramPacket;
 import java.net.DatagramSocketImpl;
 import java.net.InetAddress;
-import java.net.SocketAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
+import jist.runtime.Channel;
+import jist.runtime.JistAPI;
+import jist.swans.Constants;
+import jist.swans.app.AppInterface;
+import jist.swans.misc.Message;
+import jist.swans.misc.MessageBytes;
+import jist.swans.net.NetAddress;
+import jist.swans.trans.TransInterface;
 
 /**
  * The SWANS target of all java.net.DatagramSocket calls.

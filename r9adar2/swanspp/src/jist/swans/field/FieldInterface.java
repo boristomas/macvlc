@@ -9,11 +9,10 @@
 
 package jist.swans.field;
 
-import jist.swans.radio.RadioInfo;
+import jist.runtime.JistAPI;
 import jist.swans.misc.Location;
 import jist.swans.misc.Message;
-
-import jist.runtime.JistAPI;
+import jist.swans.radio.RadioInfo;
 
 /** 
  * Interface for Field entities.

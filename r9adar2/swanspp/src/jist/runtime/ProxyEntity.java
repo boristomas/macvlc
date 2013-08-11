@@ -9,9 +9,13 @@
 
 package jist.runtime;
 
-import java.util.*;
-import java.lang.reflect.*;
-import java.rmi.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
+import java.util.Vector;
 
 /**
  * Implementation of a dynamic Proxy Entity for an object, an entity that

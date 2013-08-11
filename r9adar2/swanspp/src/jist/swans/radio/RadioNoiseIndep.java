@@ -9,11 +9,11 @@
 
 package jist.swans.radio;
 
-import jist.swans.misc.Message;
-import jist.swans.misc.Util;
+import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.Main;
-import jist.runtime.JistAPI;
+import jist.swans.misc.Message;
+import jist.swans.misc.Util;
 
 /** 
  * <code>RadioNoiseIndep</code> implements a radio with an independent noise model.

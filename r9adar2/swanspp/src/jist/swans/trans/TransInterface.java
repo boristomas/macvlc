@@ -9,11 +9,10 @@
 
 package jist.swans.trans;
 
-import jist.swans.net.NetInterface;
-import jist.swans.net.NetAddress;
-import jist.swans.misc.Message;
-
 import jist.runtime.JistAPI;
+import jist.swans.misc.Message;
+import jist.swans.net.NetAddress;
+import jist.swans.net.NetInterface;
 
 /**
  * Defines the interface of all Transport layer entity implementations.

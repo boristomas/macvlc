@@ -9,20 +9,19 @@
 
 package jist.swans.trans;
 
-import jist.swans.net.NetAddress;
-import jist.swans.misc.Message;
-import jist.swans.trans.TransTcp.TcpMessage;
-import jist.swans.Constants;
-
-import jist.runtime.JistAPI;
-import jist.runtime.Channel;
-
-import java.net.Socket;
-import java.nio.channels.ServerSocketChannel;
-import java.net.SocketImplFactory;
 import java.net.InetAddress;
-import java.net.SocketAddress;
 import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketImplFactory;
+import java.nio.channels.ServerSocketChannel;
+
+import jist.runtime.Channel;
+import jist.runtime.JistAPI;
+import jist.swans.Constants;
+import jist.swans.misc.Message;
+import jist.swans.net.NetAddress;
+import jist.swans.trans.TransTcp.TcpMessage;
 
 
 /**

@@ -9,11 +9,11 @@
 
 package jist.runtime;
 
-import org.apache.bcel.generic.*;
-import java.lang.reflect.*;
-import java.util.*;
-import java.io.*;
-import java.rmi.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 /** 
  * Miscellaneous utilities used by JIST.

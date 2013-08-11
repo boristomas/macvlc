@@ -9,8 +9,9 @@
 
 package jist.runtime;
 
-import java.lang.reflect.*;
-import java.rmi.*;
+import java.lang.reflect.Method;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 
 //////////////////////////////////////////////////
 // Remote Jist Controller

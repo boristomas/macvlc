@@ -9,19 +9,16 @@
 
 package jist.swans.field;
 
-import jist.swans.misc.Location;
-import jist.swans.misc.Util;
-import jist.swans.misc.Location.Location2D;
-import jist.swans.Constants;
-import jist.swans.Main;
-
-import java.util.HashMap;
 import java.util.Random;
 
+import jist.runtime.JistAPI;
+import jist.swans.Constants;
+import jist.swans.Main;
+import jist.swans.misc.Location;
+import jist.swans.misc.Location.Location2D;
+import jist.swans.misc.Util;
 import driver.Visualizer;
 import driver.VisualizerInterface;
-
-import jist.runtime.JistAPI;
 
 /** 
  * Interface of all mobility models.

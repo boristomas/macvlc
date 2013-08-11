@@ -9,17 +9,16 @@
 
 package jist.swans.route;
 
-import jist.swans.net.NetAddress;
-import jist.swans.misc.Util;
-import jist.swans.misc.Timer;
-import jist.swans.Constants;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import jist.runtime.JistAPI;
+import jist.swans.Constants;
+import jist.swans.misc.Timer;
+import jist.swans.misc.Util;
+import jist.swans.net.NetAddress;
 
 import org.apache.log4j.Logger;
-
-import java.util.Iterator;
-import java.util.HashMap;
 
 /** 
  * Zone Routing Protocol: Bordercast Resolution (sub)Protocol: Naive flooding.

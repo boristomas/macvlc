@@ -9,18 +9,17 @@
 
 package jist.swans.app;
 
-import jist.swans.mac.MacAddress;
-import jist.swans.net.NetInterface;
-import jist.swans.net.NetAddress;
-import jist.swans.misc.Message;
-import jist.swans.misc.Util;
-import jist.swans.Constants;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import jist.runtime.JistAPI;
 import jist.runtime.JistAPI.Continuation;
-
-import java.util.HashMap;
-import java.util.Iterator;
+import jist.swans.Constants;
+import jist.swans.mac.MacAddress;
+import jist.swans.misc.Message;
+import jist.swans.misc.Util;
+import jist.swans.net.NetAddress;
+import jist.swans.net.NetInterface;
 
 /**
  * Heartbeat application.

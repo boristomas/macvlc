@@ -9,39 +9,20 @@
 
 package jist.swans.mac;
 
-import java.awt.Color;
-import java.awt.Polygon;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 
-import javax.swing.JEditorPane;
-
-import driver.JistExperiment;
-import driver.Visualizer;
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.Main;
-import jist.swans.field.Field;
 import jist.swans.field.StreetMobility;
-import jist.swans.field.StreetMobilityInfo;
-import jist.swans.field.Mobility.MobilityInfo;
-import jist.swans.field.streets.RoadSegment;
-import jist.swans.field.streets.SegmentNode;
-import jist.swans.misc.AStarNode;
-import jist.swans.misc.Location;
 import jist.swans.misc.Message;
 import jist.swans.misc.Util;
-import jist.swans.misc.AStarSearch.PriorityList;
 import jist.swans.net.NetInterface;
 import jist.swans.net.NetMessage;
 import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioInterface;
-import jist.swans.route.RouteGPSR;
-import jist.swans.route.geo.LocationDatabase;
 import jist.swans.trans.TransUdp;
+import driver.JistExperiment;
 
 /**
  * Implementation of IEEE 802_11b. Please refer to the standards document. For

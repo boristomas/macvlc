@@ -9,12 +9,12 @@
 
 package jist.swans.field;
 
-import jist.swans.radio.RadioInfo;
-import jist.swans.misc.Location;
-import jist.swans.misc.Util;
 import java.util.Random;
 
 import jist.swans.Constants;
+import jist.swans.misc.Location;
+import jist.swans.misc.Util;
+import jist.swans.radio.RadioInfo;
 
 /** 
  * Interface for performing pathloss calculations.

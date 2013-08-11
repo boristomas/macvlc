@@ -9,19 +9,18 @@
 
 package jist.swans.trans;
 
-import jist.swans.mac.MacAddress;
-import jist.swans.net.NetAddress;
-import jist.swans.net.NetInterface;
-import jist.swans.misc.Message;
-import jist.swans.misc.Pickle;
-import jist.swans.Constants;
+import java.util.HashMap;
 
 import jist.runtime.JistAPI;
 import jist.runtime.JistAPI.Continuation;
+import jist.swans.Constants;
+import jist.swans.mac.MacAddress;
+import jist.swans.misc.Message;
+import jist.swans.misc.Pickle;
+import jist.swans.net.NetAddress;
+import jist.swans.net.NetInterface;
 
-import org.apache.log4j.*;
-
-import java.util.HashMap;
+import org.apache.log4j.Logger;
 
 /**
  * UDP implementation. Does not perform fragmentation.

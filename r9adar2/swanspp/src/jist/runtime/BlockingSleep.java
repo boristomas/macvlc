@@ -10,7 +10,6 @@
 package jist.runtime;
 
 import java.lang.reflect.Method;
-import java.rmi.RemoteException;
 
 /**
  * Implements API support for blocking sleeps.

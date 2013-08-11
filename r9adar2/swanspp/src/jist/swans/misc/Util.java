@@ -9,29 +9,26 @@
 
 package jist.swans.misc;
 
-import jist.runtime.JistAPI;
-import jist.swans.Constants;
-
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.PrintWriter;
-import java.io.FileWriter;
-
 import java.io.BufferedInputStream;
-import java.io.File;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Array;
-import java.util.Vector;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Vector;
+
+import jist.runtime.JistAPI;
+import jist.swans.Constants;
 
 //import driver.JistExperiment;
 

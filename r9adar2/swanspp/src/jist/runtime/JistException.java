@@ -9,7 +9,8 @@
 
 package jist.runtime;
 
-import java.io.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Method;
 
 /** 

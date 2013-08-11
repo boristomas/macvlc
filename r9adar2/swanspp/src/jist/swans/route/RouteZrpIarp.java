@@ -9,24 +9,23 @@
 
 package jist.swans.route;
 
-import jist.swans.net.NetAddress;
-import jist.swans.misc.Util;
-import jist.swans.misc.Timer;
-import jist.swans.Constants;
+import java.lang.ref.SoftReference;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 
 import jist.runtime.JistAPI;
+import jist.swans.Constants;
+import jist.swans.misc.Timer;
+import jist.swans.misc.Util;
+import jist.swans.net.NetAddress;
 
 import org.apache.log4j.Logger;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Vector;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Enumeration;
-import java.lang.ref.SoftReference;
 
 /** 
  * Zone Routing Protocol: IntrAzone Routing (sub)Protocol: Default implementation.

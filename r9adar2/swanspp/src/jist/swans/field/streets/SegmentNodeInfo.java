@@ -31,8 +31,8 @@
  */
 package jist.swans.field.streets;
 
-import java.util.Vector;
 import java.util.HashMap;
+import java.util.Vector;
 
 /**
  * @author David Choffnes &lt;drchoffnes@cs.northwestern.edu&gt;

@@ -9,8 +9,8 @@
 
 package jist.minisim;
 
-import jist.runtime.JistAPI;
 import jist.runtime.Channel;
+import jist.runtime.JistAPI;
 
 /**
  * Blocking channel entity demo/test. Note how the send and receive co-routines

@@ -9,13 +9,17 @@
 
 package jist.runtime;
 
-import java.util.*;
-import java.lang.reflect.*;
-import java.rmi.*;
-import java.rmi.server.*;
-import org.apache.log4j.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.rmi.RemoteException;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 import jist.runtime.guilog.GuiLog;
+
+import org.apache.log4j.Logger;
 
 /** 
  * Maintains all the data structures of a single simulation thread of

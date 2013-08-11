@@ -9,11 +9,10 @@
 
 package jist.swans.mac;
 
+import jist.runtime.JistAPI;
 import jist.swans.misc.Message;
 import jist.swans.net.NetInterface;
 import jist.swans.radio.RadioInterface;
-
-import jist.runtime.JistAPI;
 
 /**
  * Defines the interface of all Link layer entity implementations.

@@ -9,19 +9,19 @@
 
 package jist.swans.app.net;
 
-import java.nio.channels.SocketChannel;
-import java.net.SocketImplFactory;
-import java.net.SocketImpl;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketAddress;
+import java.net.SocketImpl;
+import java.net.SocketImplFactory;
+import java.nio.channels.SocketChannel;
+
+import jist.runtime.JistAPI;
+import jist.swans.app.AppInterface;
 import jist.swans.app.io.InputStream;
 import jist.swans.app.io.OutputStream;
-import java.io.IOException;
-
-import jist.swans.app.AppInterface;
 import jist.swans.trans.SocketInterface;
 import jist.swans.trans.TcpSocket;
-import jist.runtime.JistAPI;
 
 /**
  * The SWANS target of all java.net.Socket calls.

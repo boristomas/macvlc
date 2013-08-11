@@ -9,10 +9,8 @@
 
 package jist.swans.radio;
 
-import java.awt.Color;
 import java.util.HashMap;
 
-import driver.Visualizer;
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.Main;

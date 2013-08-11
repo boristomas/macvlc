@@ -9,12 +9,13 @@
 
 package jist.swans.radio;
 
-import jist.swans.misc.Util;
+import java.io.File;
+import java.io.IOException;
+import java.util.StringTokenizer;
+
 import jist.swans.Constants;
 import jist.swans.Main;
-
-import java.io.*;
-import java.util.*;
+import jist.swans.misc.Util;
 
 /**
  * Implementation of Bit-Error-Rate calculations (via a loaded table) for

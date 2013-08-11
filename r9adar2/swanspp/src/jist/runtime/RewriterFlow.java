@@ -9,14 +9,38 @@
 
 package jist.runtime;
 
-import org.apache.bcel.*;
-import org.apache.bcel.classfile.*;
-import org.apache.bcel.generic.*;
-import org.apache.bcel.verifier.structurals.*;
-import org.apache.bcel.verifier.exc.*;
-import org.apache.log4j.*;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Vector;
+
+import org.apache.bcel.Constants;
+import org.apache.bcel.classfile.ClassParser;
+import org.apache.bcel.classfile.ConstantPool;
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.classfile.Method;
+import org.apache.bcel.generic.ATHROW;
+import org.apache.bcel.generic.BranchInstruction;
+import org.apache.bcel.generic.ClassGen;
+import org.apache.bcel.generic.GotoInstruction;
+import org.apache.bcel.generic.Instruction;
+import org.apache.bcel.generic.InstructionHandle;
+import org.apache.bcel.generic.JsrInstruction;
+import org.apache.bcel.generic.MethodGen;
+import org.apache.bcel.generic.ObjectType;
+import org.apache.bcel.generic.RET;
+import org.apache.bcel.generic.ReturnInstruction;
+import org.apache.bcel.generic.ReturnaddressType;
+import org.apache.bcel.generic.Select;
+import org.apache.bcel.generic.Type;
+import org.apache.bcel.verifier.exc.StructuralCodeConstraintException;
+import org.apache.bcel.verifier.structurals.ExceptionHandler;
+import org.apache.bcel.verifier.structurals.ExceptionHandlers;
+import org.apache.bcel.verifier.structurals.ExecutionVisitor;
+import org.apache.bcel.verifier.structurals.Frame;
+import org.apache.bcel.verifier.structurals.LocalVariables;
+import org.apache.bcel.verifier.structurals.OperandStack;
+import org.apache.bcel.verifier.structurals.UninitializedObjectType;
 
 /** 
  * Perform data flow analysis.

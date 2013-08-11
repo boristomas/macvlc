@@ -1,7 +1,7 @@
 package jist.swans.radio;
 
-import jist.swans.misc.Message;
 import jist.swans.Constants;
+import jist.swans.misc.Message;
 
 /** 
  *

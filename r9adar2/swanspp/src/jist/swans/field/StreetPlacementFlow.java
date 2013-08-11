@@ -35,8 +35,6 @@ import java.awt.Color;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import driver.Visualizer;
-
 import jist.swans.Constants;
 import jist.swans.field.StreetMobilityOD.StreetMobilityInfoOD;
 import jist.swans.field.streets.Intersection;
@@ -45,6 +43,7 @@ import jist.swans.field.streets.SegmentNode;
 import jist.swans.field.streets.SpatialStreets;
 import jist.swans.misc.AStarSearch;
 import jist.swans.misc.Location;
+import driver.Visualizer;
 
 /**
  * @author David Choffnes &lt;drchoffnes@cs.northwestern.edu&gt;

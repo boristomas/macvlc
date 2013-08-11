@@ -9,7 +9,7 @@
 
 package jist.swans;
 
-import java.util.*;
+import java.util.Properties;
 
 public final class Config
 {

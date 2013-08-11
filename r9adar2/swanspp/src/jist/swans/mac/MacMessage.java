@@ -9,8 +9,8 @@
 
 package jist.swans.mac;
 
-import jist.swans.misc.Message;
 import jist.swans.Constants;
+import jist.swans.misc.Message;
 
 /**
  * Defines the various message used by the Mac entity.

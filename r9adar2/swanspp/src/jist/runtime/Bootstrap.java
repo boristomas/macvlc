@@ -9,9 +9,11 @@
 
 package jist.runtime;
 
-import java.lang.reflect.*;
-import java.io.*;
-import java.rmi.*;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.rmi.RemoteException;
 
 /** 
  * Bootstrap entities to start simulations.

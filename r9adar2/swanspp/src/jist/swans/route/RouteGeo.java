@@ -32,10 +32,8 @@
 package jist.swans.route;
 
 
-import jist.runtime.JistAPI;
 import jist.swans.field.Field;
 import jist.swans.misc.Location;
-import jist.swans.net.NetAddress;
 
 /**
  * @author David Choffnes &lt;drchoffnes@cs.northwestern.edu&gt;

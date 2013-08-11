@@ -9,16 +9,16 @@
 
 package jist.swans.app.net;
 
-import java.nio.channels.ServerSocketChannel;
-import java.net.SocketImplFactory;
 import java.net.InetAddress;
 import java.net.SocketAddress;
+import java.net.SocketImplFactory;
+import java.nio.channels.ServerSocketChannel;
 
+import jist.runtime.JistAPI;
 import jist.swans.app.AppInterface;
 import jist.swans.trans.SocketInterface;
 import jist.swans.trans.TcpServerSocket;
 import jist.swans.trans.TcpSocket;
-import jist.runtime.JistAPI;
 
 /**
  * The SWANS target of all java.net.ServerSocket calls.

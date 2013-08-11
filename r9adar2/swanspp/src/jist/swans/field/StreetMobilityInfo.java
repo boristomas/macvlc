@@ -33,12 +33,12 @@ package jist.swans.field;
 
 import java.util.LinkedList;
 
-import driver.VisualizerInterface;
 import jist.swans.field.Mobility.MobilityInfo;
 import jist.swans.field.streets.Intersection;
 import jist.swans.field.streets.RoadSegment;
 import jist.swans.field.streets.Shape;
 import jist.swans.misc.Location;
+import driver.VisualizerInterface;
 
 /**
  * @author David Choffnes &lt;drchoffnes@cs.northwestern.edu&gt;

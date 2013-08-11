@@ -34,7 +34,6 @@ package jist.swans.route;
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Random;
 import java.util.Vector;
 
 import jist.runtime.JistAPI;
@@ -49,9 +48,8 @@ import jist.swans.net.MessageQueue;
 import jist.swans.net.NetAddress;
 import jist.swans.net.NetInterface;
 import jist.swans.net.NetMessage;
-import jist.swans.net.QueuedMessage;
-import jist.swans.net.NetInterface.NetHandler;
 import jist.swans.net.NetMessage.Ip;
+import jist.swans.net.QueuedMessage;
 import jist.swans.route.geo.AddressGeographic;
 import jist.swans.route.geo.LocationDatabase;
 import driver.JistExperiment;

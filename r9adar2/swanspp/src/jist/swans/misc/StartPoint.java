@@ -18,7 +18,6 @@
  */
 package jist.swans.misc;
 
-import jist.swans.misc.Location.Location2D;
 
 
 public final class StartPoint

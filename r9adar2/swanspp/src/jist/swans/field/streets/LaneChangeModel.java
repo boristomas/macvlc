@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import jist.swans.field.StreetMobilityInfo;
 import jist.swans.field.StreetMobility;
+import jist.swans.field.StreetMobilityInfo;
 
 /**
  * @author David Choffnes

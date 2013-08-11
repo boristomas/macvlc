@@ -9,7 +9,6 @@
 
 package jist.swans.gui;
 
-import jist.runtime.JistAPI;
 
 /**
  * rimtodo: in development

@@ -9,9 +9,8 @@
 
 package jist.swans.radio;
 
-import jist.swans.misc.Message;
-
 import jist.runtime.JistAPI;
+import jist.swans.misc.Message;
 
 /**
  * Defines the interface of all Radio entity implementations.

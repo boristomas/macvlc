@@ -9,12 +9,12 @@
 
 package jist.swans.app.io;
 
-import jist.runtime.JistAPI;
-
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+
+import jist.runtime.JistAPI;
 
 
 /**

@@ -11,9 +11,6 @@ package jist.swans.mac;
 
 import java.util.HashMap;
 
-import driver.JistExperiment;
-import driver.Visualizer;
-
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.Main;
@@ -24,8 +21,8 @@ import jist.swans.net.NetInterface;
 import jist.swans.net.NetMessage;
 import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioInterface;
-import jist.swans.route.RouteGPSR;
 import jist.swans.trans.TransUdp;
+import driver.JistExperiment;
 
 /**
  * Implementation of IEEE 802_11b. Please refer to the standards document. For

@@ -9,12 +9,12 @@
 
 package jist.swans.field;
 
-import jist.swans.radio.RadioInfo;
-import jist.swans.radio.RadioInterface;
+import jist.swans.Main;
 import jist.swans.misc.Location;
 import jist.swans.misc.Message;
 import jist.swans.misc.Util;
-import jist.swans.Main;
+import jist.swans.radio.RadioInfo;
+import jist.swans.radio.RadioInterface;
 
 /** 
  * Root of all spatial data structures.

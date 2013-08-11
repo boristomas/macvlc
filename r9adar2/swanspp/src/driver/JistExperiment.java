@@ -35,11 +35,10 @@ import java.util.Random;
 
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
+import jist.swans.field.StreetMobility;
 import jist.swans.misc.Location;
 import jist.swans.route.RouteGPSR;
 import jist.swans.route.geo.Ideal;
-import jist.swans.field.Field;
-import jist.swans.field.StreetMobility;
 
 
 /**

@@ -1,6 +1,5 @@
 package tariavo.misc;
 
-import jist.runtime.JistAPI;
 import jist.runtime.JistAPI.Proxiable;
 
 /**

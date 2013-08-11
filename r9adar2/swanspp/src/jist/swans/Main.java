@@ -9,13 +9,19 @@
 
 package jist.swans;
 
+import jargs.gnu.CmdLineParser; // Download from: http://jargs.sourceforge.net
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
 import jist.runtime.JistAPI;
 
-import jargs.gnu.*; // Download from: http://jargs.sourceforge.net
-import org.apache.log4j.*; // Download from: http://jakarta.apache.org/log4j/docs/index.html
-
-import java.util.*;
-import java.io.*;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger; // Download from: http://jakarta.apache.org/log4j/docs/index.html
+import org.apache.log4j.PropertyConfigurator;
 
 /** 
  * Primary entry-point into the SWANS simulator. Performs cmd-line parsing, and

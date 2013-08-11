@@ -31,20 +31,16 @@
  */
 package jist.swans.field.streets;
 
-import jist.runtime.JistAPI;
-import jist.swans.Constants;
-import jist.swans.field.streets.RoadSegment;
-import jist.swans.misc.Location;
-import jist.swans.field.StreetMobility;
-import jist.swans.field.StreetMobilityInfo;
-
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Vector;
 
+import jist.runtime.JistAPI;
+import jist.swans.Constants;
+import jist.swans.field.StreetMobilityInfo;
+import jist.swans.misc.Location;
 import driver.VisualizerInterface;
 
 /**

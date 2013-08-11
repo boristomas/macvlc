@@ -9,39 +9,29 @@
 
 package driver;
 
-import jist.runtime.JistAPI;
-import jist.swans.Constants;
-import jist.swans.field.Field;
-import jist.swans.field.Spatial;
-import jist.swans.field.PathLoss;
-import jist.swans.field.Fading;
-import jist.swans.field.Placement;
-import jist.swans.mac.MacInterface;
-import jist.swans.mac.MacDumb;
-import jist.swans.mac.MacAddress;
-import jist.swans.radio.RadioNoise;
-import jist.swans.radio.RadioNoiseIndep;
-import jist.swans.radio.RadioNoiseAdditive;
-import jist.swans.radio.RadioInfo;
-import jist.swans.net.NetInterface;
-import jist.swans.net.NetIp;
-import jist.swans.net.NetMessage;
-import jist.swans.net.NetAddress;
-import jist.swans.net.PacketLoss;
-import jist.swans.misc.Util;
-import jist.swans.misc.Mapper;
-import jist.swans.misc.Message;
-import jist.swans.misc.Location;
-import jist.swans.misc.MessageBytes;
-
-import java.net.InetAddress;
-import java.net.DatagramSocket;
-import java.net.DatagramPacket;
-
+import jargs.gnu.CmdLineParser;
 import jist.runtime.JistAPI;
 import jist.runtime.JistAPI.Continuation;
-
-import jargs.gnu.*;
+import jist.swans.Constants;
+import jist.swans.field.Fading;
+import jist.swans.field.Field;
+import jist.swans.field.PathLoss;
+import jist.swans.field.Spatial;
+import jist.swans.mac.MacAddress;
+import jist.swans.mac.MacDumb;
+import jist.swans.misc.Location;
+import jist.swans.misc.Mapper;
+import jist.swans.misc.Message;
+import jist.swans.misc.MessageBytes;
+import jist.swans.misc.Util;
+import jist.swans.net.NetAddress;
+import jist.swans.net.NetInterface;
+import jist.swans.net.NetIp;
+import jist.swans.net.PacketLoss;
+import jist.swans.radio.RadioInfo;
+import jist.swans.radio.RadioNoise;
+import jist.swans.radio.RadioNoiseAdditive;
+import jist.swans.radio.RadioNoiseIndep;
 
 /**
  * Small scenario that tests stuff below the IP layer on the network stack.

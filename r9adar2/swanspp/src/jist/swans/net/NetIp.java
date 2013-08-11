@@ -12,6 +12,7 @@ package jist.swans.net;
 import java.util.TreeMap;
 
 import jist.runtime.JistAPI;
+import jist.runtime.JistAPI.Continuation;
 import jist.swans.Constants;
 import jist.swans.Main;
 import jist.swans.mac.MacAddress;
@@ -21,12 +22,8 @@ import jist.swans.misc.Mapper;
 import jist.swans.misc.Message;
 import jist.swans.misc.Util;
 import jist.swans.route.RouteInterface;
-import jist.swans.Constants;
-import jist.swans.Main;
-import jist.runtime.JistAPI;
-import jist.runtime.JistAPI.Continuation;
 
-import org.apache.log4j.*;
+import org.apache.log4j.Logger;
 
 /**
  * IPv4 implementation based on RFC 791. Performs protocol

@@ -9,10 +9,9 @@
 
 package jist.swans.app;
 
-import jist.swans.trans.TransInterface;
-import jist.swans.app.lang.SimtimeThread;
-
 import jist.runtime.JistAPI;
+import jist.swans.app.lang.SimtimeThread;
+import jist.swans.trans.TransInterface;
 
 /** 
  * Interface for Application entities.

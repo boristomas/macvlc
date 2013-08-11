@@ -31,7 +31,6 @@
  */
 package jist.swans.field.streets;
 
-import java.awt.Color;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,7 +41,6 @@ import jist.swans.field.StreetMobility;
 import jist.swans.misc.AStarNode;
 import jist.swans.misc.Location;
 import jist.swans.misc.Location.Location2D;
-import driver.VisualizerInterface;
 
 /**
  * @author David Choffnes &lt;drchoffnes@cs.northwestern.edu&gt;

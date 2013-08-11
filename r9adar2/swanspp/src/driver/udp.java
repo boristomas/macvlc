@@ -9,19 +9,18 @@
 
 package driver;
 
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
-import jist.swans.misc.Util;
+import jist.swans.app.AppJava;
 import jist.swans.misc.Mapper;
 import jist.swans.net.NetAddress;
 import jist.swans.net.NetIp;
 import jist.swans.net.PacketLoss;
 import jist.swans.trans.TransUdp;
-import jist.swans.app.AppJava;
-
-import java.net.InetAddress;
-import java.net.DatagramSocket;
-import java.net.DatagramPacket;
 
 /**
  * Small UDP test that can be run both inside and outside of JiST.

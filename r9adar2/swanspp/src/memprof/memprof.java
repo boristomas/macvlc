@@ -5,8 +5,9 @@
 
 package memprof;
 
-import jargs.gnu.*; // Download from: http://jargs.sourceforge.net
-import java.lang.reflect.*;
+import jargs.gnu.CmdLineParser; // Download from: http://jargs.sourceforge.net
+
+import java.lang.reflect.Method;
 
 /** 
  * JiST memory profile library. To use this library you run Java as:

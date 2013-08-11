@@ -10,22 +10,22 @@
 package driver;
 
 import jist.swans.Constants;
-import jist.swans.misc.Util;
-import jist.swans.misc.Mapper;
-import jist.swans.misc.Location;
+import jist.swans.app.AppJava;
 import jist.swans.field.Field;
 import jist.swans.field.Placement;
-import jist.swans.radio.RadioNoise;
-import jist.swans.radio.RadioNoiseIndep;
-import jist.swans.radio.RadioInfo;
-import jist.swans.mac.MacAddress;
 import jist.swans.mac.Mac802_11;
+import jist.swans.mac.MacAddress;
+import jist.swans.misc.Location;
+import jist.swans.misc.Mapper;
+import jist.swans.misc.Util;
 import jist.swans.net.NetAddress;
 import jist.swans.net.NetIp;
 import jist.swans.net.PacketLoss;
-import jist.swans.trans.TransUdp;
+import jist.swans.radio.RadioInfo;
+import jist.swans.radio.RadioNoise;
+import jist.swans.radio.RadioNoiseIndep;
 import jist.swans.trans.TransTcp;
-import jist.swans.app.AppJava;
+import jist.swans.trans.TransUdp;
 
 /**
  * SWANS memory benchmark.

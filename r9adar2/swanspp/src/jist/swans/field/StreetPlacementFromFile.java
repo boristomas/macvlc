@@ -1,9 +1,11 @@
 package jist.swans.field;
 
-import jist.swans.Config;
+import java.io.BufferedReader;
+import java.util.NoSuchElementException;
+
 import jist.swans.Constants;
 import jist.swans.config.Configuration;
-import jist.swans.config.*;
+import jist.swans.config.Movement;
 import jist.swans.field.StreetMobilityOD.StreetMobilityInfoOD;
 import jist.swans.field.StreetMobilityRandom.StreetMobilityInfoRandom;
 import jist.swans.field.streets.RoadSegment;
@@ -11,9 +13,6 @@ import jist.swans.field.streets.SegmentNode;
 import jist.swans.field.streets.Shape;
 import jist.swans.field.streets.StreetName;
 import jist.swans.misc.Location;
-
-import java.io.*;
-import java.util.NoSuchElementException;
 
 /**
  * @author Ted Ekeroth, Michael Rozenberg. NCSU February 2006

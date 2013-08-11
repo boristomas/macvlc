@@ -10,15 +10,10 @@
 package jist.swans.mac;
 
 import jist.runtime.JistAPI;
-import jist.runtime.JistAPI.Continuation;
-
-import jist.swans.net.NetInterface;
-import jist.swans.radio.Channel;
-import jist.swans.radio.RadioEvent;
-import jist.swans.radio.RadioInterface;
-import jist.swans.radio.RadioMode;
-import jist.swans.misc.Message;
 import jist.swans.Constants;
+import jist.swans.misc.Message;
+import jist.swans.net.NetInterface;
+import jist.swans.radio.RadioInterface;
 
 /**
  * A loopback mac implementation.

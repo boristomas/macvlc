@@ -9,40 +9,41 @@
 
 package driver;
 
+import jargs.gnu.CmdLineParser;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Random;
+
+import jist.runtime.JistAPI;
+import jist.swans.Constants;
 import jist.swans.field.Field;
 import jist.swans.field.Mobility;
 import jist.swans.field.Placement;
-import jist.swans.radio.RadioNoise;
-import jist.swans.radio.RadioNoiseIndep;
-import jist.swans.radio.RadioInfo;
 import jist.swans.mac.MacAddress;
 import jist.swans.mac.MacDumb;
+import jist.swans.misc.Location;
+import jist.swans.misc.Mapper;
+import jist.swans.misc.Message;
+import jist.swans.misc.MessageBytes;
+import jist.swans.misc.Util;
 import jist.swans.net.NetAddress;
 import jist.swans.net.NetIp;
 import jist.swans.net.PacketLoss;
-import jist.swans.trans.TransUdp;
-import jist.swans.trans.TransInterface;
-import jist.swans.route.RouteInterface;
-import jist.swans.route.RouteDsr;
+import jist.swans.radio.RadioInfo;
+import jist.swans.radio.RadioNoise;
+import jist.swans.radio.RadioNoiseIndep;
 import jist.swans.route.RouteAodv;
+import jist.swans.route.RouteDsr;
+import jist.swans.route.RouteInterface;
 import jist.swans.route.RouteZrp;
-import jist.swans.route.RouteZrpNdp;
-import jist.swans.route.RouteZrpIarp;
 import jist.swans.route.RouteZrpBrp;
+import jist.swans.route.RouteZrpIarp;
 import jist.swans.route.RouteZrpIerp;
+import jist.swans.route.RouteZrpNdp;
 import jist.swans.route.RouteZrpZdp;
-import jist.swans.misc.Util;
-import jist.swans.misc.Mapper;
-import jist.swans.misc.Location;
-import jist.swans.misc.Message;
-import jist.swans.misc.MessageBytes;
-import jist.swans.Constants;
-
-import jist.runtime.JistAPI;
-
-import jargs.gnu.*;
-
-import java.util.*;
+import jist.swans.trans.TransInterface;
+import jist.swans.trans.TransUdp;
 
 /**
  * Constant Bit Rate simulation program.  This program creates a field and

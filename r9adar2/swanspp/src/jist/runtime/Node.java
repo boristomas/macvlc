@@ -9,12 +9,12 @@
 
 package jist.runtime;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.io.Serializable;
-import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.StringTokenizer;
 
 /** 

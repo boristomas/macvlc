@@ -9,14 +9,10 @@
 
 package jist.swans.net;
 
-import jist.swans.misc.Message;
-import jist.swans.misc.MessageBytes;
-import jist.swans.misc.Util;
-import jist.swans.misc.Location;
-
-import jist.swans.misc.Pickle;
-
 import jist.swans.Constants;
+import jist.swans.misc.Location;
+import jist.swans.misc.Message;
+import jist.swans.misc.Util;
 
 /**
  * Network packet.

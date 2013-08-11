@@ -9,7 +9,9 @@
 
 package jist.swans.trans;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import jist.swans.trans.TransTcp.TcpMessage;
 
 /**

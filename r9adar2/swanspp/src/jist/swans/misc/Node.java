@@ -9,13 +9,12 @@
 
 package jist.swans.misc;
 
-import jist.swans.radio.RadioInterface;
-import jist.swans.trans.TransInterface;
-import jist.swans.net.NetInterface;
-import jist.swans.route.RouteInterface;
-import jist.swans.mac.MacInterface;
-
 import jist.runtime.JistAPI;
+import jist.swans.mac.MacInterface;
+import jist.swans.net.NetInterface;
+import jist.swans.radio.RadioInterface;
+import jist.swans.route.RouteInterface;
+import jist.swans.trans.TransInterface;
 
 // todo: finish this off, making the correct hookups
 public class Node

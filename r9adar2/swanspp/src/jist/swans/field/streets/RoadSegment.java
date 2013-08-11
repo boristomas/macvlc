@@ -38,7 +38,6 @@ import java.util.ListIterator;
 import java.util.Vector;
 
 import jist.runtime.JistAPI;
-import jist.swans.field.StreetMobility;
 import jist.swans.field.StreetMobilityInfo;
 import jist.swans.misc.Location;
 /**

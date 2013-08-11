@@ -69,7 +69,7 @@
    <int>50</int> 
   </void> 
    <void property="transmitters"> 
-   <int>20</int> 
+   <int>40</int> 
   </void> 
     <void property="sendRate"> 
    <double>1.0</double> 

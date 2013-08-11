@@ -9,16 +9,15 @@
 
 package jist.swans.route;
 
-import jist.swans.mac.MacAddress;
-import jist.swans.net.NetMessage;
-import jist.swans.net.NetAddress;
-import jist.swans.net.NetInterface;
-import jist.swans.misc.Message;
-import jist.swans.misc.Timer;
-import jist.swans.Constants;
-
 import jist.runtime.JistAPI;
 import jist.runtime.JistAPI.Continuation;
+import jist.swans.Constants;
+import jist.swans.mac.MacAddress;
+import jist.swans.misc.Message;
+import jist.swans.misc.Timer;
+import jist.swans.net.NetAddress;
+import jist.swans.net.NetInterface;
+import jist.swans.net.NetMessage;
 
 import org.apache.log4j.Logger;
 

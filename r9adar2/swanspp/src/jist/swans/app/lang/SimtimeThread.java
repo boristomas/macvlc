@@ -9,13 +9,13 @@
 
 package jist.swans.app.lang;
 
-import jist.runtime.JistAPI;
+import java.util.Vector;
+
 import jist.runtime.Channel;
+import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.app.AppInterface;
 import jist.swans.app.AppJava;
-
-import java.util.Vector;
 
 /**
  * SWANS simulation time implementation of a Java thread. Note that this thread

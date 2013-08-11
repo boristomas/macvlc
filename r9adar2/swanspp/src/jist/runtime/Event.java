@@ -9,11 +9,11 @@
 
 package jist.runtime;
 
-import java.util.Comparator;
-import java.rmi.RemoteException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.rmi.RemoteException;
+import java.util.Comparator;
 
 /** 
  * Stores the details of an entity invocation for processing at 

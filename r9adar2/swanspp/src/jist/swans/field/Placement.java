@@ -9,8 +9,8 @@
 
 package jist.swans.field;
 
-import jist.swans.misc.Location;
 import jist.swans.Constants;
+import jist.swans.misc.Location;
 
 /** 
  * Interface of all initial placement models.

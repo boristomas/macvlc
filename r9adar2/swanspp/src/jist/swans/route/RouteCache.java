@@ -86,9 +86,9 @@ import java.util.HashSet;
 
 import jist.swans.net.NetAddress;
 import jist.swans.route.RouteDsr_Ns2.ID;
-import jist.swans.route.RouteDsr_Ns2.Path;
 import jist.swans.route.RouteDsr_Ns2.ID.Link_Type;
 import jist.swans.route.RouteDsr_Ns2.ID.Log_Status;
+import jist.swans.route.RouteDsr_Ns2.Path;
 
 /**
  * @author David Choffnes &lt;drchoffnes@cs.northwestern.edu&gt;

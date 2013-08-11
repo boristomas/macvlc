@@ -9,15 +9,22 @@
 
 package jist.swans.misc;
 
-import java.io.*;
-import java.util.*;
-import java.net.*;
-import sun.misc.HexDumpEncoder;
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.Vector;
 
-import jist.swans.net.NetAddress;
 import jist.runtime.JistAPI;
+import jist.swans.net.NetAddress;
+import sun.misc.HexDumpEncoder;
 
 /**
  * Utility class to simplify the serialization and deserialization

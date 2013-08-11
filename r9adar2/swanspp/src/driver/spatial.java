@@ -9,20 +9,18 @@
 
 package driver;
 
-import jist.swans.field.Field;
-import jist.swans.field.Spatial;
-import jist.swans.field.PathLoss;
+import jargs.gnu.CmdLineParser; // Download from: http://jargs.sourceforge.net
+import jist.swans.Constants;
 import jist.swans.field.Fading;
+import jist.swans.field.Field;
+import jist.swans.field.PathLoss;
 import jist.swans.field.Placement;
-import jist.swans.radio.RadioNoiseIndep;
-import jist.swans.radio.RadioInfo;
+import jist.swans.field.Spatial;
 import jist.swans.misc.Location;
 import jist.swans.misc.Mapper;
 import jist.swans.misc.Util;
-import jist.swans.Constants;
-
-import java.io.*;
-import jargs.gnu.*; // Download from: http://jargs.sourceforge.net
+import jist.swans.radio.RadioInfo;
+import jist.swans.radio.RadioNoiseIndep;
 
 /**
  * Spatial data structure benchmark.

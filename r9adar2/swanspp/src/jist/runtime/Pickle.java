@@ -9,9 +9,16 @@
 
 package jist.runtime;
 
-import java.io.*;
-import java.util.*;
-import java.net.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Enumeration;
+import java.util.Vector;
+
 import sun.misc.HexDumpEncoder;
 
 /** 

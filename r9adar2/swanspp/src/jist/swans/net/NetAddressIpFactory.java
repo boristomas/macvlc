@@ -32,7 +32,6 @@
 package jist.swans.net;
 
 import java.util.HashMap;
-import jist.swans.net.NetAddress;
 
 /**
  * @author David Choffnes &lt;drchoffnes@cs.northwestern.edu&gt;

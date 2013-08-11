@@ -9,18 +9,21 @@
 
 package driver;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
-import jist.swans.misc.Util;
+import jist.swans.app.AppJava;
 import jist.swans.misc.Mapper;
 import jist.swans.net.NetAddress;
 import jist.swans.net.NetIp;
 import jist.swans.net.PacketLoss;
 import jist.swans.trans.TransTcp;
-import jist.swans.app.AppJava;
-
-import java.net.*;
-import java.io.*;
 
 /**
  * Small TCP test that can be run both inside and outside of JiST.

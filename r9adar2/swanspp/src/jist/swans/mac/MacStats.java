@@ -6,29 +6,25 @@
 
 package jist.swans.mac;
 
-import java.util.HashMap;
-import java.util.ListIterator;
-import java.util.Set;
-import java.util.Vector;
-import java.util.Iterator;
-import java.util.Map.Entry;
 import java.awt.Color;
 import java.io.IOException;
-import java.lang.String;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.ListIterator;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.Vector;
 
-//import driver.Statistics;
-import driver.Visualizer;
-
+import jist.runtime.JistAPI;
+import jist.swans.Constants;
 import jist.swans.field.Field;
 import jist.swans.misc.Message;
-import jist.swans.mac.MacMessage.Data;
+import jist.swans.misc.Util;
 import jist.swans.net.NetMessage;
-import jist.swans.net.NetMessage.Ip;
 import jist.swans.trans.TransUdp;
 import jist.swans.trans.TransUdp.UdpMessage;
-import jist.runtime.JistAPI;
-import jist.swans.misc.Util;
-import jist.swans.Constants;
+//import driver.Statistics;
+import driver.Visualizer;
 
 /**
  *

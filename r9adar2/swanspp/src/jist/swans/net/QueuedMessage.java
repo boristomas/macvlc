@@ -10,7 +10,6 @@
 package jist.swans.net;
 
 import jist.swans.mac.MacAddress;
-
 import jist.swans.misc.Message;
 
 /**

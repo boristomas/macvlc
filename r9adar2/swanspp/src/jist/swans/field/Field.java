@@ -9,14 +9,14 @@
 
 package jist.swans.field;
 
-import jist.swans.radio.RadioInterface;
-import jist.swans.radio.RadioInfo;
-import jist.swans.radio.RadioVLC;
-import jist.swans.misc.Message;
-import jist.swans.misc.Location;
-import jist.swans.misc.Util;
-import jist.swans.Constants;
 import jist.runtime.JistAPI;
+import jist.swans.Constants;
+import jist.swans.misc.Location;
+import jist.swans.misc.Message;
+import jist.swans.misc.Util;
+import jist.swans.radio.RadioInfo;
+import jist.swans.radio.RadioInterface;
+import jist.swans.radio.RadioVLC;
 
 import org.apache.log4j.Logger;
 
@@ -72,7 +72,7 @@ public class Field implements FieldInterface
 	/**
 	 * Array of radios on this field.
 	 */
-	protected static RadioData[] radios;
+	public static RadioData[] radios;
 
 
 	//////////////////////////////////////////////////

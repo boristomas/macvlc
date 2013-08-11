@@ -33,41 +33,38 @@
 package jist.swans.field;				//already have newly created radar class via this package import
 
 
-import jist.swans.field.Mobility;
-import jist.swans.misc.AStarNode;
-import jist.swans.misc.AStarSearch.PriorityList;
-import jist.swans.misc.Location;
-import jist.swans.misc.Location.Location2D;
-import jist.swans.misc.Node;
-import jist.swans.field.StreetMobilityInfo;
-import jist.swans.field.StreetMobilityOD.StreetMobilityInfoOD;
-import jist.swans.field.streets.*;
-import jist.runtime.JistAPI;
-import jist.swans.Constants;
-import jist.swans.field.streets.SegmentNode;
-
 import java.awt.Color;
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.nio.MappedByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
-import java.util.TreeSet;
-import java.util.Vector;
 import java.util.TreeMap;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Vector;
 
+import jist.runtime.JistAPI;
+import jist.swans.Constants;
+import jist.swans.field.StreetMobilityOD.StreetMobilityInfoOD;
+import jist.swans.field.streets.Intersection;
+import jist.swans.field.streets.LaneChangeModel;
+import jist.swans.field.streets.RoadSegment;
+import jist.swans.field.streets.SegmentNode;
+import jist.swans.field.streets.Shape;
+import jist.swans.field.streets.SpatialStreets;
+import jist.swans.field.streets.StreetName;
+import jist.swans.misc.AStarNode;
+import jist.swans.misc.AStarSearch.PriorityList;
+import jist.swans.misc.Location;
 import driver.JistExperiment;
 import driver.VisualizerInterface;
 

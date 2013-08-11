@@ -9,15 +9,15 @@
 
 package jist.swans.trans;
 
-import java.nio.channels.SocketChannel;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketAddress;
-import jist.swans.app.io.InputStream;
-import jist.swans.app.io.OutputStream;
-import java.io.IOException;
 import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 
 import jist.runtime.JistAPI;
+import jist.swans.app.io.InputStream;
+import jist.swans.app.io.OutputStream;
 import jist.swans.net.NetAddress;
 import jist.swans.trans.TransTcp.TcpMessage;
 

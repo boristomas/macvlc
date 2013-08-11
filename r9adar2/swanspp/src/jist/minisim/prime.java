@@ -9,9 +9,10 @@
 
 package jist.minisim;
 
-import java.io.*;
+import jargs.gnu.CmdLineParser; // Download from: http://jargs.sourceforge.net
 
-import jargs.gnu.*; // Download from: http://jargs.sourceforge.net
+import java.io.File;
+import java.io.FilenameFilter;
 
 /**
  * Pulls in all the classes that it find below a given classpath in order to

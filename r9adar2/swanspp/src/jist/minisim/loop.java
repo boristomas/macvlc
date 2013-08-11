@@ -9,7 +9,7 @@
 
 package jist.minisim;
 
-import jargs.gnu.*; // Download from: http://jargs.sourceforge.net
+import jargs.gnu.CmdLineParser; // Download from: http://jargs.sourceforge.net
 
 /** 
  * Measures cost of a function call.

@@ -9,9 +9,13 @@
 
 package jist.runtime;
 
-import java.io.*;
-import java.rmi.*;
-import java.rmi.server.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 
 /** 
  * RMI-based remote input and output streams.

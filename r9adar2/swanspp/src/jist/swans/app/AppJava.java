@@ -9,11 +9,12 @@
 
 package jist.swans.app;
 
-import jist.swans.trans.TransInterface;
-import jist.swans.app.lang.SimtimeThread;
-import jist.runtime.JistAPI;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
-import java.lang.reflect.*;
+import jist.runtime.JistAPI;
+import jist.swans.app.lang.SimtimeThread;
+import jist.swans.trans.TransInterface;
 
 /**
  * Entity harness for standard Java applications.

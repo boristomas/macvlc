@@ -9,24 +9,12 @@
 
 package jist.swans.radio;
 
-import java.awt.Color;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-
-import driver.Visualizer;
+import jist.runtime.JistAPI;
+import jist.swans.Constants;
 import jist.swans.field.FieldInterface;
-import jist.swans.mac.Mac802_11;
-import jist.swans.mac.MacAddress;
 import jist.swans.mac.MacInterface;
 import jist.swans.mac.MacStats;
 import jist.swans.misc.Message;
-import jist.swans.mac.MacMessage;
-import jist.swans.net.NetMessage;
-import jist.swans.Constants;
-import jist.runtime.JistAPI;
 
 /** 
  * <code>RadioNoise</code> is an abstract class which implements some functionality

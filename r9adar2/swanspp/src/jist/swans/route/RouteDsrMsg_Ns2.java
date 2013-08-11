@@ -31,18 +31,14 @@
  */
 package jist.swans.route;
 
-import java.awt.Color;
-import java.util.Arrays;
-
 import jist.swans.misc.Message;
+import jist.swans.misc.Pickle;
+import jist.swans.net.NetAddress;
 import jist.swans.net.NetAddressIpFactory;
 import jist.swans.net.NetMessage;
-import jist.swans.net.NetAddress;
 import jist.swans.route.RouteDsr_Ns2.ID;
 import jist.swans.route.RouteDsr_Ns2.Path;
-import jist.swans.route.RouteDsr_Ns2.ID.ID_Type;
 import jist.swans.trans.TransUdp;
-import jist.swans.misc.Pickle;
 
 /**
  * @author David Choffnes &lt;drchoffnes@cs.northwestern.edu&gt;

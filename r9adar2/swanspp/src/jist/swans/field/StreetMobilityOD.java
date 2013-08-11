@@ -42,16 +42,12 @@ import java.util.Vector;
 
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
-import jist.swans.field.Mobility.MobilityInfo;
 import jist.swans.field.streets.CongestionMonitor;
-import jist.swans.field.streets.CongestionMonitorIdeal;
-import jist.swans.field.streets.LaneChangeModel;
 import jist.swans.field.streets.RoadSegment;
 import jist.swans.field.streets.SegmentNode;
 import jist.swans.field.streets.SegmentNodeInfo;
 import jist.swans.misc.AStarSearch;
 import jist.swans.misc.Location;
-import jist.swans.misc.StartPoint;
 
 /**
  * 

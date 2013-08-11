@@ -9,8 +9,15 @@
 
 package jist.runtime;
 
-import org.apache.bcel.classfile.*;
-import org.apache.bcel.generic.*;
+import org.apache.bcel.classfile.Field;
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.classfile.Method;
+import org.apache.bcel.generic.ClassGen;
+import org.apache.bcel.generic.FieldGen;
+import org.apache.bcel.generic.Instruction;
+import org.apache.bcel.generic.InstructionHandle;
+import org.apache.bcel.generic.InstructionList;
+import org.apache.bcel.generic.MethodGen;
 
 /** 
  * Facilitates traversal and and modification of a BCEL JavaClass structure.

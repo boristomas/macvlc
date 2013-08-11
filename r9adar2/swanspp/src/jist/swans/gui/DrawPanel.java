@@ -9,11 +9,11 @@
 
 package jist.swans.gui;
 
-import java.awt.*;
-import java.lang.*;
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
 
-import jist.runtime.JistAPI;
+import javax.swing.JPanel;
 
 /**
  * rimtodo: in development
