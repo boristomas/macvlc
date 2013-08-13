@@ -11,6 +11,7 @@ package jist.swans.radio;
 
 import java.awt.Rectangle;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -87,8 +88,8 @@ public final class RadioVLC extends RadioNoise
 			this.node = node;
 			this.distanceLimit = distancelimit; 
 			this.visionAngle = visionAngle;
-			this.offsetX = offsetX;
-			this.offsetY = offsetY;
+			this.offsetX = offsetX + 0.001F;//added 1 cm so sensor "sticks" out, so car itself can be considered as an obstacle 
+			this.offsetY = offsetY + 0.001F;//like above
 			this.sensorBearing = bearing;
 			this.sensorID = sensorID;
 			this.mode = mode;
@@ -438,24 +439,80 @@ public final class RadioVLC extends RadioNoise
 
 
 	//bt
+	private HashSet<Integer> possibleNodes;// =  new HashSet<Integer>();
+	private HashSet<Integer> tmpNodeList;
+	private boolean obstructed = false;
 	private boolean CanTalk(int SourceID, int DestinationID, SensorModes mode)
 	{
-		//  System.out.println("can we talk? me= " +SourceID + " him= "+ DestinationID);
-		if(DestinationID != -1)
+		if(DestinationID != -1)//znaci da nije broadcast poruka, teoretski nikada nece soruceid biti -1 odnosno broadcast adresa
 		{
+			possibleNodes = new HashSet<Integer>();
 			if(mode == SensorModes.Send)
 			{//znaci sourceid šalje
-				if(getQualifiyingNodes(SourceID, mode).contains(DestinationID) && getQualifiyingNodes(DestinationID, SensorModes.Receive).contains(SourceID))
+				possibleNodes.addAll(getRangeAreaNodes(SourceID, mode));
+				tmpNodeList = getRangeAreaNodes(DestinationID, SensorModes.Receive);
+				
+				if(possibleNodes.contains(DestinationID) && tmpNodeList.contains(SourceID))
 				{
-					return true;
+					possibleNodes.addAll(tmpNodeList);
+				//	possibleNodes.remove(SourceID);
+				//	possibleNodes.remove(DestinationID);
+					obstructed = true;
+					for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.sensors)
+					{
+						for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.sensors)
+						{
+							for (Integer node : possibleNodes)
+							{
+								if(!Field.getRadioData(node).vlcdevice.outlineShape.intersectsLine(sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY()))
+								{
+									//ako pronaðem 
+									return true;
+									
+								}
+							}//foreach possiblenodes
+						}//foreach sensors in dest
+					}//foreach sensor in src
+					return false;
+				}
+				else
+				{
+					//cak si ni nisu u trokutu.
+					return false;
 				}
 			}
 			else if( mode == SensorModes.Receive)
 			{//znaci source sluša poruke
-				if(getQualifiyingNodes(SourceID, mode).contains(DestinationID) && getQualifiyingNodes(DestinationID, SensorModes.Send).contains(SourceID))
+				
+				possibleNodes.addAll(getRangeAreaNodes(SourceID, mode));
+				tmpNodeList = getRangeAreaNodes(DestinationID, SensorModes.Send);
+				
+				if(possibleNodes.contains(DestinationID) && tmpNodeList.contains(SourceID))
 				{
+					possibleNodes.addAll(tmpNodeList);
+				//	possibleNodes.remove(SourceID);
+				//	possibleNodes.remove(DestinationID);
+					
+					for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.sensors)
+					{
+						for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.sensors)
+						{
+							for (Integer node : possibleNodes)
+							{
+								if(Field.getRadioData(node).vlcdevice.outlineShape.intersectsLine(sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY()))
+								{
+									return false;
+								}
+							}//foreach possiblenodes
+						}//foreach sensors in dest
+					}//foreach sensor in src
 					return true;
 				}
+				else
+				{
+					//cak si ni nisu u trokutu.
+					return false;
+				}	
 			}
 			else
 			{
@@ -463,12 +520,11 @@ public final class RadioVLC extends RadioNoise
 				return false;
 			}
 		}
-		else
+		else//broadcast poruka je
 		{
-			//broadcast poruka je 
-
+			return false;
 		}
-		return false;
+		//return false;
 	}
 	/**
 	 * This method will need to be called two times. Each call will detect one corner point of the vlc device's view
@@ -522,7 +578,7 @@ public final class RadioVLC extends RadioNoise
 	{		
 
 		if(tripletOrientation(x1,y1,x2,y2,p1,p2)*tripletOrientation(x1,y1,x2,y2,x3,y3)>0 && tripletOrientation(x2,y2,x3,y3,p1,p2)*tripletOrientation(x2,y2,x3,y3,x1,y1)>0 && tripletOrientation(x3,y3,x1,y1,p1,p2)*tripletOrientation(x3,y3,x1,y1,x2,y2)>0)
-		{
+		{//zadnji && brisem i dodajem distance check ispod los
 			return true;
 		}
 		else
@@ -543,18 +599,18 @@ public final class RadioVLC extends RadioNoise
 	 * @param SourceNodeID
 	 * @return
 	 */
-	private LinkedList<Integer> getQualifiyingNodes(int SourceNodeID, SensorModes mode)
+	private HashSet<Integer> getRangeAreaNodes(int SourceNodeID, SensorModes mode)
 	{
-		LinkedList<Integer> returnNodes = new LinkedList<Integer>();
+		HashSet<Integer> returnNodes = new HashSet<Integer>();
 		for(int i=1;i<JistExperiment.getJistExperiment().getNodes(); i++) 
 		{	
-			float ba= Field.getRadioData(i).getMobilityInfo().getBearingAsAngle();
+		//	float ba= Field.getRadioData(i).getMobilityInfo().getBearingAsAngle();
 		//	Location cp1 = getVLCCornerPoint(ba - (visionAngle/2), Field.getRadioData(i).getLocation(), distanceLimit, visionAngle);
 		//	Location cp2 = getVLCCornerPoint(ba + (visionAngle/2), Field.getRadioData(i).getLocation(), distanceLimit, visionAngle);
 			if(SourceNodeID != i)
 			{
 				boolean stopSearch = false;
-				for (VLCsensor sensor : sensors) 
+				for (VLCsensor sensor : Field.getRadioData(SourceNodeID).vlcdevice.sensors) 
 				{
 					if(stopSearch)
 						break;
@@ -574,52 +630,9 @@ public final class RadioVLC extends RadioNoise
 						}
 					}
 				}//for my sensors
-
-/*				if(visibleToVLCdevice(Field.getRadioData(i).getLocation().getX(), Field.getRadioData(i).getLocation().getY(),Field.getRadioData(SourceNodeID).getLocation().getX(), Field.getRadioData(SourceNodeID).getLocation().getY(), cornerPoint2.getX(), cornerPoint2.getY(), cornerPoint1.getX(), cornerPoint1.getY()))
-				{
-					returnNodes.add(i);
-				}*/
 			}//if not me
 		}//for all nodes
-
 		
-		
-		
-		//float bearingAngle = JistExperiment.getJistExperiment().visualizer.getField().getRadioData(SourceNodeID).getMobilityInfo().getBearingAsAngle();
-		/*float bearingAngle = Field.getRadioData(SourceNodeID).getMobilityInfo().getBearingAsAngle();
-
-		cornerPoint1 = getVLCCornerPoint(bearingAngle - (visionAngle/2), Field.getRadioData(SourceNodeID).getLocation(), distanceLimit, visionAngle);
-		cornerPoint2 = getVLCCornerPoint(bearingAngle + (visionAngle/2), Field.getRadioData(SourceNodeID).getLocation(), distanceLimit, visionAngle);
-
-		//go over all nodes, check if they're inside current radar's range
-		Polygon poly;
-
-		for(int i=1;i<JistExperiment.getJistExperiment().getNodes(); i++) 
-		{
-			float ba= Field.getRadioData(i).getMobilityInfo().getBearingAsAngle();
-			Location cp1 = getVLCCornerPoint(ba - (visionAngle/2), Field.getRadioData(i).getLocation(), distanceLimit, visionAngle);
-			Location cp2 = getVLCCornerPoint(ba + (visionAngle/2), Field.getRadioData(i).getLocation(), distanceLimit, visionAngle);
-			poly = new Polygon();
-			poly.addPoint((int)Field.getRadioData(i).getLocation().getX(), (int)Field.getRadioData(i).getLocation().getY());
-			poly.addPoint((int)cp1.getX(), (int)cp1.getY());
-			poly.addPoint((int)cp2.getX(), (int)cp2.getY());
-			JistExperiment.getJistExperiment().visualizer.drawPolygon(poly);
-			if(SourceNodeID != i)
-			{
-				if(visibleToVLCdevice(Field.getRadioData(i).getLocation().getX(), Field.getRadioData(i).getLocation().getY(),Field.getRadioData(SourceNodeID).getLocation().getX(), Field.getRadioData(SourceNodeID).getLocation().getY(), cornerPoint2.getX(), cornerPoint2.getY(), cornerPoint1.getX(), cornerPoint1.getY()))
-				{
-					returnNodes.add(i);
-				}
-			}
-		}
-		//JistExperiment.getJistExperiment().visualizer.updateVisualizer();
-		//	JistExperiment.getJistExperiment().visualizer.pause();
-
-		/*System.out.print("VLC visible nodes for me(" +SourceNodeID + ") myloc:"+  Field.getRadioData(SourceNodeID).getLocation().toString()+" are : ");
-		for (Integer item : returnNodes) {
-			System.out.print(item.toString() + ", ");
-		}
-		System.out.println("");*/
 		return returnNodes;
 	}
 
