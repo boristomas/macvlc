@@ -9,6 +9,7 @@
 
 package jist.swans.radio;
 
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,12 +40,13 @@ import driver.JistExperiment;
 
 public final class RadioVLC extends RadioNoise
 {
-	//širina: 1,7 +-8.3
+	//širina: 1,7 +-0.3
 	//dužina: 5+-0.5
 	private float vehicleDevLength = 0.5F ;
 	private float vehicleLength =5.0F;
-	private float vehicleDevWidth =8.3F;
-	private float vehicleWidth = 5.0F;
+	
+	private float vehicleDevWidth =0.3F;
+	private float vehicleWidth = 1.7F;
 	public int NodeID;
 	public Location currentLocation;
 	private Location newLocation;//used to store new location
@@ -81,6 +83,7 @@ public final class RadioVLC extends RadioNoise
 		private float sensorBearingNotRelative;
 		private float tmpx;
 		private float tmpy;
+		private float stickOut = 0.001F; //1cm
 
 
 		public VLCsensor(int sensorID, RadioVLC node, float distancelimit, float visionAngle,Location originalLoc, float offsetX, float offsetY, float bearing, SensorModes mode) 
@@ -88,8 +91,23 @@ public final class RadioVLC extends RadioNoise
 			this.node = node;
 			this.distanceLimit = distancelimit; 
 			this.visionAngle = visionAngle;
-			this.offsetX = offsetX + 0.001F;//added 1 cm so sensor "sticks" out, so car itself can be considered as an obstacle 
-			this.offsetY = offsetY + 0.001F;//like above
+			this.offsetX = offsetX;//added 1 cm so sensor "sticks" out, so car itself can be considered as an obstacle
+			if(this.offsetX >0)
+			{
+				this.offsetX += stickOut;
+			}
+			else
+			{
+				this.offsetX -= stickOut;
+			}
+			if(this.offsetY >0)
+			{
+				this.offsetY += stickOut;
+			}
+			else
+			{
+				this.offsetY -= stickOut;
+			}
 			this.sensorBearing = bearing;
 			this.sensorID = sensorID;
 			this.mode = mode;
@@ -100,18 +118,19 @@ public final class RadioVLC extends RadioNoise
 			sensorBearingNotRelative = NodeBearing + sensorBearing;
 			tmpx= (float) ((NodeLocation.getX()+ offsetX)* Math.cos(NodeBearing) - (NodeLocation.getY() + offsetY) * Math.sin(NodeBearing));
 			tmpy= (float) ((NodeLocation.getX()+ offsetX)* Math.sin(NodeBearing) + (NodeLocation.getY() + offsetY) * Math.cos(NodeBearing));
-			sensorLocation = new Location.Location2D(tmpx, tmpy);
 
+			sensorLocation = new Location.Location2D(tmpx, tmpy);//start.
 			sensorLocation1 = getVLCCornerPoint(sensorBearingNotRelative - (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
 			sensorLocation2 = getVLCCornerPoint(sensorBearingNotRelative + (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
 			//if(node.NodeID != 32)
 				//return;
-	/*		Polygon poly = new Polygon();
+			//TODO: provjeriti jesu li senzori dobro smjesteni :(
+			Polygon poly = new Polygon();
 			poly.addPoint((int)sensorLocation.getX(), (int)sensorLocation.getY());
 			poly.addPoint((int)sensorLocation1.getX(), (int)sensorLocation1.getY());
 			poly.addPoint((int)sensorLocation2.getX(), (int)sensorLocation2.getY());
 			JistExperiment.getJistExperiment().visualizer.drawPolygon(poly);
-			JistExperiment.getJistExperiment().visualizer.updateVisualizer();*/
+			JistExperiment.getJistExperiment().visualizer.updateVisualizer();
 	//	JistExperiment.getJistExperiment().visualizer.pause();
 		}
 
@@ -207,22 +226,34 @@ public final class RadioVLC extends RadioNoise
 	 */
 	public RadioVLC(int id, RadioInfo.RadioInfoShared sharedInfo, double thresholdSNR, Location location)
 	{
+		/*90rx
+		30tx
+		los 30m
+		4rx 4tx
+		*/
 		super(id, sharedInfo);
 		this.NodeID = id;
 		setThresholdSNR(thresholdSNR);
 		//http://en.wikipedia.org/wiki/Rotation_matrix
 		Random rand = new Random();
 		startLocation = location;
-		offsetx = (float) (vehicleLength + rand.nextGaussian()*vehicleDevLength);
-		offsety = (float) (vehicleWidth + rand.nextGaussian()*vehicleDevWidth);
+		//offsets are half length from center point to edge of vehicle. example vehicle length is 5m and width is 2m. xoffset is 2.5 and yoffset id 1. if
+		offsetx = (float) ((vehicleLength + (rand.nextFloat()*2*vehicleDevLength)-vehicleDevLength)/2);
+		offsety = (float) ((vehicleWidth + (rand.nextFloat()*2*vehicleDevWidth)-vehicleDevWidth)/2);
 		checkLocation(true);
-		offsety= 0; //nema offseta jer po y bude senzor na sredini auta.a iznad sam ga ostavio da se definira oblik auta.
 
-		sensors.add(new VLCsensor(1, this, 250, 60, location, offsetx, offsety, 0, SensorModes.Send));//front Tx
-		sensors.add(new VLCsensor(2, this, 250, 110, location, offsetx, offsety, 0, SensorModes.Receive));//front Rx
-		sensors.add(new VLCsensor(3, this, 250, 60, location, -1*offsetx, offsety, 180, SensorModes.Send));//back Tx
-		sensors.add(new VLCsensor(4, this, 250, 110, location, -1*offsetx, offsety, 180, SensorModes.Receive));//front Rx
-		
+		//left
+		sensors.add(new VLCsensor(1, this, 300, 30, location, offsetx, offsety, 0, SensorModes.Send));//front Tx
+		sensors.add(new VLCsensor(2, this, 300, 90, location, offsetx, offsety, 0, SensorModes.Receive));//front Rx
+		sensors.add(new VLCsensor(3, this, 300, 30, location, -1*offsetx, offsety, 180, SensorModes.Send));//back Tx
+		sensors.add(new VLCsensor(4, this, 300, 90, location, -1*offsetx, offsety, 180, SensorModes.Receive));//front Rx
+
+		//right
+		sensors.add(new VLCsensor(5, this, 300, 30, location, offsetx, -1*offsety, 0, SensorModes.Send));//front Tx
+		sensors.add(new VLCsensor(6, this, 300, 90, location, offsetx, -1*offsety, 0, SensorModes.Receive));//front Rx
+		sensors.add(new VLCsensor(7, this, 300, 30, location, -1*offsetx, -1*offsety, 180, SensorModes.Send));//back Tx
+		sensors.add(new VLCsensor(8, this, 300, 90, location, -1*offsetx, -1*offsety, 180, SensorModes.Receive));//front Rx
+
 	}
 
 	//////////////////////////////////////////////////
@@ -273,19 +304,6 @@ public final class RadioVLC extends RadioNoise
 		}
 		//update node shape (rectangle)
 		
-		 
-		/*tmpx1 = NodeLocation.getX();
-		tmpy1 = NodeLocation.getY();
-		tmpx2 =tmpx1;
-		tmpy2 = tmpy1;
-		
-		tmpx1 = tmpx1 + offsetx;
-		tmpy1 = tmpy1 + offsety;
-		tmpx2 = tmpx2 - offsetx;
-		tmpy2 = tmpy2 - offsety;*/
-	//	offsetx= 50;
-		//offsety = 50;
-		
 		tmpx1= (float) ((NodeLocation.getX() + offsetx)* Math.cos(NodeBearing) - (NodeLocation.getY() + offsety) * Math.sin(NodeBearing));
 		tmpy1= (float) ((NodeLocation.getY() + offsety)* Math.cos(NodeBearing) - (NodeLocation.getX() + offsetx) * Math.sin(NodeBearing));
 		tmpx2= (float) ((NodeLocation.getX() - offsetx)* Math.cos(NodeBearing) - (NodeLocation.getY() - offsety) * Math.sin(NodeBearing));
@@ -299,7 +317,7 @@ public final class RadioVLC extends RadioNoise
 		JistExperiment.getJistExperiment().visualizer.drawPolygon(poly);
 		JistExperiment.getJistExperiment().visualizer.updateVisualizer();*/
 	//	JistExperiment.getJistExperiment().visualizer.pause();
-		
+
 	}
 
 	//////////////////////////////////////////////////
