@@ -15,6 +15,7 @@ import jist.runtime.JistAPI;
 import jist.runtime.JistAPI.Continuation;
 import jist.swans.Constants;
 import jist.swans.Main;
+import jist.swans.mac.Mac802_11;
 import jist.swans.mac.MacAddress;
 import jist.swans.mac.MacInterface;
 import jist.swans.mac.MacLoop;
@@ -193,7 +194,7 @@ public class NetIp implements NetInterface
     // add loopback mac:
     //   therefore, loopback = 0, Constants.NET_INTERFACE_LOOPBACK
     //              next     = 1, Constants.NET_INTERFACE_DEFAULT
-    MacLoop loopback = new MacLoop();
+    MacLoop loopback = new MacLoop(); 
     byte netid = addInterface(loopback.getProxy());
     if(Main.ASSERT) Util.assertion(netid==Constants.NET_INTERFACE_LOOPBACK);
     loopback.setNetEntity(getProxy(), netid);
@@ -312,7 +313,7 @@ public class NetIp implements NetInterface
    */
   public byte addInterface(MacInterface macEntity, MessageQueue q)
   {
-    if(!JistAPI.isEntity(macEntity)) throw new IllegalArgumentException("expected entity");
+  //  if(!JistAPI.isEntity(macEntity)) throw new IllegalArgumentException("expected entity");
     // create new nicinfo
     NicInfo ni = new NicInfo();
     ni.mac = macEntity;

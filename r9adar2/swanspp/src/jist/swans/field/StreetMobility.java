@@ -66,6 +66,7 @@ import jist.swans.misc.AStarNode;
 import jist.swans.misc.AStarSearch.PriorityList;
 import jist.swans.misc.Location;
 import driver.JistExperiment;
+import driver.Visualizer;
 import driver.VisualizerInterface;
 
 /**
@@ -323,48 +324,29 @@ public abstract class StreetMobility implements Mobility {
             MobilityInfo info) 
     {
     	
+    	if (Visualizer.getActiveInstance()!=null) Visualizer.getActiveInstance().updateTime(JistAPI.getTime());
         LinkedList nextLaneTemp = null;
         Location displacement;
         Location centerLine;
         RoadSegment oldRs;
-               
-         if (v!=null) v.updateTime(JistAPI.getTime());
-        if (info.isStopped()){
-            JistAPI.sleep(Constants.SECOND);
-            f.moveRadio(id, loc);
-            return;
-        }
-
-        if (DEBUG) System.out.println("Old location: " + loc);
-//        if (DEBUG_VIS && v!=null) v.drawTransmitCircle(id.intValue());
         
         try
         {
             
-            StreetMobilityInfo smi = (StreetMobilityInfo)info;					//relevant information: loc can be used to get the location of the current car. 
+            StreetMobilityInfo smi = (StreetMobilityInfo)info;
             centerLine = loc.getClone();
             
             if(ENABLE_LANE_DISPLACEMENT){
                 
                 displacement = getInverseDisplacement(smi);  
                 centerLine.add(displacement); // remove displacement from center
-                if (centerLine.getY() == Float.NaN)
-                {
-                    throw new RuntimeException("Foo!");
-                }
+                
             }
             
             smi.speedSum+=smi.currSpeed; // update speed
             
             if (DEBUG_VIS && v!=null) v.setToolTip(id.intValue(), 
-                    "Node " +id+" @ " + loc + ":\nRemaining distance: "+smi.remainingDist +
-                    "\nReported at time " + ((double)JistAPI.getTime())/Constants.SECOND);
-            
-            if (v!=null && carToInspect.equals(id)){
-                printSMInfo(id, smi, null, loc);
-            }
-            
-            if (DEBUG) System.out.println("Node " + id + ", remaining dist: " +smi.remainingDist);        
+                    "Node " +id+":\nRemaining distance: "+smi.remainingDist);           
             
             // arrived at end of road, perform inter-segment calculations
             if(smi.remainingDist<0.01)
@@ -374,40 +356,21 @@ public abstract class StreetMobility implements Mobility {
                 // this means that the vehicle is done moving and should be removed from the map
                 if (smi.nextRS == null)
                 {
-                    if (DEBUG) System.out.println("StreetMobility::next: Moving node off map!");
                     Location.Location2D offMap = 
                         new Location.Location2D(Float.MAX_VALUE, Float.MAX_VALUE);
                     
-                    if (loc.distance(offMap)==0){
-                        if (v!=null)v.removeNode(id.intValue());
-                        int pos = mobInfo.lastIndexOf(smi);
-                        mobInfo.remove(pos);
-                        smi.nextIs.removeWaiting(smi);
-                        return;
-                    }
-                    
                     smi.current.removeNode(smi, smi.currentLane, mobInfo); // remove from old one
-
+                    
                     JistAPI.sleep(Constants.SECOND);                   
                     f.moveRadio(id, offMap); // make actual move                 
 //                  JistAPI.sleep(2000 * Constants.SECOND); // don't call again for a long time                  
                     return;
-                }
-                
-                if (DEBUG) System.out.println("Reached end of " + (StreetName)streets.get(new Integer(smi.current.getStreetIndex())));
+                }                
                 
                 // find intersecting roads 
                 Intersection is = intersections.findIntersectingRoads(smi.rsEnd);
                 if (is == null)
                 {
-                    System.out.println("Location: "+smi.rsEnd);
-                    System.out.println("Current road: " + smi.current.printStreetName(streets));
-                    System.out.println("Length: " + smi.current.getLength());
-                    System.out.println("Start point: "+smi.current.getStartPoint());
-                    System.out.println("Shape points: \n" + (Shape)shapes.get(new Integer(smi.current.getShapeIndex())));
-                    System.out.println("End point: "+smi.current.getEndPoint());
-                    System.out.println("Next road: "+smi.nextRS.printStreetName(streets));
-                    
                     v.colorSegment(smi.current, Color.RED);
                     throw new RuntimeException("Null intersection error! Try reducing the degree of" +
                     " the quad tree");
@@ -417,25 +380,15 @@ public abstract class StreetMobility implements Mobility {
                 float pause = is.getPauseTime(smi.current, smi.nextRS, smi);
                 // don't move at all if at red light or stop sign
                 if (pause > 0)
-                {
-                    smi.waitCount++;
-                    if (smi.waitCount > WAIT_THRESHOLD)
-                    {
-                        if (DEBUG_VIS && v!=null){
-                            printSMInfo(id, smi, is, loc);
-                        }                        
-                    }
-                    
-                    if (DEBUG) System.out.println("Pausing for " + pause + " seconds");
-                    
+                {                  
                     // pause at intersection if necessary 
                     JistAPI.sleep((long)(pause*Constants.SECOND));    
                     
                     if (ENABLE_LANE_DISPLACEMENT){
-                        smi.offset = getLaneDisplacement(smi, id);
+                        smi.offset = getLaneDisplacement(smi, null);
                         centerLine.add(smi.offset); // add displacement from center
                     }
-                    f.moveRadio(id, centerLine); // make actual move, centerline is the destination of the car
+                    f.moveRadio(id, centerLine); // make actual move
                     return;
                 }           
                 // simple case, waiting to make a turn
@@ -449,26 +402,17 @@ public abstract class StreetMobility implements Mobility {
                         smi.waitCount++;
                         if (smi.waitCount > WAIT_THRESHOLD)
                         {
-                            if (DEBUG_VIS && v!=null){
-                                printSMInfo(id, smi, is, loc);
-                                v.colorSegment(smi.nextRS, Color.RED);
-                            }
                             // turn around only if on random mode
                             if (smi instanceof StreetMobilityRandom.StreetMobilityInfoRandom) setNextRoad(smi);
                             
-                        }
-                        if (DEBUG){
-                            System.out.println("Still waiting for next road to clear...");                        
-                            smi.nextRS.printCarList(smi.currentLane, mobInfo);
                         }
                         
                         JistAPI.sleep(Constants.SECOND); // TODO use turn signaling
                         
                         if (ENABLE_LANE_DISPLACEMENT){
-                            smi.offset = getLaneDisplacement(smi, id);
+                            smi.offset = getLaneDisplacement(smi, null);
                             centerLine.add(smi.offset ); // add displacement from center
-                        }                        
-                        
+                        }
                         f.moveRadio(id, centerLine); // make actual move
                         return;
                     }
@@ -481,41 +425,22 @@ public abstract class StreetMobility implements Mobility {
                 } // end waiting to turn            
                 else // attempt to move node to next segment
                 {
-                    
-                    if (DEBUG) System.out.print( " moving from " +
-                            (StreetName)streets.get(new Integer(smi.current.getStreetIndex())));
-                    
                     // check if there is room to add car to road
                     // if not, wait for a second and exit
                     nextLaneTemp = smi.nextRS.addNode(smi, smi.nextEnd, mobInfo);
                     if (nextLaneTemp == null)
                     {                    
-                        if (DEBUG){
-                            System.out.println(" but was stopped because"+                    
-                                    " new road ("
-                                    + (StreetName)streets.get(new Integer(smi.nextRS.getStreetIndex()))+
-                            ")is full!");
-                            smi.nextRS.printCarList(smi.currentLane, mobInfo);
-                        }
                         smi.waiting = true;
                         smi.currSpeed = 0;
                         JistAPI.sleep(Constants.SECOND);
                         
                         if (ENABLE_LANE_DISPLACEMENT){
-                            smi.offset = getLaneDisplacement(smi, id);
+                            smi.offset = getLaneDisplacement(smi, null);
                             centerLine.add(smi.offset); // add displacement from center
                         }
                         
-                        if (smi.waitCount > WAIT_THRESHOLD)
-                        {
-                            if (DEBUG_VIS && v!=null){
-                                printSMInfo(id, smi, is, loc);
-                            }                            
-                        }
-                        
                         f.moveRadio(id, centerLine); // make actual move
-                        if (v!=null) v.updateNodeLocation(centerLine.getX(), 
-                                centerLine.getY(), id.intValue(), null);
+                        if (v!=null) v.updateNodeLocation(centerLine.getX(), centerLine.getY(), id.intValue(), centerLine);
                         return;
                     }
                     else // there is room in the next segment
@@ -524,26 +449,18 @@ public abstract class StreetMobility implements Mobility {
                         // if there was a turn
                         if (smi.nextRS.getStreetIndex()!=smi.current.getStreetIndex())
                         {
-                            if (DEBUG) System.out.println("[turn]");
                             // set new speed to 5mph
                             smi.currSpeed = 2.32f;
                         }
                         else if (smi.current.getSelfIndex() == smi.nextRS.getSelfIndex()) // dead end and turned around
                         {  
-                            if (DEBUG) System.out.println("[dead end]");
                             smi.currSpeed = 0;
-                        }
-                        else
-                        {
-                            if (DEBUG) System.out.println("[same road]");                  	
                         }
 
                         moveToNextRoad(id, nextLaneTemp, smi, is);
-                        
-                        if (DEBUG) System.out.println(" onto " + (StreetName)streets.get(new Integer(smi.current.getStreetIndex())));
+                                        
                     }
                 } // end case not waiting yet
-
                 smi.waitCount = 0;
                 // now that we've moved to the next street, we must calculate
                 // motion-related info
@@ -561,7 +478,9 @@ public abstract class StreetMobility implements Mobility {
                     if(smi.current.getEndPoint().distance(centerLine)<= INTERSECTION_RESOLUTION)
                         smi.ShapePointIndex = shape.points.length; 
                 } 
-
+                
+                // caculate distance along segment
+                smi.remainingDist = smi.current.getLength(); 
                 
                 // move car to next segment
                 Location newLoc = 
@@ -575,69 +494,29 @@ public abstract class StreetMobility implements Mobility {
                 }
                 else // vehicle tried to turn before reaching intersection
                 {      
-                    System.out.println("");
-                    System.out.println("Vehicle number: "+id);
-                    System.out.println("Old road: " + oldRs.printStreetName(streets));
-                    System.out.println("New road: " + smi.current.printStreetName(streets));
-                    System.out.println("Distance between roads: "+newLoc.distance(centerLine));
-                    System.out.println("Distance to other end: "+ newLoc.distance(smi.rsEnd));
-                    System.out.println("Last point: " + centerLine);
-                    
-//                    System.out.println(intersections.findIntersectingRoads(centerLine).printStreets(streets));
-                    
-                    if (v!=null)
-                    {
-                        v.colorSegment(oldRs, Color.RED);
-                        v.drawCircle(id.intValue(), 30);
-                        Object rss[] = intersections.findIntersectingRoads(centerLine).getRoads().toArray();
-                        Color colors[] = new Color[rss.length];
-                        for (int i = 0; i < rss.length; i++) colors[i] = Color.RED;
-                        v.colorSegments(intersections.findIntersectingRoads(centerLine).getRoads().toArray(), colors);
-                    }
                     throw new RuntimeException("At " + JistAPI.getTime()+ ": Node attempted to turn to invalid road!");
                 }
                 
             } // end if at end of road segment        
             
-            long sleepTime = (long)(smi.stepTime*Constants.SECOND
-                    + smi.currentLane.indexOf(smi)); // default sleep time
-            performLaneChange(smi, id);
-//            if (performLaneChange(smi, id))
-//            {
-//            	sleepTime = (long)(smi.stepTime*Constants.SECOND);
-//            }           
-            float oldSpeed = smi.currSpeed;
-            float oldRemDist = smi.remainingDist;
-            // adjust speed, look for car in front and move appropriately
-            Location step = step(centerLine, smi, id);           
-            float newSpeed = smi.currSpeed;
-            
-            // use the average speed to determine actual sleep time
-            sleepTime = (long)(Constants.SECOND*2*
-                    (oldRemDist - smi.remainingDist)/(oldSpeed+newSpeed));
-            if (sleepTime<=0 || sleepTime > 1*Constants.SECOND) sleepTime = 1*Constants.SECOND;
-            
             // advance simulation time
             // TODO make this speed-based
-            JistAPI.sleep(sleepTime); // advance simulation time    
+            JistAPI.sleep((long)(smi.stepTime*Constants.SECOND + 
+                    + smi.currentLane.indexOf(smi))); // proper ordering    
             
+            // adjust speed, look for car in front and move appropriately
+            Location step = step(centerLine, smi, id);
             centerLine = step.getClone();
-            if (!centerLine.inside(bl0, tr0)) 
-                throw new RuntimeException("Node " +id+ ": Bad map!" +
-                        "\nLocation: "+centerLine +"\nRS: "+smi.current.printStreetName(streets));
             
             if (ENABLE_LANE_DISPLACEMENT){
-                smi.offset = getLaneDisplacement(smi, id);
+                smi.offset = getLaneDisplacement(smi, null);
                 centerLine.add(smi.offset); // add displacement from center
             }
-
+            
             f.moveRadio(id, centerLine); // make actual move  
-            if (v!=null){ 
-                Location endPoint = getEndPoint(smi);
-                v.updateNodeLocation(centerLine.getX(), centerLine.getY(), 
-                        id.intValue(), step.bearing(endPoint));                
-            }
-
+            if (Visualizer.getActiveInstance()!=null) 
+                Visualizer.getActiveInstance().updateNodeLocation(
+                        centerLine.getX(), centerLine.getY(), id.intValue(), centerLine);
             
         }
         catch(ClassCastException e) 
@@ -646,17 +525,9 @@ public abstract class StreetMobility implements Mobility {
         }
         catch(RuntimeException e) // very useful for debugging
         {
-            if (v!=null/* && e.getMessage()=="move error!"*/) v.colorSegment(((StreetMobilityInfo)info).current, Color.RED);
             printStreetList(id.intValue());
-            if (info instanceof StreetMobilityInfoOD)
-            {
-                StreetMobilityInfoOD smiod = (StreetMobilityInfoOD)info;
-                System.out.println("Remainging path:");
-                ((StreetMobilityOD)this).printPath(smiod.path);
-            }
             throw e;
         }
-        
     }
 
 
@@ -766,17 +637,14 @@ public abstract class StreetMobility implements Mobility {
      * @param id the node id
      * @return a displacement vector
      */
-    public Location getLaneDisplacement(StreetMobilityInfo smi, Integer id) {        
+    private static final float LANE_WIDTH = 3.6576f;
+    public Location getLaneDisplacement(StreetMobilityInfo smi, Integer id55) {        
         
         Location start;
         Location finish;
         Location normalized;
-        float laneNumber = 0;
-        if (lcm!=null && id!=null) laneNumber = lcm.getLaneNumber(id);
-        laneNumber += smi.current.getLane(smi.currentLane);
-        
-        float displacement = smi.current.getLaneWidth()/2 
-        	+ smi.current.getLaneWidth() * laneNumber;
+        int laneNumber = smi.current.getLane(smi.currentLane);
+        float displacement = LANE_WIDTH/2 + LANE_WIDTH * laneNumber;
         
         // calculate normal vector for displacement
         
@@ -850,7 +718,6 @@ public abstract class StreetMobility implements Mobility {
                 (float)(temp * (finish.getY()-start.getY())));
         
         // find normal, multiply by displacement: 
-        // TODO make the cars align on roads better
         if (Math.signum(normalized.getX()) == Math.signum(normalized.getY()))
             return new Location.Location2D(displacement * normalized.getY()*(-1), 
                     normalized.getX()*displacement );       
@@ -868,7 +735,7 @@ public abstract class StreetMobility implements Mobility {
             else             return new Location.Location2D(displacement * normalized.getY(), 
                     normalized.getX()*displacement); 
         return new Location.Location2D(displacement * normalized.getY() * (-1), 
-                    normalized.getX()*displacement);  
+                    normalized.getX()*displacement);    
     }
     
     /**
@@ -1031,6 +898,7 @@ public abstract class StreetMobility implements Mobility {
      */
     public Location step(Location curr, MobilityInfo info, Integer id) 
     {
+
         if (DEBUG) System.out.println("Entering step...");
         Location newLocation = curr;
         boolean firstCar = false;
@@ -1039,27 +907,17 @@ public abstract class StreetMobility implements Mobility {
         StreetMobilityInfo smi = (StreetMobilityInfo)info;
                
         // find next car on road, if any
-        // TODO account for other "next car" when doing lane changing
-        nextInfo = getNextCarInfo(smi, id);
-        if (nextInfo==null)
+        if (smi.nextCar==null || 
+                ((StreetMobilityInfo)smi.currentLane.getFirst())==info)
         {
             firstCar = true;
         }
-        
-        if (DEBUG)
+        else
         {
-            if (!firstCar){
-                System.out.println("Not first car on segment!");
-                Iterator it = smi.currentLane.iterator();
-                while (it.hasNext())
-                {
-                    System.out.println((Integer)it.next());
-                }
-                System.out.println("Next car: "+smi.nextCar+" / Current car: "+id);
-            }           	        	
-        }            
+            nextInfo = smi.nextCar;
+        }
         
-        // find maximum new speed--calculating the speed, given the acceleration step time
+        // find maximum new speed
         float newSpeed = Math.min(smi.currSpeed+smi.acceleration*smi.stepTime, 
                 smi.getAdjustedSpeed());
         
@@ -1105,9 +963,7 @@ public abstract class StreetMobility implements Mobility {
                 // case where there is no room to move forward
                 if (dist <=0 ) 
                 {
-                    if (DEBUG) System.out.println("Stopping due to car-following!");
                     // wait a short while
-                    // TODO 1) is this ever called? 2) how often? 3) set sleep time
                     JistAPI.sleep(Constants.SECOND/4);
                     smi.currSpeed = 0; // set current speed to zero
                     return curr; // don't move                    
@@ -1119,13 +975,13 @@ public abstract class StreetMobility implements Mobility {
         // ensure that the car doesn't blow past the intersection
         if (smi.remainingDist < dist)
         {
-            smi.remainingDist = 0;
+            dist = curr.distance(smi.rsEnd);
+            smi.remainingDist = dist;
         }
         if (dist < 0)
         { 
             dist = 0;            
         }
-
         // update speed, remaining distance after each step
         smi.remainingDist -= dist;
         smi.currSpeed=newSpeed;
@@ -1133,29 +989,14 @@ public abstract class StreetMobility implements Mobility {
         // simple case: no shape points in segment
         if (smi.current.getShapeIndex()<0)
         {           
-            if (DEBUG){
-                System.out.println(((StreetName)streets.get(new Integer(
-                    smi.current.getStreetIndex()))).toString()+            
-                    " length: " + smi.current.getLength());
-                System.out.println("Dist: "+dist+"; remaining:"+smi.remainingDist);
-                System.out.println("End of road segment: "+smi.rsEnd);
-                System.out.println("Current: " + curr);
-            }
+            newLocation = move(curr, smi.rsEnd, dist); // get the new location
             
-            newLocation = move(curr, smi.rsEnd, dist); // get the new locat
-            
-            newLocation = move(curr, smi.rsEnd, dist, smi); 			//THIS IS A TEST CALL--IN ATTEMPT TO GET ALL THE NEIGHBORING VEHICLES
-            	
             // to avoid precision errors, recalculate the remaining distance
-          smi.remainingDist = newLocation.distance(smi.rsEnd);
-          
-          if (smi.remainingDist < 0.01) smi.remainingDist = 0;
-            
+            smi.remainingDist = newLocation.distance(smi.rsEnd);            
             return newLocation;
         }
-        
         // otherwise, use pointAt to move along shape file
-        return pointAt(curr, info, dist);                      
+        return pointAt(curr, info, dist);
     }
     
     private StreetMobilityInfo getNextCarInfo(StreetMobilityInfo smi, Integer id) {

@@ -76,6 +76,7 @@ import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioNoise;
 import jist.swans.radio.RadioNoiseIndep;
 import jist.swans.radio.RadioVLC;
+import jist.swans.radio.Vizbt;
 import jist.swans.route.RouteAodv;
 import jist.swans.route.RouteDsr;
 import jist.swans.route.RouteDsr_Ns2;
@@ -120,13 +121,19 @@ public class GenericDriver {
     * @param mobility the mobility model to use
     * @param v the visualization object
     */
-    public static void addNode(JistExperiment je, int i, Vector nodes,				//TODO: START HERE
+    public static Vizbt btviz = null;
+    @SuppressWarnings("unchecked")
+	public static void addNode(JistExperiment je, int i, Vector nodes,				//TODO: START HERE
         Field field, Placement place, RadioInfo.RadioInfoShared radioInfo,
         Mapper protMap, PacketLoss inLoss, PacketLoss outLoss,
         Mobility mobility, VisualizerInterface v) {
         RadioNoise radio;
         Location location;
 
+        if(btviz == null)
+        {
+        	btviz = new Vizbt();
+        }
         if (nodes != null) {
             // radio
         	location = place.getNextLocation();//bt
@@ -387,7 +394,9 @@ public class GenericDriver {
                 break;
 
             default:
-                lcm = null;
+                //lcm = null;//bt
+            	   lcm = new Mobil((StreetMobility) mobility, je.driverStdDev);
+                   ((StreetMobility) mobility).setLcm(lcm);
 
                 break;
             }

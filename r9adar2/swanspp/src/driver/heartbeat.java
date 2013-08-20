@@ -65,7 +65,7 @@ public class heartbeat
       PacketLoss plIn, PacketLoss plOut)
   {
     // create entities
-    RadioNoiseIndep radio = new RadioNoiseIndep(i, radioInfoShared);
+    RadioNoiseIndep radio = new  RadioNoiseIndep(i, radioInfoShared);
     MacDumb mac = new MacDumb(new MacAddress(i), radio.getRadioInfo());
     //Mac802_11 mac = new Mac802_11(new MacAddress(i), radio.getRadioInfo());
     NetIp net = new NetIp(new NetAddress(i), protMap, plIn, plOut);

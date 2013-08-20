@@ -332,8 +332,19 @@ public class Field implements FieldInterface
 		// update spatial data structure
 		RadioData rd = getRadioData(id);
 		// rd.loc = loc;
+	/*	if(rd.loc.getX() !=loc.getX() && rd.loc.getY() !=loc.getY())
+		{
+			System.out.println("BiT2: old loc = " + rd.loc.toString() + " -320");
+			System.out.println("BiT2: new loc = " + loc.toString() + " -320");
+		}
+		else
+		{
+			//no move
+			System.out.println("BiT2: -321");
+			
+		}*/
 		spatial.moveInside(rd, loc);
-		//   System.out.println("BiT: nodeid= " + rd.info.getUnique().getID().toString() + " old loc = " + rd.loc.toString() + " new loc = " + loc.toString() + " -320");
+		
 		// schedule next step
 		if(rd.mobilityInfo!=null)
 		{

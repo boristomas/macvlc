@@ -10,15 +10,11 @@
 package jist.swans.radio;
 
 import java.awt.Polygon;
-import java.awt.Rectangle;
-import java.util.Arrays;
-import java.util.Collections;
+import java.awt.geom.Area;
+import java.awt.geom.Line2D;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Random;
-import java.util.Set;
 
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
@@ -28,6 +24,7 @@ import jist.swans.mac.MacMessage;
 import jist.swans.misc.Location;
 import jist.swans.misc.Message;
 import jist.swans.misc.Util;
+import driver.GenericDriver;
 import driver.JistExperiment;
 
 /** 
@@ -43,14 +40,14 @@ public final class RadioVLC extends RadioNoise
 	//širina: 1,7 +-0.3
 	//dužina: 5+-0.5
 	private float vehicleDevLength = 0.5F ;
-	private float vehicleLength =5.0F;
-	
+	private float vehicleLength =50.0F;//5
+
 	private float vehicleDevWidth =0.3F;
-	private float vehicleWidth = 1.7F;
+	private float vehicleWidth = 10.7F;//1,7
 	public int NodeID;
-	public Location currentLocation;
+	//public Location currentLocation;
 	private Location newLocation;//used to store new location
-	
+
 	public enum SensorModes
 	{
 		Receive(0),
@@ -91,7 +88,8 @@ public final class RadioVLC extends RadioNoise
 			this.node = node;
 			this.distanceLimit = distancelimit; 
 			this.visionAngle = visionAngle;
-			this.offsetX = offsetX;//added 1 cm so sensor "sticks" out, so car itself can be considered as an obstacle
+			this.offsetX = offsetX;
+			this.offsetY = offsetY;
 			if(this.offsetX >0)
 			{
 				this.offsetX += stickOut;
@@ -123,15 +121,17 @@ public final class RadioVLC extends RadioNoise
 			sensorLocation1 = getVLCCornerPoint(sensorBearingNotRelative - (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
 			sensorLocation2 = getVLCCornerPoint(sensorBearingNotRelative + (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
 			//if(node.NodeID != 32)
-				//return;
+			//return;
 			//TODO: provjeriti jesu li senzori dobro smjesteni :(
-			Polygon poly = new Polygon();
+			/*LinearRing lr = new LinearRing(new coor, factory)
+			Polygon poly = new 
 			poly.addPoint((int)sensorLocation.getX(), (int)sensorLocation.getY());
 			poly.addPoint((int)sensorLocation1.getX(), (int)sensorLocation1.getY());
-			poly.addPoint((int)sensorLocation2.getX(), (int)sensorLocation2.getY());
-			JistExperiment.getJistExperiment().visualizer.drawPolygon(poly);
-			JistExperiment.getJistExperiment().visualizer.updateVisualizer();
-	//	JistExperiment.getJistExperiment().visualizer.pause();
+			poly.addPoint((int)sensorLocation2.getX(), (int)sensorLocation2.getY());*/
+			//GenericDriver.btviz.getGraph().drawPolygon(poly);
+			//JistExperiment.getJistExperiment().visualizer.drawPolygon(poly);
+			//JistExperiment.getJistExperiment().visualizer.updateVisualizer();
+			//	JistExperiment.getJistExperiment().visualizer.pause();
 		}
 
 		/**
@@ -197,11 +197,12 @@ public final class RadioVLC extends RadioNoise
 	private float offsetx;
 	private float offsety;
 	private Location startLocation; //start location set on ctor.
-	public Rectangle outlineShape;
+	public Polygon outlineShape;
 	float tmpx1, tmpy1, tmpx2, tmpy2;
+	float Ax,Ay, Bx,By,Cx,Cy,Dx,Dy;
 	float NodeBearing =0;
 	Location NodeLocation;
-	
+
 	//////////////////////////////////////////////////
 	// initialize
 	//
@@ -230,7 +231,7 @@ public final class RadioVLC extends RadioNoise
 		30tx
 		los 30m
 		4rx 4tx
-		*/
+		 */
 		super(id, sharedInfo);
 		this.NodeID = id;
 		setThresholdSNR(thresholdSNR);
@@ -240,19 +241,22 @@ public final class RadioVLC extends RadioNoise
 		//offsets are half length from center point to edge of vehicle. example vehicle length is 5m and width is 2m. xoffset is 2.5 and yoffset id 1. if
 		offsetx = (float) ((vehicleLength + (rand.nextFloat()*2*vehicleDevLength)-vehicleDevLength)/2);
 		offsety = (float) ((vehicleWidth + (rand.nextFloat()*2*vehicleDevWidth)-vehicleDevWidth)/2);
+		//offsetx = 50;
+		//offsety = 20;
 		checkLocation(true);
 
+		int los = 30;
 		//left
-		sensors.add(new VLCsensor(1, this, 300, 30, location, offsetx, offsety, 0, SensorModes.Send));//front Tx
-		sensors.add(new VLCsensor(2, this, 300, 90, location, offsetx, offsety, 0, SensorModes.Receive));//front Rx
-		sensors.add(new VLCsensor(3, this, 300, 30, location, -1*offsetx, offsety, 180, SensorModes.Send));//back Tx
-		sensors.add(new VLCsensor(4, this, 300, 90, location, -1*offsetx, offsety, 180, SensorModes.Receive));//front Rx
+		sensors.add(new VLCsensor(1, this, los, 30, location, offsetx, offsety, 0, SensorModes.Send));//front Tx
+		sensors.add(new VLCsensor(2, this, los, 90, location, offsetx, offsety, 0, SensorModes.Receive));//front Rx
+		sensors.add(new VLCsensor(3, this, los, 30, location, -1*offsetx, offsety, 180, SensorModes.Send));//back Tx
+		sensors.add(new VLCsensor(4, this, los, 90, location, -1*offsetx, offsety, 180, SensorModes.Receive));//front Rx
 
 		//right
-		sensors.add(new VLCsensor(5, this, 300, 30, location, offsetx, -1*offsety, 0, SensorModes.Send));//front Tx
-		sensors.add(new VLCsensor(6, this, 300, 90, location, offsetx, -1*offsety, 0, SensorModes.Receive));//front Rx
-		sensors.add(new VLCsensor(7, this, 300, 30, location, -1*offsetx, -1*offsety, 180, SensorModes.Send));//back Tx
-		sensors.add(new VLCsensor(8, this, 300, 90, location, -1*offsetx, -1*offsety, 180, SensorModes.Receive));//front Rx
+		sensors.add(new VLCsensor(5, this, los, 30, location, offsetx, -1*offsety, 0, SensorModes.Send));//front Tx
+		sensors.add(new VLCsensor(6, this, los, 90, location, offsetx, -1*offsety, 0, SensorModes.Receive));//front Rx
+		sensors.add(new VLCsensor(7, this, los, 30, location, -1*offsetx, -1*offsety, 180, SensorModes.Send));//back Tx
+		sensors.add(new VLCsensor(8, this, los, 90, location, -1*offsetx, -1*offsety, 180, SensorModes.Receive));//front Rx
 
 	}
 
@@ -270,26 +274,27 @@ public final class RadioVLC extends RadioNoise
 		this.thresholdSNR = snrThreshold;
 	}
 
+	public static int nodeidtst = -1;
 	public void checkLocation(Boolean isStartCheck)
 	{
 		if( !isStartCheck)// .equals(obj)getRadioData(NodeID) != null)
 		{
-			NodeLocation =Field.getRadioData(NodeID).getLocation();
-			newLocation = NodeLocation;
+			newLocation =Field.getRadioData(NodeID).getLocation();
+			//= NodeLocation;
 			NodeBearing = Field.getRadioData(NodeID).getMobilityInfo().getBearingAsAngle();
-			
+
 		}
 		else
 		{
 			newLocation = startLocation;
-			NodeLocation = newLocation;
+			//NodeLocation = newLocation;
 			NodeBearing = 0;
 		}
-		if(currentLocation != null)
+		if(NodeLocation != null)
 		{//provjeravam lokaciju jel nova ili ne
-			if(currentLocation.getX() == newLocation.getX())
+			if(NodeLocation.getX() == newLocation.getX())
 			{
-				if(currentLocation.getY() == newLocation.getY())
+				if(NodeLocation.getY() == newLocation.getY())
 				{
 					return;//nema promjena
 					//TODO: bearing change not used, it is assumed that vehicle can't rotate in place.
@@ -297,27 +302,61 @@ public final class RadioVLC extends RadioNoise
 			}
 			//ima promjena lokacije
 		}
-		currentLocation= newLocation;
+		NodeLocation= newLocation;
 		for (VLCsensor sensor : sensors) 
 		{
-			sensor.UpdateShape(currentLocation, NodeBearing);
+			sensor.UpdateShape(NodeLocation, NodeBearing);
 		}
 		//update node shape (rectangle)
-		
-		tmpx1= (float) ((NodeLocation.getX() + offsetx)* Math.cos(NodeBearing) - (NodeLocation.getY() + offsety) * Math.sin(NodeBearing));
+
+		try {
+			NodeBearing = Random.class.newInstance().nextInt(360);
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		/*tmpx1= (float) ((NodeLocation.getX() + offsetx)* Math.cos(NodeBearing) - (NodeLocation.getY() + offsety) * Math.sin(NodeBearing));
 		tmpy1= (float) ((NodeLocation.getY() + offsety)* Math.cos(NodeBearing) - (NodeLocation.getX() + offsetx) * Math.sin(NodeBearing));
 		tmpx2= (float) ((NodeLocation.getX() - offsetx)* Math.cos(NodeBearing) - (NodeLocation.getY() - offsety) * Math.sin(NodeBearing));
-		tmpy2= (float) ((NodeLocation.getY() - offsety)* Math.cos(NodeBearing) - (NodeLocation.getX() - offsetx) * Math.sin(NodeBearing));
-		outlineShape = new Rectangle((int)tmpx1, (int)tmpy1, (int)tmpx2, (int)tmpy2);
-		/*Polygon poly = new Polygon();
-		poly.addPoint((int)tmpx1, (int)tmpy1);
-		poly.addPoint((int)tmpx2, (int)tmpy1);
-		poly.addPoint((int)tmpx2, (int)tmpy2);
-		poly.addPoint((int)tmpx1, (int)tmpy2);
-		JistExperiment.getJistExperiment().visualizer.drawPolygon(poly);
-		JistExperiment.getJistExperiment().visualizer.updateVisualizer();*/
-	//	JistExperiment.getJistExperiment().visualizer.pause();
+		tmpy2= (float) ((NodeLocation.getY() - offsety)* Math.cos(NodeBearing) - (NodeLocation.getX() - offsetx) * Math.sin(NodeBearing));*/
+		
+		Ax= (float) ((NodeLocation.getX() - offsetx)* Math.cos(NodeBearing) - (NodeLocation.getY() - offsety) * Math.sin(NodeBearing));
+		Ay= (float) ((NodeLocation.getX() - offsetx)* Math.sin(NodeBearing) + (NodeLocation.getY() - offsety) * Math.cos(NodeBearing));
+		
+		Bx = (float) ((NodeLocation.getX() + offsetx)* Math.cos(NodeBearing) - (NodeLocation.getY() + offsety) * Math.sin(NodeBearing));
+		By = (float) ((NodeLocation.getX() - offsetx)* Math.sin(NodeBearing) + (NodeLocation.getY() - offsety) * Math.cos(NodeBearing));
+		
+		Cx= (float) ((NodeLocation.getX() + offsetx)* Math.cos(NodeBearing) - (NodeLocation.getY() + offsety) * Math.sin(NodeBearing));
+		Cy= (float) ((NodeLocation.getX() + offsetx)* Math.sin(NodeBearing) + (NodeLocation.getY() + offsety) * Math.cos(NodeBearing));
+		
+		Dx= (float) ((NodeLocation.getX() - offsetx)* Math.cos(NodeBearing) - (NodeLocation.getY() - offsety) * Math.sin(NodeBearing));
+		Dy= (float) ((NodeLocation.getX() + offsetx)* Math.sin(NodeBearing) + (NodeLocation.getY() + offsety) * Math.cos(NodeBearing));
+		outlineShape = new Polygon();
+		outlineShape.addPoint((int)Ax, (int)Ay);
+		outlineShape.addPoint((int)Bx, (int)By);
+		outlineShape.addPoint((int)Cx, (int)Cy);
+		outlineShape.addPoint((int)Dx, (int)Dy);
 
+
+
+		if(nodeidtst == -1)
+		{
+			if(!isStartCheck)
+			{
+				nodeidtst = NodeID;
+			}
+		}
+
+		if(NodeID == nodeidtst)
+			//if(!isStartCheck)
+		{
+			//		System.out.println("lochg= "+NodeID);
+			GenericDriver.btviz.getGraph().drawPolygon(outlineShape);//.drawRect((int)tmpx1, (int)tmpy1, 20 , 20);
+			GenericDriver.btviz.getGraph().drawString(String.valueOf(NodeID), (int)tmpx1+2, (int)tmpy1+2);
+		}
 	}
 
 	//////////////////////////////////////////////////
@@ -338,12 +377,12 @@ public final class RadioVLC extends RadioNoise
 		}
 		checkLocation(false);
 		// discard message if below threshold
-			if(!CanTalk(((MacMessage)msg).getSrc().hashCode(), radioInfo.unique.getID(), SensorModes.Receive))
-			{
-				//System.out.println("TALK rcv :( ");
-				return;
-			}
-		
+		if(!CanTalk(((MacMessage)msg).getSrc().hashCode(), radioInfo.unique.getID(), SensorModes.Receive))
+		{
+			//System.out.println("TALK rcv :( ");
+			return;
+		}
+
 		System.out.println("TALK rcv :) msg hc: " + msg.hashCode() + " from: " +((MacMessage)msg).getSrc().hashCode()+ " to: " + radioInfo.unique.getID()  );
 		//System.out.println("TALK rcv :) ");
 
@@ -418,7 +457,7 @@ public final class RadioVLC extends RadioNoise
 
 		if(((MacMessage)msg).getDst().hashCode() != -1)
 		{
-			
+
 			if(!CanTalk(((MacMessage)msg).getSrc().hashCode(), ((MacMessage)msg).getDst().hashCode(), SensorModes.Send))
 			{
 				//	System.out.println("TALK :( ");
@@ -469,24 +508,23 @@ public final class RadioVLC extends RadioNoise
 			{//znaci sourceid šalje
 				possibleNodes.addAll(getRangeAreaNodes(SourceID, mode));
 				tmpNodeList = getRangeAreaNodes(DestinationID, SensorModes.Receive);
-				
+
 				if(possibleNodes.contains(DestinationID) && tmpNodeList.contains(SourceID))
 				{
 					possibleNodes.addAll(tmpNodeList);
-				//	possibleNodes.remove(SourceID);
-				//	possibleNodes.remove(DestinationID);
+					//	possibleNodes.remove(SourceID);
+					//	possibleNodes.remove(DestinationID);
 					obstructed = true;
 					for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.sensors)
 					{
 						for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.sensors)
 						{
 							for (Integer node : possibleNodes)
-							{
-								if(!Field.getRadioData(node).vlcdevice.outlineShape.intersectsLine(sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY()))
+							{		
+								if(!intersects(Field.getRadioData(node).vlcdevice.outlineShape, new Line2D.Float( sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY())))
 								{
-									//ako pronaðem 
+									//ako pronaðem
 									return true;
-									
 								}
 							}//foreach possiblenodes
 						}//foreach sensors in dest
@@ -501,30 +539,31 @@ public final class RadioVLC extends RadioNoise
 			}
 			else if( mode == SensorModes.Receive)
 			{//znaci source sluša poruke
-				
+
 				possibleNodes.addAll(getRangeAreaNodes(SourceID, mode));
 				tmpNodeList = getRangeAreaNodes(DestinationID, SensorModes.Send);
-				
+
 				if(possibleNodes.contains(DestinationID) && tmpNodeList.contains(SourceID))
 				{
 					possibleNodes.addAll(tmpNodeList);
-				//	possibleNodes.remove(SourceID);
-				//	possibleNodes.remove(DestinationID);
-					
+					//	possibleNodes.remove(SourceID);
+					//	possibleNodes.remove(DestinationID);
+
 					for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.sensors)
 					{
 						for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.sensors)
 						{
 							for (Integer node : possibleNodes)
 							{
-								if(Field.getRadioData(node).vlcdevice.outlineShape.intersectsLine(sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY()))
+//								if(!Field.getRadioData(node).vlcdevice.outlineShape.intersectsLine(sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY()))
+								if(!intersects(Field.getRadioData(node).vlcdevice.outlineShape, new Line2D.Float( sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY())))
 								{
-									return false;
+									return true;
 								}
 							}//foreach possiblenodes
 						}//foreach sensors in dest
 					}//foreach sensor in src
-					return true;
+					return false;
 				}
 				else
 				{
@@ -622,9 +661,9 @@ public final class RadioVLC extends RadioNoise
 		HashSet<Integer> returnNodes = new HashSet<Integer>();
 		for(int i=1;i<JistExperiment.getJistExperiment().getNodes(); i++) 
 		{	
-		//	float ba= Field.getRadioData(i).getMobilityInfo().getBearingAsAngle();
-		//	Location cp1 = getVLCCornerPoint(ba - (visionAngle/2), Field.getRadioData(i).getLocation(), distanceLimit, visionAngle);
-		//	Location cp2 = getVLCCornerPoint(ba + (visionAngle/2), Field.getRadioData(i).getLocation(), distanceLimit, visionAngle);
+			//	float ba= Field.getRadioData(i).getMobilityInfo().getBearingAsAngle();
+			//	Location cp1 = getVLCCornerPoint(ba - (visionAngle/2), Field.getRadioData(i).getLocation(), distanceLimit, visionAngle);
+			//	Location cp2 = getVLCCornerPoint(ba + (visionAngle/2), Field.getRadioData(i).getLocation(), distanceLimit, visionAngle);
 			if(SourceNodeID != i)
 			{
 				boolean stopSearch = false;
@@ -650,8 +689,22 @@ public final class RadioVLC extends RadioNoise
 				}//for my sensors
 			}//if not me
 		}//for all nodes
-		
+
 		return returnNodes;
 	}
+	public static boolean intersects(Polygon poly, Line2D line) {
+		for(int i=0; i < poly.npoints; i++) {
+			int j = (i+1) % poly.npoints;
+			int x1 = poly.xpoints[i];
+			int y1 = poly.ypoints[i];
+			int x2 = poly.xpoints[j];
+			int y2 = poly.ypoints[j];
+			Line2D edge = new Line2D.Float(x1, y1, x2, y2);
+			if (edge.intersectsLine(line)) {
+				return true;
+			}
+		}
+		return false;
+	} 
 
 } // class: RadioVLC
