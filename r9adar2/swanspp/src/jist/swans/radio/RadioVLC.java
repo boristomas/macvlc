@@ -9,8 +9,8 @@
 
 package jist.swans.radio;
 
+import java.awt.Color;
 import java.awt.Polygon;
-import java.awt.geom.Area;
 import java.awt.geom.Line2D;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -40,10 +40,10 @@ public final class RadioVLC extends RadioNoise
 	//širina: 1,7 +-0.3
 	//dužina: 5+-0.5
 	private float vehicleDevLength = 0.5F ;
-	private float vehicleLength =50.0F;//5
+	private float vehicleLength =5.0F;//5
 
 	private float vehicleDevWidth =0.3F;
-	private float vehicleWidth = 10.7F;//1,7
+	private float vehicleWidth = 1.7F;//1,7
 	public int NodeID;
 	//public Location currentLocation;
 	private Location newLocation;//used to store new location
@@ -78,8 +78,6 @@ public final class RadioVLC extends RadioNoise
 		private Location sensorLocation1;//top
 		private Location sensorLocation2;//bottom
 		private float sensorBearingNotRelative;
-		private float tmpx;
-		private float tmpy;
 		private float stickOut = 0.001F; //1cm
 
 
@@ -111,27 +109,26 @@ public final class RadioVLC extends RadioNoise
 			this.mode = mode;
 			UpdateShape(originalLoc, node.NodeBearing);
 		}
+		private Polygon poly;
 		public void UpdateShape(Location NodeLocation, float NodeBearing)
 		{
 			sensorBearingNotRelative = NodeBearing + sensorBearing;
-			tmpx= (float) ((NodeLocation.getX()+ offsetX)* Math.cos(NodeBearing) - (NodeLocation.getY() + offsetY) * Math.sin(NodeBearing));
-			tmpy= (float) ((NodeLocation.getX()+ offsetX)* Math.sin(NodeBearing) + (NodeLocation.getY() + offsetY) * Math.cos(NodeBearing));
+			//tmploc = rotatePoint(NodeLocation.getX()+ offsetX, NodeLocation.getY()+ offsetY, NodeLocation, sensorBearingNotRelative);
 
-			sensorLocation = new Location.Location2D(tmpx, tmpy);//start.
+			//	tmpx= (float) ((NodeLocation.getX()+ offsetX)* Math.cos(NodeBearing) - (NodeLocation.getY() + offsetY) * Math.sin(NodeBearing));
+			//	tmpy= (float) ((NodeLocation.getX()+ offsetX)* Math.sin(NodeBearing) + (NodeLocation.getY() + offsetY) * Math.cos(NodeBearing));
+
+			sensorLocation = rotatePoint(NodeLocation.getX()+ offsetX, NodeLocation.getY()+ offsetY, NodeLocation, sensorBearingNotRelative); //new Location.Location2D(tmpx, tmpy);//start.
 			sensorLocation1 = getVLCCornerPoint(sensorBearingNotRelative - (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
 			sensorLocation2 = getVLCCornerPoint(sensorBearingNotRelative + (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
-			//if(node.NodeID != 32)
-			//return;
-			//TODO: provjeriti jesu li senzori dobro smjesteni :(
-			/*LinearRing lr = new LinearRing(new coor, factory)
-			Polygon poly = new 
-			poly.addPoint((int)sensorLocation.getX(), (int)sensorLocation.getY());
-			poly.addPoint((int)sensorLocation1.getX(), (int)sensorLocation1.getY());
-			poly.addPoint((int)sensorLocation2.getX(), (int)sensorLocation2.getY());*/
-			//GenericDriver.btviz.getGraph().drawPolygon(poly);
-			//JistExperiment.getJistExperiment().visualizer.drawPolygon(poly);
-			//JistExperiment.getJistExperiment().visualizer.updateVisualizer();
-			//	JistExperiment.getJistExperiment().visualizer.pause();
+			if(node.NodeID == nodeidtst)
+			{
+				poly = new Polygon();
+				poly.addPoint((int)sensorLocation.getX(), (int)sensorLocation.getY());
+				poly.addPoint((int)sensorLocation1.getX(), (int)sensorLocation1.getY());
+				poly.addPoint((int)sensorLocation2.getX(), (int)sensorLocation2.getY());
+				GenericDriver.btviz.getGraph().drawPolygon(poly);
+			}
 		}
 
 		/**
@@ -189,11 +186,10 @@ public final class RadioVLC extends RadioNoise
 	 * threshold signal-to-noise ratio.
 	 */
 	public LinkedList<VLCsensor> sensors = new LinkedList<RadioVLC.VLCsensor>();
+	public int lineOfSight = 30;
 	protected double thresholdSNR;
-	private Location cornerPoint1;
-	private Location cornerPoint2;
-	float distanceLimit = 250; 	//distance limit the vlc device can see in front of it, def:250
-	int visionAngle = 60; 		//The viewing angle the of the vlc device, default is 60 degrees
+//	float distanceLimit = 250; 	//distance limit the vlc device can see in front of it, def:250
+	//int visionAngle = 60; 		//The viewing angle the of the vlc device, default is 60 degrees
 	private float offsetx;
 	private float offsety;
 	private Location startLocation; //start location set on ctor.
@@ -241,22 +237,20 @@ public final class RadioVLC extends RadioNoise
 		//offsets are half length from center point to edge of vehicle. example vehicle length is 5m and width is 2m. xoffset is 2.5 and yoffset id 1. if
 		offsetx = (float) ((vehicleLength + (rand.nextFloat()*2*vehicleDevLength)-vehicleDevLength)/2);
 		offsety = (float) ((vehicleWidth + (rand.nextFloat()*2*vehicleDevWidth)-vehicleDevWidth)/2);
-		//offsetx = 50;
-		//offsety = 20;
 		checkLocation(true);
 
-		int los = 30;
+		
 		//left
-		sensors.add(new VLCsensor(1, this, los, 30, location, offsetx, offsety, 0, SensorModes.Send));//front Tx
-		sensors.add(new VLCsensor(2, this, los, 90, location, offsetx, offsety, 0, SensorModes.Receive));//front Rx
-		sensors.add(new VLCsensor(3, this, los, 30, location, -1*offsetx, offsety, 180, SensorModes.Send));//back Tx
-		sensors.add(new VLCsensor(4, this, los, 90, location, -1*offsetx, offsety, 180, SensorModes.Receive));//front Rx
+		sensors.add(new VLCsensor(1, this, lineOfSight, 30, location, offsetx, offsety, 0, SensorModes.Send));//front Tx
+		sensors.add(new VLCsensor(2, this, lineOfSight, 90, location, offsetx, offsety, 0, SensorModes.Receive));//front Rx
+		sensors.add(new VLCsensor(3, this, lineOfSight, 30, location, -1*offsetx, offsety, 180, SensorModes.Send));//back Tx
+		sensors.add(new VLCsensor(4, this, lineOfSight, 90, location, -1*offsetx, offsety, 180, SensorModes.Receive));//front Rx
 
 		//right
-		sensors.add(new VLCsensor(5, this, los, 30, location, offsetx, -1*offsety, 0, SensorModes.Send));//front Tx
-		sensors.add(new VLCsensor(6, this, los, 90, location, offsetx, -1*offsety, 0, SensorModes.Receive));//front Rx
-		sensors.add(new VLCsensor(7, this, los, 30, location, -1*offsetx, -1*offsety, 180, SensorModes.Send));//back Tx
-		sensors.add(new VLCsensor(8, this, los, 90, location, -1*offsetx, -1*offsety, 180, SensorModes.Receive));//front Rx
+		sensors.add(new VLCsensor(5, this, lineOfSight, 30, location, offsetx, -1*offsety, 0, SensorModes.Send));//front Tx
+		sensors.add(new VLCsensor(6, this, lineOfSight, 90, location, offsetx, -1*offsety, 0, SensorModes.Receive));//front Rx
+		sensors.add(new VLCsensor(7, this, lineOfSight, 30, location, -1*offsetx, -1*offsety, 180, SensorModes.Send));//back Tx
+		sensors.add(new VLCsensor(8, this, lineOfSight, 90, location, -1*offsetx, -1*offsety, 180, SensorModes.Receive));//front Rx
 
 	}
 
@@ -274,20 +268,30 @@ public final class RadioVLC extends RadioNoise
 		this.thresholdSNR = snrThreshold;
 	}
 
+	public  static Location rotatePoint(float ptx, float pty, Location center, double angleDeg)
+	{
+		double angleRad = (angleDeg/180)*Math.PI;
+		double cosAngle = Math.cos(angleRad );
+		double sinAngle = Math.sin(angleRad );
+		double dx = (ptx-center.getX());
+		double dy = (pty-center.getY());
+
+		ptx = center.getX() + (int) (dx*cosAngle-dy*sinAngle);
+		pty = center.getY() + (int) (dx*sinAngle+dy*cosAngle);
+		return new Location.Location2D(ptx, pty);
+	}
 	public static int nodeidtst = -1;
+	Location tmpLoc;
 	public void checkLocation(Boolean isStartCheck)
 	{
 		if( !isStartCheck)// .equals(obj)getRadioData(NodeID) != null)
 		{
 			newLocation =Field.getRadioData(NodeID).getLocation();
-			//= NodeLocation;
 			NodeBearing = Field.getRadioData(NodeID).getMobilityInfo().getBearingAsAngle();
-
 		}
 		else
 		{
 			newLocation = startLocation;
-			//NodeLocation = newLocation;
 			NodeBearing = 0;
 		}
 		if(NodeLocation != null)
@@ -309,38 +313,27 @@ public final class RadioVLC extends RadioNoise
 		}
 		//update node shape (rectangle)
 
-		try {
-			NodeBearing = Random.class.newInstance().nextInt(360);
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		/*tmpx1= (float) ((NodeLocation.getX() + offsetx)* Math.cos(NodeBearing) - (NodeLocation.getY() + offsety) * Math.sin(NodeBearing));
-		tmpy1= (float) ((NodeLocation.getY() + offsety)* Math.cos(NodeBearing) - (NodeLocation.getX() + offsetx) * Math.sin(NodeBearing));
-		tmpx2= (float) ((NodeLocation.getX() - offsetx)* Math.cos(NodeBearing) - (NodeLocation.getY() - offsety) * Math.sin(NodeBearing));
-		tmpy2= (float) ((NodeLocation.getY() - offsety)* Math.cos(NodeBearing) - (NodeLocation.getX() - offsetx) * Math.sin(NodeBearing));*/
-		
-		Ax= (float) ((NodeLocation.getX() - offsetx)* Math.cos(NodeBearing) - (NodeLocation.getY() - offsety) * Math.sin(NodeBearing));
-		Ay= (float) ((NodeLocation.getX() - offsetx)* Math.sin(NodeBearing) + (NodeLocation.getY() - offsety) * Math.cos(NodeBearing));
-		
-		Bx = (float) ((NodeLocation.getX() + offsetx)* Math.cos(NodeBearing) - (NodeLocation.getY() + offsety) * Math.sin(NodeBearing));
-		By = (float) ((NodeLocation.getX() - offsetx)* Math.sin(NodeBearing) + (NodeLocation.getY() - offsety) * Math.cos(NodeBearing));
-		
-		Cx= (float) ((NodeLocation.getX() + offsetx)* Math.cos(NodeBearing) - (NodeLocation.getY() + offsety) * Math.sin(NodeBearing));
-		Cy= (float) ((NodeLocation.getX() + offsetx)* Math.sin(NodeBearing) + (NodeLocation.getY() + offsety) * Math.cos(NodeBearing));
-		
-		Dx= (float) ((NodeLocation.getX() - offsetx)* Math.cos(NodeBearing) - (NodeLocation.getY() - offsety) * Math.sin(NodeBearing));
-		Dy= (float) ((NodeLocation.getX() + offsetx)* Math.sin(NodeBearing) + (NodeLocation.getY() + offsety) * Math.cos(NodeBearing));
+		tmpLoc = rotatePoint(NodeLocation.getX() - offsetx, NodeLocation.getY() - offsety, NodeLocation, NodeBearing);
+		Ax = tmpLoc.getX();
+		Ay = tmpLoc.getY();
+
+		tmpLoc = rotatePoint(NodeLocation.getX() + offsetx, NodeLocation.getY() - offsety, NodeLocation, NodeBearing);
+		Bx = tmpLoc.getX();
+		By = tmpLoc.getY();
+
+		tmpLoc = rotatePoint(NodeLocation.getX() + offsetx, NodeLocation.getY() + offsety, NodeLocation, NodeBearing);
+		Cx = tmpLoc.getX();
+		Cy = tmpLoc.getY();
+
+		tmpLoc = rotatePoint(NodeLocation.getX() - offsetx, NodeLocation.getY() + offsety, NodeLocation, NodeBearing);
+		Dx = tmpLoc.getX();
+		Dy = tmpLoc.getY();
+
 		outlineShape = new Polygon();
 		outlineShape.addPoint((int)Ax, (int)Ay);
 		outlineShape.addPoint((int)Bx, (int)By);
 		outlineShape.addPoint((int)Cx, (int)Cy);
 		outlineShape.addPoint((int)Dx, (int)Dy);
-
-
 
 		if(nodeidtst == -1)
 		{
@@ -351,11 +344,9 @@ public final class RadioVLC extends RadioNoise
 		}
 
 		if(NodeID == nodeidtst)
-			//if(!isStartCheck)
 		{
-			//		System.out.println("lochg= "+NodeID);
-			GenericDriver.btviz.getGraph().drawPolygon(outlineShape);//.drawRect((int)tmpx1, (int)tmpy1, 20 , 20);
-			GenericDriver.btviz.getGraph().drawString(String.valueOf(NodeID), (int)tmpx1+2, (int)tmpy1+2);
+			//GenericDriver.btviz.getGraph().setColor(Color.RED);
+			GenericDriver.btviz.getGraph().fillPolygon(outlineShape);//.drawRect((int)tmpx1, (int)tmpy1, 20 , 20);
 		}
 	}
 
@@ -498,7 +489,6 @@ public final class RadioVLC extends RadioNoise
 	//bt
 	private HashSet<Integer> possibleNodes;// =  new HashSet<Integer>();
 	private HashSet<Integer> tmpNodeList;
-	private boolean obstructed = false;
 	private boolean CanTalk(int SourceID, int DestinationID, SensorModes mode)
 	{
 		if(DestinationID != -1)//znaci da nije broadcast poruka, teoretski nikada nece soruceid biti -1 odnosno broadcast adresa
@@ -514,7 +504,6 @@ public final class RadioVLC extends RadioNoise
 					possibleNodes.addAll(tmpNodeList);
 					//	possibleNodes.remove(SourceID);
 					//	possibleNodes.remove(DestinationID);
-					obstructed = true;
 					for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.sensors)
 					{
 						for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.sensors)
@@ -555,7 +544,7 @@ public final class RadioVLC extends RadioNoise
 						{
 							for (Integer node : possibleNodes)
 							{
-//								if(!Field.getRadioData(node).vlcdevice.outlineShape.intersectsLine(sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY()))
+								//								if(!Field.getRadioData(node).vlcdevice.outlineShape.intersectsLine(sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY()))
 								if(!intersects(Field.getRadioData(node).vlcdevice.outlineShape, new Line2D.Float( sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY())))
 								{
 									return true;
@@ -582,45 +571,6 @@ public final class RadioVLC extends RadioNoise
 			return false;
 		}
 		//return false;
-	}
-	/**
-	 * This method will need to be called two times. Each call will detect one corner point of the vlc device's view
-	 * @param theta: the angle of the bearing +- visionAngle
-	 * @param origin: starting point
-	 * @param distanceLimit: the max distance the vlc device can see
-	 * @param visionAngle: the angle at which the vlc device can see from the front of the car
-	 */
-	public Location getVLCCornerPoint(float theta, Location origin, float distLimit, int visionAngle)
-	{
-		Location cornerPoint; 
-		int quadrant = 0; 
-		float hypotenuse = (float)(distanceLimit/Math.cos(((visionAngle/2)*Math.PI)/(180))); 
-
-		//first detect what quadrant theta falls, to see how bearing affects corner points
-		if(theta >= 0 && theta <= 90)
-		{
-			quadrant = 1;
-			cornerPoint = new Location.Location2D(origin.getX()+ (float) (hypotenuse * Math.cos((Math.PI*(theta))/(180))),origin.getY()+ (float) (hypotenuse * Math.sin((Math.PI*(theta))/(180))));			
-		}
-		else if(theta > 90 && theta <= 180)
-		{
-			quadrant = 2; 	
-			cornerPoint = new Location.Location2D(origin.getX()+(float) (-1 * hypotenuse * Math.cos((Math.PI*(90*quadrant-theta))/(180))),origin.getY()+ (float) (hypotenuse * Math.sin((Math.PI*(90*quadrant-theta))/(180)))); 
-		}
-		else if(theta > 180 && theta <= 270)
-		{
-			quadrant = 3;
-			//x coordinate needs sin function here. the Y axis between the 3rd and 4th quadrants is being used to compute the angle.
-			//likewise, cos needs to be used here to find the y coordinate.
-			cornerPoint = new Location.Location2D(origin.getX()+(float) (-1 * hypotenuse * Math.sin((Math.PI*(90*quadrant-theta))/(180))),origin.getY()+ (float) (-1 * hypotenuse * Math.cos((Math.PI*(90*quadrant-theta))/(180))));					
-		}
-		else
-		{
-			quadrant = 4;		
-			cornerPoint = new Location.Location2D(origin.getX()+(float) (hypotenuse * Math.cos((Math.PI*(90*quadrant-theta))/(180))),origin.getY()+ (float) (-1 * hypotenuse * Math.sin((Math.PI*(90*quadrant-theta))/(180))));
-		}
-		//cornerPoint = new Location.Location2D(//co, y)
-		return cornerPoint; 
 	}
 	/**
 	 * Is the location being checked visible to vlc device?

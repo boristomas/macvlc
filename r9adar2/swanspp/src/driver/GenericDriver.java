@@ -31,6 +31,8 @@
  */
 package driver;
 
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -133,6 +135,7 @@ public class GenericDriver {
         if(btviz == null)
         {
         	btviz = new Vizbt();
+        	((Graphics2D)btviz.getGraph()).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         }
         if (nodes != null) {
             // radio
