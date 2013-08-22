@@ -299,7 +299,8 @@ public final class RadioVLC extends RadioNoise
 			if(NodeLocation.getX() == newLocation.getX())
 			{
 				if(NodeLocation.getY() == newLocation.getY())
-				{
+				{¸
+					
 					return;//nema promjena
 					//TODO: bearing change not used, it is assumed that vehicle can't rotate in place.
 				}
