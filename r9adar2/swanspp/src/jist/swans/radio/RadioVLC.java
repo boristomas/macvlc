@@ -600,7 +600,7 @@ public final class RadioVLC extends RadioNoise
 		{
 			return false;
 		}
-		//TODO: testirati radi li pita.
+		//TODO: testirati radi li pita
 		return visibleToVLCdevice(p1, p2, sensor.sensorLocation.getX(), sensor.sensorLocation.getY(), sensor.sensorLocation1.getX(), sensor.sensorLocation1.getY(), sensor.sensorLocation2.getX(), sensor.sensorLocation2.getY());
 	}
 
