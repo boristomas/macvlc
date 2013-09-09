@@ -299,7 +299,7 @@ public final class RadioVLC extends RadioNoise
 			if(NodeLocation.getX() == newLocation.getX())
 			{
 				if(NodeLocation.getY() == newLocation.getY())
-				{¸
+				{
 					
 					return;//nema promjena
 					//TODO: bearing change not used, it is assumed that vehicle can't rotate in place.
@@ -585,14 +585,23 @@ public final class RadioVLC extends RadioNoise
 	public boolean visibleToVLCdevice(float p1, float p2, float x1, float y1, float x2, float y2, float x3, float y3)		
 	{		
 
-		if(tripletOrientation(x1,y1,x2,y2,p1,p2)*tripletOrientation(x1,y1,x2,y2,x3,y3)>0 && tripletOrientation(x2,y2,x3,y3,p1,p2)*tripletOrientation(x2,y2,x3,y3,x1,y1)>0 && tripletOrientation(x3,y3,x1,y1,p1,p2)*tripletOrientation(x3,y3,x1,y1,x2,y2)>0)
-		{//zadnji && brisem i dodajem distance check ispod los
+		if(tripletOrientation(x1,y1,x2,y2,p1,p2)*tripletOrientation(x1,y1,x2,y2,x3,y3)>0 && tripletOrientation(x2,y2,x3,y3,p1,p2)*tripletOrientation(x2,y2,x3,y3,x1,y1)>0)// && tripletOrientation(x3,y3,x1,y1,p1,p2)*tripletOrientation(x3,y3,x1,y1,x2,y2)>0)
+		{
 			return true;
 		}
 		else
 		{
-			return false; 
+			return false;
 		}
+	}
+	public boolean visibleToVLCdevice(float p1, float p2, VLCsensor sensor )		
+	{	
+		if(Math.sqrt(Math.pow((p1-sensor.sensorLocation.getX()),2) + Math.pow((p2-sensor.sensorLocation.getY()),2)) > sensor.distanceLimit)
+		{
+			return false;
+		}
+		//TODO: testirati radi li pita.
+		return visibleToVLCdevice(p1, p2, sensor.sensorLocation.getX(), sensor.sensorLocation.getY(), sensor.sensorLocation1.getX(), sensor.sensorLocation1.getY(), sensor.sensorLocation2.getX(), sensor.sensorLocation2.getY());
 	}
 
 	public float tripletOrientation(float x1, float y1, float x2, float y2, float x3, float y3)
@@ -612,9 +621,6 @@ public final class RadioVLC extends RadioNoise
 		HashSet<Integer> returnNodes = new HashSet<Integer>();
 		for(int i=1;i<JistExperiment.getJistExperiment().getNodes(); i++) 
 		{	
-			//	float ba= Field.getRadioData(i).getMobilityInfo().getBearingAsAngle();
-			//	Location cp1 = getVLCCornerPoint(ba - (visionAngle/2), Field.getRadioData(i).getLocation(), distanceLimit, visionAngle);
-			//	Location cp2 = getVLCCornerPoint(ba + (visionAngle/2), Field.getRadioData(i).getLocation(), distanceLimit, visionAngle);
 			if(SourceNodeID != i)
 			{
 				boolean stopSearch = false;
@@ -628,7 +634,8 @@ public final class RadioVLC extends RadioNoise
 						{
 							if(sensor2.mode != mode)
 							{//znaci obrnuto je
-								if(visibleToVLCdevice(sensor2.sensorLocation.getX(), sensor2.sensorLocation.getY(),sensor.sensorLocation.getX(), sensor.sensorLocation.getY(), sensor.sensorLocation1.getX(), sensor.sensorLocation1.getY(), sensor.sensorLocation2.getX(), sensor.sensorLocation2.getY()))
+//								if(visibleToVLCdevice(sensor2.sensorLocation.getX(), sensor2.sensorLocation.getY(),sensor.sensorLocation.getX(), sensor.sensorLocation.getY(), sensor.sensorLocation1.getX(), sensor.sensorLocation1.getY(), sensor.sensorLocation2.getX(), sensor.sensorLocation2.getY()))
+								if(visibleToVLCdevice(sensor2.sensorLocation.getX(), sensor2.sensorLocation.getY(),sensor))// sensor.sensorLocation.getX(), sensor.sensorLocation.getY(), sensor.sensorLocation1.getX(), sensor.sensorLocation1.getY(), sensor.sensorLocation2.getX(), sensor.sensorLocation2.getY()))
 								{
 									stopSearch = true;
 									returnNodes.add(i);
