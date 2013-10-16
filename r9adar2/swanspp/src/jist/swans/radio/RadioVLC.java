@@ -83,6 +83,11 @@ public final class RadioVLC extends RadioNoise
 
 		public VLCsensor(int sensorID, RadioVLC node, float distancelimit, float visionAngle,Location originalLoc, float offsetX, float offsetY, float bearing, SensorModes mode) 
 		{
+			/*notes:
+			 * kod 802.11 vlc radio treba slati i primati sa svih senzora i na taj nacin simulitari omni.
+			 * naš mac bi trebao selektivno odabrati pojedini senzor (tx i rx) i samo njega koristiti. 
+			 * Što je sa preklapanjima, dogaðati æe se da æe i lijevi i desni primiti signal 
+			 * */
 			this.node = node;
 			this.distanceLimit = distancelimit; 
 			this.visionAngle = visionAngle;
@@ -346,6 +351,7 @@ public final class RadioVLC extends RadioNoise
 
 		if(NodeID == nodeidtst)
 		{
+			//TODO: maknuti ovo nodeidtst jer sluzi samo za testiranje vizualizacije.
 			//GenericDriver.btviz.getGraph().setColor(Color.RED);
 			GenericDriver.btviz.getGraph().fillPolygon(outlineShape);//.drawRect((int)tmpx1, (int)tmpy1, 20 , 20);
 		}
@@ -359,7 +365,6 @@ public final class RadioVLC extends RadioNoise
 	/** {@inheritDoc} */
 	public void receive(Message msg, Double powerObj_mW, Long durationObj)
 	{ 
-
 		final double power_mW = powerObj_mW.doubleValue();
 		final long duration = durationObj.longValue();
 		// ignore if below sensitivity
