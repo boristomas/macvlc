@@ -518,7 +518,8 @@ public static MacStats stats = new MacStats();
    */
   private boolean shouldRTS()
   {
-    return packet.getSize()>THRESHOLD_RTS && !isBroadcast();
+	  return false; //bt: some error workaround
+    //return packet.getSize()>THRESHOLD_RTS && !isBroadcast();
   }
 
   /**

@@ -22,6 +22,10 @@ import jist.swans.misc.Message;
 
 public abstract class MacMessage implements Message
 {
+	
+	//sensor control
+	public int SensorIDTx;
+	public int SensorIDRx;
 
   //////////////////////////////////////////////////
   // frame control
@@ -63,6 +67,8 @@ public abstract class MacMessage implements Message
   {
     this.type = type;
     this.retry = retry;
+    this.setSensorIDRx(-1);
+    this.setSensorIDTx(-1);
   }
 
   //////////////////////////////////////////////////
@@ -89,6 +95,39 @@ public abstract class MacMessage implements Message
     return retry;
   }
 
+  /**
+   * Gets sensor ID this message is assigned to for Tx
+   * @return
+   */
+  public int getSensorIDTx()
+  {
+	  return SensorIDTx;
+  }
+  /**
+   * Gets sensor ID this message is assigned to for Rx
+   * @return
+   */
+  public int getSensorIDRx()
+  {
+	  return SensorIDRx;
+  }
+  /**
+   * Sets Tx sensor ID for this message
+   * @return
+   */
+  public void setSensorIDTx(int sensorID)
+  {
+	  SensorIDTx =  sensorID;
+  }
+  /**
+   * Sets Rx sensor ID for this message
+   * @return
+   */
+  public void setSensorIDRx(int sensorID)
+  {
+	  SensorIDRx =  sensorID;
+  }
+  
   /**
    * Return packet destination address.
    *
