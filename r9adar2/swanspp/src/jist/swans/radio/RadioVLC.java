@@ -52,7 +52,7 @@ public final class RadioVLC extends RadioNoise
 	{
 		Receive(0),
 		Send(1),
-		SendAndReceive(2),
+		//SendAndReceive(2),
 		Unknown(3);
 		private int code;
 
@@ -193,7 +193,8 @@ public final class RadioVLC extends RadioNoise
 	/**
 	 * threshold signal-to-noise ratio.
 	 */
-	public LinkedList<VLCsensor> sensors = new LinkedList<RadioVLC.VLCsensor>();
+	public LinkedList<VLCsensor> sensorsTx = new LinkedList<RadioVLC.VLCsensor>();
+	public LinkedList<VLCsensor> sensorsRx = new LinkedList<RadioVLC.VLCsensor>();
 	public int lineOfSight = 30;
 	protected double thresholdSNR;
 	//	float distanceLimit = 250; 	//distance limit the vlc device can see in front of it, def:250
@@ -249,26 +250,32 @@ public final class RadioVLC extends RadioNoise
 
 
 		//left
-		sensors.add(new VLCsensor(1, this, lineOfSight, 30, location, offsetx, offsety, 0, SensorModes.Send));//front Tx
-		sensors.add(new VLCsensor(2, this, lineOfSight, 90, location, offsetx, offsety, 0, SensorModes.Receive));//front Rx
-		sensors.add(new VLCsensor(3, this, lineOfSight, 30, location, -1*offsetx, offsety, 180, SensorModes.Send));//back Tx
-		sensors.add(new VLCsensor(4, this, lineOfSight, 90, location, -1*offsetx, offsety, 180, SensorModes.Receive));//front Rx
+		sensorsTx.add(new VLCsensor(1, this, lineOfSight, 30, location, offsetx, offsety, 0, SensorModes.Send));//front Tx
+		sensorsRx.add(new VLCsensor(2, this, lineOfSight, 90, location, offsetx, offsety, 0, SensorModes.Receive));//front Rx
+		sensorsTx.add(new VLCsensor(3, this, lineOfSight, 30, location, -1*offsetx, offsety, 180, SensorModes.Send));//back Tx
+		sensorsRx.add(new VLCsensor(4, this, lineOfSight, 90, location, -1*offsetx, offsety, 180, SensorModes.Receive));//front Rx
 
 		//right
-		sensors.add(new VLCsensor(5, this, lineOfSight, 30, location, offsetx, -1*offsety, 0, SensorModes.Send));//front Tx
-		sensors.add(new VLCsensor(6, this, lineOfSight, 90, location, offsetx, -1*offsety, 0, SensorModes.Receive));//front Rx
-		sensors.add(new VLCsensor(7, this, lineOfSight, 30, location, -1*offsetx, -1*offsety, 180, SensorModes.Send));//back Tx
-		sensors.add(new VLCsensor(8, this, lineOfSight, 90, location, -1*offsetx, -1*offsety, 180, SensorModes.Receive));//front Rx
-
+		sensorsTx.add(new VLCsensor(5, this, lineOfSight, 30, location, offsetx, -1*offsety, 0, SensorModes.Send));//front Tx
+		sensorsRx.add(new VLCsensor(6, this, lineOfSight, 90, location, offsetx, -1*offsety, 0, SensorModes.Receive));//front Rx
+		sensorsTx.add(new VLCsensor(7, this, lineOfSight, 30, location, -1*offsetx, -1*offsety, 180, SensorModes.Send));//back Tx
+		sensorsRx.add(new VLCsensor(8, this, lineOfSight, 90, location, -1*offsetx, -1*offsety, 180, SensorModes.Receive));//front Rx
 	}
+
 	public VLCsensor getSensorByID(int id)
 	{
-		for (VLCsensor sensor: sensors) {
+		for (VLCsensor sensor: sensorsTx) {
 
 			if(sensor.sensorID == id)
 			{
 				return sensor;
+			}
+		}
+		for (VLCsensor sensor: sensorsRx) {
 
+			if(sensor.sensorID == id)
+			{
+				return sensor;
 			}
 		}
 		return null;
@@ -332,7 +339,11 @@ public final class RadioVLC extends RadioNoise
 			//ima promjena lokacije
 		}
 		NodeLocation= newLocation;
-		for (VLCsensor sensor : sensors) 
+		for (VLCsensor sensor : sensorsTx) 
+		{
+			sensor.UpdateShape(NodeLocation, NodeBearing);
+		}
+		for (VLCsensor sensor : sensorsRx) 
 		{
 			sensor.UpdateShape(NodeLocation, NodeBearing);
 		}
@@ -536,7 +547,7 @@ public final class RadioVLC extends RadioNoise
 			possibleNodes = new HashSet<Integer>();
 			if(mode == SensorModes.Send)
 			{//znaci sourceid šalje
-				possibleNodes.addAll(getRangeAreaNodes(SourceID, mode));
+				possibleNodes.addAll(getRangeAreaNodes(SourceID, mode));//send mode
 				tmpNodeList = getRangeAreaNodes(DestinationID, SensorModes.Receive);
 
 				if(possibleNodes.contains(DestinationID) && tmpNodeList.contains(SourceID))
@@ -561,7 +572,7 @@ public final class RadioVLC extends RadioNoise
 					else if (msg.getSensorIDTx() != -1 && msg.getSensorIDRx() == -1)
 					{
 						VLCsensor sensorSrc = Field.getRadioData(SourceID).vlcdevice.getSensorByID(msg.getSensorIDTx());
-						for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.sensors)
+						for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.sensorsRx)
 						{
 							for (Integer node : possibleNodes)//listam sve aute koji su mi vidljivi (u trokutu)
 							{		
@@ -578,7 +589,7 @@ public final class RadioVLC extends RadioNoise
 					else if (msg.getSensorIDTx() == -1 && msg.getSensorIDRx() != -1)
 					{
 						VLCsensor sensorDest = Field.getRadioData(DestinationID).vlcdevice.getSensorByID(msg.getSensorIDRx());
-						for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.sensors)
+						for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.sensorsTx)
 						{
 							for (Integer node : possibleNodes)//listam sve aute koji su mi vidljivi (u trokutu)
 							{		
@@ -595,9 +606,9 @@ public final class RadioVLC extends RadioNoise
 					else
 					{
 						//oba sensora su nepoznata
-						for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.sensors)
+						for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.sensorsTx)
 						{
-							for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.sensors)
+							for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.sensorsRx)
 							{
 								for (Integer node : possibleNodes)//listam sve aute koji su mi vidljivi (u trokutu)
 								{		
@@ -622,7 +633,7 @@ public final class RadioVLC extends RadioNoise
 			}
 			else if( mode == SensorModes.Receive)
 			{//znaci source sluša poruke
-				possibleNodes.addAll(getRangeAreaNodes(SourceID, mode));
+				possibleNodes.addAll(getRangeAreaNodes(SourceID, mode));//receive mode
 				tmpNodeList = getRangeAreaNodes(DestinationID, SensorModes.Send);
 
 				if(possibleNodes.contains(DestinationID) && tmpNodeList.contains(SourceID))
@@ -647,7 +658,7 @@ public final class RadioVLC extends RadioNoise
 					else if (msg.getSensorIDTx() != -1 && msg.getSensorIDRx() == -1)
 					{
 						VLCsensor sensorSrc = Field.getRadioData(SourceID).vlcdevice.getSensorByID(msg.getSensorIDTx());
-						for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.sensors)
+						for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.sensorsRx)
 						{
 							for (Integer node : possibleNodes)
 							{
@@ -663,7 +674,7 @@ public final class RadioVLC extends RadioNoise
 					else if (msg.getSensorIDTx() == -1 && msg.getSensorIDRx() != -1)
 					{
 						VLCsensor sensorDest = Field.getRadioData(DestinationID).vlcdevice.getSensorByID(msg.getSensorIDRx());
-						for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.sensors)
+						for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.sensorsTx)
 						{
 							for (Integer node : possibleNodes)
 							{
@@ -679,20 +690,23 @@ public final class RadioVLC extends RadioNoise
 					else
 					{
 						//oba sensora su nepoznata
-						for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.sensors)
+						for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.sensorsTx)
 						{
-							for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.sensors)
+							if(sensorSrc.mode == SensorModes.Send)
 							{
-								for (Integer node : possibleNodes)
+								for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.sensorsRx)
 								{
-									if(!intersects(Field.getRadioData(node).vlcdevice.outlineShape, new Line2D.Float( sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY())))
+									for (Integer node : possibleNodes)
 									{
-										msg.setSensorIDTx(sensorSrc.sensorID);
-										msg.setSensorIDRx(sensorDest.sensorID);
-										return msg;
-									}
-								}//foreach possiblenodes
-							}//foreach sensors in dest
+										if(!intersects(Field.getRadioData(node).vlcdevice.outlineShape, new Line2D.Float( sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY())))
+										{
+											msg.setSensorIDTx(sensorSrc.sensorID);
+											msg.setSensorIDRx(sensorDest.sensorID);
+											return msg;
+										}
+									}//foreach possiblenodes
+								}//foreach sensors in dest
+							}
 						}//foreach sensor in src
 					}
 					return null;
@@ -761,37 +775,42 @@ public final class RadioVLC extends RadioNoise
 	private HashSet<Integer> getRangeAreaNodes(int SourceNodeID, SensorModes mode)
 	{
 		HashSet<Integer> returnNodes = new HashSet<Integer>();
+		LinkedList<RadioVLC.VLCsensor> sensors1 = new LinkedList<RadioVLC.VLCsensor>();
+		LinkedList<RadioVLC.VLCsensor> sensors2 = new LinkedList<RadioVLC.VLCsensor>();;
 		for(int i=1;i<JistExperiment.getJistExperiment().getNodes(); i++) 
 		{	
 			if(SourceNodeID != i)
 			{
 				boolean stopSearch = false;
-				for (VLCsensor sensor : Field.getRadioData(SourceNodeID).vlcdevice.sensors) 
+				if(mode == SensorModes.Send)
+				{
+					sensors1 = Field.getRadioData(SourceNodeID).vlcdevice.sensorsTx;
+					sensors2 = Field.getRadioData(i).vlcdevice.sensorsRx;
+				}
+				else //receive
+				{	
+					sensors1 = Field.getRadioData(SourceNodeID).vlcdevice.sensorsRx;
+					sensors2 = Field.getRadioData(i).vlcdevice.sensorsTx;
+				}
+				for (VLCsensor sensor :sensors1)
 				{
 					if(stopSearch)
 						break;
-					if(sensor.mode == mode)
+					for (VLCsensor sensor2 :sensors2)
 					{
-						for (VLCsensor sensor2 : Field.getRadioData(i).vlcdevice.sensors) 
+						if(visibleToVLCdevice(sensor2.sensorLocation.getX(), sensor2.sensorLocation.getY(),sensor))// sensor.sensorLocation.getX(), sensor.sensorLocation.getY(), sensor.sensorLocation1.getX(), sensor.sensorLocation1.getY(), sensor.sensorLocation2.getX(), sensor.sensorLocation2.getY()))
 						{
-							if(sensor2.mode != mode)
-							{//znaci obrnuto je
-								//								if(visibleToVLCdevice(sensor2.sensorLocation.getX(), sensor2.sensorLocation.getY(),sensor.sensorLocation.getX(), sensor.sensorLocation.getY(), sensor.sensorLocation1.getX(), sensor.sensorLocation1.getY(), sensor.sensorLocation2.getX(), sensor.sensorLocation2.getY()))
-								if(visibleToVLCdevice(sensor2.sensorLocation.getX(), sensor2.sensorLocation.getY(),sensor))// sensor.sensorLocation.getX(), sensor.sensorLocation.getY(), sensor.sensorLocation1.getX(), sensor.sensorLocation1.getY(), sensor.sensorLocation2.getX(), sensor.sensorLocation2.getY()))
-								{
-									stopSearch = true;
-									returnNodes.add(i);
-									break;
-								}
-							}
+							stopSearch = true;
+							returnNodes.add(i);
+							break;
 						}
 					}
 				}//for my sensors
 			}//if not me
 		}//for all nodes
-
 		return returnNodes;
 	}
+
 	public static boolean intersects(Polygon poly, Line2D line) {
 		for(int i=0; i < poly.npoints; i++) {
 			int j = (i+1) % poly.npoints;
