@@ -488,11 +488,11 @@ public final class RadioVLC extends RadioNoise
 		checkLocation(false);
 		assert(signalBuffer==null);
 		signalBuffer = null;
-
+		//((MacMessage)msg).setSensorIDTx(1);
 		if(((MacMessage)msg).getDst().hashCode() != -1)
 		{
-
-			if(null == CanTalk(((MacMessage)msg).getSrc().hashCode(), ((MacMessage)msg).getDst().hashCode(), SensorModes.Send, (MacMessage)msg))
+			msg = CanTalk(((MacMessage)msg).getSrc().hashCode(), ((MacMessage)msg).getDst().hashCode(), SensorModes.Send, (MacMessage)msg);
+			if(msg == null)
 			{
 				//	System.out.println("TALK :( ");
 				return;
