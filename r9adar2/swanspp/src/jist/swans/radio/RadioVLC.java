@@ -411,12 +411,14 @@ public final class RadioVLC extends RadioNoise
 			msg = CanTalk(((MacMessage)msg).getSrc().hashCode(), radioInfo.unique.getID(), SensorModes.Receive, (MacMessage)msg);
 			if(msg == null )
 			{
+				Constants.VLCconstants.DroppedOnReceive++;
 				return;
 			}
+			Constants.VLCconstants.Received++;
 		}
 		//else, nije bcast, provjera moze li talk se radi na transmit strani, tako da je cantalk provjera redundantna.
 
-		System.out.println("TALK rcv :) msg hc: " + msg.hashCode() + " from: " +((MacMessage)msg).getSrc().hashCode()+ " to: " + radioInfo.unique.getID()  );
+	//	System.out.println("TALK rcv :) msg hc: " + msg.hashCode() + " from: " +((MacMessage)msg).getSrc().hashCode()+ " to: " + radioInfo.unique.getID()  );
 		//System.out.println("TALK rcv :) ");
 
 
@@ -486,23 +488,26 @@ public final class RadioVLC extends RadioNoise
 		if(mode==Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio already transmitting");
 		// clear receive buffer
 		checkLocation(false);
+		
 		assert(signalBuffer==null);
 		signalBuffer = null;
-		//((MacMessage)msg).setSensorIDTx(1);
 		if(((MacMessage)msg).getDst().hashCode() != -1)
 		{
 			msg = CanTalk(((MacMessage)msg).getSrc().hashCode(), ((MacMessage)msg).getDst().hashCode(), SensorModes.Send, (MacMessage)msg);
 			if(msg == null)
 			{
-				//	System.out.println("TALK :( ");
+				Constants.VLCconstants.DroppedOnSend++;
 				return;
 			}
+			Constants.VLCconstants.SentDirect++;
 		}
 		else
 		{
 			//bcast je
+			Constants.VLCconstants.SentBroadcast++;
 		}
-		System.out.println("TALK snd :)  msg hc: "+msg.hashCode()+"  from: " +((MacMessage)msg).getSrc().hashCode()+ " to: " + ((MacMessage)msg).getDst().hashCode() );
+		
+		//System.out.println("TALK snd :)  msg hc: "+msg.hashCode()+"  from: " +((MacMessage)msg).getSrc().hashCode()+ " to: " + ((MacMessage)msg).getDst().hashCode() );
 		// use default delay, if necessary
 		if(delay==Constants.RADIO_NOUSER_DELAY) delay = Constants.RADIO_PHY_DELAY;
 		// set mode to transmitting

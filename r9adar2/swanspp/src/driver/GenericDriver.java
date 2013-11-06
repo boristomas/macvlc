@@ -311,7 +311,7 @@ public class GenericDriver {
         net.setProtocolHandler(je.protocol, route);
         net.setRouting(route);
 
-        nodes.add(route);
+        nodes.add(route);        
     }
 
     /**
@@ -1103,6 +1103,7 @@ public class GenericDriver {
             JistAPI.runAt(new Runnable() {
                     public void run() {
                         showStats(nodes, je, startTime, freeMemory);
+                        System.out.println(Constants.VLCconstants.PrintData());
                     }
                 }, JistAPI.END);
         }
