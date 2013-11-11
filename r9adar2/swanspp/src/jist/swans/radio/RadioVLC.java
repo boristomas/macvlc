@@ -418,7 +418,7 @@ public final class RadioVLC extends RadioNoise
 		}
 		//else, nije bcast, provjera moze li talk se radi na transmit strani, tako da je cantalk provjera redundantna.
 
-	//	System.out.println("TALK rcv :) msg hc: " + msg.hashCode() + " from: " +((MacMessage)msg).getSrc().hashCode()+ " to: " + radioInfo.unique.getID()  );
+		//	System.out.println("TALK rcv :) msg hc: " + msg.hashCode() + " from: " +((MacMessage)msg).getSrc().hashCode()+ " to: " + radioInfo.unique.getID()  );
 		//System.out.println("TALK rcv :) ");
 
 
@@ -488,7 +488,7 @@ public final class RadioVLC extends RadioNoise
 		if(mode==Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio already transmitting");
 		// clear receive buffer
 		checkLocation(false);
-		
+
 		assert(signalBuffer==null);
 		signalBuffer = null;
 		if(((MacMessage)msg).getDst().hashCode() != -1)
@@ -506,7 +506,7 @@ public final class RadioVLC extends RadioNoise
 			//bcast je
 			Constants.VLCconstants.SentBroadcast++;
 		}
-		
+
 		//System.out.println("TALK snd :)  msg hc: "+msg.hashCode()+"  from: " +((MacMessage)msg).getSrc().hashCode()+ " to: " + ((MacMessage)msg).getDst().hashCode() );
 		// use default delay, if necessary
 		if(delay==Constants.RADIO_NOUSER_DELAY) delay = Constants.RADIO_PHY_DELAY;
@@ -558,8 +558,9 @@ public final class RadioVLC extends RadioNoise
 				if(possibleNodes.contains(DestinationID) && tmpNodeList.contains(SourceID))
 				{
 					possibleNodes.addAll(tmpNodeList);
-					if(msg.getSensorIDTx() != -1 && msg.getSensorIDRx() != -1)
+					if(msg.getSensorIDTx().size() != 0 && msg.getSensorIDRx().size() != -1)
 					{
+						//znaci da ima nekih IDeva.
 						VLCsensor sensorSrc = Field.getRadioData(SourceID).vlcdevice.getSensorByID(msg.getSensorIDTx());
 						VLCsensor sensorDest = Field.getRadioData(DestinationID).vlcdevice.getSensorByID(msg.getSensorIDRx());
 						//znaci da su postavljeni i da nikada nije uslo u for petlje
@@ -567,8 +568,9 @@ public final class RadioVLC extends RadioNoise
 						{		
 							if(!intersects(Field.getRadioData(node).vlcdevice.outlineShape, new Line2D.Float(sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY())))
 							{
-								msg.setSensorIDTx(sensorSrc.sensorID);
-								msg.setSensorIDRx(sensorDest.sensorID);
+								//		msg.setSensorIDTx(sensorSrc.sensorID);
+								//		msg.setSensorIDRx(sensorDest.sensorID);
+								//comented because it can't be known at send time. btw. it is already set.
 								//ako pronaðem
 								return msg;
 							}
@@ -583,8 +585,9 @@ public final class RadioVLC extends RadioNoise
 							{		
 								if(!intersects(Field.getRadioData(node).vlcdevice.outlineShape, new Line2D.Float( sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY())))
 								{
-									msg.setSensorIDTx(sensorSrc.sensorID);
-									msg.setSensorIDRx(sensorDest.sensorID);
+									//	msg.setSensorIDTx(sensorSrc.sensorID);
+									//	msg.setSensorIDRx(sensorDest.sensorID);
+									//comented because it can't be known at send time.
 									//ako pronaðem
 									return msg;
 								}
@@ -600,8 +603,9 @@ public final class RadioVLC extends RadioNoise
 							{		
 								if(!intersects(Field.getRadioData(node).vlcdevice.outlineShape, new Line2D.Float( sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY())))
 								{
-									msg.setSensorIDTx(sensorSrc.sensorID);
-									msg.setSensorIDRx(sensorDest.sensorID);
+									//	msg.setSensorIDTx(sensorSrc.sensorID);
+									//	msg.setSensorIDRx(sensorDest.sensorID);
+									//comented because it can't be known at send time.
 									//ako pronaðem
 									return msg;
 								}
@@ -619,8 +623,9 @@ public final class RadioVLC extends RadioNoise
 								{		
 									if(!intersects(Field.getRadioData(node).vlcdevice.outlineShape, new Line2D.Float( sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY())))
 									{
-										msg.setSensorIDTx(sensorSrc.sensorID);
-										msg.setSensorIDRx(sensorDest.sensorID);
+										//msg.setSensorIDTx(sensorSrc.sensorID);
+										//msg.setSensorIDRx(sensorDest.sensorID);
+										//comented because it can't be known at send time.
 										//ako pronaðem
 										return msg;
 									}
@@ -653,7 +658,8 @@ public final class RadioVLC extends RadioNoise
 						{
 							if(!intersects(Field.getRadioData(node).vlcdevice.outlineShape, new Line2D.Float( sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY())))
 							{
-								msg.setSensorIDTx(sensorSrc.sensorID);
+								//msg.setSensorIDTx(sensorSrc.sensorID);
+								//comented because it can't be known which transmit sensor is used.
 								msg.setSensorIDRx(sensorDest.sensorID);
 								return msg;
 							}
