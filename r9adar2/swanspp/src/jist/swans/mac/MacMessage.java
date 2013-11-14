@@ -71,8 +71,8 @@ public abstract class MacMessage implements Message
 	{
 		this.type = type;
 		this.retry = retry;
-		this.setSensorIDRx(-1);
-		this.setSensorIDTx(-1);
+		//this.setSensorIDRx(-1);
+		//this.setSensorIDTx(-1);
 	}
 
 	//////////////////////////////////////////////////
