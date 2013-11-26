@@ -508,13 +508,14 @@ public final class RadioVLC extends RadioNoise
 
 		if(((MacMessage)msg).getDst().hashCode() != -1)
 		{
+			//not bcast
 
-			msg = CanTalk(((MacMessage)msg).getSrc().hashCode(), ((MacMessage)msg).getDst().hashCode(), SensorModes.Send, (MacMessage)msg);
+			/*msg = CanTalk(((MacMessage)msg).getSrc().hashCode(), ((MacMessage)msg).getDst().hashCode(), SensorModes.Send, (MacMessage)msg);
 			if(msg == null)
 			{
 				Constants.VLCconstants.DroppedOnSend++;
 				return;
-			}
+			}*/
 			Constants.VLCconstants.SentDirect++;
 		}
 		else
@@ -555,6 +556,7 @@ public final class RadioVLC extends RadioNoise
 	private HashSet<Integer> tmpNodeList;
 	private HashSet<Integer> tmpSensorTx = new HashSet<Integer>();
 	private HashSet<Integer> tmpSensorRx = new HashSet<Integer>();
+	
 	/**
 	 * Checks if two nodes can talk, more specific if sensors can talk according to address in msg.
 	 * @param SourceID macaddr of source.
@@ -569,64 +571,28 @@ public final class RadioVLC extends RadioNoise
 		{
 			tmpSensorRx.clear();
 			tmpSensorTx.clear();
-			possibleNodes = new HashSet<Integer>();
+	//		possibleNodes = new HashSet<Integer>();
 			if(mode == SensorModes.Send)
 			{//znaci sourceid šalje
+				//never happens!
+				
 				possibleNodes.addAll(getRangeAreaNodes(SourceID, mode));//send mode
 				tmpNodeList = getRangeAreaNodes(DestinationID, SensorModes.Receive);
 
 				if(possibleNodes.contains(DestinationID) && tmpNodeList.contains(SourceID))
 				{
-					possibleNodes.addAll(tmpNodeList);
-
-					if(msg.getSensorIDTx().size() != 0 && msg.getSensorIDRx().size() != 0)
-					{
-						//u ovom slucaju su poznate stxid i srxid liste.
-						for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.sensorsTx) {
-							if(msg.getSensorIDTx().contains(sensorSrc.sensorID))
-							{
-								for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.sensorsRx) {
-									if(msg.getSensorIDRx().contains(sensorDest.sensorID))
-									{
-										//znaci da listam sve senzore na src i dest koji su zadani u msg sensor listama
-										for (Integer node : possibleNodes)//listam sve aute koji su mi vidljivi (u trokutu)
-										{
-											if(!intersects(Field.getRadioData(node).vlcdevice.outlineShape, new Line2D.Float(sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY())))
-											{
-												tmpSensorTx.add(sensorSrc.sensorID);
-												tmpSensorRx.add(sensorDest.sensorID);
-											}
-										}//foreach possiblenodes
-									}
-								}
-							}
-						}
-						msg.SensorIDTx.clear();
-						msg.SensorIDTx.addAll(tmpSensorTx);
-						msg.SensorIDRx.clear();
-						msg.SensorIDRx.addAll(tmpSensorRx);
-						if(msg.SensorIDTx.size() == 0 || msg.SensorIDRx.size() == 0)
-						{
-							return null;//msg = null;//dropped
-						}
-					}
-					else
-					{
-						System.out.println("neva");
-					}
-
-					return msg;
+					
 				}
 				else
 				{
 					//nisu si ni u trokutu
-					return null;
+					msg= null;
 				}
 			}
 			else if( mode == SensorModes.Receive)
 			{//znaci source sluša poruke
-				possibleNodes.addAll(getRangeAreaNodes(SourceID, mode));//send mode
-				tmpNodeList = getRangeAreaNodes(DestinationID, SensorModes.Receive);
+				possibleNodes =getRangeAreaNodes(SourceID, mode);//send mode
+				tmpNodeList = getRangeAreaNodes(DestinationID, SensorModes.Send);//TODO: test
 
 				if(possibleNodes.contains(DestinationID) && tmpNodeList.contains(SourceID))
 				{
@@ -669,22 +635,21 @@ public final class RadioVLC extends RadioNoise
 				}
 				else
 				{
-					return null; //nisu si ni u trokutu.
+					msg=  null; //nisu si ni u trokutu.
 				}
-				return msg;
 			}
 			else
 			{
 				//should never happen, use send or receive
-				return null;
+				msg=  null;
 			}
 		}
 		else//broadcast poruka je
 		{
 			//nikada se nece dogoditi jer bcast filteriram na transmit metodi
-			return null;
+			msg = null;
 		}
-		//return false;
+		return msg;
 	}
 	/**
 	 * Is the location being checked visible to vlc device?
@@ -731,6 +696,8 @@ public final class RadioVLC extends RadioNoise
 	 */
 	private HashSet<Integer> getRangeAreaNodes(int SourceNodeID, SensorModes mode)
 	{
+		//ne moram sve senzore gledati od send cvora nego samo one koji su u listi, tako se barem malo smanji optereecnje, teorettski dva
+		//puta provjeravam odnose dva senzor cvora!!!!!
 		HashSet<Integer> returnNodes = new HashSet<Integer>();
 		LinkedList<RadioVLC.VLCsensor> sensors1 = new LinkedList<RadioVLC.VLCsensor>();
 		LinkedList<RadioVLC.VLCsensor> sensors2 = new LinkedList<RadioVLC.VLCsensor>();;

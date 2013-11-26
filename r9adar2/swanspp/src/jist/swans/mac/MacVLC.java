@@ -894,40 +894,31 @@ public class MacVLC implements MacInterface.Mac802_11
 
 	private void sendDataBroadcast()
 	{
-		//bt: send to all nodes in triangle range
 
-		MacMessage.Data msg;
-	/*	for (Integer item : getQualifiyingNodes()) 
+	//	MacMessage.Data msg;
+		/*	for (Integer item : getQualifiyingNodes()) 
 		{
 			//msg = new MacMessage.Data( new MacAddress(item), localAddr, 0, packet);
 			packetNextHop = new MacAddress(item);
 			sendDataUnicast(false);
 			//send(msg, new MacAddress(item));
 		}*/
-		/*
+		
 		// create data packet
-		MacMessage.Data data = new MacMessage.Data(
-				packetNextHop, localAddr, 
-				0, packet);
-		// set mode and transmit
-		setMode(MAC_MODE_XBROADCAST);
-		long delay = RX_TX_TURNAROUND, duration = transmitTime(data);
-		radioEntity.transmit(data, delay, duration);
-		// wait for EOT, check for outgoing packet
-		JistAPI.sleep(delay+duration);
-		self.cfDone(true, true);*/
+				MacMessage.Data data = new MacMessage.Data(
+						packetNextHop, localAddr, 
+						0, packet);
+				// set mode and transmit
+				setMode(MAC_MODE_XBROADCAST);
+				long delay = RX_TX_TURNAROUND, duration = transmitTime(data);
+				radioEntity.transmit(data, delay, duration);
+				// wait for EOT, check for outgoing packet
+				JistAPI.sleep(delay+duration);
+				self.cfDone(true, true);
 	}
 
 	private void sendDataUnicast(boolean afterCts)
 	{
-	/*	if(!getQualifiyingNodes().contains(packetNextHop.hashCode()))
-		{
-			//bt drop
-			System.out.println("VLC: dropped because node is not in LOS  from: "+SourceNodeID + " to: " +packetNextHop.toString() );
-			return;
-		}
-		System.out.println("VLC: not dropped because node is in LOS ");
-		*/
 		// create data packet
 		MacMessage.Data data = new MacMessage.Data(
 				packetNextHop, localAddr, (int)(
@@ -962,8 +953,7 @@ public class MacVLC implements MacInterface.Mac802_11
 				+ SLOT_TIME
 				+ PROPAGATION,
 				MAC_MODE_SWFACK);
-		self.cfDone(true, true);
-		//radioEntity.endTransmit();
+		//self.cfDone(true, true);//bt
 	}
 
 	private void sendAck(MacMessage.Data data)

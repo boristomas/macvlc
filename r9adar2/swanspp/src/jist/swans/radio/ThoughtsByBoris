@@ -1,2 +1,21 @@
-A sends to B
-A and B have each 4Tx and 4Rx 
+---------------------------------------------
+A sends to broadcast (-1)
+B is broadcast member.
+msg Tx, Rx list is unassigned
+on transmit assign msg Tx list to all Tx from A
+on receive assign ms Rx list to all Rx fom B
+cantalk check is done on receieve side.
+after cantalk msg lists contain only sensors that can talk to any other sensor on the other side
+---------------------------------------------
+A sends to B (direct)
+A and B have each 4Tx and 4Rx
+A and B do not have assigned Rx or Tx lists for msg to be sent
+on transmit assign msg Tx list to all Tx from A
+on transmit assign msg Rx list to all Rx from B
+cantalk check is done on receieve side.
+after cantalk msg lists contain only sensors that can talk to any other sensor on the other side
+--------------------------------------------- 
+for MAC implementation:
+keep the sensors in pair, if something is received on only sid 1 then consider it received on complementary sensor (3).
+example: both front will receive message. This is necessary to use only one radio for front side (and second for the rear)
+--------------------------------------------- 

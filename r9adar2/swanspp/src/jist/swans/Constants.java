@@ -453,9 +453,11 @@ public final class Constants
 		public static int Received = 0;
 		public static int DroppedOnSend = 0;
 		public static int DroppedOnReceive = 0;
+		public static String MACimplementationUsed;
 		public static String PrintData()
 		{
 			return "-----VLC data-----" + "\n"+
+					"MAC implementation = "+ MACimplementationUsed + "\n"+
 					"Sent Direct = " + SentDirect + "\n"+
 					"Sent Broadcasts = "+ SentBroadcast + "\n" +
 					"Received = " + Received + "\n"+

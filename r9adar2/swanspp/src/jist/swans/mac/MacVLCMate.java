@@ -34,7 +34,7 @@ import driver.JistExperiment;
  * @since SWANS1.0
  */
 
-public class Mac802_11 implements MacInterface.Mac802_11
+public class MacVLCMate implements MacInterface.Mac802_11
 {
 
 	////////////////////////////////////////////////////
@@ -323,10 +323,9 @@ public class Mac802_11 implements MacInterface.Mac802_11
 	 * @param radioInfo radio properties
 	 * @param newstats mac stats object
 	 */
-	public Mac802_11(MacAddress addr, RadioInfo radioInfo, 
-			boolean promisc)
+	public MacVLCMate(MacAddress addr, RadioInfo radioInfo, boolean promisc)
 	{
-		//    stats = newStats;
+		SourceNodeID = addr.hashCode();//BT: store node ID;
 		droppedPackets = new HashMap();
 		// properties
 		bandwidth = radioInfo.getShared().getBandwidth() / 8;
@@ -335,16 +334,21 @@ public class Mac802_11 implements MacInterface.Mac802_11
 		self = (MacInterface.Mac802_11)JistAPI.proxy(this, MacInterface.Mac802_11.class);
 
 		init(addr, radioInfo, promisc);
-	}  
+	}
 
+	/**
+	 * nodeID for source radio.
+	 */
+	public int SourceNodeID;
 	/**
 	 * Instantiate new 802_11b entity.
 	 *
 	 * @param addr local mac address
 	 * @param radioInfo radio properties
 	 */
-	public Mac802_11(MacAddress addr, RadioInfo radioInfo)
-	{
+	public MacVLCMate(MacAddress addr, RadioInfo radioInfo)
+	{  
+		SourceNodeID = addr.hashCode();//BT: store node ID;
 		bandwidth = radioInfo.getShared().getBandwidth() / 8;
 		// proxy
 		self = (MacInterface.Mac802_11)JistAPI.proxy(this, MacInterface.Mac802_11.class);
@@ -518,8 +522,7 @@ public class Mac802_11 implements MacInterface.Mac802_11
 	 */
 	private boolean shouldRTS()
 	{
-		return false; //bt: some error workaround
-		//return packet.getSize()>THRESHOLD_RTS && !isBroadcast();
+		return packet.getSize()>THRESHOLD_RTS && !isBroadcast();
 	}
 
 	/**
@@ -755,8 +758,19 @@ public class Mac802_11 implements MacInterface.Mac802_11
 	//
 
 	// MacInterface interface
+	@SuppressWarnings("unused")
 	public void send(Message msg, MacAddress nextHop)
 	{
+		//jist.swans.misc.Location SourceNode;
+		//jist.swans.misc.Location DestinationNode;
+		//int DestinationNodeID = nextHop.hashCode();
+		//jist.runtime.Controller.activeController.getSimulationTime();
+
+		/*  if(DestinationNodeID == -1)
+		  return;
+	  SourceNode = JistExperiment.getJistExperiment().visualizer.getField().getRadioData(SourceNodeID).getLocation();
+	  DestinationNode = JistExperiment.getJistExperiment().visualizer.getField().getRadioData(DestinationNodeID).getLocation();
+		 */
 		if(Main.ASSERT) Util.assertion(!hasPacket());
 		if(Main.ASSERT) Util.assertion(nextHop!=null);
 		packet = msg;
@@ -880,17 +894,27 @@ public class Mac802_11 implements MacInterface.Mac802_11
 
 	private void sendDataBroadcast()
 	{
+
+	//	MacMessage.Data msg;
+		/*	for (Integer item : getQualifiyingNodes()) 
+		{
+			//msg = new MacMessage.Data( new MacAddress(item), localAddr, 0, packet);
+			packetNextHop = new MacAddress(item);
+			sendDataUnicast(false);
+			//send(msg, new MacAddress(item));
+		}*/
+		
 		// create data packet
-		MacMessage.Data data = new MacMessage.Data(
-				packetNextHop, localAddr, 
-				0, packet);
-		// set mode and transmit
-		setMode(MAC_MODE_XBROADCAST);
-		long delay = RX_TX_TURNAROUND, duration = transmitTime(data);
-		radioEntity.transmit(data, delay, duration);
-		// wait for EOT, check for outgoing packet
-		JistAPI.sleep(delay+duration);
-		self.cfDone(true, true);
+				MacMessage.Data data = new MacMessage.Data(
+						packetNextHop, localAddr, 
+						0, packet);
+				// set mode and transmit
+				setMode(MAC_MODE_XBROADCAST);
+				long delay = RX_TX_TURNAROUND, duration = transmitTime(data);
+				radioEntity.transmit(data, delay, duration);
+				// wait for EOT, check for outgoing packet
+				JistAPI.sleep(delay+duration);
+				self.cfDone(true, true);
 	}
 
 	private void sendDataUnicast(boolean afterCts)
@@ -907,7 +931,7 @@ public class Mac802_11 implements MacInterface.Mac802_11
 		// set mode and transmit
 		setMode(MAC_MODE_XUNICAST);
 		long delay = afterCts ? SIFS : RX_TX_TURNAROUND, duration = transmitTime(data);
-		
+
 		radioEntity.transmit(data, delay, duration);
 
 		//    if (stats.DISTANCE_TRACKING)
@@ -929,6 +953,7 @@ public class Mac802_11 implements MacInterface.Mac802_11
 				+ SLOT_TIME
 				+ PROPAGATION,
 				MAC_MODE_SWFACK);
+		//self.cfDone(true, true);//bt
 	}
 
 	private void sendAck(MacMessage.Data data)
@@ -1069,7 +1094,7 @@ public class Mac802_11 implements MacInterface.Mac802_11
 			}
 		}
 		else if(MacAddress.ANY.equals(dst))
-		{
+		{//bcast
 			switch(msg.getType())
 			{
 			case MacMessage.TYPE_DATA:
