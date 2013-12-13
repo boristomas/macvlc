@@ -454,6 +454,7 @@ public final class Constants
 		public static int DroppedOnSend = 0;
 		public static int DroppedOnReceive = 0;
 		public static String MACimplementationUsed;
+		public static int NetIPReceived= 0;
 		public static String PrintData()
 		{
 			return "-----VLC data-----" + "\n"+
@@ -463,6 +464,7 @@ public final class Constants
 					"Received = " + Received + "\n"+
 					"Dropped on send = " + DroppedOnSend + "\n"+
 					"Dropped on receive = " + DroppedOnReceive + "\n"+
+					"NetIP received = " + NetIPReceived + "\n"+
 					"-----VLC data-----" + "\n";
 		}
 	}

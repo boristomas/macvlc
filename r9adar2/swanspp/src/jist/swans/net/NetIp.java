@@ -366,11 +366,13 @@ public class NetIp implements NetInterface
   {
     if(msg==null) throw new NullPointerException();
     NetMessage.Ip ipmsg = (NetMessage.Ip)msg;
+    
     if(incomingLoss.shouldDrop(ipmsg)) return;
     if(log.isInfoEnabled())
     {
       log.info("receive t="+JistAPI.getTime()+" from="+lastHop+" on="+macId+" data="+msg);
     }
+    Constants.VLCconstants.NetIPReceived++;
     if(routing!=null) routing.peek(ipmsg, lastHop);
     if(!promisc)
     {

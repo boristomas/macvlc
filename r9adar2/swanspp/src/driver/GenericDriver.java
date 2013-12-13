@@ -140,7 +140,6 @@ public class GenericDriver {
 			Mobility mobility, VisualizerInterface v) {
 		RadioNoise radio;
 		Location location;
-
 		if(btviz == null)
 		{
 			btviz = new Vizbt();
@@ -955,8 +954,7 @@ public class GenericDriver {
 		Message payload = new MessageBytes(data);
 		long currentTime = je.startTime * Constants.SECOND;
 
-		System.out.println("Messages to send: " +
-				(iterations * je.transmitters));
+		System.out.println("Messages to send: " + (iterations * je.transmitters));
 
 		int[] dests = new int[je.transmitters];
 		boolean[] chosen = new boolean[nodes.size()];
@@ -981,8 +979,7 @@ public class GenericDriver {
 
 				// store time sent as payload 
 				NetMessage msg;
-				TransUdp.UdpMessage udpMsg = new TransUdp.UdpMessage(je.port,
-						je.port, payload);
+				TransUdp.UdpMessage udpMsg = new TransUdp.UdpMessage(je.port, je.port, payload);
 
 				int src = ((Integer) sources.get(j)).intValue();
 				int dest = dests[j] + 1;
