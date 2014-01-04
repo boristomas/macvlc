@@ -4,7 +4,7 @@
 
  <!-- timing -->
   <void property="duration"> 
-   <int>900</int> 
+   <int>90</int> 
   </void> 
   <void property="resolutionTime"> 
    <int>60</int> 
@@ -18,7 +18,7 @@
    <double>2.8</double> 
   </void> 
   <void property="stdDeviation"> 
-   <double>6.0</double> 
+   <double>0.0</double> 
   </void> 
     <void property="loss"> 
    <int>0</int> 
@@ -27,7 +27,7 @@
    <int>1</int> 
   </void> 
   <void property="transmit"> 
-   <double>16</double> 
+   <double>50</double> 
   </void> 
 
    <!-- mobility options -->
