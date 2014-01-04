@@ -330,7 +330,6 @@ public class Mac802_11 implements MacInterface.Mac802_11
 		droppedPackets = new HashMap();
 		// properties
 		bandwidth = radioInfo.getShared().getBandwidth() / 8;
-
 		// proxy
 		self = (MacInterface.Mac802_11)JistAPI.proxy(this, MacInterface.Mac802_11.class);
 
@@ -609,6 +608,7 @@ public class Mac802_11 implements MacInterface.Mac802_11
 	}
 
 	/**
+	 * 
 	 * Decrease Collision Windows.
 	 */
 	private void decCW()

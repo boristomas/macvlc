@@ -19,3 +19,4 @@ for MAC implementation:
 keep the sensors in pair, if something is received on only sid 1 then consider it received on complementary sensor (3).
 example: both front will receive message. This is necessary to use only one radio for front side (and second for the rear)
 --------------------------------------------- 
+placement kao onaj A B C D E F hardcoded koristeci no mobility i simpledemo.xml

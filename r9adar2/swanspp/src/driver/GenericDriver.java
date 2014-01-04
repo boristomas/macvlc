@@ -946,14 +946,14 @@ public class GenericDriver {
 	 * @param nodes set of all nodes
 	 * @param myRandom the random object to use
 	 */
-	private static void generateCBRTraffic(JistExperiment je, Vector sources,
-			Vector nodes, Random myRandom) {
+	private static void generateCBRTraffic(JistExperiment je, Vector sources, Vector nodes, Random myRandom) {
 		long delayInterval = (long) (((double) je.cbrPacketSize / je.cbrRate) * 1 * Constants.SECOND);
 		long iterations = (long) Math.ceil(((double) je.duration * (double) Constants.SECOND) / delayInterval);
 		byte[] data = new byte[je.cbrPacketSize];
 		Message payload = new MessageBytes(data);
 		long currentTime = je.startTime * Constants.SECOND;
 
+		Constants.VLCconstants.CBRmessages = iterations * je.transmitters;
 		System.out.println("Messages to send: " + (iterations * je.transmitters));
 
 		int[] dests = new int[je.transmitters];
@@ -1000,6 +1000,7 @@ public class GenericDriver {
 										Constants.NET_PRIORITY_NORMAL,
 										(byte) Constants.TTL_DEFAULT);
 				srcRoute.send(msg);
+				//System.out.println("BTc src= "+((NetMessage.Ip )msg).getSrc() + " dest= " + ((NetMessage.Ip )msg).getDst() + " .... " + src + " .... " + dest);
 			} // send message for each transmitter
 
 			JistAPI.sleep(delayInterval +

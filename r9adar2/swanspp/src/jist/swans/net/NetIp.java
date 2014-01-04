@@ -26,6 +26,8 @@ import jist.swans.route.RouteInterface;
 
 import org.apache.log4j.Logger;
 
+import com.sun.corba.se.impl.orbutil.closure.Constant;
+
 /**
  * IPv4 implementation based on RFC 791. Performs protocol
  * multiplexing, and prioritized packet queuing, but no
@@ -372,13 +374,15 @@ public class NetIp implements NetInterface
     {
       log.info("receive t="+JistAPI.getTime()+" from="+lastHop+" on="+macId+" data="+msg);
     }
-    Constants.VLCconstants.NetIPReceived++;
+    
     if(routing!=null) routing.peek(ipmsg, lastHop);
+    Constants.VLCconstants.NetIPReceived++;
     if(!promisc)
     {
       if(isForMe(ipmsg))
       {          
           JistAPI.sleep(Constants.NET_DELAY);
+          Constants.VLCconstants.NetIPReceivedForMe++;
         getProtocolHandler(ipmsg.getProtocol()).receive(ipmsg.getPayload(), 
             ipmsg.getSrc(), lastHop, macId, ipmsg.getDst(), 
             ipmsg.getPriority(), (byte)ipmsg.getTTL());
@@ -420,7 +424,7 @@ public class NetIp implements NetInterface
       log.debug("queue t="+JistAPI.getTime()+" to="+nextHop+" on="+interfaceId+" data="+msg);
     }
     NicInfo ni = nics[interfaceId];
-    
+    Constants.VLCconstants.NetIPSent++;
     if (ni.q.isFull())
     {
         // TODO call a separate function -- this should not be confused with 
@@ -521,6 +525,7 @@ public class NetIp implements NetInterface
  */
 public void packetDropped(Message packet, MacAddress packetNextHop) {
     // anything to do here?
+	Constants.VLCconstants.NetIPDropped++;
     routing.packetDropped(packet, packetNextHop);    
 }
 

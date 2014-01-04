@@ -455,6 +455,10 @@ public final class Constants
 		public static int DroppedOnReceive = 0;
 		public static String MACimplementationUsed;
 		public static int NetIPReceived= 0;
+		public static int NetIPReceivedForMe= 0;
+		public static int NetIPDropped= 0;
+		public static int NetIPSent= 0;
+		public static long CBRmessages= 0;
 		public static String PrintData()
 		{
 			return "-----VLC data-----" + "\n"+
@@ -464,7 +468,11 @@ public final class Constants
 					"Received = " + Received + "\n"+
 					"Dropped on send = " + DroppedOnSend + "\n"+
 					"Dropped on receive = " + DroppedOnReceive + "\n"+
+					"CBR messages total = " + CBRmessages + "\n"+
+					"NetIP sent = " + NetIPSent + "\n"+
 					"NetIP received = " + NetIPReceived + "\n"+
+					"NetIP received for me= " + NetIPReceivedForMe + "\n"+
+					"NetIP dropped = " + NetIPDropped+ "\n"+
 					"-----VLC data-----" + "\n";
 		}
 	}

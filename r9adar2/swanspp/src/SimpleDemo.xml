@@ -41,7 +41,7 @@
    <int>1</int> 
   </void> 
   <void property="mobility"> 
-   <int>2</int> 
+   <int>1</int> 
   </void> 
     <void property="pause_time"> 
    <int>5</int> 
@@ -94,7 +94,7 @@
    <int>3001</int> 
   </void> 
   <void property="protocol"> 
-   <int>888</int> 
+   <int>123</int> 
   </void> 
     <void property="help"> 
    <boolean>false</boolean> 

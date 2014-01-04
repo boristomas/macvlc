@@ -14,7 +14,6 @@ import java.util.ListIterator;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
-
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.field.Field;
