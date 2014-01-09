@@ -196,6 +196,8 @@ public interface Placement
       i = 0;
     }
 
+    private int offsetX = 200;//offset from the edge, for simple layout(static)
+    private int offsetY = 200;
     //////////////////////////////////////////////////
     // Placement interface
     //
@@ -204,8 +206,7 @@ public interface Placement
     public Location getNextLocation()
     {
       if(i/nodex==nodey) throw new IllegalStateException("grid points exhausted");
-      Location l = new Location.Location2D(
-          (i%nodex)*fieldx/nodex, (i/nodex)*fieldy/nodey);
+      Location l = new Location.Location2D(offsetX+ (i%nodex)*fieldx/nodex, offsetY+ (i/nodex)*fieldy/nodey);
       i++;
       return l;
     }

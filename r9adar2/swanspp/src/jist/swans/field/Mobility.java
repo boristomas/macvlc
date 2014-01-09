@@ -120,7 +120,9 @@ public interface Mobility
     /** {@inheritDoc} */
     public MobilityInfo init(FieldInterface f, Integer id, Location loc)
     {
-      return null;
+    	StaticInfo smi = new StaticInfo();
+    	//smi.v = v;
+    	return smi;
     }
 
     /** {@inheritDoc} */
@@ -143,6 +145,38 @@ public interface Mobility
     }
 
   } // class Static
+  public static class StaticInfo implements MobilityInfo
+  {
+  	  //random direction selected between [0,2pi] uniformly.
+  	  public double direction = 2*Math.PI*Constants.random.nextDouble();
+
+  	public Location getBearing() {
+  		// TODO Auto-generated method stub
+  		return null;
+  	}
+  	public float getBearingAsAngle()
+  	  {
+  			// TODO Auto-generated method stub
+  			return 0;
+  	  }
+
+  	public float getSpeed() {
+  		// TODO Auto-generated method stub
+  		return 0;
+  	}
+
+  	public boolean isStopped() {
+  		// TODO Auto-generated method stub
+  		return false;
+  	}
+
+  	public void setStopped(boolean stop) {
+  		// TODO Auto-generated method stub
+  		
+  	}
+  	  
+  	  
+  } // class: RandomDirectionInfo 
 
 
   //////////////////////////////////////////////////

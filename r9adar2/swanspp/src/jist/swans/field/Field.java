@@ -276,6 +276,7 @@ public class Field implements FieldInterface
 		}
 		data.info = info;
 		data.loc = loc;
+		data.mobilityInfo = mobility.init(self, id, loc);
 		// insert into array
 		int idi = id.intValue();
 		while(radios.length<=idi)
@@ -393,6 +394,7 @@ public class Field implements FieldInterface
 		//transmit packet to given location
 		public void visitTransmit(RadioInfo srcInfo, Location srcLoc, RadioInfo dstInfo, RadioInterface dstEntity, Location dstLoc, Message msg, Long durationObj)
 		{
+			//todo: remove this //bt
 			if(srcInfo.getUnique().getID()==dstInfo.getUnique().getID()) return;
 			// compute signal strength
 			double loss = pathloss.compute(srcInfo, srcLoc, dstInfo, dstLoc);

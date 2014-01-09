@@ -41,13 +41,14 @@ public final class RadioVLC extends RadioNoise
 	//širina: 1,7 +-0.3
 	//dužina: 5+-0.5
 	private float vehicleDevLength = 0.5F ;
-	private float vehicleLength =5.0F;//5
+	private float vehicleLength =15.0F;//5
 
 	private float vehicleDevWidth =0.3F;
-	private float vehicleWidth = 1.7F;//1,7
+	private float vehicleWidth = 11.7F;//1,7
 	public int NodeID;
 	//public Location currentLocation;
 	private Location newLocation;//used to store new location
+	public float vehicleStaticBearing =0F; 
 
 	public enum SensorModes
 	{
@@ -121,6 +122,7 @@ public final class RadioVLC extends RadioNoise
 			this.sensorID = sensorID;
 			this.mode = mode;
 			UpdateShape(originalLoc, node.NodeBearing);
+			
 		}
 		private Polygon poly;
 		public void UpdateShape(Location NodeLocation, float NodeBearing)
@@ -130,13 +132,23 @@ public final class RadioVLC extends RadioNoise
 			sensorLocation = rotatePoint(NodeLocation.getX()+ offsetX, NodeLocation.getY()+ offsetY, NodeLocation, sensorBearingNotRelative); //new Location.Location2D(tmpx, tmpy);//start.
 			sensorLocation1 = getVLCCornerPoint(sensorBearingNotRelative - (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
 			sensorLocation2 = getVLCCornerPoint(sensorBearingNotRelative + (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
-			if(node.NodeID == nodeidtst)
+			//			if(node.NodeID == nodeidtst)
 			{
 				poly = new Polygon();
 				poly.addPoint((int)sensorLocation.getX(), (int)sensorLocation.getY());
 				poly.addPoint((int)sensorLocation1.getX(), (int)sensorLocation1.getY());
 				poly.addPoint((int)sensorLocation2.getX(), (int)sensorLocation2.getY());
+				if(mode == SensorModes.Receive)
+				{
+
+			//		GenericDriver.btviz.getGraph().setColor(Color.yellow);
+				}
+				else
+				{
+					GenericDriver.btviz.getGraph().setColor(Color.red);
+				}
 				GenericDriver.btviz.getGraph().drawPolygon(poly);
+				//System.out.println("draw bt "+ sensorBearingNotRelative + " - "+(int)sensorLocation.getX() + " "+ (int)sensorLocation.getY() + " " +(int)sensorLocation1.getX() + " "+ (int)sensorLocation1.getY() +" " +(int)sensorLocation2.getX() + " "+ (int)sensorLocation2.getY()  );
 			}
 		}
 
@@ -198,8 +210,6 @@ public final class RadioVLC extends RadioNoise
 	public LinkedList<VLCsensor> sensorsRx = new LinkedList<RadioVLC.VLCsensor>();
 	public int lineOfSight = 30;
 	protected double thresholdSNR;
-	//	float distanceLimit = 250; 	//distance limit the vlc device can see in front of it, def:250
-	//int visionAngle = 60; 		//The viewing angle the of the vlc device, default is 60 degrees
 	private float offsetx;
 	private float offsety;
 	private Location startLocation; //start location set on ctor.
@@ -219,10 +229,10 @@ public final class RadioVLC extends RadioNoise
 	 * @param id radio identifier
 	 * @param sharedInfo shared radio properties
 	 */
-	public RadioVLC(int id, RadioInfo.RadioInfoShared sharedInfo, Location location)
+	/*	public RadioVLC(int id, RadioInfo.RadioInfoShared sharedInfo, Location location)
 	{
 		this(id, sharedInfo, Constants.SNR_THRESHOLD_DEFAULT, location);
-	}
+	}*/
 
 	/**
 	 * Create new radio with independent noise model.
@@ -231,7 +241,7 @@ public final class RadioVLC extends RadioNoise
 	 * @param sharedInfo shared radio properties
 	 * @param thresholdSNR threshold signal-to-noise ratio
 	 */
-	public RadioVLC(int id, RadioInfo.RadioInfoShared sharedInfo, double thresholdSNR, Location location)
+	public RadioVLC(int id, RadioInfo.RadioInfoShared sharedInfo, double thresholdSNR, Location location, float staticBearing)
 	{
 		/*90rx
 		30tx
@@ -241,26 +251,29 @@ public final class RadioVLC extends RadioNoise
 		super(id, sharedInfo);
 		this.NodeID = id;
 		setThresholdSNR(thresholdSNR);
-		//http://en.wikipedia.org/wiki/Rotation_matrix
+
 		Random rand = new Random();
+		vehicleStaticBearing = staticBearing;
+		//System.out.println("bt bearing start nid "+NodeID + " - "+ vehicleStaticBearing);
 		startLocation = location;
-		//offsets are half length from center point to edge of vehicle. example vehicle length is 5m and width is 2m. xoffset is 2.5 and yoffset id 1. if
+		//offsets are half length from center point to edge of vehicle. example vehicle length is 5m and width is 2m. xoffset is 2.5 and yoffset is 1. if
 		offsetx = (float) ((vehicleLength + (rand.nextFloat()*2*vehicleDevLength)-vehicleDevLength)/2);
 		offsety = (float) ((vehicleWidth + (rand.nextFloat()*2*vehicleDevWidth)-vehicleDevWidth)/2);
-		checkLocation(true);
+				checkLocation(true);
 
 
 		//left
-		sensorsTx.add(new VLCsensor(1, this, lineOfSight, 30, location, offsetx, offsety, 0, SensorModes.Send));//front Tx
-		sensorsRx.add(new VLCsensor(2, this, lineOfSight, 90, location, offsetx, offsety, 0, SensorModes.Receive));//front Rx
-		sensorsTx.add(new VLCsensor(3, this, lineOfSight, 30, location, -1*offsetx, offsety, 180, SensorModes.Send));//back Tx
-		sensorsRx.add(new VLCsensor(4, this, lineOfSight, 90, location, -1*offsetx, offsety, 180, SensorModes.Receive));//front Rx
+		sensorsTx.add(new VLCsensor(1, this, lineOfSight, 70, location, offsetx, offsety, 0, SensorModes.Send));//front Tx
+		sensorsRx.add(new VLCsensor(2, this, lineOfSight, 70, location, offsetx, offsety, 0, SensorModes.Receive));//front Rx
+		sensorsTx.add(new VLCsensor(3, this, lineOfSight, 70, location, -1*offsetx, offsety, 180, SensorModes.Send));//back Tx
+		sensorsRx.add(new VLCsensor(4, this, lineOfSight, 70, location, -1*offsetx, offsety, 180, SensorModes.Receive));//back Rx
 
 		//right
-		sensorsTx.add(new VLCsensor(5, this, lineOfSight, 30, location, offsetx, -1*offsety, 0, SensorModes.Send));//front Tx
-		sensorsRx.add(new VLCsensor(6, this, lineOfSight, 90, location, offsetx, -1*offsety, 0, SensorModes.Receive));//front Rx
-		sensorsTx.add(new VLCsensor(7, this, lineOfSight, 30, location, -1*offsetx, -1*offsety, 180, SensorModes.Send));//back Tx
-		sensorsRx.add(new VLCsensor(8, this, lineOfSight, 90, location, -1*offsetx, -1*offsety, 180, SensorModes.Receive));//front Rx
+		sensorsTx.add(new VLCsensor(5, this, lineOfSight, 70, location, offsetx, -1*offsety, 0, SensorModes.Send));//front Tx
+		sensorsRx.add(new VLCsensor(6, this, lineOfSight, 70, location, offsetx, -1*offsety, 0, SensorModes.Receive));//front Rx
+		sensorsTx.add(new VLCsensor(7, this, lineOfSight, 70, location, -1*offsetx, -1*offsety, 180, SensorModes.Send));//back Tx
+		sensorsRx.add(new VLCsensor(8, this, lineOfSight, 70, location, -1*offsetx, -1*offsety, 180, SensorModes.Receive));//back Rx
+		//checkLocation(true);
 	}
 
 	public VLCsensor getSensorByID(int id)
@@ -296,7 +309,7 @@ public final class RadioVLC extends RadioNoise
 		this.thresholdSNR = snrThreshold;
 	}
 
-	public  static Location rotatePoint(float ptx, float pty, Location center, double angleDeg)
+	public static Location rotatePoint(float ptx, float pty, Location center, double angleDeg)
 	{
 		double angleRad = (angleDeg/180)*Math.PI;
 		double cosAngle = Math.cos(angleRad );
@@ -307,6 +320,22 @@ public final class RadioVLC extends RadioNoise
 		ptx = center.getX() + (int) (dx*cosAngle-dy*sinAngle);
 		pty = center.getY() + (int) (dx*sinAngle+dy*cosAngle);
 		return new Location.Location2D(ptx, pty);
+	}
+	private byte controlSignal;
+
+	public void setControlSignal(byte signal, int sensorID)
+	{
+		this.controlSignal =signal;
+	}
+	/**
+	 * Gets control signal currently "around" node, if there is more than one control signal then return value is max byte (255)
+	 * @return
+	 */
+	public byte getControlSignal()
+	{
+		return controlSignal;
+		//return (byte) 255;
+
 	}
 	public static int nodeidtst = -1;
 	Location tmpLoc;
@@ -319,13 +348,28 @@ public final class RadioVLC extends RadioNoise
 		if( !isStartCheck)// .equals(obj)getRadioData(NodeID) != null)
 		{
 			newLocation =Field.getRadioData(NodeID).getLocation();
-			NodeBearing = Field.getRadioData(NodeID).getMobilityInfo().getBearingAsAngle();
+			if(vehicleStaticBearing != -1)
+			{
+				NodeBearing = vehicleStaticBearing;
+			}
+			else
+			{
+				NodeBearing = Field.getRadioData(NodeID).getMobilityInfo().getBearingAsAngle();
+			}
 		}
 		else//startcheck = false
 		{
 			newLocation = startLocation;
-			NodeBearing = 0;
+			if(vehicleStaticBearing != -1)
+			{
+				NodeBearing = vehicleStaticBearing;
+			}
+			else
+			{
+				NodeBearing = 0;
+			}
 		}
+		//	System.out.println("bt bearing 1 nid "+NodeID + " - " +NodeBearing);
 		if(NodeLocation != null)
 		{//provjeravam lokaciju jel nova ili ne
 			if(NodeLocation.getX() == newLocation.getX())
@@ -372,7 +416,7 @@ public final class RadioVLC extends RadioNoise
 		outlineShape.addPoint((int)Cx, (int)Cy);
 		outlineShape.addPoint((int)Dx, (int)Dy);
 
-		if(nodeidtst == -1)
+		/*	if(nodeidtst == -1)
 		{
 			if(!isStartCheck)
 			{
@@ -380,18 +424,20 @@ public final class RadioVLC extends RadioNoise
 			}
 		}
 
-		if(NodeID == nodeidtst)
+		if(NodeID == nodeidtst)*/
+		if(isStartCheck)
 		{
 			//TODO: maknuti ovo nodeidtst jer sluzi samo za testiranje vizualizacije.
-			//GenericDriver.btviz.getGraph().setColor(Color.RED);
+			GenericDriver.btviz.getGraph().setColor(Color.black);
 			GenericDriver.btviz.getGraph().fillPolygon(outlineShape);//.drawRect((int)tmpx1, (int)tmpy1, 20 , 20);
+//			GenericDriver.btviz.getGraph().setColor(Color.red);
+	//		GenericDriver.btviz.getGraph().drawString(""+NodeID, (int)Ax+5, (int)Ay+5);
 		}
 	}
 
 	//////////////////////////////////////////////////
 	// reception
 	//
-
 	// RadioInterface interface
 	/** {@inheritDoc} */
 	public void receive(Message msg, Double powerObj_mW, Long durationObj)
@@ -556,7 +602,7 @@ public final class RadioVLC extends RadioNoise
 	private HashSet<Integer> tmpNodeList;
 	private HashSet<Integer> tmpSensorTx = new HashSet<Integer>();
 	private HashSet<Integer> tmpSensorRx = new HashSet<Integer>();
-	
+
 	/**
 	 * Checks if two nodes can talk, more specific if sensors can talk according to address in msg.
 	 * @param SourceID macaddr of source.
@@ -571,17 +617,17 @@ public final class RadioVLC extends RadioNoise
 		{
 			tmpSensorRx.clear();
 			tmpSensorTx.clear();
-	//		possibleNodes = new HashSet<Integer>();
+			//		possibleNodes = new HashSet<Integer>();
 			if(mode == SensorModes.Send)
 			{//znaci sourceid šalje
 				//never happens!
-				
+
 				possibleNodes.addAll(getRangeAreaNodes(SourceID, mode));//send mode
 				tmpNodeList = getRangeAreaNodes(DestinationID, SensorModes.Receive);
 
 				if(possibleNodes.contains(DestinationID) && tmpNodeList.contains(SourceID))
 				{
-					
+
 				}
 				else
 				{

@@ -180,7 +180,7 @@ public class JistExperiment implements JistAPI.DoNotRewrite
 	/** radio frequency */
 	public double frequency = Constants.FREQUENCY_DEFAULT; // 2.4 GHz
 	/** Default radio bandwidth (units: bits/second). */
-	public int bandwidth = Constants.BANDWIDTH_DEFAULT; // 11Mb/s
+	public int bandwidth = 102400;//100kb/s      //Constants.BANDWIDTH_DEFAULT; // 11Mb/s //2000000
 	/** Default transmission strength (units: dBm). */
 	public double transmit = Constants.TRANSMIT_DEFAULT;
 	/** Default antenna gain (units: dB). */

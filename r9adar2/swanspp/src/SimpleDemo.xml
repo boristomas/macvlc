@@ -32,30 +32,54 @@
 
    <!-- mobility options -->
   <void property="mobility"> 
-   <int>2</int> 
+   <int>1</int> 
   </void> 
   <void property="max_speed"> 
    <int>20</int> 
   </void> 
   <void property="min_speed"> 
    <int>1</int> 
-  </void> 
-  <void property="mobility"> 
-   <int>1</int> 
-  </void> 
+  </void>  
     <void property="pause_time"> 
    <int>5</int> 
   </void> 
   <void property="granularity"> 
    <int>5</int> 
   </void> 
+  <void property="segmentFile"> 
+   <string>swanspp/suffolk/segments.dat</string> 
+  </void> 
+    <void property="streetFile"> 
+   <string>swanspp/suffolk/names.dat</string> 
+  </void> 
+    <void property="shapeFile"> 
+   <string>swanspp/suffolk/chains.dat</string> 
+  </void> 
+  <void property="degree"> 
+   <int>4</int> 
+  </void> 
+  <void property="probability"> 
+   <double>0.3</double> 
+  </void> 
+    <void property="minLat"> 
+   <float>42.36134</float> 
+  </void> 
+  <void property="minLong"> 
+   <float>-71.05870</float> 
+  </void> 
+      <void property="maxLat"> 
+   <float>42.36808</float> 
+  </void> 
+  <void property="maxLong"> 
+   <float>-71.05024</float> 
+  </void>
   
    <!-- node options -->
    <void property="nodes"> 
-   <int>50</int> 
+   <int>6</int> 
   </void> 
    <void property="transmitters"> 
-   <int>10</int> 
+   <int>6</int> 
   </void> 
     <void property="sendRate"> 
    <double>1.0</double> 
@@ -77,10 +101,10 @@
    <int>2</int> 
   </void> 
    <void property="fieldX"> 
-   <int>673</int> 
+   <int>90</int> 
   </void> 
   <void property="fieldY"> 
-   <int>703</int> 
+   <int>90</int> 
   </void> 
 
  <!-- visualization options -->

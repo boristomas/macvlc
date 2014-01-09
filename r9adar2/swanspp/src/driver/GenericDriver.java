@@ -116,6 +116,7 @@ public class GenericDriver {
 	public static String MACprotocolBoris ="MACprotocolBoris";
 	public static String MACprotocolMate="MACprotocolMate";
 	public static String MACprotocol802_11="MACprotocol802_11";
+	public static float setBearing = 0;
 	/**
 	 * Add node to the field and start it.
 	 *
@@ -148,8 +149,9 @@ public class GenericDriver {
 		if (nodes != null) {
 			// radio
 			location = place.getNextLocation();//bt
-			radio = new RadioVLC(i, radioInfo, location);
-
+			setBearing = (setBearing+ 45)%360; 
+			radio = new RadioVLC(i, radioInfo, Constants.SNR_THRESHOLD_DEFAULT, location, setBearing);
+			//System.out.println("new radio bt "+ setBearing);
 			/*bt          switch (je.radioNoiseType) {
             case Constants.RADIO_NOISE_INDEP:
                 radio = new RadioNoiseIndep(i, radioInfo);
@@ -595,6 +597,7 @@ public class GenericDriver {
 
 		case Constants.PLACEMENT_GRID:
 			je.setPlacementOpts("");
+		//	smr = (StreetMobility) mobility;
 			place = new Placement.Grid(je.field, je.placementOpts);
 
 			break;

@@ -24,9 +24,14 @@ public class Vizbt {
 			}
 		});
 	}
+	private Graphics defGraph = null;
 	public Graphics getGraph()
 	{
-		return frame.getGraphics();
+		if(defGraph == null)
+		{
+			defGraph =  frame.getGraphics();
+		}
+		return defGraph;
 	}
 
 	/**
