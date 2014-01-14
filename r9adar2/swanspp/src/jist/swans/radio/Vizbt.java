@@ -24,6 +24,12 @@ public class Vizbt {
 			}
 		});
 	}
+	
+	public void BringToFront()
+	{
+		this.frame.toFront();
+	}
+	
 	private Graphics defGraph = null;
 	public Graphics getGraph()
 	{

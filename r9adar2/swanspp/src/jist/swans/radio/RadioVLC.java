@@ -40,11 +40,11 @@ public final class RadioVLC extends RadioNoise
 {
 	//širina: 1,7 +-0.3
 	//dužina: 5+-0.5
-	private float vehicleDevLength = 0.5F ;
-	private float vehicleLength =15.0F;//5
+	private float vehicleDevLength =0;// 0.5F ;
+	private float vehicleLength =50.0F;//5
 
-	private float vehicleDevWidth =0.3F;
-	private float vehicleWidth = 11.7F;//1,7
+	private float vehicleDevWidth =0;//0.3F;
+	private float vehicleWidth = 50.0F;//1,7
 	public int NodeID;
 	//public Location currentLocation;
 	private Location newLocation;//used to store new location
@@ -128,8 +128,8 @@ public final class RadioVLC extends RadioNoise
 		public void UpdateShape(Location NodeLocation, float NodeBearing)
 		{
 			sensorBearingNotRelative = NodeBearing + sensorBearing;
-
-			sensorLocation = rotatePoint(NodeLocation.getX()+ offsetX, NodeLocation.getY()+ offsetY, NodeLocation, sensorBearingNotRelative); //new Location.Location2D(tmpx, tmpy);//start.
+			
+			sensorLocation = rotatePoint(NodeLocation.getX()+ offsetX, NodeLocation.getY()+ offsetY, NodeLocation, NodeBearing); //new Location.Location2D(tmpx, tmpy);//start.
 			sensorLocation1 = getVLCCornerPoint(sensorBearingNotRelative - (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
 			sensorLocation2 = getVLCCornerPoint(sensorBearingNotRelative + (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
 			//			if(node.NodeID == nodeidtst)
@@ -141,7 +141,7 @@ public final class RadioVLC extends RadioNoise
 				if(mode == SensorModes.Receive)
 				{
 
-			//		GenericDriver.btviz.getGraph().setColor(Color.yellow);
+					GenericDriver.btviz.getGraph().setColor(Color.yellow);
 				}
 				else
 				{
@@ -257,23 +257,24 @@ public final class RadioVLC extends RadioNoise
 		//System.out.println("bt bearing start nid "+NodeID + " - "+ vehicleStaticBearing);
 		startLocation = location;
 		//offsets are half length from center point to edge of vehicle. example vehicle length is 5m and width is 2m. xoffset is 2.5 and yoffset is 1. if
-		offsetx = (float) ((vehicleLength + (rand.nextFloat()*2*vehicleDevLength)-vehicleDevLength)/2);
-		offsety = (float) ((vehicleWidth + (rand.nextFloat()*2*vehicleDevWidth)-vehicleDevWidth)/2);
-				checkLocation(true);
-
-
-		//left
+		//offsetx = (float) ((vehicleLength + (rand.nextFloat()*2*vehicleDevLength)-vehicleDevLength)/2);
+		//offsety = (float) ((vehicleWidth + (rand.nextFloat()*2*vehicleDevWidth)-vehicleDevWidth)/2);
+		offsetx = (float) ((JistExperiment.getJistExperiment().getVehicleLength() + (rand.nextFloat()*2*JistExperiment.getJistExperiment().getVehicleLengthDev())-JistExperiment.getJistExperiment().getVehicleLengthDev())/2);
+		offsety = (float) ((JistExperiment.getJistExperiment().getVehicleWidth() + (rand.nextFloat()*2*JistExperiment.getJistExperiment().getVehicleWidthDev())-JistExperiment.getJistExperiment().getVehicleWidthDev())/2);
+		
+		checkLocation(true);
+		//right
 		sensorsTx.add(new VLCsensor(1, this, lineOfSight, 70, location, offsetx, offsety, 0, SensorModes.Send));//front Tx
 		sensorsRx.add(new VLCsensor(2, this, lineOfSight, 70, location, offsetx, offsety, 0, SensorModes.Receive));//front Rx
 		sensorsTx.add(new VLCsensor(3, this, lineOfSight, 70, location, -1*offsetx, offsety, 180, SensorModes.Send));//back Tx
 		sensorsRx.add(new VLCsensor(4, this, lineOfSight, 70, location, -1*offsetx, offsety, 180, SensorModes.Receive));//back Rx
 
-		//right
+		//left
 		sensorsTx.add(new VLCsensor(5, this, lineOfSight, 70, location, offsetx, -1*offsety, 0, SensorModes.Send));//front Tx
 		sensorsRx.add(new VLCsensor(6, this, lineOfSight, 70, location, offsetx, -1*offsety, 0, SensorModes.Receive));//front Rx
 		sensorsTx.add(new VLCsensor(7, this, lineOfSight, 70, location, -1*offsetx, -1*offsety, 180, SensorModes.Send));//back Tx
 		sensorsRx.add(new VLCsensor(8, this, lineOfSight, 70, location, -1*offsetx, -1*offsety, 180, SensorModes.Receive));//back Rx
-		//checkLocation(true);
+	//	checkLocation(true);
 	}
 
 	public VLCsensor getSensorByID(int id)
@@ -430,8 +431,9 @@ public final class RadioVLC extends RadioNoise
 			//TODO: maknuti ovo nodeidtst jer sluzi samo za testiranje vizualizacije.
 			GenericDriver.btviz.getGraph().setColor(Color.black);
 			GenericDriver.btviz.getGraph().fillPolygon(outlineShape);//.drawRect((int)tmpx1, (int)tmpy1, 20 , 20);
-//			GenericDriver.btviz.getGraph().setColor(Color.red);
-	//		GenericDriver.btviz.getGraph().drawString(""+NodeID, (int)Ax+5, (int)Ay+5);
+			GenericDriver.btviz.getGraph().setColor(Color.red);
+			GenericDriver.btviz.getGraph().fillOval((int)NodeLocation.getX(), (int)NodeLocation.getY(), 1, 1);
+//		GenericDriver.btviz.getGraph().drawString(""+NodeID, (int)Ax+5, (int)Ay+5);
 		}
 	}
 

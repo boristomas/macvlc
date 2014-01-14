@@ -174,6 +174,13 @@ public class JistExperiment implements JistAPI.DoNotRewrite
     /** lane change model for street mobility */
     public int laneChangeModel = 0;
 
+    public String StaticPlacementOptions;
+    
+    public float VehicleLength=0;
+    public float VehicleWidth =0;
+    public float VehicleLengthDev =0;
+    public float VehicleWidthDev =0;
+    
     // link-layer settings
 	/** mac protocol */
 	public int mac = Constants.MAC_802_11;
@@ -424,6 +431,48 @@ public class JistExperiment implements JistAPI.DoNotRewrite
 	
     public static JistExperiment getJistExperiment(){
         return activeInstance;
+    }
+    
+    public String getStaticPlacementOptions()
+    {
+    	return StaticPlacementOptions;
+    }
+    public void setStaticPlacementOptions( String staticPlacementOptions)
+    {
+    	this.StaticPlacementOptions = staticPlacementOptions;
+    }
+    
+    public float getVehicleLength()
+    {
+    	return VehicleLength;
+    }
+    public void setVehicleLength( float vehicleLength)
+    {
+    	this.VehicleLength = vehicleLength;
+    }
+    public float getVehicleWidth()
+    {
+    	return VehicleWidth;
+    }
+    public void setVehicleWidth( float vehicleWidth)
+    {
+    	this.VehicleWidth = vehicleWidth;
+    }
+    public float getVehicleLengthDev()
+    {
+    	return VehicleLengthDev;
+    }
+    public void setVehicleLengthDev( float vehicleLengthDev)
+    {
+    	this.VehicleLengthDev = vehicleLengthDev;
+    }
+    public float getVehicleWidthDev()
+    {
+    	return VehicleWidthDev;
+    }
+    public void setVehicleWidthDev( float vehicleWidthDev)
+    {
+    	this.VehicleWidthDev = vehicleWidthDev;
     }
     
 	/**

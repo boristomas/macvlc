@@ -1,127 +1,143 @@
-<?xml version="1.0" encoding="UTF-8"?> 
-<java version="1.4.2_05" class="java.beans.XMLDecoder"> 
- <object class="driver.JistExperiment"> 
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.4.2_05" class="java.beans.XMLDecoder">
+	<object class="driver.JistExperiment">
 
- <!-- timing -->
-  <void property="duration"> 
-   <int>90</int> 
-  </void> 
-  <void property="resolutionTime"> 
-   <int>60</int> 
-  </void> 
-  <void property="startTime"> 
-   <int>60</int> 
-  </void> 
+		<!-- timing -->
+		<void property="duration">
+			<int>90</int>
+		</void>
+		<void property="resolutionTime">
+			<int>60</int>
+		</void>
+		<void property="startTime">
+			<int>60</int>
+		</void>
 
- <!-- environment -->
-  <void property="exponent"> 
-   <double>2.8</double> 
-  </void> 
-  <void property="stdDeviation"> 
-   <double>0.0</double> 
-  </void> 
-    <void property="loss"> 
-   <int>0</int> 
-  </void>
-  <void property="pathloss"> 
-   <int>1</int> 
-  </void> 
-  <void property="transmit"> 
-   <double>50</double> 
-  </void> 
+		<!-- environment -->
+		<void property="exponent">
+			<double>2.8</double>
+		</void>
+		<void property="stdDeviation">
+			<double>0.0</double>
+		</void>
+		<void property="loss">
+			<int>0</int>
+		</void>
+		<void property="pathloss">
+			<int>1</int>
+		</void>
+		<void property="transmit">
+			<double>50</double>
+		</void>
 
-   <!-- mobility options -->
-  <void property="mobility"> 
-   <int>1</int> 
-  </void> 
-  <void property="max_speed"> 
-   <int>20</int> 
-  </void> 
-  <void property="min_speed"> 
-   <int>1</int> 
-  </void>  
-    <void property="pause_time"> 
-   <int>5</int> 
-  </void> 
-  <void property="granularity"> 
-   <int>5</int> 
-  </void> 
-  <void property="segmentFile"> 
-   <string>swanspp/suffolk/segments.dat</string> 
-  </void> 
-    <void property="streetFile"> 
-   <string>swanspp/suffolk/names.dat</string> 
-  </void> 
-    <void property="shapeFile"> 
-   <string>swanspp/suffolk/chains.dat</string> 
-  </void> 
-  <void property="degree"> 
-   <int>4</int> 
-  </void> 
-  <void property="probability"> 
-   <double>0.3</double> 
-  </void> 
-    <void property="minLat"> 
-   <float>42.36134</float> 
-  </void> 
-  <void property="minLong"> 
-   <float>-71.05870</float> 
-  </void> 
-      <void property="maxLat"> 
-   <float>42.36808</float> 
-  </void> 
-  <void property="maxLong"> 
-   <float>-71.05024</float> 
-  </void>
-  
-   <!-- node options -->
-   <void property="nodes"> 
-   <int>6</int> 
-  </void> 
-   <void property="transmitters"> 
-   <int>6</int> 
-  </void> 
-    <void property="sendRate"> 
-   <double>1.0</double> 
-  </void> 
-  
-   <!-- placement options -->
-   <void property="placement"> 
-   <int>2</int> 
-  </void> 
-    <void property="spatial_mode"> 
-   <int>2</int> 
-  </void> 
+		<!-- mobility options -->
+		<void property="mobility">
+			<int>1</int>
+		</void>
+		<void property="max_speed">
+			<int>20</int>
+		</void>
+		<void property="min_speed">
+			<int>1</int>
+		</void>
+		<void property="pause_time">
+			<int>5</int>
+		</void>
+		<void property="granularity">
+			<int>5</int>
+		</void>
+		<void property="segmentFile">
+			<string>swanspp/suffolk/segments.dat</string>
+		</void>
+		<void property="streetFile">
+			<string>swanspp/suffolk/names.dat</string>
+		</void>
+		<void property="shapeFile">
+			<string>swanspp/suffolk/chains.dat</string>
+		</void>
+		<void property="degree">
+			<int>4</int>
+		</void>
+		<void property="probability">
+			<double>0.3</double>
+		</void>
+		<void property="minLat">
+			<float>42.36134</float>
+		</void>
+		<void property="minLong">
+			<float>-71.05870</float>
+		</void>
+		<void property="maxLat">
+			<float>42.36808</float>
+		</void>
+		<void property="maxLong">
+			<float>-71.05024</float>
+		</void>
 
-   <!-- field options -->
-   <void property="placement"> 
-   <int>2</int> 
-  </void> 
-    <void property="spatial_mode"> 
-   <int>2</int> 
-  </void> 
-   <void property="fieldX"> 
-   <int>90</int> 
-  </void> 
-  <void property="fieldY"> 
-   <int>90</int> 
-  </void> 
+		<!-- node options -->
+		<void property="nodes">
+			<int>6</int>
+		</void>
+		<void property="transmitters">
+			<int>6</int>
+		</void>
+		<void property="sendRate">
+			<double>1.0</double>
+		</void>
 
- <!-- visualization options -->
-  <void property="useVisualizer"> 
-   <boolean>true</boolean> 
-  </void> 
+		<!-- placement options -->
+		<void property="placement">
+			<int>2</int>
+		</void>
+		<void property="spatial_mode">
+			<int>2</int>
+		</void>
+		<void property="StaticPlacementOptions">
+			<string>100,100,0;150,150,0;200,200,0;250,250,0;300,300,0;350,350,0</string>
+			<!--<string>100,100;150,150;200,200;200,200;200,200;200,200</string> -->
+			<!--<string>100,100;150,150;200,200;200,200;200,200;200,200</string> -->
+		</void>
+		<void property="VehicleLength">
+			<float>50</float>
+		</void>
+		<void property="VehicleWidth">
+			<float>50</float>
+		</void>
+		<void property="VehicleLengthDev">
+			<float>20</float>
+		</void>
+		<void property="VehicleWidthDev">
+			<float>20</float>
+		</void>
+		<!-- field options -->
+		<void property="placement">
+			<int>2</int>
+		</void>
+		<void property="spatial_mode">
+			<int>2</int>
+		</void>
+		<void property="fieldX">
+			<int>90</int>
+		</void>
+		<void property="fieldY">
+			<int>90</int>
+		</void>
+
+		<!-- visualization options -->
+		<void property="useVisualizer">
+			<boolean>true</boolean>
+		</void>
 
 
-  <!-- other options -->
-  <void property="port"> 
-   <int>3001</int> 
-  </void> 
-  <void property="protocol"> 
-   <int>123</int> 
-  </void> 
-    <void property="help"> 
-   <boolean>false</boolean> 
-  </void> 
- </object> 
+		<!-- other options -->
+		<void property="port">
+			<int>3001</int>
+		</void>
+		<void property="protocol">
+			<int>123</int>
+		</void>
+		<void property="help">
+			<boolean>false</boolean>
+		</void>
+	</object>
 </java> 

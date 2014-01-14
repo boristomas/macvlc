@@ -31,6 +31,7 @@
  */
 package driver;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.io.BufferedReader;
@@ -141,16 +142,11 @@ public class GenericDriver {
 			Mobility mobility, VisualizerInterface v) {
 		RadioNoise radio;
 		Location location;
-		if(btviz == null)
-		{
-			btviz = new Vizbt();
-			((Graphics2D)btviz.getGraph()).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		}
+
 		if (nodes != null) {
 			// radio
 			location = place.getNextLocation();//bt
-			setBearing = (setBearing+ 45)%360; 
-			radio = new RadioVLC(i, radioInfo, Constants.SNR_THRESHOLD_DEFAULT, location, setBearing);
+			radio = new RadioVLC(i, radioInfo, Constants.SNR_THRESHOLD_DEFAULT, location, ((Location.Location2D)location).StaticBearing);
 			//System.out.println("new radio bt "+ setBearing);
 			/*bt          switch (je.radioNoiseType) {
             case Constants.RADIO_NOISE_INDEP:
@@ -522,6 +518,7 @@ public class GenericDriver {
 		}
 
 		je.visualizer = v;
+		btviz.BringToFront();
 
 		// initialize field
 		Field field = new Field(spatial, new Fading.None(), pl, mobility,
@@ -598,8 +595,7 @@ public class GenericDriver {
 		case Constants.PLACEMENT_GRID:
 			je.setPlacementOpts("");
 		//	smr = (StreetMobility) mobility;
-			place = new Placement.Grid(je.field, je.placementOpts);
-
+			place = new Placement.Grid(je.field, je.StaticPlacementOptions);//bt je.placementOpts); //make sure number of locations matches number of nodes
 			break;
 
 		case Constants.PLACEMENT_STREET_RANDOM:
@@ -1103,6 +1099,7 @@ public class GenericDriver {
 	 */
 	public static void main(String[] args) {
 		try {
+						
 			final JistExperiment je = (JistExperiment) (Util.readObject(args[0]));
 
 			// constructs a new 2D field based on input
@@ -1135,11 +1132,19 @@ public class GenericDriver {
 			// final RouteZrp.ZrpStats zrpStats = new RouteZrp.ZrpStats();
 
 			final Date startTime = new Date();
-
+			if(btviz == null)
+			{
+				btviz = new Vizbt();
+				((Graphics2D)btviz.getGraph()).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				btviz.getGraph().setColor(Color.RED);
+	//			btviz.getGraph().fillRect(150, 10, 100, 100);
+			}
 			buildField(je, nodes);
 
 			//         final String name = args[0];
 
+		
+			
 			JistAPI.runAt(new Runnable() {
 				public void run() {
 					showStats(nodes, je, startTime, freeMemory);
