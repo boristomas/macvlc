@@ -93,21 +93,21 @@
 			<int>2</int>
 		</void>
 		<void property="StaticPlacementOptions">
-			<string>100,100,0;150,150,0;200,200,0;250,250,0;300,300,0;350,350,0</string>
+			<string>100,100,0;100,105,0;100,110,0;105,100,0;105,105,0;105,110,0</string>
 			<!--<string>100,100;150,150;200,200;200,200;200,200;200,200</string> -->
 			<!--<string>100,100;150,150;200,200;200,200;200,200;200,200</string> -->
 		</void>
 		<void property="VehicleLength">
-			<float>50</float>
+			<float>5</float>
 		</void>
 		<void property="VehicleWidth">
-			<float>50</float>
+			<float>1.7</float>
 		</void>
 		<void property="VehicleLengthDev">
-			<float>20</float>
+			<float>0.5</float>
 		</void>
 		<void property="VehicleWidthDev">
-			<float>20</float>
+			<float>0.3</float>
 		</void>
 		<!-- field options -->
 		<void property="placement">

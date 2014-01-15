@@ -40,11 +40,11 @@ public final class RadioVLC extends RadioNoise
 {
 	//širina: 1,7 +-0.3
 	//dužina: 5+-0.5
-	private float vehicleDevLength =0;// 0.5F ;
-	private float vehicleLength =50.0F;//5
+//	private float vehicleDevLength =0;// 0.5F ;
+//	private float vehicleLength =50.0F;//5
 
-	private float vehicleDevWidth =0;//0.3F;
-	private float vehicleWidth = 50.0F;//1,7
+	//private float vehicleDevWidth =0;//0.3F;
+//	private float vehicleWidth = 50.0F;//1,7
 	public int NodeID;
 	//public Location currentLocation;
 	private Location newLocation;//used to store new location
@@ -132,7 +132,7 @@ public final class RadioVLC extends RadioNoise
 			sensorLocation = rotatePoint(NodeLocation.getX()+ offsetX, NodeLocation.getY()+ offsetY, NodeLocation, NodeBearing); //new Location.Location2D(tmpx, tmpy);//start.
 			sensorLocation1 = getVLCCornerPoint(sensorBearingNotRelative - (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
 			sensorLocation2 = getVLCCornerPoint(sensorBearingNotRelative + (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
-			//			if(node.NodeID == nodeidtst)
+			if(node.NodeID == nodeidtst)
 			{
 				poly = new Polygon();
 				poly.addPoint((int)sensorLocation.getX(), (int)sensorLocation.getY());
@@ -148,7 +148,7 @@ public final class RadioVLC extends RadioNoise
 					GenericDriver.btviz.getGraph().setColor(Color.red);
 				}
 				GenericDriver.btviz.getGraph().drawPolygon(poly);
-				//System.out.println("draw bt "+ sensorBearingNotRelative + " - "+(int)sensorLocation.getX() + " "+ (int)sensorLocation.getY() + " " +(int)sensorLocation1.getX() + " "+ (int)sensorLocation1.getY() +" " +(int)sensorLocation2.getX() + " "+ (int)sensorLocation2.getY()  );
+			//	System.out.println("draw bt "+ sensorBearingNotRelative + " - nb= "+NodeBearing+" - "+(int)sensorLocation.getX() + " "+ (int)sensorLocation.getY() + " " +(int)sensorLocation1.getX() + " "+ (int)sensorLocation1.getY() +" " +(int)sensorLocation2.getX() + " "+ (int)sensorLocation2.getY()  );
 			}
 		}
 
@@ -250,6 +250,10 @@ public final class RadioVLC extends RadioNoise
 		 */
 		super(id, sharedInfo);
 		this.NodeID = id;
+		if(nodeidtst == -1)
+		{
+			nodeidtst = id;
+		}
 		setThresholdSNR(thresholdSNR);
 
 		Random rand = new Random();
@@ -424,8 +428,8 @@ public final class RadioVLC extends RadioNoise
 				nodeidtst = NodeID;
 			}
 		}
-
-		if(NodeID == nodeidtst)*/
+*/
+		if(NodeID == nodeidtst)
 		if(isStartCheck)
 		{
 			//TODO: maknuti ovo nodeidtst jer sluzi samo za testiranje vizualizacije.

@@ -145,7 +145,7 @@ public abstract class Location implements JistAPI.Timeless, Cloneable
 
   public static final class Location2D extends Location
   {
-	  public float StaticBearing = 0;
+	  public float StaticBearing = -1;
     /** co-ordinates. */
     private float x, y, height;
 
