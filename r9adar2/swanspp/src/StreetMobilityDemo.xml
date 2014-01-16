@@ -35,7 +35,6 @@
 			<int>6</int>
 		</void>
 
-		<!--street specific ops -->
 		<void property="degree">
 			<int>4</int>
 		</void>

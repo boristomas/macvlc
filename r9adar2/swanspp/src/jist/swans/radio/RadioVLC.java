@@ -132,7 +132,7 @@ public final class RadioVLC extends RadioNoise
 			sensorLocation = rotatePoint(NodeLocation.getX()+ offsetX, NodeLocation.getY()+ offsetY, NodeLocation, NodeBearing); //new Location.Location2D(tmpx, tmpy);//start.
 			sensorLocation1 = getVLCCornerPoint(sensorBearingNotRelative - (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
 			sensorLocation2 = getVLCCornerPoint(sensorBearingNotRelative + (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
-			if(node.NodeID == nodeidtst)
+		//	if(node.NodeID == nodeidtst)
 			{
 				poly = new Polygon();
 				poly.addPoint((int)sensorLocation.getX(), (int)sensorLocation.getY());
@@ -429,7 +429,7 @@ public final class RadioVLC extends RadioNoise
 			}
 		}
 */
-		if(NodeID == nodeidtst)
+	//	if(NodeID == nodeidtst)
 		if(isStartCheck)
 		{
 			//TODO: maknuti ovo nodeidtst jer sluzi samo za testiranje vizualizacije.

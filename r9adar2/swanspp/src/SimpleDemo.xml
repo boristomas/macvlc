@@ -34,6 +34,7 @@
 		<void property="mobility">
 			<int>1</int>
 		</void>
+		
 		<void property="max_speed">
 			<int>20</int>
 		</void>
@@ -116,12 +117,13 @@
 		<void property="spatial_mode">
 			<int>2</int>
 		</void>
-		<void property="fieldX">
+	<!-- 	<void property="fieldX">
 			<int>90</int>
 		</void>
 		<void property="fieldY">
 			<int>90</int>
 		</void>
+		-->
 
 		<!-- visualization options -->
 		<void property="useVisualizer">
