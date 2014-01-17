@@ -77,10 +77,10 @@
 
 		<!-- node options -->
 		<void property="nodes">
-			<int>6</int>
+			<int>3</int>
 		</void>
 		<void property="transmitters">
-			<int>6</int>
+			<int>3</int>
 		</void>
 		<void property="sendRate">
 			<double>1.0</double>
@@ -94,21 +94,25 @@
 			<int>2</int>
 		</void>
 		<void property="StaticPlacementOptions">
-			<string>100,100,0;100,105,0;100,110,0;105,100,0;105,105,0;105,110,0</string>
-			<!--<string>100,100;150,150;200,200;200,200;200,200;200,200</string> -->
+<!-- 		<string>100,100,0;100,105,0;100,110,0;105,100,0;105,105,0;105,110,0</string>-->
+			<string>100,100,0;175,175,0;175,90,0</string>
 			<!--<string>100,100;150,150;200,200;200,200;200,200;200,200</string> -->
 		</void>
 		<void property="VehicleLength">
-			<float>5</float>
+			<float>50</float>
+			<!-- 5 -->
 		</void>
 		<void property="VehicleWidth">
-			<float>1.7</float>
+			<float>20</float>
+						<!-- 1.7 -->
 		</void>
 		<void property="VehicleLengthDev">
-			<float>0.5</float>
+			<float>0</float>
+						<!-- 0.5 -->
 		</void>
 		<void property="VehicleWidthDev">
-			<float>0.3</float>
+			<float>0</float>
+						<!-- 0.3 -->
 		</void>
 		<!-- field options -->
 		<void property="placement">

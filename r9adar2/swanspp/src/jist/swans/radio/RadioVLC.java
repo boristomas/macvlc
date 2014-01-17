@@ -91,7 +91,7 @@ public final class RadioVLC extends RadioNoise
 		}
 
 		/**
-		 * Gets signal value, if it is not clear (multiple signals) value is 255.
+		 * Gets signal value, if it is not clear (multiple signals) value is 127.
 		 * @return
 		 */
 		public byte getSignalValue()
@@ -99,7 +99,7 @@ public final class RadioVLC extends RadioNoise
 			return signalValue;
 		}
 		/**
-		 * Sets signal value, do not use 255 as value.
+		 * Sets signal value, do not use 127 as value.
 		 * @param value
 		 */
 		public void setSignalValue(byte value, int sensorID)
@@ -141,7 +141,7 @@ public final class RadioVLC extends RadioNoise
 		private float sensorBearingNotRelative;
 		private float stickOut = 0.001F; //1cm
 
-		private byte controlSignal;
+		private byte controlSignal =0;
 
 		public VLCsensor(int sensorID, RadioVLC node, float distancelimit, float visionAngle,Location originalLoc, float offsetX, float offsetY, float bearing, SensorModes mode) 
 		{
@@ -202,12 +202,15 @@ public final class RadioVLC extends RadioNoise
 				{
 
 					GenericDriver.btviz.getGraph().setColor(Color.yellow);
-				}
+			/*	}
 				else
 				{
 					GenericDriver.btviz.getGraph().setColor(Color.red);
-				}
+				}*/
 				GenericDriver.btviz.getGraph().drawPolygon(poly);
+				GenericDriver.btviz.getGraph().setColor(Color.cyan);
+				GenericDriver.btviz.getGraph().drawString(""+sensorID, (int)sensorLocation.getX()+5, (int)sensorLocation.getY());
+			}
 				//	System.out.println("draw bt "+ sensorBearingNotRelative + " - nb= "+NodeBearing+" - "+(int)sensorLocation.getX() + " "+ (int)sensorLocation.getY() + " " +(int)sensorLocation1.getX() + " "+ (int)sensorLocation1.getY() +" " +(int)sensorLocation2.getX() + " "+ (int)sensorLocation2.getY()  );
 			}
 		}
@@ -339,6 +342,11 @@ public final class RadioVLC extends RadioNoise
 		sensorsTx.add(new VLCsensor(7, this, lineOfSight, 70, location, -1*offsetx, -1*offsety, 180, SensorModes.Send));//back Tx
 		sensorsRx.add(new VLCsensor(8, this, lineOfSight, 70, location, -1*offsetx, -1*offsety, 180, SensorModes.Receive));//back Rx
 		//	checkLocation(true);
+		//if((id % 2) == 0)
+		{
+			this.setControlSignal((byte)2, 7);
+			this.setControlSignal((byte)8, 3);
+		}
 	}
 
 	public VLCsensor getSensorByID(int id)
@@ -391,18 +399,23 @@ public final class RadioVLC extends RadioNoise
 	private VLCsensor tmpsensor;
 	/**
 	 * sets Control signal for current radio and sensor
-	 * do not use values 0 and 255.
+	 * do not use values less than 0 and 127.
 	 * @param value
 	 */
 	public void setControlSignal(byte signalValue, int sensorID)
 	{
-		if(signalValue == 0 || signalValue == 255)
+		if(signalValue <= 0 || signalValue == 127)
 		{
-			throw new RuntimeException("invalid values: 0 and 255");
+			throw new RuntimeException("invalid values: less than 0 and 127");
 		}
 		tmpsensor = getSensorByID(sensorID);
+		
 		if(tmpsensor != null)
 		{
+			if(tmpsensor.mode != SensorModes.Send)
+			{
+				throw new RuntimeException("Signal can not be set to non sending sensor. change sensor to set signal.");
+			}
 			tmpsensor.controlSignal = signalValue;
 		}
 	}
@@ -446,12 +459,12 @@ public final class RadioVLC extends RadioNoise
 				throw new RuntimeException("sensor mode is not receiving");
 			}
 			this.checkLocation(false);//updating location of the node and sensors and bearings etc
-			for (Integer[] node : getRangeAreaNodesAndSensors(this.NodeID,SensorModes.Send, sensorID)) 
+			for (Integer[] node : getRangeAreaNodesAndSensors(this.NodeID,SensorModes.Receive, sensorID)) 
 			{
 				tmpVal = Field.getRadioData(node[0]).vlcdevice.getControlSignal(node[1]);	
-				if(tmpVal != 0 && returnValue != 0)
+				if(tmpVal > 0 && returnValue > 0)
 				{
-					returnValue= (byte)255;
+					returnValue= (byte)127;
 					break;//exit and return jam
 				}
 				returnValue = tmpVal;
@@ -559,8 +572,8 @@ public final class RadioVLC extends RadioNoise
 			GenericDriver.btviz.getGraph().setColor(Color.black);
 			GenericDriver.btviz.getGraph().fillPolygon(outlineShape);//.drawRect((int)tmpx1, (int)tmpy1, 20 , 20);
 			GenericDriver.btviz.getGraph().setColor(Color.red);
-			GenericDriver.btviz.getGraph().fillOval((int)NodeLocation.getX(), (int)NodeLocation.getY(), 1, 1);
-			//		GenericDriver.btviz.getGraph().drawString(""+NodeID, (int)Ax+5, (int)Ay+5);
+			GenericDriver.btviz.getGraph().drawString(""+NodeID, (int)NodeLocation.getX(), (int)NodeLocation.getY());
+			//GenericDriver.btviz.getGraph().setColor(Color.red);
 		}
 	}
 
@@ -668,6 +681,7 @@ public final class RadioVLC extends RadioNoise
 		if(mode==Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio already transmitting");
 		// clear receive buffer
 		checkLocation(false);
+		System.out.println("nid = " +NodeID+ " lx= "+this.NodeLocation.getX()+" ly= "+this.NodeLocation.getY()+" Csignal  = " + this.queryControlSignal(2));
 
 		assert(signalBuffer==null);
 		signalBuffer = null;
@@ -866,7 +880,7 @@ public final class RadioVLC extends RadioNoise
 	/**
 	 * Gets the list of nodeIDs that source can see
 	 * @param SourceNodeID
-	 * @param sensorID use senorID = -1 to check all sensors. setting to specific sensor will check only for that sensor.
+	 * @param sensorID use sensorID = -1 to check all sensors. setting to specific sensor will check only for that sensor.
 	 * @return
 	 */
 	private HashSet<Integer[]> getRangeAreaNodesAndSensors(int SourceNodeID, SensorModes mode, int sensorID)
@@ -876,7 +890,8 @@ public final class RadioVLC extends RadioNoise
 		HashSet<Integer[]> returnNodes = new HashSet<Integer[]>();
 		LinkedList<RadioVLC.VLCsensor> sensors1 = new LinkedList<RadioVLC.VLCsensor>();
 		LinkedList<RadioVLC.VLCsensor> sensors2 = new LinkedList<RadioVLC.VLCsensor>();
-		for(int i=1;i<JistExperiment.getJistExperiment().getNodes(); i++) 
+		sensors1.add(Field.getRadioData(SourceNodeID).vlcdevice.getSensorByID(sensorID));
+		for(int i=1;i<=JistExperiment.getJistExperiment().getNodes(); i++) 
 		{	
 
 			//BT todo: treba uzeti samo cvorove koji su blizu, za sada sam checkloc stavio za sve!! a to ne valja :( ***
@@ -893,18 +908,19 @@ public final class RadioVLC extends RadioNoise
 					sensors2 = Field.getRadioData(i).vlcdevice.sensorsTx;
 				}
 
-				sensors1.add(Field.getRadioData(SourceNodeID).vlcdevice.getSensorByID(sensorID));
+				
 				for (VLCsensor sensor :sensors1)
 				{
-					if(stopSearch)
-						break;
+					//	if(stopSearch)
+					//	break;
 					for (VLCsensor sensor2 :sensors2)
 					{
 						if(visibleToVLCdevice(sensor2.sensorLocation.getX(), sensor2.sensorLocation.getY(),sensor))// sensor.sensorLocation.getX(), sensor.sensorLocation.getY(), sensor.sensorLocation1.getX(), sensor.sensorLocation1.getY(), sensor.sensorLocation2.getX(), sensor.sensorLocation2.getY()))
 						{
-							stopSearch = true;
-							returnNodes.add( new Integer[]{i,sensor2.sensorID});
-							break;
+						//	stopSearch = true;
+							Integer[] a =new Integer[]{i,sensor2.sensorID};
+							returnNodes.add(a);
+							//break;
 						}
 					}
 				}//for my sensors
@@ -927,7 +943,7 @@ public final class RadioVLC extends RadioNoise
 		HashSet<Integer> returnNodes = new HashSet<Integer>();
 		LinkedList<RadioVLC.VLCsensor> sensors1 = new LinkedList<RadioVLC.VLCsensor>();
 		LinkedList<RadioVLC.VLCsensor> sensors2 = new LinkedList<RadioVLC.VLCsensor>();
-		for(int i=1;i<JistExperiment.getJistExperiment().getNodes(); i++) 
+		for(int i=1;i<=JistExperiment.getJistExperiment().getNodes(); i++) 
 		{	
 			if(SourceNodeID != i)
 			{
