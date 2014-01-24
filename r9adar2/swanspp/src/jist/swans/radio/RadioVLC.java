@@ -72,59 +72,7 @@ public final class RadioVLC extends RadioNoise
 			return code;
 		}
 	}
-	public class ControlSignal
-	{
-		private byte signalValue;
-		private int sensorID;
-		private boolean isClear;
-		/**
-		 * Checks if signal is clear, no collision on control channel.
-		 * @return
-		 */
-		public boolean getIsClear()
-		{
-			return isClear;
-		}
-		public void setIsClear(boolean value)
-		{
-			isClear = value;
-		}
 
-		/**
-		 * Gets signal value, if it is not clear (multiple signals) value is 127.
-		 * @return
-		 */
-		public byte getSignalValue()
-		{
-			return signalValue;
-		}
-		/**
-		 * Sets signal value, do not use 127 as value.
-		 * @param value
-		 */
-		public void setSignalValue(byte value, int sensorID)
-		{
-			signalValue= value;
-			setSensorID(sensorID);
-		}
-		/**
-		 * gest sensorID this signal is set to. (in realcase scenario this value will be unavailable
-		 * @return
-		 */
-		public int getSensorID()
-		{
-			return sensorID;
-		}
-		/**
-		 * Sets sensorID this control signal is sent from.
-		 * @param value
-		 */
-		public void setSensorID(int value)
-		{
-			sensorID = value;
-		}
-
-	}
 	public class VLCsensor
 	{
 		public float distanceLimit = 250;
@@ -202,18 +150,18 @@ public final class RadioVLC extends RadioNoise
 				{
 
 					GenericDriver.btviz.getGraph().setColor(Color.yellow);
-			/*	}
+				}
 				else
 				{
 					GenericDriver.btviz.getGraph().setColor(Color.red);
-				}*/
+				}
 				GenericDriver.btviz.getGraph().drawPolygon(poly);
 				GenericDriver.btviz.getGraph().setColor(Color.cyan);
 				GenericDriver.btviz.getGraph().drawString(""+sensorID, (int)sensorLocation.getX()+5, (int)sensorLocation.getY());
 			}
-				//	System.out.println("draw bt "+ sensorBearingNotRelative + " - nb= "+NodeBearing+" - "+(int)sensorLocation.getX() + " "+ (int)sensorLocation.getY() + " " +(int)sensorLocation1.getX() + " "+ (int)sensorLocation1.getY() +" " +(int)sensorLocation2.getX() + " "+ (int)sensorLocation2.getY()  );
-			}
+			//	System.out.println("draw bt "+ sensorBearingNotRelative + " - nb= "+NodeBearing+" - "+(int)sensorLocation.getX() + " "+ (int)sensorLocation.getY() + " " +(int)sensorLocation1.getX() + " "+ (int)sensorLocation1.getY() +" " +(int)sensorLocation2.getX() + " "+ (int)sensorLocation2.getY()  );
 		}
+
 
 		/**
 		 * This method will need to be called two times. Each call will detect one corner point of the vlc device's view
@@ -332,16 +280,23 @@ public final class RadioVLC extends RadioNoise
 		checkLocation(true);
 		//right
 		sensorsTx.add(new VLCsensor(1, this, lineOfSight, 70, location, offsetx, offsety, 0, SensorModes.Send));//front Tx
-		sensorsRx.add(new VLCsensor(2, this, lineOfSight, 70, location, offsetx, offsety, 0, SensorModes.Receive));//front Rx
-		sensorsTx.add(new VLCsensor(3, this, lineOfSight, 70, location, -1*offsetx, offsety, 180, SensorModes.Send));//back Tx
-		sensorsRx.add(new VLCsensor(4, this, lineOfSight, 70, location, -1*offsetx, offsety, 180, SensorModes.Receive));//back Rx
+		sensorsTx.add(new VLCsensor(2, this, lineOfSight, 70, location, -1*offsetx, offsety, 180, SensorModes.Send));//back Tx
 
 		//left
-		sensorsTx.add(new VLCsensor(5, this, lineOfSight, 70, location, offsetx, -1*offsety, 0, SensorModes.Send));//front Tx
-		sensorsRx.add(new VLCsensor(6, this, lineOfSight, 70, location, offsetx, -1*offsety, 0, SensorModes.Receive));//front Rx
-		sensorsTx.add(new VLCsensor(7, this, lineOfSight, 70, location, -1*offsetx, -1*offsety, 180, SensorModes.Send));//back Tx
-		sensorsRx.add(new VLCsensor(8, this, lineOfSight, 70, location, -1*offsetx, -1*offsety, 180, SensorModes.Receive));//back Rx
+		sensorsTx.add(new VLCsensor(3, this, lineOfSight, 70, location, offsetx, -1*offsety, 0, SensorModes.Send));//front Tx
+		sensorsTx.add(new VLCsensor(4, this, lineOfSight, 70, location, -1*offsetx, -1*offsety, 180, SensorModes.Send));//back Tx
+
+		sensorsRx.add(new VLCsensor(5, this, lineOfSight, 70, location, offsetx, 0, 0, SensorModes.Receive));//front Rx
+		sensorsRx.add(new VLCsensor(6, this, lineOfSight, 70, location, -1*offsetx, 0, 180, SensorModes.Receive));//back Rx
+
+		//	sensorsRx.add(new VLCsensor(6, this, lineOfSight, 70, location, offsetx, -1*offsety, 0, SensorModes.Receive));//front Rx
+		//	sensorsRx.add(new VLCsensor(8, this, lineOfSight, 70, location, -1*offsetx, -1*offsety, 180, SensorModes.Receive));//back Rx
 		//	checkLocation(true);
+		//sensorsRx.add(new VLCsensor(5, this, lineOfSight, 70, location, offsetx, offsety, 0, SensorModes.Receive));//front Rx
+		//sensorsRx.add(new VLCsensor(6, this, lineOfSight, 70, location, -1*offsetx, offsety, 180, SensorModes.Receive));//back Rx
+
+
+
 		//if((id % 2) == 0)
 		{
 			this.setControlSignal((byte)2, 7);
@@ -409,7 +364,7 @@ public final class RadioVLC extends RadioNoise
 			throw new RuntimeException("invalid values: less than 0 and 127");
 		}
 		tmpsensor = getSensorByID(sensorID);
-		
+
 		if(tmpsensor != null)
 		{
 			if(tmpsensor.mode != SensorModes.Send)
@@ -681,7 +636,7 @@ public final class RadioVLC extends RadioNoise
 		if(mode==Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio already transmitting");
 		// clear receive buffer
 		checkLocation(false);
-		System.out.println("nid = " +NodeID+ " lx= "+this.NodeLocation.getX()+" ly= "+this.NodeLocation.getY()+" Csignal  = " + this.queryControlSignal(2));
+		System.out.println("nid = " +NodeID+ " lx= "+this.NodeLocation.getX()+" ly= "+this.NodeLocation.getY()+" Csignal  = " + this.queryControlSignal(5));
 
 		assert(signalBuffer==null);
 		signalBuffer = null;
@@ -908,7 +863,7 @@ public final class RadioVLC extends RadioNoise
 					sensors2 = Field.getRadioData(i).vlcdevice.sensorsTx;
 				}
 
-				
+
 				for (VLCsensor sensor :sensors1)
 				{
 					//	if(stopSearch)
@@ -917,7 +872,7 @@ public final class RadioVLC extends RadioNoise
 					{
 						if(visibleToVLCdevice(sensor2.sensorLocation.getX(), sensor2.sensorLocation.getY(),sensor))// sensor.sensorLocation.getX(), sensor.sensorLocation.getY(), sensor.sensorLocation1.getX(), sensor.sensorLocation1.getY(), sensor.sensorLocation2.getX(), sensor.sensorLocation2.getY()))
 						{
-						//	stopSearch = true;
+							//	stopSearch = true;
 							Integer[] a =new Integer[]{i,sensor2.sensorID};
 							returnNodes.add(a);
 							//break;
