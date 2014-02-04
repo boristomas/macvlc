@@ -20,8 +20,11 @@ import java.util.Vector;
 
 import javax.management.RuntimeErrorException;
 
+import org.apache.derby.impl.sql.execute.HashScanResultSet;
+
 import com.sun.xml.internal.ws.api.PropertySet.Property;
 
+import jist.runtime.Controller;
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.Main;
@@ -89,7 +92,7 @@ public final class RadioVLC extends RadioNoise
 		private float sensorBearingNotRelative;
 		private float stickOut = 0.001F; //1cm
 
-		private byte controlSignal =0;
+		private HashSet<Integer> controlSignal = new HashSet<Integer>();
 
 		public VLCsensor(int sensorID, RadioVLC node, float distancelimit, float visionAngle,Location originalLoc, float offsetX, float offsetY, float bearing, SensorModes mode) 
 		{
@@ -299,8 +302,8 @@ public final class RadioVLC extends RadioNoise
 
 		//if((id % 2) == 0)
 		{
-			this.setControlSignal((byte)2, 7);
-			this.setControlSignal((byte)8, 3);
+			this.setControlSignal(2, 7);
+			this.setControlSignal(2, 3);
 		}
 	}
 
@@ -354,15 +357,15 @@ public final class RadioVLC extends RadioNoise
 	private VLCsensor tmpsensor;
 	/**
 	 * sets Control signal for current radio and sensor
-	 * do not use values less than 0 and 127.
+	 * 
 	 * @param value
 	 */
-	public void setControlSignal(byte signalValue, int sensorID)
+	public void setControlSignal(Integer channelID, int sensorID)
 	{
-		if(signalValue <= 0 || signalValue == 127)
+		/*if(channelID <= 0 || channelID == 127)
 		{
 			throw new RuntimeException("invalid values: less than 0 and 127");
-		}
+		}*/
 		tmpsensor = getSensorByID(sensorID);
 
 		if(tmpsensor != null)
@@ -371,7 +374,7 @@ public final class RadioVLC extends RadioNoise
 			{
 				throw new RuntimeException("Signal can not be set to non sending sensor. change sensor to set signal.");
 			}
-			tmpsensor.controlSignal = signalValue;
+			tmpsensor.controlSignal.add(channelID);
 		}
 	}
 
@@ -379,12 +382,12 @@ public final class RadioVLC extends RadioNoise
 	 * Clears sensor control signal
 	 * @param sensorID
 	 */
-	public void clearControlSignal (int sensorID)
+	public void clearControlSignal (int sensorID, byte channelID)
 	{
 		tmpsensor = getSensorByID(sensorID);
 		if(tmpsensor != null)
 		{
-			tmpsensor.controlSignal = 0;
+			tmpsensor.controlSignal.remove(channelID);
 		}
 	}
 	/**
@@ -392,20 +395,20 @@ public final class RadioVLC extends RadioNoise
 	 * @param sensorID
 	 * @return
 	 */
-	public byte getControlSignal(int sensorID)
+	public boolean getControlSignal(int sensorID, Integer channelID)
 	{
 		tmpsensor = getSensorByID(sensorID);
 		if(tmpsensor != null)
 		{
-			return tmpsensor.controlSignal;
+		 return tmpsensor.controlSignal.contains(channelID);
 		}
-		return 0;
+		return false;
 	}
 
-	public byte queryControlSignal (int sensorID)
+	public boolean queryControlSignal (int sensorID, Integer channelID)
 	{
 		byte returnValue = 0;
-		byte tmpVal =0;
+		boolean tmpVal =false;
 		tmpsensor = getSensorByID(sensorID);
 		if(tmpsensor != null)
 		{
@@ -416,20 +419,24 @@ public final class RadioVLC extends RadioNoise
 			this.checkLocation(false);//updating location of the node and sensors and bearings etc
 			for (Integer[] node : getRangeAreaNodesAndSensors(this.NodeID,SensorModes.Receive, sensorID)) 
 			{
-				tmpVal = Field.getRadioData(node[0]).vlcdevice.getControlSignal(node[1]);	
-				if(tmpVal > 0 && returnValue > 0)
+				tmpVal = Field.getRadioData(node[0]).vlcdevice.getControlSignal(node[1], channelID);	
+				if(tmpVal)
 				{
-					returnValue= (byte)127;
-					break;//exit and return jam
+					return true;
 				}
-				returnValue = tmpVal;
+			//	if(tmpVal > 0 && returnValue > 0)
+				//{
+					//returnValue= (byte)127;
+					//break;//exit and return jam
+				//}
+				//returnValue = tmpVal;
 			}
 		}
 		else
 		{
 			throw new RuntimeException("sensor not found");
 		}
-		return returnValue;		
+		return false;		
 	}
 
 
@@ -620,7 +627,11 @@ public final class RadioVLC extends RadioNoise
 		}
 	}
 
-
+	//bt
+	public long getTime()
+	{
+		return JistAPI.getTime();
+	}
 	//////////////////////////////////////////////////
 	// transmission
 	//
@@ -629,14 +640,13 @@ public final class RadioVLC extends RadioNoise
 	/** {@inheritDoc} */
 	public void transmit(Message msg, long delay, long duration)
 	{
-
 		// radio in sleep mode
 		if(mode==Constants.RADIO_MODE_SLEEP) return;
 		// ensure not currently transmitting
 		if(mode==Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio already transmitting");
 		// clear receive buffer
 		checkLocation(false);
-		System.out.println("nid = " +NodeID+ " lx= "+this.NodeLocation.getX()+" ly= "+this.NodeLocation.getY()+" Csignal  = " + this.queryControlSignal(5));
+		System.out.println("nid = " +NodeID+ " lx= "+this.NodeLocation.getX()+" ly= "+this.NodeLocation.getY()+" Csignal  = " + this.queryControlSignal(5,2));
 
 		assert(signalBuffer==null);
 		signalBuffer = null;
@@ -840,7 +850,8 @@ public final class RadioVLC extends RadioNoise
 	 */
 	private HashSet<Integer[]> getRangeAreaNodesAndSensors(int SourceNodeID, SensorModes mode, int sensorID)
 	{
-		//ne moram sve senzore gledati od send cvora nego samo one koji su u listi, tako se barem malo smanji optereecnje, teorettski dva
+		//ne moram sve senzore gledati od send cvora nego samo one koji su u listi, tako se barem malo smanji optereecnje, 
+		//teorettski dva
 		//puta provjeravam odnose dva senzor cvora!!!!!
 		HashSet<Integer[]> returnNodes = new HashSet<Integer[]>();
 		LinkedList<RadioVLC.VLCsensor> sensors1 = new LinkedList<RadioVLC.VLCsensor>();
