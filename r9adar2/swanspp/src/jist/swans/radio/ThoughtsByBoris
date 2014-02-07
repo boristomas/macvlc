@@ -1,3 +1,10 @@
+--------------------------------------------- 
+Radio should sense how noisy channel is, example, i am the radio and i can sense that there 
+is a lot of Sun radiation blinding my photosensor so i am willingly giving up my time of channel. Also,
+can we use orientation and time of day to predict Sun radiation and eventually compensate somehow, 
+using relay nodes on upper layers? Use joint power of multiple nodes (vehicles) to send message to
+vehicle blinded by Sun?
+ 
 ---------------------------------------------
 A sends to broadcast (-1)
 B is broadcast member.
@@ -33,3 +40,4 @@ treci
 [] []
 [] []
 [] []
+--------------------------------------------- 

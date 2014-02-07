@@ -492,20 +492,27 @@ public class GenericDriver {
 		// pathloss model
 		switch (je.pathloss) {
 		case Constants.PATHLOSS_FREE_SPACE:
+		{
 			pl = new PathLoss.FreeSpace();
 
 			break;
-
+		}
 		case Constants.PATHLOSS_SHADOWING:
-			pl = new PathLoss.Shadowing(je.exponent, je.stdDeviation);
+		{	pl = new PathLoss.Shadowing(je.exponent, je.stdDeviation);
 
 			break;
-
+		}
 		case Constants.PATHLOSS_TWO_RAY:
+		{
 			pl = new PathLoss.TwoRay();
-
 			break;
-
+		}
+		case Constants.PATHLOSS_VLC:
+		{
+			pl = new PathLoss.VLCLink();
+		
+			break;
+		}
 		default:
 			throw new RuntimeException("Unsupported pathloss model!");
 		}

@@ -176,6 +176,8 @@ public class JistExperiment implements JistAPI.DoNotRewrite
 
     public String StaticPlacementOptions;
     
+    public float VLCvisionAngleTx=0;
+    public float VLCvisionAngleRx=0;
     public float VehicleLength=0;
     public float VehicleWidth =0;
     public float VehicleLengthDev =0;
@@ -442,6 +444,25 @@ public class JistExperiment implements JistAPI.DoNotRewrite
     	this.StaticPlacementOptions = staticPlacementOptions;
     }
     
+    public float getVLCvisionAngleTx()
+    {
+    	return VLCvisionAngleTx;
+    }
+    public void setVLCvisionAngleTx( float vLCvisionAngleTx)
+    {
+    	this.VLCvisionAngleTx = vLCvisionAngleTx;
+    } 
+    
+    public float getVLCvisionAngleRx()
+    {
+    	return VLCvisionAngleRx;
+    }
+    
+    public void setVLCvisionAngleRx( float vLCvisionAngleRx)
+    {
+    	this.VLCvisionAngleRx = vLCvisionAngleRx;
+    }
+
     public float getVehicleLength()
     {
     	return VehicleLength;

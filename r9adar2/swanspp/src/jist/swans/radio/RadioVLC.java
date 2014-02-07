@@ -19,6 +19,7 @@ import java.util.Random;
 import java.util.Vector;
 
 import javax.management.RuntimeErrorException;
+import javax.swing.JEditorPane;
 
 import org.apache.derby.impl.sql.execute.HashScanResultSet;
 
@@ -281,16 +282,20 @@ public final class RadioVLC extends RadioNoise
 		offsety = (float) ((JistExperiment.getJistExperiment().getVehicleWidth() + (rand.nextFloat()*2*JistExperiment.getJistExperiment().getVehicleWidthDev())-JistExperiment.getJistExperiment().getVehicleWidthDev())/2);
 
 		checkLocation(true);
+		
+		float visionTx = JistExperiment.getJistExperiment().getVLCvisionAngleTx();
+		float visionRx = JistExperiment.getJistExperiment().getVLCvisionAngleRx();
+		
 		//right
-		sensorsTx.add(new VLCsensor(1, this, lineOfSight, 70, location, offsetx, offsety, 0, SensorModes.Send));//front Tx
-		sensorsTx.add(new VLCsensor(2, this, lineOfSight, 70, location, -1*offsetx, offsety, 180, SensorModes.Send));//back Tx
+		sensorsTx.add(new VLCsensor(1, this, lineOfSight,visionTx , location, offsetx, offsety, 0, SensorModes.Send));//front Tx
+		sensorsTx.add(new VLCsensor(2, this, lineOfSight, visionTx, location, -1*offsetx, offsety, 180, SensorModes.Send));//back Tx
 
 		//left
-		sensorsTx.add(new VLCsensor(3, this, lineOfSight, 70, location, offsetx, -1*offsety, 0, SensorModes.Send));//front Tx
-		sensorsTx.add(new VLCsensor(4, this, lineOfSight, 70, location, -1*offsetx, -1*offsety, 180, SensorModes.Send));//back Tx
+		sensorsTx.add(new VLCsensor(3, this, lineOfSight, visionTx, location, offsetx, -1*offsety, 0, SensorModes.Send));//front Tx
+		sensorsTx.add(new VLCsensor(4, this, lineOfSight, visionTx, location, -1*offsetx, -1*offsety, 180, SensorModes.Send));//back Tx
 
-		sensorsRx.add(new VLCsensor(5, this, lineOfSight, 70, location, offsetx, 0, 0, SensorModes.Receive));//front Rx
-		sensorsRx.add(new VLCsensor(6, this, lineOfSight, 70, location, -1*offsetx, 0, 180, SensorModes.Receive));//back Rx
+		sensorsRx.add(new VLCsensor(5, this, lineOfSight, visionRx, location, offsetx, 0, 0, SensorModes.Receive));//front Rx
+		sensorsRx.add(new VLCsensor(6, this, lineOfSight, visionRx, location, -1*offsetx, 0, 180, SensorModes.Receive));//back Rx
 
 		//	sensorsRx.add(new VLCsensor(6, this, lineOfSight, 70, location, offsetx, -1*offsety, 0, SensorModes.Receive));//front Rx
 		//	sensorsRx.add(new VLCsensor(8, this, lineOfSight, 70, location, -1*offsetx, -1*offsety, 180, SensorModes.Receive));//back Rx

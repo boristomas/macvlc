@@ -68,6 +68,7 @@ public final class Constants
 	public static final int PATHLOSS_FREE_SPACE = 1;
 	public static final int PATHLOSS_SHADOWING = 2;
 	public static final int PATHLOSS_TWO_RAY = 3;
+	public static final int PATHLOSS_VLC =4;
 	//////////////////////////////////////////////////
 	// Field-related constants
 	//
