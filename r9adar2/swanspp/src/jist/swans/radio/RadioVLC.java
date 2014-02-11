@@ -30,6 +30,7 @@ import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.Main;
 import jist.swans.field.Field;
+import jist.swans.field.Mobility.StaticInfo;
 import jist.swans.mac.MacMessage;
 import jist.swans.misc.Location;
 import jist.swans.misc.Message;
@@ -265,6 +266,7 @@ public final class RadioVLC extends RadioNoise
 		 */
 		super(id, sharedInfo);
 		this.NodeID = id;
+		
 		if(nodeidtst == -1)
 		{
 			nodeidtst = id;
@@ -312,6 +314,15 @@ public final class RadioVLC extends RadioNoise
 		}
 	}
 
+	public float GetBearing()
+	{
+		
+		if( JistExperiment.getJistExperiment().mobility == Constants.MOBILITY_STATIC)
+		{
+			return vehicleStaticBearing;
+		}	
+		return Field.getRadioData(NodeID).getMobilityInfo().getBearingAsAngle();
+	}
 	public VLCsensor getSensorByID(int id)
 	{
 		for (VLCsensor sensor: sensorsTx) {
@@ -444,6 +455,7 @@ public final class RadioVLC extends RadioNoise
 		return false;		
 	}
 
+	
 
 	public static int nodeidtst = -1;
 	Location tmpLoc;

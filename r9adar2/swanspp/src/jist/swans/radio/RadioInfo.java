@@ -42,6 +42,15 @@ public class RadioInfo implements JistAPI.Timeless
    */
   public static class RadioInfoUnique implements JistAPI.Timeless
   {
+	  private RadioNoise radio;
+	  public RadioNoise GetRadio()
+	  {
+		  return radio;
+	  }
+	  public void SetRadio(RadioNoise rnoise)
+	  {
+		  this.radio = rnoise;
+	  }
     /**
      * Unique radio identifier.
      */
@@ -84,6 +93,8 @@ public class RadioInfo implements JistAPI.Timeless
    */
   public static class RadioInfoShared implements JistAPI.Timeless
   {
+	  
+	
     /**
      * Wavelength of radio (units: meter).
      */

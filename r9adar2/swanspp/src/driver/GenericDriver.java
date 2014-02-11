@@ -148,6 +148,7 @@ public class GenericDriver {
 			location = place.getNextLocation();//bt
 			radio = new RadioVLC(i, radioInfo, Constants.SNR_THRESHOLD_DEFAULT, location, ((Location.Location2D)location).StaticBearing);
 			//System.out.println("new radio bt "+ setBearing);
+			
 			/*bt          switch (je.radioNoiseType) {
             case Constants.RADIO_NOISE_INDEP:
                 radio = new RadioNoiseIndep(i, radioInfo);
@@ -250,6 +251,7 @@ public class GenericDriver {
 			macProxy = ((Mac802_11) mac).getProxy();
 			((Mac802_11) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);
 		}
+		
 		
 		if (mobility instanceof StreetMobility) {
 			StreetMobility sm = (StreetMobility) mobility;

@@ -17,6 +17,7 @@ import jist.swans.Constants;
 import jist.swans.misc.Location;
 import jist.swans.misc.Util;
 import jist.swans.radio.RadioInfo;
+import jist.swans.radio.RadioVLC;
 
 /** 
  * Interface for performing pathloss calculations.
@@ -75,13 +76,25 @@ public interface PathLoss
 			double H0 = 0;
 			double rxPwr;
 
-	//		txPwr= 1;
+			//	((RadioVLC)srcRadio)getClass().g
 
 
+			//arctangens kuta je koeficijent smjera pravca.
 			
-			//	rxPwr= H0*txPwr;
+			fiAngle = Math.abs( Math.atan( (dstLocation.getY()-srcLocation.getY())/(dstLocation.getX()-srcLocation.getX())));
+			psiAngle = fiAngle- ((RadioVLC) dstRadio.getUnique().GetRadio()).GetBearing();  // Field.getRadioData(dstRadio.getUnique().getID()).getMobilityInfo().getBearingAsAngle();
+
+			fiAngle = fiAngle- ((RadioVLC) srcRadio.getUnique().GetRadio()).GetBearing();
+			if(srcRadio.getUnique().getID() != dstRadio.getUnique().getID())
+			{
+				System.out.println("fiangle = " +fiAngle + " psiangle = "+ psiAngle);
+			}
+
 			if (psiAngle>psiC)
-			{	
+			{
+				//Zašto je ova provjera tu, nije li to netoèno
+				//ulazni kut je kut izmeðu normale i ulazne zrake
+				//psiC je vision angle. pretpostavljam da bi trebalo biti psiangle > psic/2
 				H0 = 0;
 			}
 			else
@@ -92,7 +105,7 @@ public interface PathLoss
 			//double vrijhe =Util.fromDB(-57);
 			//double vrije=H0/(Ts(psiAngle)*g(psiAngle, psiC,n));// rxPwr;
 
-		//	System.out.println("PL: db:" + vrijhe+ " H0: "+ H0 + " fin: "+ vrije);
+			//	System.out.println("PL: db:" + vrijhe+ " H0: "+ H0 + " fin: "+ vrije);
 			//return vrije;
 			/*
 			double dist = srcLocation.distance(dstLocation);

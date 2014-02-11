@@ -151,13 +151,33 @@ public interface Mobility
   	  public double direction = 2*Math.PI*Constants.random.nextDouble();
 
   	public Location getBearing() {
-  		// TODO Auto-generated method stub
-  		return null;
+  		
+  	/*	 if (nextEnd==null) return new Location.Location2D(0,0); // TODO something better here...
+         if (nextEnd.distance(current.getEndPoint())==0)
+         {
+             return current.getStartPoint().bearing(current.getEndPoint());
+         }
+         else
+         {
+             return current.getEndPoint().bearing(current.getStartPoint());
+         }*/
+         return null;
   	}
   	public float getBearingAsAngle()
   	  {
-  			// TODO Auto-generated method stub
-  			return 0;
+
+  		float bearingAngle = 0.0f;
+		
+	//	bearingAngle = (float) Math.toDegrees(Math.atan2(current.getEndPoint().getY() - current.getStartPoint().getY(), current.getEndPoint().getX() - current.getStartPoint().getX()));
+		
+		if(bearingAngle < 0)
+		{
+			return bearingAngle + 360; 
+		}
+		else
+		{
+			return bearingAngle;
+		}
   	  }
 
   	public float getSpeed() {

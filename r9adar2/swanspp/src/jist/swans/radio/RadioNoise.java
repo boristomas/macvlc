@@ -124,6 +124,7 @@ protected long seqNumber;
     mode = Constants.RADIO_MODE_IDLE;
     radioInfo = new RadioInfo(new RadioInfo.RadioInfoUnique(), sharedInfo);
     radioInfo.unique.id = new Integer(id);
+    radioInfo.unique.SetRadio(this);
     unlockSignal();
     signals = 0;
     this.self = (RadioInterface)JistAPI.proxy(this, RadioInterface.class);
