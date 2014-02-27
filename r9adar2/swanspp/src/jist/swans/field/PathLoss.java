@@ -11,6 +11,8 @@ package jist.swans.field;
 
 import java.util.Random;
 
+import org.python.modules.math;
+
 import driver.JistExperiment;
 import bsh.Console;
 import jist.swans.Constants;
@@ -81,14 +83,27 @@ public interface PathLoss
 
 			//arctangens kuta je koeficijent smjera pravca.
 			
-			fiAngle = Math.abs( Math.atan( (dstLocation.getY()-srcLocation.getY())/(dstLocation.getX()-srcLocation.getX())));
-			psiAngle = fiAngle- ((RadioVLC) dstRadio.getUnique().GetRadio()).GetBearing();  // Field.getRadioData(dstRadio.getUnique().getID()).getMobilityInfo().getBearingAsAngle();
-
-			fiAngle = fiAngle- ((RadioVLC) srcRadio.getUnique().GetRadio()).GetBearing();
-			if(srcRadio.getUnique().getID() != dstRadio.getUnique().getID())
+			fiAngle = Math.toDegrees(Math.atan( (srcLocation.getY()-dstLocation.getY())/(srcLocation.getX()-dstLocation.getX())));
+		//	System.out.println(" S fiangle = " +fiAngle);
+			//psiAngle = fiAngle- (fiAngle + ((RadioVLC) dstRadio.getUnique().GetRadio()).GetBearing());  // Field.getRadioData(dstRadio.getUnique().getID()).getMobilityInfo().getBearingAsAngle();
+			psiAngle = ( 180- fiAngle- ((RadioVLC) dstRadio.getUnique().GetRadio()).GetBearing() - 180);
+			
+		/*	if(psiAngle != 0)
 			{
-				System.out.println("fiangle = " +fiAngle + " psiangle = "+ psiAngle);
-			}
+	//			psiAngle = 360%psiAngle;
+			}*/
+			fiAngle = fiAngle+ ((RadioVLC) srcRadio.getUnique().GetRadio()).GetBearing();
+			
+			psiAngle = Math.abs(psiAngle);
+			fiAngle = Math.abs(fiAngle);
+		/*	if(fiAngle != 0)
+			{
+		//		fiAngle = 360%fiAngle;
+			}*/
+		/*	if(srcRadio.getUnique().getID() != dstRadio.getUnique().getID())
+			{
+				System.out.println(srcRadio.getUnique().getID() +  " --> " +dstRadio.getUnique().getID()+" fiangle = " +fiAngle + " psiangle = "+ psiAngle);
+			}*/
 
 			if (psiAngle>psiC)
 			{
