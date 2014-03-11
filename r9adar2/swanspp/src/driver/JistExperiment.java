@@ -175,6 +175,7 @@ public class JistExperiment implements JistAPI.DoNotRewrite
     public int laneChangeModel = 0;
 
     public String StaticPlacementOptions;
+    public boolean MeasurementMode;
     
     public float VLCvisionAngleTx=0;
     public float VLCvisionAngleRx=0;
@@ -433,6 +434,15 @@ public class JistExperiment implements JistAPI.DoNotRewrite
 	
     public static JistExperiment getJistExperiment(){
         return activeInstance;
+    }
+    
+    public boolean getMeasurementMode()
+    {
+    	return MeasurementMode;
+    }
+    public void setMeasurementMode( boolean measurementMode)
+    {
+    	this.MeasurementMode = measurementMode;
     }
     
     public String getStaticPlacementOptions()

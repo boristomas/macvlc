@@ -105,7 +105,7 @@ public interface PathLoss
 				System.out.println(srcRadio.getUnique().getID() +  " --> " +dstRadio.getUnique().getID()+" fiangle = " +fiAngle + " psiangle = "+ psiAngle);
 			}*/
 
-			if (psiAngle>psiC)
+			if (psiAngle>psiC/2)
 			{
 				//Zašto je ova provjera tu, nije li to netoèno
 				//ulazni kut je kut izmeðu normale i ulazne zrake

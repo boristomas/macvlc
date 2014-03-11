@@ -579,9 +579,16 @@ public class MacVLCWill implements MacInterface.Mac802_11
 	private void setBackoff()
 	{
 		if(!hasBackoff())
+	{
+		if(!JistExperiment.getJistExperiment().MeasurementMode)
 		{
 			bo = Constants.random.nextInt(cw) * SLOT_TIME;
 		}
+		else
+		{
+			bo = (cw/2) * SLOT_TIME;
+		}
+	}
 	}
 
 	/**
