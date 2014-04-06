@@ -576,7 +576,14 @@ public class Mac802_11 implements MacInterface.Mac802_11
 	{
 		if(!hasBackoff())
 		{
-			bo = Constants.random.nextInt(cw) * SLOT_TIME;
+			if(!JistExperiment.getJistExperiment().MeasurementMode)
+			{
+				bo = Constants.random.nextInt(cw) * SLOT_TIME;
+			}
+			else
+			{
+				bo = (cw/2) * SLOT_TIME;
+			}
 		}
 	}
 

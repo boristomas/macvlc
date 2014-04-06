@@ -148,6 +148,7 @@ public class GenericDriver {
 			location = place.getNextLocation();//bt
 			radio = new RadioVLC(i, radioInfo, Constants.SNR_THRESHOLD_DEFAULT, location, ((Location.Location2D)location).StaticBearing);
 			//System.out.println("new radio bt "+ setBearing);
+
 			/*bt          switch (je.radioNoiseType) {
             case Constants.RADIO_NOISE_INDEP:
                 radio = new RadioNoiseIndep(i, radioInfo);
@@ -250,17 +251,18 @@ public class GenericDriver {
 			macProxy = ((Mac802_11) mac).getProxy();
 			((Mac802_11) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);
 		}
-		
+
+
 		if (mobility instanceof StreetMobility) {
 			StreetMobility sm = (StreetMobility) mobility;
 			StreetMobility.mobInfoHash.put(new Integer(i), field.getRadioData(new Integer(i)).getMobilityInfo());
 		}
 
 		// network
-		
+
 
 		//   if (je.mac == Constants.MAC_802_11) {
-		
+
 		// }
 
 		// transport
@@ -492,20 +494,27 @@ public class GenericDriver {
 		// pathloss model
 		switch (je.pathloss) {
 		case Constants.PATHLOSS_FREE_SPACE:
+		{
 			pl = new PathLoss.FreeSpace();
 
 			break;
-
+		}
 		case Constants.PATHLOSS_SHADOWING:
-			pl = new PathLoss.Shadowing(je.exponent, je.stdDeviation);
+		{	pl = new PathLoss.Shadowing(je.exponent, je.stdDeviation);
 
-			break;
-
+		break;
+		}
 		case Constants.PATHLOSS_TWO_RAY:
+		{
 			pl = new PathLoss.TwoRay();
+			break;
+		}
+		case Constants.PATHLOSS_VLC:
+		{
+			pl = new PathLoss.VLCLink();
 
 			break;
-
+		}
 		default:
 			throw new RuntimeException("Unsupported pathloss model!");
 		}
@@ -594,7 +603,7 @@ public class GenericDriver {
 
 		case Constants.PLACEMENT_GRID:
 			je.setPlacementOpts("");
-		//	smr = (StreetMobility) mobility;
+			//	smr = (StreetMobility) mobility;
 			place = new Placement.Grid(je.field, je.StaticPlacementOptions);//bt je.placementOpts); //make sure number of locations matches number of nodes
 			break;
 
@@ -729,18 +738,30 @@ public class GenericDriver {
 		Random myRandom = new Random(0);
 
 		if (nodes.size() > 0) {
-			int index = myRandom.nextInt(nodes.size());
+			if(!je.MeasurementMode)
+			{
+				int index = myRandom.nextInt(nodes.size());
 
-			while (num_sources < MAX_SOURCES) {
-				sources.add(new Integer(index));
-				nodelist[index] = true;
+				while (num_sources < MAX_SOURCES)
+				{
+					sources.add(new Integer(index));
+					nodelist[index] = true;
 
-				do {
-					index = myRandom.nextInt(nodes.size());
-				} while ((nodelist[index] == true) &&
-						(num_sources < (MAX_SOURCES - 1)));
+					do {
+						index = myRandom.nextInt(nodes.size());
+					} while ((nodelist[index] == true) &&
+							(num_sources < (MAX_SOURCES - 1)));
 
-				num_sources++;
+					num_sources++;
+				}
+			}
+			else
+			{
+				//use static values for measurements.
+				for(int j= 0; j< nodes.size();j++)
+				{
+					sources.add(new Integer(j));// = nodes;
+				}
 			}
 
 			// set up message sending events
@@ -945,7 +966,8 @@ public class GenericDriver {
 	 * @param nodes set of all nodes
 	 * @param myRandom the random object to use
 	 */
-	private static void generateCBRTraffic(JistExperiment je, Vector sources, Vector nodes, Random myRandom) {
+	private static void generateCBRTraffic(JistExperiment je, Vector sources, Vector nodes, Random myRandom) 
+	{	
 		long delayInterval = (long) (((double) je.cbrPacketSize / je.cbrRate) * 1 * Constants.SECOND);
 		long iterations = (long) Math.ceil(((double) je.duration * (double) Constants.SECOND) / delayInterval);
 		byte[] data = new byte[je.cbrPacketSize];
@@ -962,8 +984,16 @@ public class GenericDriver {
 		for (int i = 0; i < je.transmitters; i++) {
 			//pick send node
 			do {
-				//pick random dest node
-				dests[i] = myRandom.nextInt(nodes.size());
+				if(!je.MeasurementMode)
+				{
+					//pick random dest node
+					dests[i] = myRandom.nextInt(nodes.size());
+				}
+				else
+				{
+					//
+					dests[i] = je.transmitters - i -1;
+				}
 			} while ((dests[i] == ((Integer) sources.get(i)).intValue()) ||
 					chosen[dests[i]]);
 
@@ -981,7 +1011,8 @@ public class GenericDriver {
 				TransUdp.UdpMessage udpMsg = new TransUdp.UdpMessage(je.port, je.port, payload);
 
 				int src = ((Integer) sources.get(j)).intValue();
-				int dest = dests[j] + 1;
+				int dest = dests[j]+1;//dodaje se +1 zato jer adrese pocinju od 1.
+		
 
 				//             NetIp srcNet = (NetIp) sources.elementAt(j);
 				//             NetIp destNet = (NetIp) nodes.elementAt(dests[j]);
@@ -1002,8 +1033,14 @@ public class GenericDriver {
 				//System.out.println("BTc src= "+((NetMessage.Ip )msg).getSrc() + " dest= " + ((NetMessage.Ip )msg).getDst() + " .... " + src + " .... " + dest);
 			} // send message for each transmitter
 
-			JistAPI.sleep(delayInterval +
-					(long) (SEND_JITTER * Constants.MICRO_SECOND * Constants.random.nextDouble()));
+			if(!je.MeasurementMode)
+			{
+				JistAPI.sleep(delayInterval + (long) (SEND_JITTER * Constants.MICRO_SECOND * Constants.random.nextDouble()));
+			}
+			else
+			{
+				JistAPI.sleep(delayInterval + (long) (SEND_JITTER * Constants.MICRO_SECOND * 0.5));
+			}
 			currentTime += delayInterval;
 		}
 	}
@@ -1011,7 +1048,7 @@ public class GenericDriver {
 	/**
 	 * Display statistics at end of simulation.
 	 * @param nodes list of nodes
-	 * @param je the configuation object
+	 * @param je the configuration object
 	 * @param startTime the start time for simulation
 	 * @param freeMemory the amount of free memory
 	 */
@@ -1099,7 +1136,7 @@ public class GenericDriver {
 	 */
 	public static void main(String[] args) {
 		try {
-						
+
 			final JistExperiment je = (JistExperiment) (Util.readObject(args[0]));
 
 			// constructs a new 2D field based on input
@@ -1137,14 +1174,14 @@ public class GenericDriver {
 				btviz = new Vizbt();
 				((Graphics2D)btviz.getGraph()).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				btviz.getGraph().setColor(Color.RED);
-	//			btviz.getGraph().fillRect(150, 10, 100, 100);
+				//			btviz.getGraph().fillRect(150, 10, 100, 100);
 			}
 			buildField(je, nodes);
 
 			//         final String name = args[0];
 
-		
-			
+
+
 			JistAPI.runAt(new Runnable() {
 				public void run() {
 					showStats(nodes, je, startTime, freeMemory);

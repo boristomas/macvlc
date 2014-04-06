@@ -175,7 +175,10 @@ public class JistExperiment implements JistAPI.DoNotRewrite
     public int laneChangeModel = 0;
 
     public String StaticPlacementOptions;
+    public boolean MeasurementMode;
     
+    public float VLCvisionAngleTx=0;
+    public float VLCvisionAngleRx=0;
     public float VehicleLength=0;
     public float VehicleWidth =0;
     public float VehicleLengthDev =0;
@@ -433,6 +436,15 @@ public class JistExperiment implements JistAPI.DoNotRewrite
         return activeInstance;
     }
     
+    public boolean getMeasurementMode()
+    {
+    	return MeasurementMode;
+    }
+    public void setMeasurementMode( boolean measurementMode)
+    {
+    	this.MeasurementMode = measurementMode;
+    }
+    
     public String getStaticPlacementOptions()
     {
     	return StaticPlacementOptions;
@@ -442,6 +454,25 @@ public class JistExperiment implements JistAPI.DoNotRewrite
     	this.StaticPlacementOptions = staticPlacementOptions;
     }
     
+    public float getVLCvisionAngleTx()
+    {
+    	return VLCvisionAngleTx;
+    }
+    public void setVLCvisionAngleTx( float vLCvisionAngleTx)
+    {
+    	this.VLCvisionAngleTx = vLCvisionAngleTx;
+    } 
+    
+    public float getVLCvisionAngleRx()
+    {
+    	return VLCvisionAngleRx;
+    }
+    
+    public void setVLCvisionAngleRx( float vLCvisionAngleRx)
+    {
+    	this.VLCvisionAngleRx = vLCvisionAngleRx;
+    }
+
     public float getVehicleLength()
     {
     	return VehicleLength;

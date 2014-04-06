@@ -27,6 +27,7 @@ import java.util.Enumeration;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
+import driver.JistExperiment;
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 
@@ -418,7 +419,17 @@ public static Object readObject(String name) throws IOException
    */
   public static long randomTime(long bound)
   {
-    return (long)(Constants.random.nextDouble()*bound);
+	  if(!JistExperiment.getJistExperiment().MeasurementMode)
+	  {
+		  return (long)(Constants.random.nextDouble()*bound);
+	  }
+	  else
+	  {
+		  //return (long)(Constants.random.nextDouble()*bound);
+		//  return (long)(0.5*bound);
+		  return 900000;
+		  //return (long) (bound*0.5);
+	  }
   }
 
   /**

@@ -20,6 +20,8 @@ import jist.swans.radio.RadioVLC;
 
 import org.apache.log4j.Logger;
 
+import driver.JistExperiment;
+
 /** 
  * An abstract parent of Field implementations, which contains
  * the common code.
@@ -333,7 +335,7 @@ public class Field implements FieldInterface
 		// update spatial data structure
 		RadioData rd = getRadioData(id);
 		// rd.loc = loc;
-	/*	if(rd.loc.getX() !=loc.getX() && rd.loc.getY() !=loc.getY())
+		/*	if(rd.loc.getX() !=loc.getX() && rd.loc.getY() !=loc.getY())
 		{
 			System.out.println("BiT2: old loc = " + rd.loc.toString() + " -320");
 			System.out.println("BiT2: new loc = " + loc.toString() + " -320");
@@ -342,10 +344,10 @@ public class Field implements FieldInterface
 		{
 			//no move
 			System.out.println("BiT2: -321");
-			
+
 		}*/
 		spatial.moveInside(rd, loc);
-		
+
 		// schedule next step
 		if(rd.mobilityInfo!=null)
 		{
@@ -386,28 +388,44 @@ public class Field implements FieldInterface
 	{
 		public double computeSignal(RadioInfo srcInfo, Location srcLoc, Location dstLoc)
 		{
-			double loss = pathloss.compute(srcInfo, srcLoc, srcInfo, dstLoc);
-			double fade = fading.compute();
-			return srcInfo.getShared().getPower() - loss + fade;
+			if(JistExperiment.getJistExperiment().pathloss == Constants.PATHLOSS_VLC)
+			{
+				return pathloss.compute(srcInfo, srcLoc, srcInfo, dstLoc);
+			}
+			else
+			{
+				double loss = pathloss.compute(srcInfo, srcLoc, srcInfo, dstLoc);
+				double fade = fading.compute();
+				return srcInfo.getShared().getPower() - loss + fade;
+			}
 		}
 
 		//transmit packet to given location
 		public void visitTransmit(RadioInfo srcInfo, Location srcLoc, RadioInfo dstInfo, RadioInterface dstEntity, Location dstLoc, Message msg, Long durationObj)
 		{
-			
+
 			if(srcInfo.getUnique().getID()==dstInfo.getUnique().getID()) return;
+			double dstPower_mW =0;
 			// compute signal strength
-			double loss = pathloss.compute(srcInfo, srcLoc, dstInfo, dstLoc);
-			double fade = fading.compute();
-			double dstPower = srcInfo.getShared().getPower() - loss + fade;
-			// additional cuttoffs
-			double dstPower_mW = Util.fromDB(dstPower);
+			if(JistExperiment.getJistExperiment().pathloss == Constants.PATHLOSS_VLC)
+			{
+				dstPower_mW = Util.fromDB(pathloss.compute(srcInfo, srcLoc, dstInfo, dstLoc));
+			}
+			else
+			{
+				double loss = pathloss.compute(srcInfo, srcLoc, dstInfo, dstLoc);
+				double fade = fading.compute();
+				double dstPower = srcInfo.getShared().getPower() - loss + fade;
+				// additional cuttoffs
+				dstPower_mW = Util.fromDB(dstPower);
+			}
+			
 			//if(dstPower_mW < dstInfo.getShared().getBackground_mW()) return;
 			if(dstPower_mW < dstInfo.getShared().getSensitivity_mW()) return;
 
 			//compute the direction and points of the radar
-			RadioData rd = getRadioData(srcInfo.getUnique().getID());
-			Location currNodeBearing = rd.mobilityInfo.getBearing();									//using the radio data to get the bearing for the currnet node
+			//	RadioData rd = getRadioData(srcInfo.getUnique().getID());
+			//Location currNodeBearing = rd.mobilityInfo.getBearing();									//using the radio data to get the bearing for the currnet node
 
 
 
