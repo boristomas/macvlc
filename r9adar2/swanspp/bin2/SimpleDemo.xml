@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <java version="1.4.2_05" class="java.beans.XMLDecoder">
 <object class="driver.JistExperiment">
 <!--  timing  -->
@@ -128,15 +129,13 @@
 <void property="spatial_mode">
 <int>2</int>
 </void>
-<!--
- 	<void property="fieldX">
-			<int>90</int>
-		</void>
-		<void property="fieldY">
-			<int>90</int>
-		</void>
-		
--->
+<void property="fieldX">
+	<int>90</int>
+</void>
+<void property="fieldY">
+	<int>90</int>
+</void>
+
 <!--  visualization options  -->
 <void property="useVisualizer">
 <boolean>true</boolean>

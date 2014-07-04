@@ -310,6 +310,7 @@ public final class RadioVLC extends RadioNoise
 
 		//if((id % 2) == 0)
 		{
+
 	//		this.setControlSignal(2, 7);
 	//		this.setControlSignal(2, 3);
 		}
@@ -377,6 +378,7 @@ public final class RadioVLC extends RadioNoise
 	 * 
 	 * @param value
 	 */
+
 	public void setControlSignal(int sensorID, Integer channelID)
 	{
 		/*if(channelID <= 0 || channelID == 127)
