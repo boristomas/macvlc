@@ -21,6 +21,7 @@ import jist.swans.net.NetInterface;
 import jist.swans.net.NetMessage;
 import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioInterface;
+import jist.swans.radio.TimeEntry;
 import jist.swans.trans.TransUdp;
 import driver.JistExperiment;
 
@@ -779,6 +780,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 	  SourceNode = JistExperiment.getJistExperiment().visualizer.getField().getRadioData(SourceNodeID).getLocation();
 	  DestinationNode = JistExperiment.getJistExperiment().visualizer.getField().getRadioData(DestinationNodeID).getLocation();
 		 */
+		((NetMessage.Ip)msg).Times.add(new TimeEntry(1, "macbt", null));//= JistAPI.getTime();
 		if(Main.ASSERT) Util.assertion(!hasPacket());
 		if(Main.ASSERT) Util.assertion(nextHop!=null);
 		packet = msg;
@@ -916,6 +918,10 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 				MacMessage.Data data = new MacMessage.Data(
 						packetNextHop, localAddr, 
 						0, packet);
+		//		data.TimeCreated = ((MacMessage)packet).TimeCreated;//.TimeEntry = JistAPI.getTime();
+		//		data.TimeEntry = ((MacMessage)packet).TimeEntry;
+		//		data.TimeSent =JistAPI.getTime();
+				
 				// set mode and transmit
 				setMode(MAC_MODE_XBROADCAST);
 				long delay = RX_TX_TURNAROUND, duration = transmitTime(data);
@@ -936,6 +942,10 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 						incSeq(), (byte)0, false, 
 						(shouldRTS() ? longRetry : shortRetry) > 0,
 						packet);
+	//	data.TimeCreated = ((MacMessage)packet).TimeCreated;//.TimeEntry = JistAPI.getTime();
+	//	data.TimeEntry = ((MacMessage)packet).TimeEntry;
+	//	data.TimeSent =JistAPI.getTime();
+		
 		// set mode and transmit
 		setMode(MAC_MODE_XUNICAST);
 		long delay = afterCts ? SIFS : RX_TX_TURNAROUND, duration = transmitTime(data);
@@ -1161,6 +1171,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		{
 			if(MacAddress.ANY.equals(msg.getDst()))
 			{
+				((NetMessage.Ip)msg.getBody()).Times.add(new TimeEntry(3, "macbtrec", null));
 				netEntity.receive(msg.getBody(), msg.getSrc(), netId, false);
 				cfDone(false, false);
 			}

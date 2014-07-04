@@ -35,6 +35,7 @@ import jist.swans.mac.MacMessage;
 import jist.swans.misc.Location;
 import jist.swans.misc.Message;
 import jist.swans.misc.Util;
+import jist.swans.net.NetMessage;
 import driver.GenericDriver;
 import driver.JistExperiment;
 import driver.spatial;
@@ -309,8 +310,8 @@ public final class RadioVLC extends RadioNoise
 
 		//if((id % 2) == 0)
 		{
-			this.setControlSignal(2, 7);
-			this.setControlSignal(2, 3);
+	//		this.setControlSignal(2, 7);
+	//		this.setControlSignal(2, 3);
 		}
 	}
 
@@ -376,7 +377,7 @@ public final class RadioVLC extends RadioNoise
 	 * 
 	 * @param value
 	 */
-	public void setControlSignal(Integer channelID, int sensorID)
+	public void setControlSignal(int sensorID, Integer channelID)
 	{
 		/*if(channelID <= 0 || channelID == 127)
 		{
@@ -388,7 +389,7 @@ public final class RadioVLC extends RadioNoise
 		{
 			if(tmpsensor.mode != SensorModes.Send)
 			{
-				throw new RuntimeException("Signal can not be set to non sending sensor. change sensor to set signal.");
+				throw new RuntimeException("Signal can not be set to a non sending sensor. change sensor to set signal.");
 			}
 			tmpsensor.controlSignal.add(channelID);
 		}
@@ -440,12 +441,6 @@ public final class RadioVLC extends RadioNoise
 				{
 					return true;
 				}
-			//	if(tmpVal > 0 && returnValue > 0)
-				//{
-					//returnValue= (byte)127;
-					//break;//exit and return jam
-				//}
-				//returnValue = tmpVal;
 			}
 		}
 		else
@@ -696,7 +691,16 @@ public final class RadioVLC extends RadioNoise
 			Constants.VLCconstants.SentBroadcast++;
 		}
 
-		//System.out.println("TALK snd :)  msg hc: "+msg.hashCode()+"  from: " +((MacMessage)msg).getSrc().hashCode()+ " to: " + ((MacMessage)msg).getDst().hashCode() );
+		if(msg instanceof MacMessage.Data)
+		{
+			/*for (TimeEntry item : ((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times) {
+				if(item.TimeID == 2)
+				{
+					System.out.println("aaa");//obrisi ovaj for. 
+				}
+			}*/
+			((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(2, "radiovlct", null));
+		}
 		// use default delay, if necessary
 		if(delay==Constants.RADIO_NOUSER_DELAY) delay = Constants.RADIO_PHY_DELAY;
 		// set mode to transmitting

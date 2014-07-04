@@ -427,7 +427,8 @@ public static Object readObject(String name) throws IOException
 	  {
 		  //return (long)(Constants.random.nextDouble()*bound);
 		//  return (long)(0.5*bound);
-		  return 900000;
+		  return (long)(Constants.random.nextDouble()*bound);
+		  //return 900000;
 		  //return (long) (bound*0.5);
 	  }
   }

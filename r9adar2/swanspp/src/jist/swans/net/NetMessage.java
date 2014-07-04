@@ -9,10 +9,17 @@
 
 package jist.swans.net;
 
+import java.awt.List;
+import java.util.ArrayList;
+import java.util.HashSet;
+
+import driver.JistExperiment;
+import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.misc.Location;
 import jist.swans.misc.Message;
 import jist.swans.misc.Util;
+import jist.swans.radio.TimeEntry;
 
 /**
  * Network packet.
@@ -24,6 +31,8 @@ import jist.swans.misc.Util;
 public abstract class NetMessage implements Message, Cloneable
 {
 
+	
+	
   //////////////////////////////////////////////////
   // IPv4 packet: (size = 20 + 4 * options + body)
   //   version                size: 4 bits
@@ -59,6 +68,12 @@ public abstract class NetMessage implements Message, Cloneable
     /** Fixed IP packet size. */
     public static final int BASE_SIZE = 20;
 
+    
+    
+    
+    public ArrayList<TimeEntry> Times = new ArrayList<TimeEntry>();
+    
+    
     //////////////////////////////////////////////////
     // message contents
     //
@@ -110,6 +125,7 @@ public abstract class NetMessage implements Message, Cloneable
         short protocol, byte priority, int ttl, short id, short fragOffset)
     {
       if(payload==null) throw new NullPointerException();
+      Times.add(new TimeEntry(0, "create", this));// this.TimeNCreated = JistAPI.getTime();
       this.frozen = false;
       this.payload = payload;
       this.src = src;

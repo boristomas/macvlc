@@ -20,6 +20,7 @@ package jist.swans.misc;
 
 public class MessageBytes implements Message
 {
+	
 
   /** empty byte array. */
   public static final byte[] EMPTY = new byte[0];

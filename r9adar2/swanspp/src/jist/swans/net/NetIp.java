@@ -22,6 +22,7 @@ import jist.swans.mac.MacLoop;
 import jist.swans.misc.Mapper;
 import jist.swans.misc.Message;
 import jist.swans.misc.Util;
+import jist.swans.radio.TimeEntry;
 import jist.swans.route.RouteInterface;
 
 import org.apache.log4j.Logger;
@@ -374,7 +375,7 @@ public class NetIp implements NetInterface
     {
       log.info("receive t="+JistAPI.getTime()+" from="+lastHop+" on="+macId+" data="+msg);
     }
-    
+    ipmsg.Times.add(new TimeEntry(4, "netiprec", null));
     if(routing!=null) routing.peek(ipmsg, lastHop);
     Constants.VLCconstants.NetIPReceived++;
     if(!promisc)

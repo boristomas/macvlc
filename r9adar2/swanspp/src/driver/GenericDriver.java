@@ -1146,7 +1146,6 @@ public class GenericDriver {
 				MACprotocol = args[1];
 			}
 			je.setField();
-
 			// store current free memory
 			final long freeMemory = Runtime.getRuntime().freeMemory();
 

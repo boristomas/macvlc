@@ -9,7 +9,13 @@
 
 package jist.swans;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Random;
+
+import jist.swans.net.NetMessage;
+import jist.swans.radio.TimeEntry;
 
 import org.omg.CORBA.Environment;
 
@@ -462,6 +468,34 @@ public final class Constants
 		public static long CBRmessages= 0;
 		public static String PrintData()
 		{
+
+			String res = "";
+			for (NetMessage.Ip item : TimeEntry.AllMessages)
+			{
+				res+= "\n msg: "+ item.hashCode() + " times: "; 
+				for (TimeEntry time : item.Times) 
+				{
+					res += "t"+time.TimeID+"= " +time.Time + ", ";
+				}
+				
+			}
+			String filename =System.getProperty("user.home") + "/Desktop/" +"measureData.csv";
+			
+			PrintWriter writer;
+			try {
+				writer = new PrintWriter(filename, "UTF-8");
+				writer.println("The first line");
+				writer.println("The second line");
+				writer.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	
+			System.out.println();
 			return "-----VLC data-----" + "\n"+
 					"MAC implementation = "+ MACimplementationUsed + "\n"+
 					"Sent Direct = " + SentDirect + "\n"+
@@ -474,6 +508,7 @@ public final class Constants
 					"NetIP received = " + NetIPReceived + "\n"+
 					"NetIP received for me= " + NetIPReceivedForMe + "\n"+
 					"NetIP dropped = " + NetIPDropped+ "\n"+
+					"timestats = " + res+ "\n"+
 					"-----VLC data-----" + "\n";
 		}
 	}

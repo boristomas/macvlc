@@ -107,8 +107,8 @@ public interface PathLoss
 
 			if (psiAngle>psiC/2)
 			{
-				//Zašto je ova provjera tu, nije li to netoèno
-				//ulazni kut je kut izmeðu normale i ulazne zrake
+				//Zaï¿½to je ova provjera tu, nije li to netoÄno
+				//ulazni kut je kut izmeï¿½u normale i ulazne zrake
 				//psiC je vision angle. pretpostavljam da bi trebalo biti psiangle > psic/2
 				H0 = 0;
 			}

@@ -13,6 +13,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import com.puppycrawl.tools.checkstyle.api.Utils;
+
+import driver.JistExperiment;
+import jist.runtime.JistAPI;
+import jist.runtime.Util;
 import jist.swans.Constants;
 import jist.swans.misc.Message;
 
@@ -26,7 +31,9 @@ import jist.swans.misc.Message;
 
 public abstract class MacMessage implements Message
 {
-
+	
+	
+	
 	//sensor control
 	public HashSet<Integer> SensorIDTx = new HashSet<Integer>();
 	public HashSet<Integer> SensorIDRx = new HashSet<Integer>();
@@ -69,6 +76,7 @@ public abstract class MacMessage implements Message
 	 */
 	protected MacMessage(byte type, boolean retry)
 	{
+		//this.TimeCreated = JistAPI.getTime();
 		this.type = type;
 		this.retry = retry;
 		//this.setSensorIDRx(-1);
