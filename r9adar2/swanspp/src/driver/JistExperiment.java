@@ -175,6 +175,7 @@ public class JistExperiment implements JistAPI.DoNotRewrite
     public int laneChangeModel = 0;
 
     public String StaticPlacementOptions;
+    public String MACProtocol;
     public boolean MeasurementMode;
     
     public float VLCvisionAngleTx=0;
@@ -452,6 +453,14 @@ public class JistExperiment implements JistAPI.DoNotRewrite
     public void setStaticPlacementOptions( String staticPlacementOptions)
     {
     	this.StaticPlacementOptions = staticPlacementOptions;
+    }
+    public String getMACProtocol()
+    {
+    	return MACProtocol;
+    }
+    public void setMACProtocol( String mACProtocol)
+    {
+    	this.MACProtocol = mACProtocol;
     }
     
     public float getVLCvisionAngleTx()

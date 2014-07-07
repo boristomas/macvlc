@@ -1057,7 +1057,6 @@ public class Mac802_11 implements MacInterface.Mac802_11
 	// MacInterface
 	public void receive(Message msg)
 	{
-		((NetMessage.Ip)msg).Times.add(new TimeEntry(3, "mac80211r", null));//.TimeReceived = JistAPI.getTime();
 		receivePacket((MacMessage)msg);
 	}
 
@@ -1145,6 +1144,7 @@ public class Mac802_11 implements MacInterface.Mac802_11
 		{
 			if(MacAddress.ANY.equals(msg.getDst()))
 			{
+				((NetMessage.Ip)msg.getBody()).Times.add(new TimeEntry(3, "macbtrec", null));
 				netEntity.receive(msg.getBody(), msg.getSrc(), netId, false);
 				cfDone(false, false);
 			}

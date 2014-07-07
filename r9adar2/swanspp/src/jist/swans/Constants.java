@@ -470,22 +470,37 @@ public final class Constants
 		{
 
 			String res = "";
-			for (NetMessage.Ip item : TimeEntry.AllMessages)
-			{
-				res+= "\n msg: "+ item.hashCode() + " times: "; 
-				for (TimeEntry time : item.Times) 
-				{
-					res += "t"+time.TimeID+"= " +time.Time + ", ";
-				}
-				
-			}
-			String filename =System.getProperty("user.home") + "/Desktop/" +"measureData.csv";
 			
+			String filename =System.getProperty("user.home") + "/Desktop/" +"measureData.csv";
+			int sent = 0;
+			int received = 0;
+			int rec3 = 0;
 			PrintWriter writer;
 			try {
 				writer = new PrintWriter(filename, "UTF-8");
-				writer.println("The first line");
-				writer.println("The second line");
+				for (NetMessage.Ip item : TimeEntry.AllMessages)
+				{
+					res = "";
+					
+					res+= item.hashCode(); 
+					for (TimeEntry time : item.Times) 
+					{
+						if(time.TimeID == 1)
+						{
+							sent++;
+						}
+						if(time.TimeID == 4)
+						{
+							received ++;
+						}
+						if (time.TimeID == 3) {
+							rec3++;
+						}
+						res += "," +time.TimeID + " - " + time.Time;
+					}
+					res += "\n";
+					writer.write(res);
+				}
 				writer.close();
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
@@ -498,6 +513,9 @@ public final class Constants
 			System.out.println();
 			return "-----VLC data-----" + "\n"+
 					"MAC implementation = "+ MACimplementationUsed + "\n"+
+					"MAC Sent = " + sent + "\n"+
+					"MAC Received = " + received + "\n"+
+					"MAC rec3 = " + rec3 + "\n"+
 					"Sent Direct = " + SentDirect + "\n"+
 					"Sent Broadcasts = "+ SentBroadcast + "\n" +
 					"Received = " + Received + "\n"+
@@ -508,7 +526,6 @@ public final class Constants
 					"NetIP received = " + NetIPReceived + "\n"+
 					"NetIP received for me= " + NetIPReceivedForMe + "\n"+
 					"NetIP dropped = " + NetIPDropped+ "\n"+
-					"timestats = " + res+ "\n"+
 					"-----VLC data-----" + "\n";
 		}
 	}

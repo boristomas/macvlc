@@ -915,9 +915,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		}*/
 		
 		// create data packet
-				MacMessage.Data data = new MacMessage.Data(
-						packetNextHop, localAddr, 
-						0, packet);
+				MacMessage.Data data = new MacMessage.Data(packetNextHop, localAddr,0, packet);
 		//		data.TimeCreated = ((MacMessage)packet).TimeCreated;//.TimeEntry = JistAPI.getTime();
 		//		data.TimeEntry = ((MacMessage)packet).TimeEntry;
 		//		data.TimeSent =JistAPI.getTime();

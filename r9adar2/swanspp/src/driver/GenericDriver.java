@@ -112,7 +112,7 @@ public class GenericDriver {
 	private static Ideal locDB = null;
 	static int idUdp = 0;
 
-	public static String MACprotocol;
+//	public static String MACprotocol;
 	public static String MACprotocolWill ="MACprotocolWill";
 	public static String MACprotocolBoris ="MACprotocolBoris";
 	public static String MACprotocolMate="MACprotocolMate";
@@ -211,7 +211,7 @@ public class GenericDriver {
 		MacInterface macProxy = null;
 		final NetAddress address = new NetAddress(i);
 		NetIp net = new NetIp(address, protMap, inLoss, outLoss /*, ipStats*/);
-		if(MACprotocol.equals(MACprotocolWill))
+		if(je.MACProtocol.equals(MACprotocolWill))
 		{
 			Constants.VLCconstants.MACimplementationUsed = MACprotocolWill;
 			mac = new MacVLCWill(new MacAddress(i), radio.getRadioInfo());
@@ -219,7 +219,7 @@ public class GenericDriver {
 			macProxy = ((MacVLCWill) mac).getProxy();
 			((MacVLCWill) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);
 		}
-		else if(MACprotocol.equals(MACprotocolBoris))
+		else if(je.MACProtocol.equals(MACprotocolBoris))
 		{
 			Constants.VLCconstants.MACimplementationUsed = MACprotocolBoris;
 			mac = new MacVLCBoris(new MacAddress(i), radio.getRadioInfo());
@@ -227,7 +227,7 @@ public class GenericDriver {
 			macProxy = ((MacVLCBoris) mac).getProxy();
 			((MacVLCBoris) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);
 		}
-		else if(MACprotocol.equals(MACprotocolMate))
+		else if(je.MACProtocol.equals(MACprotocolMate))
 		{
 			Constants.VLCconstants.MACimplementationUsed = MACprotocolMate;
 			mac = new MacVLCMate(new MacAddress(i), radio.getRadioInfo());
@@ -235,7 +235,7 @@ public class GenericDriver {
 			macProxy = ((MacVLCMate) mac).getProxy();
 			((MacVLCMate) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);
 		}
-		else if(MACprotocol.equals(MACprotocol802_11))
+		else if(je.MACProtocol.equals(MACprotocol802_11))
 		{
 			Constants.VLCconstants.MACimplementationUsed = MACprotocol802_11;
 			mac = new Mac802_11(new MacAddress(i), radio.getRadioInfo());
@@ -1141,10 +1141,11 @@ public class GenericDriver {
 
 			// constructs a new 2D field based on input
 
-			if(args.length >= 2)
+			/*if(args.length >= 2)
 			{
 				MACprotocol = args[1];
-			}
+			}*/
+			//MACprotocol = "";
 			je.setField();
 			// store current free memory
 			final long freeMemory = Runtime.getRuntime().freeMemory();
