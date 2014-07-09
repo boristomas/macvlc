@@ -26,13 +26,9 @@ import jist.swans.trans.TransUdp;
 import driver.JistExperiment;
 
 /**
- * Implementation of IEEE 802_11b. Please refer to the standards document. For
- * consistency, many of the variable names, constants and equations are taken
- * directly from the specification.
- *
- * @author Rimon Barr &lt;barr+jist@cs.cornell.edu&gt;
- * @version $Id: Mac802_11.java,v 1.1 2007/04/09 18:49:45 drchoffnes Exp $
- * @since SWANS1.0
+ * Implementation of MAC VLC. 
+ * @author boris.tomas@foi.hr;
+ * @version 1
  */
 
 public class MacVLCBoris implements MacInterface.Mac802_11
@@ -127,8 +123,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 	 * Extended inter frame space. Wait used by stations to gain access to the
 	 * medium after an error.
 	 */
-	public static final long EIFS = SIFS + DIFS + SYNCHRONIZATION*(Constants.SECOND/JistExperiment.getJistExperiment().getBandwidth()) +
-			8*MacMessage.Ack.SIZE*Constants.MICRO_SECOND;
+	public static final long EIFS = SIFS + DIFS + SYNCHRONIZATION*(Constants.SECOND/JistExperiment.getJistExperiment().getBandwidth()) + 8*MacMessage.Ack.SIZE*Constants.MICRO_SECOND;
 
 	/**
 	 * Threshold packet size to activate RTS. Default=3000. Broadcast packets
@@ -377,7 +372,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		nav = -1;
 		// sequence numbers
 		seq = 0;
-		seqCache = null;
+
 		seqCacheSize = 0;
 		// retry counts
 		shortRetry = 0;
@@ -426,20 +421,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		this.netId = netid;
 	}
 
-	//////////////////////////////////////////////////
-	// accessors
-	//
-
-	/**
-	 * Set promiscuous mode (whether to pass all packets through).
-	 *
-	 * @param promisc promiscuous flag
-	 */
-	public void setPromiscuous(boolean promisc)
-	{
-		this.promisc = promisc;
-	}
-
+	
 	//////////////////////////////////////////////////
 	// mac states
 	//
@@ -516,15 +498,6 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		return MacAddress.ANY.equals(packetNextHop);
 	}
 
-	/**
-	 * Return whether current packet large enough to require RTS.
-	 *
-	 * @return does current packet require RTS.
-	 */
-	private boolean shouldRTS()
-	{
-		return packet.getSize()>THRESHOLD_RTS && !isBroadcast();
-	}
 
 	/**
 	 * Return whether current packet requires fragmentation.
@@ -552,104 +525,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		return (SYNCHRONIZATION + size) * Constants.SECOND/bandwidth;
 	}
 
-	//////////////////////////////////////////////////
-	// backoff
-	//
 
-	/**
-	 * Return whether there is a backoff.
-	 *
-	 * @return whether backoff non-zero.
-	 */
-	private boolean hasBackoff()
-	{
-		return bo > 0;
-	}
-
-	/**
-	 * Reset backoff counter to zero.
-	 */
-	private void clearBackoff()
-	{
-		bo = 0;
-	}
-
-	/**
-	 * Set new random backoff, if current backoff timer has elapsed.
-	 */
-	private void setBackoff()
-	{
-		if(!hasBackoff())
-		{
-			if(!JistExperiment.getJistExperiment().MeasurementMode)
-			{
-				bo = Constants.random.nextInt(cw) * SLOT_TIME;
-			}
-			else
-			{
-				
-				bo = (cw/2) * SLOT_TIME;
-			}
-		}
-	}
-
-	/**
-	 * Pause the current backoff (invoked when the channel becomes busy).
-	 */
-	private void pauseBackoff()
-	{
-		bo -= JistAPI.getTime() - boStart;
-		if(Main.ASSERT) Util.assertion(bo>=0);
-	}
-
-	/**
-	 * Perform backoff.
-	 */
-	private void backoff()
-	{
-		if(Main.ASSERT) Util.assertion(bo>=0);
-		boStart = JistAPI.getTime();
-		startTimer(bo, MAC_MODE_SBO);
-	}
-
-	/**
-	 * Increase Collision Window.
-	 */
-	private void incCW()
-	{
-		cw = (short)Math.min(2*cw+1, CW_MAX);
-	}
-
-	/**
-	 * Decrease Collision Windows.
-	 */
-	private void decCW()
-	{
-		cw = CW_MIN;
-	}
-
-	//////////////////////////////////////////////////
-	// nav
-	//
-
-	/**
-	 * Return whether the virtual carrier sense (network allocation vector)
-	 * indicates that the channel is reserved.
-	 *
-	 * @return virtual carrier sense
-	 */
-	private boolean waitingNav()
-	{
-		return nav > JistAPI.getTime();
-	}
-
-	/**
-	 * Clear the virtual carrier sense (network allocation vector).
-	 */
-	private void resetNav()
-	{
-		nav = -1;
-	}
 
 	/**
 	 * Determine whether channel is idle according to both physical and virtual
@@ -659,108 +535,11 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 	 */
 	private boolean isCarrierIdle()
 	{
-		return !waitingNav() && isRadioIdle();
+		return isRadioIdle();
 	}
 
-	//////////////////////////////////////////////////
-	// sequence numbers
-	//
 
-	/**
-	 * Local class to used manage sequence number records.
-	 */
-	private static class SeqEntry
-	{
-		/** src node address. */
-		public MacAddress from = MacAddress.NULL;
-		/** sequence number. */
-		public short seq = 0;
-		/** next record. */
-		public SeqEntry next = null;
-	}
 
-	/**
-	 * Increment local sequence counter.
-	 *
-	 * @return new sequence number.
-	 */
-	private short incSeq()
-	{
-		seq = (short)((seq+1)%MacMessage.Data.MAX_SEQ);
-		return seq;
-	}
-
-	/**
-	 * Return latest seen sequence number from given address.
-	 *
-	 * @param from source address
-	 * @return latest sequence number from given address
-	 */
-	private short getSeqEntry(MacAddress from)
-	{
-		SeqEntry curr = seqCache, prev = null;
-		short seq = SEQ_INVALID;
-		while(curr!=null)
-		{
-			if(from.equals(curr.from))
-			{
-				seq = curr.seq;
-				if(prev!=null)
-				{
-					prev.next = curr.next;
-					curr.next = seqCache;
-					seqCache = curr;
-				}
-				break;
-			}
-			prev = curr;
-			curr = curr.next;
-		}
-		return seq;
-	}
-
-	/**
-	 * Update latest sequence number entry for given address.
-	 *
-	 * @param from source address
-	 * @param seq latest sequence number
-	 */
-	private void updateSeqEntry(MacAddress from, short seq)
-	{
-		SeqEntry curr = seqCache, prev = null;
-		while(curr!=null)
-		{
-			if(seqCacheSize==SEQ_CACHE_SIZE && curr.next==null)
-			{
-				curr.from = from;
-				curr.seq = seq;
-				break;
-			}
-			if(from.equals(curr.from))
-			{
-				curr.seq = seq;
-				if(prev!=null)
-				{
-					prev.next = curr.next;
-					curr.next = seqCache;
-					seqCache = curr;
-				}
-				break;
-			}
-			prev = curr;
-			curr = curr.next;
-		}
-		if(curr==null)
-		{
-			if(Main.ASSERT) Util.assertion(seqCacheSize < SEQ_CACHE_SIZE);
-			curr = new SeqEntry();
-			curr.from = from;
-			curr.seq = seq;
-			curr.next = seqCache;
-			seqCache = curr;
-			seqCacheSize++;
-		}
-	}
 
 	//////////////////////////////////////////////////
 	// send-related functions
@@ -814,81 +593,8 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		}
 	}
 
-	// MacInterface.Mac802_11 interface
-	public void cfDone(boolean backoff, boolean delPacket)
-	{
-		if(backoff)
-		{
-			setBackoff();
-		}
-		doDifs();
-		if(delPacket)
-		{
-			packet = null;
-			packetNextHop = null;
-			netEntity.pump(netId);
-		}
-	}
 
-	private void sendPacket()
-	{
-		if(shouldRTS())
-		{
-			sendRts();
-		}
-		else
-		{
-			sendData(false);
-		}
-	}
-
-	private void sendRts()
-	{
-		// create rts packet
-		MacMessage.Rts rts = new MacMessage.Rts(packetNextHop, localAddr, (int)(
-				((MacMessage.Ack.SIZE
-						+MacMessage.Cts.SIZE
-						+MacMessage.Data.HEADER_SIZE
-						+2*SYNCHRONIZATION) 
-						* Constants.SECOND/bandwidth)
-						+ 4*PROPAGATION
-						+ 3*SIFS
-
-						+ transmitTime(packet)));
-		// set mode and transmit
-		setMode(MAC_MODE_XRTS);
-		long delay = RX_TX_TURNAROUND, duration = transmitTime(rts);
-		radioEntity.transmit(rts, delay, duration);
-		// wait for EOT, schedule CTS wait timer
-		JistAPI.sleep(delay+duration);
-		self.startTimer((MacMessage.Cts.SIZE+SYNCHRONIZATION)*Constants.SECOND/bandwidth 
-				+ (PROPAGATION + SIFS)
-				+ SLOT_TIME
-				+ PROPAGATION
-				+ Constants.EPSILON_DELAY,
-				MAC_MODE_SWFCTS);
-	}
-
-	private void sendCts(MacMessage.Rts rts)
-	{
-		// create cts packet
-		MacMessage.Cts cts = new MacMessage.Cts(rts.getSrc(), rts.getDst(), (int)(
-				rts.getDuration() 
-				- (MacMessage.Cts.SIZE+SYNCHRONIZATION)*Constants.SECOND/bandwidth
-				- PROPAGATION - SIFS));
-		// set mode and transmit
-		setMode(MAC_MODE_XCTS);
-		long delay = SIFS, duration = transmitTime(cts);
-		radioEntity.transmit(cts, delay, duration);
-		// wait for EOT, schedule DATA wait timer
-		JistAPI.sleep(delay+duration);
-		self.startTimer(cts.getDuration()
-				- (MacMessage.Ack.SIZE+SYNCHRONIZATION)*Constants.SECOND/bandwidth
-				- (PROPAGATION + SIFS)
-				+ SLOT_TIME
-				+ Constants.EPSILON_DELAY,
-				MAC_MODE_SWFDATA);
-	}
+	
 
 	private void sendData(boolean afterCts)
 	{
@@ -896,10 +602,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		{
 			sendDataBroadcast();
 		}
-		else
-		{
-			sendDataUnicast(afterCts);
-		}
+		
 	}
 
 	private void sendDataBroadcast()
@@ -929,140 +632,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 				self.cfDone(true, true);
 	}
 
-	private void sendDataUnicast(boolean afterCts)
-	{
-		// create data packet
-		MacMessage.Data data = new MacMessage.Data(
-				packetNextHop, localAddr, (int)(
-						(MacMessage.Ack.SIZE+SYNCHRONIZATION)*Constants.SECOND/bandwidth
-						+ (PROPAGATION + SIFS)
-						+ PROPAGATION),
-						incSeq(), (byte)0, false, 
-						(shouldRTS() ? longRetry : shortRetry) > 0,
-						packet);
-	//	data.TimeCreated = ((MacMessage)packet).TimeCreated;//.TimeEntry = JistAPI.getTime();
-	//	data.TimeEntry = ((MacMessage)packet).TimeEntry;
-	//	data.TimeSent =JistAPI.getTime();
-		
-		// set mode and transmit
-		setMode(MAC_MODE_XUNICAST);
-		long delay = afterCts ? SIFS : RX_TX_TURNAROUND, duration = transmitTime(data);
-
-		radioEntity.transmit(data, delay, duration);
-
-		//    if (stats.DISTANCE_TRACKING)
-		//    {
-		//	    if (((NetMessage.Ip)packet).getPayload() instanceof TransUdp.UdpMessage)
-		//	    {
-		//	        stats.addHoppingPacket(data, // add packet to list to be received
-		//	           stats.field.getRadioData(
-		//	                        new Integer(Integer.parseInt(localAddr.toString()))).getLocation().distance(
-		//	                                stats.field.getRadioData(
-		//	                                        new Integer(Integer.parseInt(packetNextHop.toString()))).getLocation()));
-		//	    }
-		//    }
-
-		// wait for EOT, and schedule ACK timer
-		JistAPI.sleep(delay+duration);
-		self.startTimer(MacMessage.Ack.SIZE+SYNCHRONIZATION*Constants.SECOND/bandwidth
-				+ ( PROPAGATION + SIFS)
-				+ SLOT_TIME
-				+ PROPAGATION,
-				MAC_MODE_SWFACK);
-		//self.cfDone(true, true);//bt
-	}
-
-	private void sendAck(MacMessage.Data data)
-	{
-		// create ack
-		MacMessage.Ack ack = new MacMessage.Ack(data.getSrc(), data.getDst(), 0);
-		// set mode and transmit
-		setMode(MAC_MODE_XACK);
-		long delay = SIFS, duration = transmitTime(ack);
-		radioEntity.transmit(ack, delay, duration);
-		// wait for EOT, check for outgoing packet
-		JistAPI.sleep(delay+duration);
-		self.cfDone(false, false);
-	}
-
-	//////////////////////////////////////////////////
-	// retry
-	//
-
-	private void retry()
-	{
-		// use long retry count for frames larger than RTS_THRESHOLD
-		if(shouldRTS() && mode!=MAC_MODE_SWFCTS)
-		{
-			if(longRetry < RETRY_LIMIT_LONG)
-			{
-				longRetry++;
-				retryYes();
-			}
-			else
-			{
-				longRetry = 0;
-				retryNo();
-			}
-		}
-		else
-		{
-			if(shortRetry < RETRY_LIMIT_SHORT)
-			{
-				shortRetry++;
-				retryYes();
-			}
-			else
-			{
-				shortRetry = 0;
-				retryNo();
-			}
-		}
-	}
-
-	private void retryYes()
-	{
-		incCW();
-		setBackoff();
-		doDifs();
-	}
-
-	private void retryNo()
-	{
-
-		decCW();
-		switch (mode) // TODO check that this is right
-		{
-		case MAC_MODE_SWFCTS:
-			stats.droppedCtsPackets++;
-			break;
-		case MAC_MODE_SWFACK:
-			if (!packetNextHop.equals(MacAddress.ANY))
-				netEntity.packetDropped(packet, packetNextHop);
-			if (stats.TRACK_ACKS)
-			{
-				NetMessage.Ip msg = (NetMessage.Ip)packet;
-				if (msg.getPayload() instanceof TransUdp.UdpMessage)
-				{
-					if (!stats.messageReceived(packet))
-					{
-						stats.droppedDataPackets++;
-						//stats.removeHoppingPacket(packet);
-					}
-				}
-
-				stats.droppedAckPackets++;
-				//stats.removeHoppingPacket(packet);
-			}
-
-			break;
-		default:
-			System.out.println("Gave up on transmitting "+getModeString(mode));
-		}
-
-
-		cfDone(true, true);
-	}
+	
 
 
 	//////////////////////////////////////////////////

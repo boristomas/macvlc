@@ -11,7 +11,11 @@ package jist.swans.radio;
 
 import java.awt.Color;
 import java.awt.Polygon;
+import java.awt.geom.Area;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
+import java.awt.geom.PathIterator;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -230,7 +234,7 @@ public final class RadioVLC extends RadioNoise
 	private float offsetx;
 	private float offsety;
 	private Location startLocation; //start location set on ctor.
-	public Polygon outlineShape;
+	public Path2D.Double outlineShape;
 	float tmpx1, tmpy1, tmpx2, tmpy2;
 	float Ax,Ay, Bx,By,Cx,Cy,Dx,Dy;
 	float NodeBearing =0;
@@ -267,7 +271,7 @@ public final class RadioVLC extends RadioNoise
 		 */
 		super(id, sharedInfo);
 		this.NodeID = id;
-		
+
 		if(nodeidtst == -1)
 		{
 			nodeidtst = id;
@@ -294,10 +298,10 @@ public final class RadioVLC extends RadioNoise
 		}
 
 		checkLocation(true);
-		
+
 		float visionTx = JistExperiment.getJistExperiment().getVLCvisionAngleTx();
 		float visionRx = JistExperiment.getJistExperiment().getVLCvisionAngleRx();
-		
+
 		//right
 		sensorsTx.add(new VLCsensor(1, this, lineOfSight,visionTx , location, offsetx, offsety, 0, SensorModes.Send));//front Tx
 		sensorsTx.add(new VLCsensor(2, this, lineOfSight, visionTx, location, -1*offsetx, offsety, 180, SensorModes.Send));//back Tx
@@ -320,14 +324,14 @@ public final class RadioVLC extends RadioNoise
 		//if((id % 2) == 0)
 		{
 
-	//		this.setControlSignal(2, 7);
-	//		this.setControlSignal(2, 3);
+			//		this.setControlSignal(2, 7);
+			//		this.setControlSignal(2, 3);
 		}
 	}
 
 	public float GetBearing()
 	{
-		
+
 		if( JistExperiment.getJistExperiment().mobility == Constants.MOBILITY_STATIC)
 		{
 			return vehicleStaticBearing;
@@ -367,18 +371,7 @@ public final class RadioVLC extends RadioNoise
 		this.thresholdSNR = snrThreshold;
 	}
 
-	public static Location rotatePoint(float ptx, float pty, Location center, double angleDeg)
-	{
-		double angleRad = (angleDeg/180)*Math.PI;
-		double cosAngle = Math.cos(angleRad );
-		double sinAngle = Math.sin(angleRad );
-		double dx = (ptx-center.getX());
-		double dy = (pty-center.getY());
 
-		ptx = center.getX() + (int) (dx*cosAngle-dy*sinAngle);
-		pty = center.getY() + (int) (dx*sinAngle+dy*cosAngle);
-		return new Location.Location2D(ptx, pty);
-	}
 	//private ArrayList<ControlSignal> controlSignals = new ArrayList<RadioVLC.ControlSignal>();
 
 	private VLCsensor tmpsensor;
@@ -428,7 +421,7 @@ public final class RadioVLC extends RadioNoise
 		tmpsensor = getSensorByID(sensorID);
 		if(tmpsensor != null)
 		{
-		 return tmpsensor.controlSignal.contains(channelID);
+			return tmpsensor.controlSignal.contains(channelID);
 		}
 		return false;
 	}
@@ -461,7 +454,7 @@ public final class RadioVLC extends RadioNoise
 		return false;		
 	}
 
-	
+
 
 	public static int nodeidtst = -1;
 	Location tmpLoc;
@@ -536,11 +529,20 @@ public final class RadioVLC extends RadioNoise
 		Dx = tmpLoc.getX();
 		Dy = tmpLoc.getY();
 
-		outlineShape = new Polygon();
+
+		/*outlineShape = new Polygon();
 		outlineShape.addPoint((int)Ax, (int)Ay);
 		outlineShape.addPoint((int)Bx, (int)By);
 		outlineShape.addPoint((int)Cx, (int)Cy);
 		outlineShape.addPoint((int)Dx, (int)Dy);
+		 */
+
+		outlineShape = new Path2D.Double();
+		outlineShape.moveTo(Ax, Ay);
+		outlineShape.lineTo(Bx, By);
+		outlineShape.lineTo(Cx, Cy);
+		outlineShape.lineTo(Dx, Dy);
+		outlineShape.closePath();
 
 		/*	if(nodeidtst == -1)
 		{
@@ -555,11 +557,24 @@ public final class RadioVLC extends RadioNoise
 		{
 			//TODO: maknuti ovo nodeidtst jer sluzi samo za testiranje vizualizacije.
 			GenericDriver.btviz.getGraph().setColor(Color.black);
-			GenericDriver.btviz.getGraph().fillPolygon(outlineShape);//.drawRect((int)tmpx1, (int)tmpy1, 20 , 20);
+			//GenericDriver.btviz.getGraph().drawRect(, y, width, height);, yPoints, nPoints); fillPolygon(outlineShape);//.drawRect((int)tmpx1, (int)tmpy1, 20 , 20);
 			GenericDriver.btviz.getGraph().setColor(Color.red);
 			GenericDriver.btviz.getGraph().drawString(""+NodeID, (int)NodeLocation.getX(), (int)NodeLocation.getY());
 			//GenericDriver.btviz.getGraph().setColor(Color.red);
 		}
+	}
+	public static Location rotatePoint(float ptx, float pty, Location center, double angleDeg)
+	{
+		double angleRad = (angleDeg/180)*Math.PI;
+
+		double cosAngle = Math.cos(angleRad );
+		double sinAngle = Math.sin(angleRad );
+		double dx = (ptx-center.getX());
+		double dy = (pty-center.getY());
+
+		ptx = center.getX() +  (float)(dx*cosAngle-dy*sinAngle);
+		pty = center.getY() +  (float)(dx*sinAngle+dy*cosAngle);
+		return new Location.Location2D(ptx, pty);
 	}
 
 	//////////////////////////////////////////////////
@@ -575,6 +590,10 @@ public final class RadioVLC extends RadioNoise
 		if(power_mW < radioInfo.shared.sensitivity_mW) 
 		{
 			return;
+		}
+		if(msg instanceof MacMessage.Data)
+		{
+			((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(25, "radiovlct-rec", null));
 		}
 		checkLocation(false);
 
@@ -663,7 +682,7 @@ public final class RadioVLC extends RadioNoise
 	/** {@inheritDoc} */
 	public void transmit(Message msg, long delay, long duration)
 	{
-		
+
 		// radio in sleep mode
 		if(mode==Constants.RADIO_MODE_SLEEP) return;
 		// ensure not currently transmitting
@@ -986,16 +1005,42 @@ public final class RadioVLC extends RadioNoise
 		return returnNodes;
 	}
 
-	public static boolean intersects(Polygon poly, Line2D line) {
-		for(int i=0; i < poly.npoints; i++) {
-			int j = (i+1) % poly.npoints;
-			int x1 = poly.xpoints[i];
-			int y1 = poly.ypoints[i];
-			int x2 = poly.xpoints[j];
-			int y2 = poly.ypoints[j];
-			Line2D edge = new Line2D.Float(x1, y1, x2, y2);
-			if (edge.intersectsLine(line)) {
-				return true;
+	public static boolean intersects(Path2D.Double path, Line2D line) {
+		double x1 = -1 ,y1 = -1 , x2= -1, y2 = -1;
+		for (PathIterator pi = path.getPathIterator(null); !pi.isDone(); pi.next()) 
+		{
+			double[] coordinates = new double[6];
+			switch (pi.currentSegment(coordinates))
+			{
+			case PathIterator.SEG_MOVETO:
+			case PathIterator.SEG_LINETO:
+			{
+				if(x1 == -1 && y1 == -1 )
+				{
+					x1= coordinates[0];
+					y1= coordinates[1];
+					break;
+				}				
+				if(x2 == -1 && y2 == -1)
+				{
+					x2= coordinates[0];				
+					y2= coordinates[1];
+					break;
+				}
+				break;
+			}
+			}
+			if(x1 != -1 && y1 != -1 && x2 != -1 && y2 != -1)
+			{
+				Line2D segment = new Line2D.Double(x1, y1, x2, y2);
+				if (segment.intersectsLine(line)) 
+				{
+					return true;
+				}
+				x1 = -1;
+				y1 = -1;
+				x2 = -1;
+				y2 = -1;
 			}
 		}
 		return false;

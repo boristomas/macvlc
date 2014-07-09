@@ -449,6 +449,7 @@ public final class Constants
 	public static final long ASSIGN_REASSIGN_TIME = 5*SECOND;
 	public static class VLCconstants
 	{
+		
 		/**
 		 * Total number of sent messages
 		 */
@@ -470,31 +471,69 @@ public final class Constants
 		{
 
 			String res = "";
-			
-			String filename =System.getProperty("user.home") + "/Desktop/" +"measureData.csv";
-			int sent = 0;
-			int received = 0;
-			int rec3 = 0;
+
+			String filename =System.getProperty("user.home") + "/Desktop/" +"VLCMeasureData.csv";
+
+			/* 
+			 * timeid:
+			 * 0 - // kada je poruka kreirana
+			 * 1 - //kada je poruka puštena na mac sloj. mac.send
+			 * 2 - //kada je mac sloj poslao poruku sloju ispod, radioentity.transmit
+			 * 3 - //kada je drugi mac sloj primio poruku, mac.receive
+			 * 4 - //kada je drugi mac sloj poslao poruku sloju iznad, netentity.receive.
+			 * 5 - //kada je drugi mac sloj poslao poruku sloju iznad, netentity.receive. i poruka je naslovljena za primatelja.*/
+			int t0 = 0;
+			int t1 = 0;
+			int t2 = 0;
+			int t3 = 0;
+			int t4 = 0;
+			int t5 = 0;
+			long time1 =0;
+			long sumt5t1 =0;
 			PrintWriter writer;
 			try {
 				writer = new PrintWriter(filename, "UTF-8");
 				for (NetMessage.Ip item : TimeEntry.AllMessages)
 				{
 					res = "";
-					
-					res+= item.hashCode(); 
+					res+= item.getId()+ ","+ item.getSrc() +"," + item.getDst(); 
 					for (TimeEntry time : item.Times) 
 					{
-						if(time.TimeID == 1)
+						switch (time.TimeID) {
+						case 0:
 						{
-							sent++;
+							t0++;
+							break;
 						}
-						if(time.TimeID == 4)
+
+						case 1:
 						{
-							received ++;
+							time1 = time.Time;
+							t1++;
+							break;
 						}
-						if (time.TimeID == 3) {
-							rec3++;
+						case 2:
+						{
+							t2++;
+							break;
+						}
+						case 3:
+						{
+							t3++;
+							break;
+						}
+						case 4:
+						{
+							t4++;
+							break;
+						}
+						case 5:
+						{
+							t5++;
+							sumt5t1 += (time.Time-time1);
+							break;
+						}
+
 						}
 						res += "," +time.TimeID + " - " + time.Time;
 					}
@@ -509,23 +548,28 @@ public final class Constants
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	
+
 			System.out.println();
 			return "-----VLC data-----" + "\n"+
-					"MAC implementation = "+ MACimplementationUsed + "\n"+
-					"MAC Sent = " + sent + "\n"+
-					"MAC Received = " + received + "\n"+
-					"MAC rec3 = " + rec3 + "\n"+
-					"Sent Direct = " + SentDirect + "\n"+
-					"Sent Broadcasts = "+ SentBroadcast + "\n" +
-					"Received = " + Received + "\n"+
-					"Dropped on send = " + DroppedOnSend + "\n"+
-					"Dropped on receive = " + DroppedOnReceive + "\n"+
-					"CBR messages total = " + CBRmessages + "\n"+
-					"NetIP sent = " + NetIPSent + "\n"+
-					"NetIP received = " + NetIPReceived + "\n"+
-					"NetIP received for me= " + NetIPReceivedForMe + "\n"+
-					"NetIP dropped = " + NetIPDropped+ "\n"+
+			"MAC implementation = "+ MACimplementationUsed + "\n"+
+			"MAC PDR = " + 100*((float)t5/(float)t1) + "%\n"+
+			"MAC avg(t5-t1) = " + (float)sumt5t1/(float)t5 + "\n"+
+			"MAC count(T0) = " + t0 + "\n"+
+			"MAC count(T1) = " + t1 + "\n"+
+			"MAC count(T2) = " + t2 + "\n"+
+			"MAC count(T3) = " + t3 + "\n"+
+			"MAC count(T4) = " + t4 + "\n"+
+			"MAC count(T5) = " + t5 + "\n"+
+			"Sent Direct = " + SentDirect + "\n"+
+			"Sent Broadcasts = "+ SentBroadcast + "\n" +
+			"Received = " + Received + "\n"+
+			"Dropped on send = " + DroppedOnSend + "\n"+
+			"Dropped on receive = " + DroppedOnReceive + "\n"+
+			"CBR messages total = " + CBRmessages + "\n"+
+			"NetIP sent = " + NetIPSent + "\n"+
+			"NetIP received = " + NetIPReceived + "\n"+
+			"NetIP received for me= " + NetIPReceivedForMe + "\n"+
+			"NetIP dropped = " + NetIPDropped+ "\n"+
 					"-----VLC data-----" + "\n";
 		}
 	}

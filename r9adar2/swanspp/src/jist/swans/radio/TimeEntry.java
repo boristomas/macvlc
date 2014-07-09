@@ -11,11 +11,13 @@ import jist.swans.net.NetMessage;
 
 /**
  * timeid:
- *	0 - public long TimeNCreated;// kada je poruka kreirana
- *	1 - public long TimeNEntry; //kada je poruka puštena na mac sloj. mac.send
- *	2 - public long TimeNSent; //kada je mac sloj poslao poruku sloju ispod, radioentity.transmit
- *	3 - public long TimeNReceived; //kada je drugi mac sloj primio poruku, mac.receive
- *	4 - public long TimeNExit; //kada je drugi mac sloj poslao poruku sloju iznad, netentity.receive.
+ *	0 - // kada je poruka kreirana
+ *	1 - //kada je poruka puštena na mac sloj. mac.send
+ *	2 - //kada je mac sloj poslao poruku sloju ispod, radioentity.transmit
+ *  25- //kada je radio primio poruku s druge strane, radioentity.receive.
+ *	3 - //kada je drugi mac sloj primio poruku, mac.receive
+ *	4 - //kada je drugi mac sloj poslao poruku sloju iznad, netentity.receive.
+ *  5 - //kada je drugi mac sloj poslao poruku sloju iznad, netentity.receive. i poruka je naslovljena za primatelja.
  * @author BorisTomas
  * 
  */

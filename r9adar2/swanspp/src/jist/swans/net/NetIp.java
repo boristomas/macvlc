@@ -381,7 +381,8 @@ public class NetIp implements NetInterface
     if(!promisc)
     {
       if(isForMe(ipmsg))
-      {          
+      {       
+    	  ipmsg.Times.add(new TimeEntry(5, "formenetip", null));
           JistAPI.sleep(Constants.NET_DELAY);
           Constants.VLCconstants.NetIPReceivedForMe++;
         getProtocolHandler(ipmsg.getProtocol()).receive(ipmsg.getPayload(), 
