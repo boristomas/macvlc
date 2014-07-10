@@ -620,8 +620,7 @@ public final class RadioVLC extends RadioNoise
 		//else, nije bcast, provjera moze li talk se radi na transmit strani, tako da je cantalk provjera redundantna.
 
 
-		if(power_mW < radioInfo.shared.threshold_mW 
-				|| power_mW < radioInfo.shared.background_mW * thresholdSNR) msg = null;
+		if(power_mW < radioInfo.shared.threshold_mW || power_mW < radioInfo.shared.background_mW * thresholdSNR) msg = null;
 		switch(mode)
 		{
 		case Constants.RADIO_MODE_IDLE:
