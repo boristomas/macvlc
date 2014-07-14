@@ -11,6 +11,7 @@ package jist.swans.mac;
 
 import java.util.HashMap;
 
+import sun.management.Sensor;
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.Main;
@@ -31,7 +32,7 @@ import driver.JistExperiment;
  * @version 1
  */
 
-public class MacVLCBoris implements MacInterface.Mac802_11
+public class MacVLCBoris implements MacInterface.Mac802_11, VLCmacInterface
 {
 
 	////////////////////////////////////////////////////
@@ -216,7 +217,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 			{
 				//setBackoff();
 			}
-			doDifs();
+//			doDifs();
 			if(delPacket)
 			{
 				packet = null;
@@ -259,7 +260,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 	protected byte radioMode;
 
 	/** whether last reception had an error. */
-	protected boolean needEifs;
+//	protected boolean needEifs;
 
 	// timer
 
@@ -341,7 +342,6 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 
 		// proxy
 		self = (MacInterface.Mac802_11)JistAPI.proxy(this, MacInterface.Mac802_11.class);
-
 		init(addr, radioInfo, promisc);
 	}
 
@@ -349,6 +349,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 	 * nodeID for source radio.
 	 */
 	public int SourceNodeID;
+	
 	/**
 	 * Instantiate new 802_11b entity.
 	 *
@@ -366,15 +367,13 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 
 	void init(MacAddress addr, RadioInfo radioInfo, boolean promisc)
 	{
-
 		// properties
-
 		localAddr = addr;
 		this.promisc = promisc;
 		// status
 		mode = MAC_MODE_SIDLE;
 		radioMode = Constants.RADIO_MODE_IDLE;
-		needEifs = false;
+		//needEifs = false;
 		// timer identifier
 		timerId = 0;
 		// backoff
@@ -393,7 +392,6 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		// current packet
 		packet = null;
 		packetNextHop = null;
-
 	}
 
 	//////////////////////////////////////////////////
@@ -458,12 +456,12 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 	{
 		switch(mode)
 		{
-		case MAC_MODE_SWFCTS:
-		case MAC_MODE_SWFDATA:
-		case MAC_MODE_SWFACK:
-			return true;
-		default:
-			return false;
+			case MAC_MODE_SWFCTS:
+			case MAC_MODE_SWFDATA:
+			case MAC_MODE_SWFACK:
+				return true;
+			default:
+				return false;
 		}
 	}
 
@@ -476,14 +474,14 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 	{
 		switch(mode)
 		{
-		case MAC_MODE_XRTS:
-		case MAC_MODE_XCTS:
-		case MAC_MODE_XUNICAST:
-		case MAC_MODE_XBROADCAST:
-		case MAC_MODE_XACK:
-			return true;
-		default:
-			return false;
+			case MAC_MODE_XRTS:
+			case MAC_MODE_XCTS:
+			case MAC_MODE_XUNICAST:
+			case MAC_MODE_XBROADCAST:
+			case MAC_MODE_XACK:
+				return true;
+			default:
+				return false;
 		}
 	}
 
@@ -538,8 +536,6 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		return (SYNCHRONIZATION + size) * Constants.SECOND/bandwidth;
 	}
 
-
-
 	/**
 	 * Determine whether channel is idle according to both physical and virtual
 	 * carrier sense.
@@ -552,9 +548,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		//maknuo sam nav
 	}
 
-
-
-
+	
 	//////////////////////////////////////////////////
 	// send-related functions
 	//
@@ -563,23 +557,10 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 	@SuppressWarnings("unused")
 	public void send(Message msg, MacAddress nextHop)
 	{
-		
-		//jist.swans.misc.Location SourceNode;
-		//jist.swans.misc.Location DestinationNode;
-		//int DestinationNodeID = nextHop.hashCode();
-		//jist.runtime.Controller.activeController.getSimulationTime();
+//		netEntity.packetDropped(msg, nextHop);
 
-		/*  if(DestinationNodeID == -1)
-		  return;
-	  SourceNode = JistExperiment.getJistExperiment().visualizer.getField().getRadioData(SourceNodeID).getLocation();
-	  DestinationNode = JistExperiment.getJistExperiment().visualizer.getField().getRadioData(DestinationNodeID).getLocation();
-		 */
 		((NetMessage.Ip)msg).Times.add(new TimeEntry(1, "macbt", null));//= JistAPI.getTime();
-		
 		MacMessage.Data data = new MacMessage.Data(nextHop, localAddr,0, msg);
-		//		data.TimeCreated = ((MacMessage)packet).TimeCreated;//.TimeEntry = JistAPI.getTime();
-		//		data.TimeEntry = ((MacMessage)packet).TimeEntry;
-		//		data.TimeSent =JistAPI.getTime();
 				
 		if(isRadioIdle())
 		{
@@ -589,12 +570,16 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 				radioEntity.transmit(data, delay, duration);
 				// wait for EOT, check for outgoing packet
 				JistAPI.sleep(delay+duration);
-				self.cfDone(true, true);
-		}		
-/*		
-		if(Main.ASSERT) Util.assertion(!hasPacket());
-		if(Main.ASSERT) Util.assertion(nextHop!=null);
-		packet = msg;
+			//	self.cfDone(true, true);
+		}	
+		else
+		{
+	//		netEntity.packetDropped(msg, nextHop);
+		}
+		
+		//if(Main.ASSERT) Util.assertion(!hasPacket());
+		//if(Main.ASSERT) Util.assertion(nextHop!=null);
+	/*	packet = msg;
 		packetNextHop = nextHop;
 		if(mode==MAC_MODE_SIDLE)
 		{
@@ -606,17 +591,17 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		}*/
 	}
 
-	private void doDifs()
+/*	private void doDifs()
 	{
 		if(isRadioIdle())
 		{
-			if(true)//waitingNav())
+			if(waitingNav())
 			{
 				startTimer(nav-JistAPI.getTime(), MAC_MODE_SNAV);
 			}
 			else
 			{
-				startTimer(needEifs ? EIFS : DIFS, MAC_MODE_DIFS);
+			//	startTimer(needEifs ? EIFS : DIFS, MAC_MODE_DIFS);
 			}
 		}
 		else
@@ -624,20 +609,24 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 			idle();
 		}
 	}
-
+	private boolean waitingNav()
+	{
+		return false;
+		//return nav > JistAPI.getTime();
+	}
+*/
 
 	
 
-	private void sendData(boolean afterCts)
+/*	private void sendData(boolean afterCts)
 	{
 		if(isBroadcast())
 		{
 			sendDataBroadcast();
 		}
-		
-	}
+	}*/
 
-	private void sendDataBroadcast()
+/*	private void sendDataBroadcast()
 	{
 
 	//	MacMessage.Data msg;
@@ -650,7 +639,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		}*/
 		
 		// create data packet
-				MacMessage.Data data = new MacMessage.Data(packetNextHop, localAddr,0, packet);
+	/*			MacMessage.Data data = new MacMessage.Data(packetNextHop, localAddr,0, packet);
 		//		data.TimeCreated = ((MacMessage)packet).TimeCreated;//.TimeEntry = JistAPI.getTime();
 		//		data.TimeEntry = ((MacMessage)packet).TimeEntry;
 		//		data.TimeSent =JistAPI.getTime();
@@ -662,7 +651,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 				// wait for EOT, check for outgoing packet
 				JistAPI.sleep(delay+duration);
 				self.cfDone(true, true);
-	}
+	}*/
 
 	
 
@@ -674,7 +663,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 	// MacInterface
 	public void peek(Message msg)
 	{
-		needEifs = true;
+	//	needEifs = true;
 		if (mode == MAC_MODE_SNAV_RTS) 
 		{
 			idle();
@@ -689,21 +678,23 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 
 	private void receivePacket(MacMessage msg)
 	{
-		needEifs = false;
+		//needEifs = false;
 		MacAddress dst = msg.getDst();
+		switch(msg.getType())
+		{
+		case MacMessage.TYPE_DATA:
+			receiveData((MacMessage.Data)msg);
+			break;
+		default:
+			throw new RuntimeException("illegal frame type");
+		}
+		/*
 		if(localAddr.equals(dst))
 		{
-			switch(msg.getType())
-			{
-			case MacMessage.TYPE_DATA:
-				receiveData((MacMessage.Data)msg);
-				break;
-			default:
-				throw new RuntimeException("illegal frame type");
-			}
+			
 		}
 		else if(MacAddress.ANY.equals(dst))
-		{//bcast
+		{
 			switch(msg.getType())
 			{
 			case MacMessage.TYPE_DATA:
@@ -717,30 +708,31 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		{
 			// does not belong to node
 			receiveForeign(msg);
-		}
+		}*/
 	}
 
 	
 	private void receiveData(MacMessage.Data msg)
 	{
+		
 		// not in standard, but ns-2 does.
 		// decCW();
 		// shortRetry = 0;
-		if(mode==MAC_MODE_SWFDATA || !isAwaitingResponse())
-		{
-			if(MacAddress.ANY.equals(msg.getDst()))
-			{
+	//	if(mode==MAC_MODE_SWFDATA || !isAwaitingResponse())
+	//	{
+		//	if(MacAddress.ANY.equals(msg.getDst()))
+		//	{
 				((NetMessage.Ip)msg.getBody()).Times.add(new TimeEntry(3, "macbtrec", null));
 				netEntity.receive(msg.getBody(), msg.getSrc(), netId, false);
-			//	cfDone(false, false);
-			}
-			else
-			{
-				cancelTimer();
-			}
-		}
+				//cfDone(false, false);
+		//	}
+		//	else
+		//	{
+		//		cancelTimer();
+		//	}
+		//}
 	}
-
+/*
 	private void receiveForeign(MacMessage msg)
 	{
 		long currentTime = JistAPI.getTime();
@@ -776,7 +768,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 			MacMessage.Data macDataMsg = (MacMessage.Data)msg;
 			netEntity.receive(macDataMsg.getBody(), macDataMsg.getSrc(), netId, true);
 		}
-	}
+	}*/
 
 	//////////////////////////////////////////////////
 	// radio mode
@@ -817,7 +809,6 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		switch(mode)
 		{
 		case MAC_MODE_SBO:
-
 			idle();
 			break;
 		case MAC_MODE_DIFS:
@@ -848,8 +839,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		case MAC_MODE_SIDLE:
 			// TODO drc: are these in the right place
 		case MAC_MODE_SNAV: // not sure, but maybe we want to do Difs here
-
-			doDifs();
+	//		doDifs();
 			break;
 		case MAC_MODE_SWFCTS:
 		case MAC_MODE_SWFDATA:
@@ -900,6 +890,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 	// MacInterface
 	public void timeout(int timerId)
 	{
+	
 		if(timerId!=this.timerId) return;
 		switch(mode)
 		{
@@ -917,7 +908,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 			if(Main.ASSERT) Util.assertion(boStart + bo == JistAPI.getTime());
 			if(hasPacket())
 			{
-			//	sendPacket();
+		//		sendData(false);
 			}
 			else
 			{
@@ -927,11 +918,11 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		case MAC_MODE_SNAV_RTS:
 		case MAC_MODE_SNAV:
 		
-			doDifs();
+		//	doDifs();
 			break;
 		case MAC_MODE_SWFDATA:
 
-			doDifs();
+			//doDifs();
 			break;
 
 		case MAC_MODE_SWFACK:
@@ -940,7 +931,7 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 			break;
 		default:
 			//throw new RuntimeException("unexpected mode: "+mode);
-			System.err.println("unexpected mode: "+getModeString(mode));
+		//	System.err.println("unexpected mode: "+getModeString(mode));
 		}
 	}
 
@@ -961,6 +952,22 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 	@Override
 	public String toString() {
 		return localAddr.toString();
+	}
+	@Override
+	public void notifyInterference(Sensor[] sensors) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void notifyError(int errorCode, String message) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void notifyTransmitFail(Message msg, int errorCode) 
+	{
+		System.out.println("transmit fail error #"+errorCode);
+		
 	}
 }
 

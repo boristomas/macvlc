@@ -47,3 +47,4 @@ cetvrti
 [] [] []
 
 --------------------------------------------- 
+net sloj a i svaki drugi sloj bi trebao imati sucelja odvojena, prema svakom susjednom sloju, a ne isti, npr. ja iz mac sloja mogu vidjeti metode netsloja koje koristi link sloj.

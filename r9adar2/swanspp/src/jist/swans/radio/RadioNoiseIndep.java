@@ -90,8 +90,7 @@ public final class RadioNoiseIndep extends RadioNoise
     // ignore if below sensitivity
     if(power_mW < radioInfo.shared.sensitivity_mW) return;
     // discard message if below threshold
-    if(power_mW < radioInfo.shared.threshold_mW 
-        || power_mW < radioInfo.shared.background_mW * thresholdSNR) msg = null;
+    if(power_mW < radioInfo.shared.threshold_mW  || power_mW < radioInfo.shared.background_mW * thresholdSNR) msg = null;
     switch(mode)
     {
       case Constants.RADIO_MODE_IDLE:

@@ -98,7 +98,7 @@
 -->
 </void>
 <void property="MACProtocol">
-<string>MACprotocolBoris</string>
+<string>MACprotocol802_11</string>
 <!-- <string>MACprotocol802_11</string>-->
 </void>
 <void property="MeasurementMode">

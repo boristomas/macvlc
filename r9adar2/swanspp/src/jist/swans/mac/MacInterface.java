@@ -67,6 +67,9 @@ public interface MacInterface extends JistAPI.Proxiable
   void setRadioEntity(RadioInterface radio);
   void setNetEntity(NetInterface net, byte netid);
   
+ 
+ 
+  
   //////////////////////////////////////////////////
   // 802.11 interface
   //
@@ -79,6 +82,7 @@ public interface MacInterface extends JistAPI.Proxiable
    */
   public static interface Mac802_11 extends MacInterface
   {
+	  
 
     /**
      * Initiate a timer event. Note that only one timer event can be active at a

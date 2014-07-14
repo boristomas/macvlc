@@ -234,6 +234,13 @@ public final class Constants
 	/** Simple MAC number. */
 	public static final short MAC_DUMB        = 2;
 
+	
+	//////mac vlc constants
+	public static final int MacVlcErrorSensorIsNotTX = 1;
+	public static final int MacVlcErrorSensorTxIsBusy = 2;
+	
+	
+	
 	//////////////////////////////////////////////////
 	// Network-related constants
 	//

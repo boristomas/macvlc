@@ -36,10 +36,13 @@ import jist.swans.Main;
 import jist.swans.field.Field;
 import jist.swans.field.Mobility.StaticInfo;
 import jist.swans.mac.MacMessage;
+import jist.swans.mac.VLCmacInterface;
 import jist.swans.misc.Location;
 import jist.swans.misc.Message;
 import jist.swans.misc.Util;
 import jist.swans.net.NetMessage;
+import jist.swans.radio.VLCsensor.SensorModes;
+import jist.swans.radio.VLCsensor.SensorStates;
 import driver.GenericDriver;
 import driver.JistExperiment;
 import driver.spatial;
@@ -54,172 +57,11 @@ import driver.spatial;
 
 public final class RadioVLC extends RadioNoise
 {
-	//širina: 1,7 +-0.3
-	//dužina: 5+-0.5
-	//	private float vehicleDevLength =0;// 0.5F ;
-	//	private float vehicleLength =50.0F;//5
-
-	//private float vehicleDevWidth =0;//0.3F;
-	//	private float vehicleWidth = 50.0F;//1,7
 	public int NodeID;
 	//public Location currentLocation;
 	private Location newLocation;//used to store new location
 	public float vehicleStaticBearing =0F; 
 
-	public enum SensorModes
-	{
-		Receive(0),
-		Send(1),
-		//SendAndReceive(2),
-		Unknown(3);
-		private int code;
-
-		private SensorModes(int c) {
-			code = c;
-		}
-
-		public int getCode() {
-			return code;
-		}
-	}
-
-	public class VLCsensor
-	{
-		public float distanceLimit = 250;
-		public float visionAngle = 60;
-		public float offsetX =10;
-		public float offsetY = 10;
-		public float sensorBearing = 0;
-		public int sensorID = 0;
-		public SensorModes mode;
-		public RadioVLC node;
-		private Location sensorLocation;
-		private Location sensorLocation1;//top
-		private Location sensorLocation2;//bottom
-		private float sensorBearingNotRelative;
-		private float stickOut = 0.001F; //1cm
-
-		private HashSet<Integer> controlSignal = new HashSet<Integer>();
-
-		public VLCsensor(int sensorID, RadioVLC node, float distancelimit, float visionAngle,Location originalLoc, float offsetX, float offsetY, float bearing, SensorModes mode) 
-		{
-			/*notes:
-			 * kod 802.11 vlc radio treba slati i primati sa svih senzora i na taj nacin simulirati omni.
-			 * naš mac bi trebao selektivno odabrati pojedini senzor (tx i rx) i samo njega koristiti. 
-			 * Što je sa preklapanjima, dogaðati æe se da æe i lijevi i desni primiti signal 
-			 * MAC:
-			 * *Bearing(vektor, GPS), sve za topologiju, hardverski razmjestaj senzora na vozilu.
-			 * *svaki cvor ce znati kada ec moci nekome poslati poruku i kada ce nekoga moci cuti 
-			 * 
-			 * LINKS:
-			 * http://en.wikipedia.org/wiki/MIMO
-			 * http://djw.cs.washington.edu/papers/mimo_for_dummies.pdf
-			 * */
-			this.node = node;
-			this.distanceLimit = distancelimit; 
-			this.visionAngle = visionAngle;
-			this.offsetX = offsetX;
-			this.offsetY = offsetY;
-			if(this.offsetX >0)
-			{
-				this.offsetX += stickOut;
-			}
-			else
-			{
-				this.offsetX -= stickOut;
-			}
-			if(this.offsetY >0)
-			{
-				this.offsetY += stickOut;
-			}
-			else
-			{
-				this.offsetY -= stickOut;
-			}
-			this.sensorBearing = bearing;
-			this.sensorID = sensorID;
-			this.mode = mode;
-			UpdateShape(originalLoc, node.NodeBearing);
-
-		}
-		private Polygon poly;
-		public void UpdateShape(Location NodeLocation, float NodeBearing)
-		{
-			sensorBearingNotRelative = NodeBearing + sensorBearing;
-
-			sensorLocation = rotatePoint(NodeLocation.getX()+ offsetX, NodeLocation.getY()+ offsetY, NodeLocation, NodeBearing); //new Location.Location2D(tmpx, tmpy);//start.
-			sensorLocation1 = getVLCCornerPoint(sensorBearingNotRelative - (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
-			sensorLocation2 = getVLCCornerPoint(sensorBearingNotRelative + (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
-			//	if(node.NodeID == nodeidtst)
-			{
-				poly = new Polygon();
-				poly.addPoint((int)sensorLocation.getX(), (int)sensorLocation.getY());
-				poly.addPoint((int)sensorLocation1.getX(), (int)sensorLocation1.getY());
-				poly.addPoint((int)sensorLocation2.getX(), (int)sensorLocation2.getY());
-				if(mode == SensorModes.Receive)
-				{
-
-					GenericDriver.btviz.getGraph().setColor(Color.yellow);
-				}
-				else
-				{
-					GenericDriver.btviz.getGraph().setColor(Color.red);
-				}
-				GenericDriver.btviz.getGraph().drawPolygon(poly);
-				GenericDriver.btviz.getGraph().setColor(Color.cyan);
-				GenericDriver.btviz.getGraph().drawString(""+sensorID, (int)sensorLocation.getX()+5, (int)sensorLocation.getY());
-			}
-			//	System.out.println("draw bt "+ sensorBearingNotRelative + " - nb= "+NodeBearing+" - "+(int)sensorLocation.getX() + " "+ (int)sensorLocation.getY() + " " +(int)sensorLocation1.getX() + " "+ (int)sensorLocation1.getY() +" " +(int)sensorLocation2.getX() + " "+ (int)sensorLocation2.getY()  );
-		}
-
-
-		/**
-		 * This method will need to be called two times. Each call will detect one corner point of the vlc device's view
-		 * @param theta: the angle of the bearing +- visionAngle
-		 * @param origin: starting point
-		 * @param distanceLimit: the max distance the vlc device can see
-		 * @param visionAngle: the angle at which the vlc device can see from the front of the car
-		 */
-		public Location getVLCCornerPoint(float theta, Location origin, float distLimit, float visionAngle)
-		{
-			Location cornerPoint; 
-			int quadrant = 0; 
-			float hypotenuse = (float)(distanceLimit/Math.cos(((visionAngle/2)*Math.PI)/(180))); 
-
-			//first detect what quadrant theta falls, to see how bearing affects corner points
-			if(theta >= 0 && theta <= 90)
-			{
-				quadrant = 1;
-
-				cornerPoint = new Location.Location2D(origin.getX()+ (float) (hypotenuse * Math.cos((Math.PI*(theta))/(180))),origin.getY()+ (float) (hypotenuse * Math.sin((Math.PI*(theta))/(180))));			
-			}
-			else if(theta > 90 && theta <= 180)
-			{
-				quadrant = 2; 	
-				cornerPoint = new Location.Location2D(origin.getX()+(float) (-1 * hypotenuse * Math.cos((Math.PI*(90*quadrant-theta))/(180))),origin.getY()+ (float) (hypotenuse * Math.sin((Math.PI*(90*quadrant-theta))/(180)))); 
-			}
-			else if(theta > 180 && theta <= 270)
-			{
-				quadrant = 3;
-				//x coordinate needs sin function here. the Y axis between the 3rd and 4th quadrants is being used to compute the angle.
-				//likewise, cos needs to be used here to find the y coordinate.
-				cornerPoint = new Location.Location2D(origin.getX()+(float) (-1 * hypotenuse * Math.sin((Math.PI*(90*quadrant-theta))/(180))),origin.getY()+ (float) (-1 * hypotenuse * Math.cos((Math.PI*(90*quadrant-theta))/(180))));					
-			}
-			else
-			{
-				quadrant = 4;		
-				cornerPoint = new Location.Location2D(origin.getX()+(float) (hypotenuse * Math.cos((Math.PI*(90*quadrant-theta))/(180))),origin.getY()+ (float) (-1 * hypotenuse * Math.sin((Math.PI*(90*quadrant-theta))/(180))));
-			}
-			//cornerPoint = new Location.Location2D(//co, y)
-			return cornerPoint; 
-		}
-
-		/*public LinkedList<Location> getCoverageNodes()
-		{
-
-		}*/
-
-	}//VLCsensor
 	//////////////////////////////////////////////////
 	// locals
 	//
@@ -227,8 +69,9 @@ public final class RadioVLC extends RadioNoise
 	/**
 	 * threshold signal-to-noise ratio.
 	 */
-	public LinkedList<VLCsensor> sensorsTx = new LinkedList<RadioVLC.VLCsensor>();
-	public LinkedList<VLCsensor> sensorsRx = new LinkedList<RadioVLC.VLCsensor>();
+	private VLCsensor tmpsensor;
+	public LinkedList<VLCsensor> sensorsTx = new LinkedList<VLCsensor>();
+	public LinkedList<VLCsensor> sensorsRx = new LinkedList<VLCsensor>();
 	public int lineOfSight = 30;
 	protected double thresholdSNR;
 	private float offsetx;
@@ -322,11 +165,11 @@ public final class RadioVLC extends RadioNoise
 
 
 		//if((id % 2) == 0)
-		{
+		//{
 
-			//		this.setControlSignal(2, 7);
-			//		this.setControlSignal(2, 3);
-		}
+		//		this.setControlSignal(2, 7);
+		//		this.setControlSignal(2, 3);
+		//	}
 	}
 
 	public float GetBearing()
@@ -374,7 +217,7 @@ public final class RadioVLC extends RadioNoise
 
 	//private ArrayList<ControlSignal> controlSignals = new ArrayList<RadioVLC.ControlSignal>();
 
-	private VLCsensor tmpsensor;
+
 	/**
 	 * sets Control signal for current radio and sensor
 	 * 
@@ -584,19 +427,26 @@ public final class RadioVLC extends RadioNoise
 	/** {@inheritDoc} */
 	public void receive(Message msg, Double powerObj_mW, Long durationObj)
 	{ 
+		if(mode==Constants.RADIO_MODE_SLEEP) return;
+
 		final double power_mW = powerObj_mW.doubleValue();
 		final long duration = durationObj.longValue();
 		// ignore if below sensitivity
 		if(power_mW < radioInfo.shared.sensitivity_mW) 
 		{
+			System.out.println("message is too weak.");
 			return;
 		}
+
 		if(msg instanceof MacMessage.Data)
 		{
+			//mjerenje vremena.
 			((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(25, "radiovlct-rec", null));
 		}
+
 		checkLocation(false);
 
+		///ako poruka nema postavljene senzore postavljam u sve.
 		if(((MacMessage)msg).getSensorIDRx().size() == 0)
 		{
 			for (VLCsensor item : this.sensorsRx)
@@ -605,22 +455,38 @@ public final class RadioVLC extends RadioNoise
 			}
 		}
 
-		//if(((MacMessage)msg).getDst().hashCode() == -1)
-		//{
-		//samo ako je bcast onda na receive provjeravam can talk, inace ne.
-		//u cantalk prosljeðujem id cvora koji je primio bcast poruku.
+		//u cantalk prosljeðujem id cvora koji je primio poruku.
+		//provjeravam jesu li si u piti ili ne.
 		msg = CanTalk(((MacMessage)msg).getSrc().hashCode(), radioInfo.unique.getID(), SensorModes.Receive, (MacMessage)msg);
-		if(msg == null )
+		if(msg == null)
 		{
 			Constants.VLCconstants.DroppedOnReceive++;
 			return;
 		}
 		Constants.VLCconstants.Received++;
-		//}
-		//else, nije bcast, provjera moze li talk se radi na transmit strani, tako da je cantalk provjera redundantna.
-
 
 		if(power_mW < radioInfo.shared.threshold_mW || power_mW < radioInfo.shared.background_mW * thresholdSNR) msg = null;
+
+		if(this.macEntity instanceof VLCmacInterface)
+		{
+			for (int item : ((MacMessage)msg).getSensorIDRx())
+			{
+				tmpSensorReceive = this.getSensorByID(item);
+				if(tmpSensorTransmit.mode == SensorModes.Receive)
+				{//ok
+
+				}
+				else
+				{
+
+				}
+			}
+		}
+		else
+		{//neki obican mac je.
+
+		}
+
 		switch(mode)
 		{
 		case Constants.RADIO_MODE_IDLE:
@@ -629,9 +495,9 @@ public final class RadioVLC extends RadioNoise
 			break;
 		case Constants.RADIO_MODE_RECEIVING:
 			if(Main.ASSERT) Util.assertion(signals>0);
-			if(power_mW >= radioInfo.shared.threshold_mW
-					&&  power_mW > signalPower_mW*thresholdSNR)
+			if(power_mW >= radioInfo.shared.threshold_mW &&  power_mW > signalPower_mW*thresholdSNR)
 			{
+
 				lockSignal(msg, power_mW, duration);
 			}
 			break;
@@ -653,7 +519,6 @@ public final class RadioVLC extends RadioNoise
 	/** {@inheritDoc} */
 	public void endReceive(final Double powerObj_mW, Long seqNumber)
 	{
-
 		if(mode==Constants.RADIO_MODE_SLEEP) return;
 		if(Main.ASSERT) Util.assertion(signals>0);
 		signals--;
@@ -664,6 +529,15 @@ public final class RadioVLC extends RadioNoise
 				this.macEntity.receive(signalBuffer);
 				unlockSignal();
 			}
+			else
+			{
+				if(this.macEntity instanceof VLCmacInterface)
+				{
+					((VLCmacInterface)this.macEntity).notifyInterference(null);
+				}
+				//interferencija
+				System.out.println("interferencija");
+			}
 			if(signals==0) setMode(Constants.RADIO_MODE_IDLE);
 		}
 	}
@@ -673,26 +547,29 @@ public final class RadioVLC extends RadioNoise
 	{
 		return JistAPI.getTime();
 	}
+
 	//////////////////////////////////////////////////
 	// transmission
 	//
+
+	VLCsensor tmpSensorTransmit;
+	VLCsensor tmpSensorReceive;
 
 	// RadioInterface interface
 	/** {@inheritDoc} */
 	public void transmit(Message msg, long delay, long duration)
 	{
 
+		if(msg instanceof MacMessage.Data)
+		{
+			//mjerenje vremena
+			((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(2, "radiovlct", null));
+		}
+		
 		// radio in sleep mode
-		if(mode==Constants.RADIO_MODE_SLEEP) return;
-		// ensure not currently transmitting
-		if(mode==Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio already transmitting");
-		// clear receive buffer
-		checkLocation(false);
-		//System.out.println("nid = " +NodeID+ " lx= "+this.NodeLocation.getX()+" ly= "+this.NodeLocation.getY()+" Csignal  = " + this.queryControlSignal(5,2));
-
-		assert(signalBuffer==null);
-		signalBuffer = null;
-
+		if(mode == Constants.RADIO_MODE_SLEEP) return;
+	
+		///ako poruka nema postavljene senzore postavljam u sve.
 		//if sensors are not set, set all of them -> add them to the list of sending sensorids of message.
 		if(((MacMessage)msg).getSensorIDTx().size() == 0)
 		{
@@ -700,18 +577,61 @@ public final class RadioVLC extends RadioNoise
 			{
 				((MacMessage)msg).setSensorIDTx(item.sensorID);
 			}
-		}		
+		}
+		//	if(this.macEntity instanceof VLCmacInterface)
+		for (int item : ((MacMessage)msg).getSensorIDTx())
+		{
+			tmpSensorTransmit= this.getSensorByID(item);
+			if(tmpSensorTransmit.mode == SensorModes.Send)
+			{
+				//ok
+				if(tmpSensorTransmit.state == SensorStates.Idle )
+				{
+					//ok
+					tmpSensorTransmit.setState(SensorStates.Transmitting );
+				}
+				else if(tmpSensorTransmit.state == SensorStates.Transmitting)
+				{
+					((VLCmacInterface) macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxIsBusy);
+					//ako je dobar mac ovo se ne smjelo desiti.
+					//setMode(Constants.RADIO_MODE_TRANSMITTING);
+					return;
+				}
+				else
+				{
+					//nikada se ne bi smjelo desiti;
+					return;
+				}
+			}
+			else
+			{
+				((VLCmacInterface) macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorIsNotTX);
+				//isto se ne bi smjelo desiti
+				return;
+			}
+		}
 
+		if(this.macEntity instanceof VLCmacInterface)
+		{
+
+		}
+		else
+		{// obicni neki mac je.
+			if(mode == Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio already transmitting");
+			if(mode == Constants.RADIO_MODE_RECEIVING) 
+				{
+					return;//dodao jer mislim da radio ne bi trebao slati poruku ako ju vec prima, ali samo za ne vlc mac
+				}
+			signalBuffer = null;
+		}
+		// ensure not currently transmitting
+		checkLocation(false);
+		// clear receive buffer
+		//assert(signalBuffer==null);
+
+		//neka statistika.
 		if(((MacMessage)msg).getDst().hashCode() != -1)
 		{
-			//not bcast
-
-			/*msg = CanTalk(((MacMessage)msg).getSrc().hashCode(), ((MacMessage)msg).getDst().hashCode(), SensorModes.Send, (MacMessage)msg);
-			if(msg == null)
-			{
-				Constants.VLCconstants.DroppedOnSend++;
-				return;
-			}*/
 			Constants.VLCconstants.SentDirect++;
 		}
 		else
@@ -720,20 +640,13 @@ public final class RadioVLC extends RadioNoise
 			Constants.VLCconstants.SentBroadcast++;
 		}
 
-		if(msg instanceof MacMessage.Data)
-		{
-			/*for (TimeEntry item : ((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times) {
-				if(item.TimeID == 2)
-				{
-					System.out.println("aaa");//obrisi ovaj for. 
-				}
-			}*/
-			((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(2, "radiovlct", null));
-		}
+	
+
 		// use default delay, if necessary
 		if(delay==Constants.RADIO_NOUSER_DELAY) delay = Constants.RADIO_PHY_DELAY;
 		// set mode to transmitting
-		setMode(Constants.RADIO_MODE_TRANSMITTING);
+		setMode(Constants.RADIO_MODE_TRANSMITTING);//saljem transmitting iako mozda ima slobodnih senzora, na mac sloju je da vidi koji senzor je slobodan ili ne.
+		
 		// schedule message propagation delay
 		JistAPI.sleep(delay);
 		fieldEntity.transmit(radioInfo, msg, duration);
@@ -905,8 +818,8 @@ public final class RadioVLC extends RadioNoise
 		//teorettski dva
 		//puta provjeravam odnose dva senzor cvora!!!!!
 		HashSet<Integer[]> returnNodes = new HashSet<Integer[]>();
-		LinkedList<RadioVLC.VLCsensor> sensors1 = new LinkedList<RadioVLC.VLCsensor>();
-		LinkedList<RadioVLC.VLCsensor> sensors2 = new LinkedList<RadioVLC.VLCsensor>();
+		LinkedList<VLCsensor> sensors1 = new LinkedList<VLCsensor>();
+		LinkedList<VLCsensor> sensors2 = new LinkedList<VLCsensor>();
 		sensors1.add(Field.getRadioData(SourceNodeID).vlcdevice.getSensorByID(sensorID));
 		for(int i=1;i<=JistExperiment.getJistExperiment().getNodes(); i++) 
 		{	
@@ -958,8 +871,8 @@ public final class RadioVLC extends RadioNoise
 		//ne moram sve senzore gledati od send cvora nego samo one koji su u listi, tako se barem malo smanji optereecnje, teorettski dva
 		//puta provjeravam odnose dva senzor cvora!!!!!
 		HashSet<Integer> returnNodes = new HashSet<Integer>();
-		LinkedList<RadioVLC.VLCsensor> sensors1 = new LinkedList<RadioVLC.VLCsensor>();
-		LinkedList<RadioVLC.VLCsensor> sensors2 = new LinkedList<RadioVLC.VLCsensor>();
+		LinkedList<VLCsensor> sensors1 = new LinkedList<VLCsensor>();
+		LinkedList<VLCsensor> sensors2 = new LinkedList<VLCsensor>();
 		for(int i=1;i<=JistExperiment.getJistExperiment().getNodes(); i++) 
 		{	
 			if(SourceNodeID != i)
