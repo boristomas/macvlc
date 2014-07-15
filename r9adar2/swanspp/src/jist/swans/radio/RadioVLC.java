@@ -778,8 +778,6 @@ public final class RadioVLC extends RadioNoise
 		}
 	}
 
-
-
 	//bt
 	private HashSet<Integer> possibleNodes;// =  new HashSet<Integer>();
 	private HashSet<Integer> tmpNodeList;
