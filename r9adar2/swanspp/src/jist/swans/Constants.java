@@ -238,6 +238,8 @@ public final class Constants
 	//////mac vlc constants
 	public static final int MacVlcErrorSensorIsNotTX = 1;
 	public static final int MacVlcErrorSensorTxIsBusy = 2;
+	public static final int MacVlcErrorSensorIsNotRX = 3;
+	public static final int MacVlcErrorSensorRxIsBusy = 4;
 	
 	
 	

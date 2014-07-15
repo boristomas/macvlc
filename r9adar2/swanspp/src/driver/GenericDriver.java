@@ -113,9 +113,9 @@ public class GenericDriver {
 	static int idUdp = 0;
 
 //	public static String MACprotocol;
-	public static String MACprotocolWill ="MACprotocolWill";
-	public static String MACprotocolBoris ="MACprotocolBoris";
-	public static String MACprotocolMate="MACprotocolMate";
+	public static String MACVLCprotocolWill ="MACVLCprotocolWill";
+	public static String MACVLCprotocolBoris ="MACVLCprotocolBoris";
+	public static String MACVLCprotocolMate="MACVLCprotocolMate";
 	public static String MACprotocol802_11="MACprotocol802_11";
 	public static float setBearing = 0;
 	/**
@@ -211,25 +211,25 @@ public class GenericDriver {
 		MacInterface macProxy = null;
 		final NetAddress address = new NetAddress(i);
 		NetIp net = new NetIp(address, protMap, inLoss, outLoss /*, ipStats*/);
-		if(je.MACProtocol.equals(MACprotocolWill))
+		if(je.MACProtocol.equals(MACVLCprotocolWill))
 		{
-			Constants.VLCconstants.MACimplementationUsed = MACprotocolWill;
+			Constants.VLCconstants.MACimplementationUsed = MACVLCprotocolWill;
 			mac = new MacVLCWill(new MacAddress(i), radio.getRadioInfo());
 			((MacVLCWill) mac).setRadioEntity(radio.getProxy());
 			macProxy = ((MacVLCWill) mac).getProxy();
 			((MacVLCWill) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);
 		}
-		else if(je.MACProtocol.equals(MACprotocolBoris))
+		else if(je.MACProtocol.equals(MACVLCprotocolBoris))
 		{
-			Constants.VLCconstants.MACimplementationUsed = MACprotocolBoris;
+			Constants.VLCconstants.MACimplementationUsed = MACVLCprotocolBoris;
 			mac = new MacVLCBoris(new MacAddress(i), radio.getRadioInfo());
 			((MacVLCBoris) mac).setRadioEntity(radio.getProxy());
 			macProxy = ((MacVLCBoris) mac).getProxy();
 			((MacVLCBoris) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);
 		}
-		else if(je.MACProtocol.equals(MACprotocolMate))
+		else if(je.MACProtocol.equals(MACVLCprotocolMate))
 		{
-			Constants.VLCconstants.MACimplementationUsed = MACprotocolMate;
+			Constants.VLCconstants.MACimplementationUsed = MACVLCprotocolMate;
 			mac = new MacVLCMate(new MacAddress(i), radio.getRadioInfo());
 			((MacVLCMate) mac).setRadioEntity(radio.getProxy());
 			macProxy = ((MacVLCMate) mac).getProxy();

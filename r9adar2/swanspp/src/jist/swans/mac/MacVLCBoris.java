@@ -32,7 +32,7 @@ import driver.JistExperiment;
  * @version 1
  */
 
-public class MacVLCBoris implements MacInterface.Mac802_11, VLCmacInterface
+public class MacVLCBoris implements MacInterface.Mac802_11
 {
 
 	////////////////////////////////////////////////////
@@ -953,20 +953,25 @@ public class MacVLCBoris implements MacInterface.Mac802_11, VLCmacInterface
 	public String toString() {
 		return localAddr.toString();
 	}
-	@Override
+
 	public void notifyInterference(Sensor[] sensors) {
 		// TODO Auto-generated method stub
 		
 	}
-	@Override
+	
 	public void notifyError(int errorCode, String message) {
 		// TODO Auto-generated method stub
 		
 	}
-	@Override
+
 	public void notifyTransmitFail(Message msg, int errorCode) 
 	{
 		System.out.println("transmit fail error #"+errorCode);
+		
+	}
+	
+	public void notifyReceiveFail(Message msg, int errorCode) {
+		// TODO Auto-generated method stub
 		
 	}
 }
