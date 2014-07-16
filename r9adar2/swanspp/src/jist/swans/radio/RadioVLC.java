@@ -526,7 +526,7 @@ public final class RadioVLC extends RadioNoise
 					}
 					else
 					{//obicni mac
-						//validirati ovo!!!
+						//validirati ovo!!! 
 						continue;
 					}
 				}
