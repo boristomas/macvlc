@@ -11,6 +11,7 @@
 /debug.properties
 /driver
 /jist
+<<<<<<< HEAD
 /jist.properties
 /make.bat
 /memprof
@@ -18,3 +19,6 @@
 /small-bug.jpg
 /swans.properties
 /tariavo
+=======
+/driver
+>>>>>>> branch 'master' of https://github.com/boristomas/macvlc.git

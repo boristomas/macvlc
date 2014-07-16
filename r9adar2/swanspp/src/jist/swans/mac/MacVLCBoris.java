@@ -957,9 +957,10 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		return localAddr.toString();
 	}
 
+
 	public void notifyInterference(Sensor[] sensors) 
 	{
-		System.out.println("interference");	
+		System.out.println("interference");
 	}
 	
 	public void notifyError(int errorCode, String message) 
@@ -976,6 +977,5 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		System.out.println("receive fail error #"+errorCode);
 		
 	}
-	
 }
 

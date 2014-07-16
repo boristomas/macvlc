@@ -443,6 +443,14 @@ public final class RadioVLC extends RadioNoise
 	public void receive(Message msg, Double powerObj_mW, Long durationObj)
 	{ 
 
+
+		//borise, ako senzor prima poruku a idle je, neka ju primi do kraja, a ako ta ista poruka doðe i 
+		//na senzoru koji vec prima neku poruku tada ta neka poruka mora biti droppana, meðutim
+		//prvotni idle senzor normalno primi poruku do kraja.
+		if(mode==Constants.RADIO_MODE_SLEEP) return;
+		//messagesOnAir.put(key, value)
+
+
 		//borise, ako senzor prima poruku a idle je, neka ju primi do kraja, a ako ta ista poruka doðe i 
 		//na senzoru koji vec prima neku poruku tada ta neka poruka mora biti droppana, meðutim
 		//prvotni idle senzor normalno primi poruku do kraja.
@@ -620,6 +628,7 @@ public final class RadioVLC extends RadioNoise
 						(this.macEntity).notifyInterference(null);
 					}
 					//interferencija
+
 //					System.out.println("interferencija");
 				}
 				if(signals==0) setMode(Constants.RADIO_MODE_IDLE);
@@ -752,8 +761,8 @@ public final class RadioVLC extends RadioNoise
 		{
 			if(mode==Constants.RADIO_MODE_SLEEP) return;
 
-			//if(mode!=Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio is not transmitting");
 
+			//if(mode!=Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio is not transmitting");
 			isStillTransmitting = false;
 			for (VLCsensor item : sensorsTx) 
 			{
