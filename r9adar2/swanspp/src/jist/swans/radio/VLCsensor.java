@@ -163,6 +163,7 @@ public class VLCsensor
 			//GenericDriver.btviz.getGraph().drawPolygon(poly);
 		//	GenericDriver.btviz.getGraph().setColor(Color.cyan);
 		//	GenericDriver.btviz.getGraph().drawString(""+sensorID, (int)sensorLocation.getX()+5, (int)sensorLocation.getY());
+
 		}
 		//	System.out.println("draw bt "+ sensorBearingNotRelative + " - nb= "+NodeBearing+" - "+(int)sensorLocation.getX() + " "+ (int)sensorLocation.getY() + " " +(int)sensorLocation1.getX() + " "+ (int)sensorLocation1.getY() +" " +(int)sensorLocation2.getX() + " "+ (int)sensorLocation2.getY()  );
 	}

@@ -1,7 +1,6 @@
 /ChicagoFlowTest.xml
 /Flow
 /Makefile
-/SimpleDemo (BorisTLap's conflicted copy 2014-07-15).xml
 /SimpleDemo.xml
 /StreetMobilityDemo.txt
 /StreetMobilityDemo.xml
@@ -12,5 +11,10 @@
 /debug.properties
 /driver
 /jist
+/jist.properties
+/make.bat
 /memprof
+/off.properties
+/small-bug.jpg
+/swans.properties
 /tariavo
