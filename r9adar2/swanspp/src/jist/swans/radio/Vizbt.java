@@ -1,13 +1,24 @@
 package jist.swans.radio;
 
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 
 import javax.swing.JFrame;
 
 public class Vizbt {
 
 	private JFrame frame;
+	private float scaleX = 5;
+	private float scaleY = 5;
+	private float offsetX = -500;
+	private float offsetY = -500;
+	private AffineTransform ats;
+	private AffineTransform att;
 
 	/**
 	 * Launch the application.
@@ -30,8 +41,13 @@ public class Vizbt {
 		this.frame.toFront();
 	}
 	
+	public void DrawShape(Shape shp, Color clr)
+	{
+		((Graphics2D)getGraph()).setColor(clr);
+		((Graphics2D)getGraph()).draw(att.createTransformedShape(ats.createTransformedShape(shp)));
+	}
 	private Graphics defGraph = null;
-	public Graphics getGraph()
+	private Graphics getGraph()
 	{
 		if(defGraph == null)
 		{
@@ -47,6 +63,7 @@ public class Vizbt {
 		initialize();
 		
 		this.frame.setVisible(true);
+		((Graphics2D)getGraph()).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	}
 
 	/**
@@ -58,6 +75,11 @@ public class Vizbt {
 		frame.setExtendedState( frame.getExtendedState()|JFrame.MAXIMIZED_BOTH );
 		//frame.getGraphics().dra
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		offsetX= frame.getSize().width/2;
+		offsetY = frame.getSize().height/2;
+		ats = AffineTransform.getScaleInstance(scaleX, scaleY);
+		att = AffineTransform.getTranslateInstance(offsetX, offsetY);
+	
 	}
 
 }

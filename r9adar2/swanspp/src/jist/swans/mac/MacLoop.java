@@ -9,6 +9,7 @@
 
 package jist.swans.mac;
 
+import sun.management.Sensor;
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.misc.Message;
@@ -108,6 +109,30 @@ public class MacLoop implements MacInterface
 public void setRadioEntity(RadioInterface radioEntity) {
 	return;
 
+}
+
+@Override
+public void notifyInterference(Sensor[] sensors) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void notifyError(int errorCode, String message) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void notifyTransmitFail(Message msg, int errorCode) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void notifyReceiveFail(Message msg, int errorCode) {
+	// TODO Auto-generated method stub
+	
 }
 
 }

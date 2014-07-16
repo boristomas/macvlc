@@ -238,6 +238,8 @@ public final class Constants
 	//////mac vlc constants
 	public static final int MacVlcErrorSensorIsNotTX = 1;
 	public static final int MacVlcErrorSensorTxIsBusy = 2;
+	public static final int MacVlcErrorSensorIsNotRX = 3;
+	public static final int MacVlcErrorSensorRxIsBusy = 4;
 	
 	
 	
@@ -460,19 +462,12 @@ public final class Constants
 		/**
 		 * Total number of sent messages
 		 */
-		public static int SentDirect= 0;
+	//	public static int SentDirect= 0;
 		/**
 		 * Total number of messages sent to broadcast
 		 */
-		public static int SentBroadcast = 0;
 		public static int Received = 0;
-		public static int DroppedOnSend = 0;
-		public static int DroppedOnReceive = 0;
 		public static String MACimplementationUsed;
-		public static int NetIPReceived= 0;
-		public static int NetIPReceivedForMe= 0;
-		public static int NetIPDropped= 0;
-		public static int NetIPSent= 0;
 		public static long CBRmessages= 0;
 		public static String PrintData()
 		{
@@ -567,17 +562,7 @@ public final class Constants
 			"MAC count(T3) = " + t3 + "\n"+
 			"MAC count(T4) = " + t4 + "\n"+
 			"MAC count(T5) = " + t5 + "\n"+
-			"Sent Direct = " + SentDirect + "\n"+
-			"Sent Broadcasts = "+ SentBroadcast + "\n" +
-			"Received = " + Received + "\n"+
-			"Dropped on send = " + DroppedOnSend + "\n"+
-			"Dropped on receive = " + DroppedOnReceive + "\n"+
-			"CBR messages total = " + CBRmessages + "\n"+
-			"NetIP sent = " + NetIPSent + "\n"+
-			"NetIP received = " + NetIPReceived + "\n"+
-			"NetIP received for me= " + NetIPReceivedForMe + "\n"+
-			"NetIP dropped = " + NetIPDropped+ "\n"+
-					"-----VLC data-----" + "\n";
+			"-----VLC data-----" + "\n";
 		}
 	}
 } // class: Constants

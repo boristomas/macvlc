@@ -71,12 +71,7 @@
 <float>-71.05024</float>
 </void>
 <!--  node options  -->
-<void property="nodes">
-<int>6</int>
-</void>
-<void property="transmitters">
-<int>6</int>
-</void>
+
 <void property="sendRate">
 <double>1.0</double>
 </void>
@@ -88,8 +83,12 @@
 <int>2</int>
 </void>
 <void property="StaticPlacementOptions">
-  <!-- <string>100,100,0;125,100,0</string> -->
-<string>100,100,0;100,105,0;100,110,0;105,100,0;105,105,0;105,110,0</string>
+ <!-- <string>100,100,0;125,100,0</string>-->
+ <string>
+ 100,100,0;115,100,0;
+ 100,105,0;115,105,0;
+ 100,110,0;115,110,0
+ </string>
 
 <!--   <string>100,100,0;175,175,0;175,90,0</string> -->
 <!--   <string>100,100,0;155,100,90;</string> -->
@@ -97,12 +96,18 @@
 <string>100,100;150,150;200,200;200,200;200,200;200,200</string> 
 -->
 </void>
+<void property="nodes">
+<int>6</int>
+</void>
+<void property="transmitters">
+<int>6</int>
+</void>
 <void property="MACProtocol">
-<string>MACprotocol802_11</string>
+<string>MACVLCprotocolBoris</string>
 <!-- <string>MACprotocol802_11</string>-->
 </void>
 <void property="MeasurementMode">
-<boolean>true</boolean>
+<boolean>false</boolean>
 </void>
 <void property="VehicleLength">
 <float>5</float>

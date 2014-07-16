@@ -9,6 +9,7 @@
 
 package jist.swans.mac;
 
+import sun.management.Sensor;
 import jist.runtime.JistAPI;
 import jist.swans.misc.Message;
 import jist.swans.net.NetInterface;
@@ -67,7 +68,10 @@ public interface MacInterface extends JistAPI.Proxiable
   void setRadioEntity(RadioInterface radio);
   void setNetEntity(NetInterface net, byte netid);
   
- 
+  void notifyInterference(Sensor[] sensors);
+	void notifyError(int errorCode, String message);
+	void notifyTransmitFail(Message msg, int errorCode);
+	void notifyReceiveFail(Message msg, int errorCode);
  
   
   //////////////////////////////////////////////////

@@ -11,6 +11,7 @@ package jist.swans.mac;
 
 import java.util.HashMap;
 
+import sun.management.Sensor;
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.Main;
@@ -1393,6 +1394,30 @@ public class Mac802_11 implements MacInterface.Mac802_11
 	@Override
 	public String toString() {
 		return localAddr.toString();
+	}
+
+	@Override
+	public void notifyInterference(Sensor[] sensors) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void notifyError(int errorCode, String message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void notifyTransmitFail(Message msg, int errorCode) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void notifyReceiveFail(Message msg, int errorCode) {
+		// TODO Auto-generated method stub
+		
 	}
 }
 

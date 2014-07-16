@@ -377,14 +377,14 @@ public class NetIp implements NetInterface
     }
     ipmsg.Times.add(new TimeEntry(4, "netiprec", null));
     if(routing!=null) routing.peek(ipmsg, lastHop);
-    Constants.VLCconstants.NetIPReceived++;
+ //   Constants.VLCconstants.NetIPReceived++;
     if(!promisc)
     {
       if(isForMe(ipmsg))
       {       
     	  ipmsg.Times.add(new TimeEntry(5, "formenetip", null));
           JistAPI.sleep(Constants.NET_DELAY);
-          Constants.VLCconstants.NetIPReceivedForMe++;
+ //         Constants.VLCconstants.NetIPReceivedForMe++;
         getProtocolHandler(ipmsg.getProtocol()).receive(ipmsg.getPayload(), 
             ipmsg.getSrc(), lastHop, macId, ipmsg.getDst(), 
             ipmsg.getPriority(), (byte)ipmsg.getTTL());
@@ -426,7 +426,7 @@ public class NetIp implements NetInterface
       log.debug("queue t="+JistAPI.getTime()+" to="+nextHop+" on="+interfaceId+" data="+msg);
     }
     NicInfo ni = nics[interfaceId];
-    Constants.VLCconstants.NetIPSent++;
+    //Constants.VLCconstants.NetIPSent++;
     if (ni.q.isFull())
     {
         // TODO call a separate function -- this should not be confused with 
@@ -527,7 +527,7 @@ public class NetIp implements NetInterface
  */
 public void packetDropped(Message packet, MacAddress packetNextHop) {
     // anything to do here?
-	Constants.VLCconstants.NetIPDropped++;
+	//Constants.VLCconstants.NetIPDropped++;
     routing.packetDropped(packet, packetNextHop);    
 }
 
