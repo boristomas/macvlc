@@ -413,10 +413,10 @@ public final class RadioVLC extends RadioNoise
 		{
 			GenericDriver.btviz.DrawShape(outlineShape, Color.black);
 			//TODO: maknuti ovo nodeidtst jer sluzi samo za testiranje vizualizacije.
-		//	
+			//	
 			//GenericDriver.btviz.getGraph().drawRect(, y, width, height);, yPoints, nPoints); fillPolygon(outlineShape);//.drawRect((int)tmpx1, (int)tmpy1, 20 , 20);
-		//	GenericDriver.btviz.getGraph().setColor(Color.red);
-		//	GenericDriver.btviz.getGraph().drawString(""+NodeID, (int)NodeLocation.getX(), (int)NodeLocation.getY());
+			//	GenericDriver.btviz.getGraph().setColor(Color.red);
+			//	GenericDriver.btviz.getGraph().drawString(""+NodeID, (int)NodeLocation.getX(), (int)NodeLocation.getY());
 			//GenericDriver.btviz.getGraph().setColor(Color.red);
 		}
 	}
@@ -442,20 +442,7 @@ public final class RadioVLC extends RadioNoise
 	/** {@inheritDoc} */
 	public void receive(Message msg, Double powerObj_mW, Long durationObj)
 	{ 
-
-
-		//borise, ako senzor prima poruku a idle je, neka ju primi do kraja, a ako ta ista poruka doðe i 
-		//na senzoru koji vec prima neku poruku tada ta neka poruka mora biti droppana, meðutim
-		//prvotni idle senzor normalno primi poruku do kraja.
 		if(mode==Constants.RADIO_MODE_SLEEP) return;
-		//messagesOnAir.put(key, value)
-
-
-		//borise, ako senzor prima poruku a idle je, neka ju primi do kraja, a ako ta ista poruka doðe i 
-		//na senzoru koji vec prima neku poruku tada ta neka poruka mora biti droppana, meðutim
-		//prvotni idle senzor normalno primi poruku do kraja.
-		if(mode==Constants.RADIO_MODE_SLEEP) return;
-		//messagesOnAir.put(key, value)
 
 		if(!isVLC && mode == Constants.RADIO_MODE_TRANSMITTING)
 		{
@@ -629,7 +616,7 @@ public final class RadioVLC extends RadioNoise
 					}
 					//interferencija
 
-//					System.out.println("interferencija");
+					//					System.out.println("interferencija");
 				}
 				if(signals==0) setMode(Constants.RADIO_MODE_IDLE);
 			}
@@ -654,12 +641,12 @@ public final class RadioVLC extends RadioNoise
 	VLCsensor tmpSensorTransmit;
 	VLCsensor tmpSensorReceive;
 	VLCsensor tmpSensorReceiveEnd;
-
+	boolean isAtLeastOneTransmitting = false;
 	// RadioInterface interface
 	/** {@inheritDoc} */
 	public void transmit(Message msg, long delay, long duration)
 	{
-	
+
 		if(msg instanceof MacMessage.Data)
 		{
 			//mjerenje vremena
@@ -678,7 +665,7 @@ public final class RadioVLC extends RadioNoise
 				((MacMessage)msg).setSensorIDTx(item.sensorID);
 			}
 		}
-
+		isAtLeastOneTransmitting = false;
 		for (int item : ((MacMessage)msg).getSensorIDTx())
 		{
 			tmpSensorTransmit= this.getSensorByID(item);
@@ -691,6 +678,7 @@ public final class RadioVLC extends RadioNoise
 					tmpSensorTransmit.setState(SensorStates.Transmitting );
 					tmpSensorTransmit.CurrentMessage = msg;
 					tmpSensorTransmit.CurrentMessageEnd = JistAPI.getTime()+duration + delay;
+					isAtLeastOneTransmitting = true;
 				}
 				else if(tmpSensorTransmit.state == SensorStates.Transmitting)
 				{
@@ -700,7 +688,7 @@ public final class RadioVLC extends RadioNoise
 					}
 					//ako je dobar mac ovo se ne smjelo desiti.
 					//setMode(Constants.RADIO_MODE_TRANSMITTING);
-					return;
+					continue;
 				}
 				else
 				{
@@ -721,10 +709,19 @@ public final class RadioVLC extends RadioNoise
 
 		if(isVLC)
 		{
+			if(!isAtLeastOneTransmitting)
+			{
+				macEntity.notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxAllBusy);	
+			}
 
 		}
 		else
 		{// obicni neki mac je.
+			if(!isAtLeastOneTransmitting)
+			{
+				//nema tko poslati poruku jer su svi zauzeti.
+				return;
+			}
 			if(mode == Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio already transmitting");
 			if(mode == Constants.RADIO_MODE_RECEIVING) 
 			{
@@ -778,13 +775,13 @@ public final class RadioVLC extends RadioNoise
 						isStillTransmitting = true;
 					}
 				}
-				
+
 			}
 			if(!isStillTransmitting)
 			{
 				setMode(Constants.RADIO_MODE_IDLE);
 			}
-			
+
 		}
 		else
 		{
@@ -813,6 +810,7 @@ public final class RadioVLC extends RadioNoise
 	 */
 	private MacMessage CanTalk(int SourceID, int DestinationID, SensorModes mode, MacMessage msg)
 	{
+		boolean isSomeNodeIntersecting = true;
 		if(DestinationID != -1)//znaci da nije broadcast poruka, teoretski nikada nece sourceid biti -1 odnosno broadcast adresa
 		{
 			tmpSensorRx.clear();
@@ -846,23 +844,29 @@ public final class RadioVLC extends RadioNoise
 					if(msg.getSensorIDTx().size() != 0 && msg.getSensorIDRx().size() != 0)
 					{
 						//u ovom slucaju su poznate stxid i srxid liste.
-						for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.sensorsTx) {
+						for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.sensorsTx)
+						{
 							if(msg.getSensorIDTx().contains(sensorSrc.sensorID))
-							{
+							{//ako je mac zadao da se šalje sa odreðenog senzora.
 								for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.sensorsRx) {
-									//		if(msg.getSensorIDRx().contains(sensorDest.sensorID))// zakomentirao sam jer svi senzori mogu primiti poruku
+								{//znaci da listam sve senzore na src i dest koji su zadani u msg sensor listama
+									isSomeNodeIntersecting = false;
+									for (Integer node : possibleNodes)//listam sve aute koji su mi vidljivi (u trokutu)
 									{
-										//znaci da listam sve senzore na src i dest koji su zadani u msg sensor listama
-										for (Integer node : possibleNodes)//listam sve aute koji su mi vidljivi (u trokutu)
+										if(intersects(Field.getRadioData(node).vlcdevice.outlineShape, new Line2D.Float(sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY())))
 										{
-											if(!intersects(Field.getRadioData(node).vlcdevice.outlineShape, new Line2D.Float(sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY())))
-											{
-												tmpSensorTx.add(sensorSrc.sensorID);
-												tmpSensorRx.add(sensorDest.sensorID);
-												break;
-											}
-										}//foreach possiblenodes
+											isSomeNodeIntersecting = true;
+											break;
+											
+									//		break;
+										}
+									}//foreach possiblenodes
+									if(!isSomeNodeIntersecting)
+									{
+										tmpSensorTx.add(sensorSrc.sensorID);
+										tmpSensorRx.add(sensorDest.sensorID);
 									}
+								}
 								}
 							}
 						}
@@ -898,6 +902,81 @@ public final class RadioVLC extends RadioNoise
 		}
 		return msg;
 	}
+
+	public static boolean intersects(Path2D.Double path, Line2D line) {
+		double x1 = -1 ,y1 = -1 , x2= -1, y2 = -1,sx=-1,sy=-1;
+	/*	Color boja1 = Color.black;
+		Color boja2 = Color.orange;
+		GenericDriver.btviz.GetFrame().repaint();
+		GenericDriver.btviz.getGraph().clearRect(0, 0,GenericDriver.btviz.GetFrame().getSize().width , GenericDriver.btviz.GetFrame().getSize().height);
+		GenericDriver.btviz.DrawShape(path, Color.red, 3);*/
+		for (PathIterator pi = path.getPathIterator(null); !pi.isDone(); pi.next()) 
+		{
+			double[] coordinates = new double[6];
+			switch (pi.currentSegment(coordinates))
+			{
+			case PathIterator.SEG_CLOSE:
+			{
+				coordinates[0]=sx;
+				coordinates[1]=sy;
+			}
+			case PathIterator.SEG_MOVETO:
+			{
+				if(sx == -1)
+				{
+					sx= coordinates[0];
+					sy= coordinates[1];
+				}
+			}
+			case PathIterator.SEG_LINETO:
+				{
+					if(x1 == -1 && y1 == -1 )
+					{
+						x1= coordinates[0];
+						y1= coordinates[1];
+						break;
+					}				
+					if(x2 == -1 && y2 == -1)
+					{
+						x2= coordinates[0];				
+						y2= coordinates[1];
+						break;
+					}
+					break;
+				}
+			
+				default:
+				{
+					break;
+				}
+			}
+			if(x1 != -1 && y1 != -1 && x2 != -1 && y2 != -1)
+			{
+				Line2D segment = new Line2D.Double(x1, y1, x2, y2);
+			/*	if(boja1 == Color.black)
+				{
+					boja1 = Color.blue;
+					boja2 = Color.green;
+				}
+				else
+				{
+					boja1 = Color.black;
+					boja2 = Color.orange;
+				}
+				GenericDriver.btviz.DrawShape(segment, boja1,3);
+				GenericDriver.btviz.DrawShape(line, boja2,2);*/
+				if (segment.intersectsLine(line)) 
+				{
+					return true;
+				}
+				x1 = x2;
+				y1 = y2;
+				x2 = -1;
+				y2 = -1;
+			}
+		}
+		return false;
+	} 
 	/**
 	 * Is the location being checked visible to vlc device?
 	 * 
@@ -1046,45 +1125,5 @@ public final class RadioVLC extends RadioNoise
 		return returnNodes;
 	}
 
-	public static boolean intersects(Path2D.Double path, Line2D line) {
-		double x1 = -1 ,y1 = -1 , x2= -1, y2 = -1;
-		for (PathIterator pi = path.getPathIterator(null); !pi.isDone(); pi.next()) 
-		{
-			double[] coordinates = new double[6];
-			switch (pi.currentSegment(coordinates))
-			{
-			case PathIterator.SEG_MOVETO:
-			case PathIterator.SEG_LINETO:
-			{
-				if(x1 == -1 && y1 == -1 )
-				{
-					x1= coordinates[0];
-					y1= coordinates[1];
-					break;
-				}				
-				if(x2 == -1 && y2 == -1)
-				{
-					x2= coordinates[0];				
-					y2= coordinates[1];
-					break;
-				}
-				break;
-			}
-			}
-			if(x1 != -1 && y1 != -1 && x2 != -1 && y2 != -1)
-			{
-				Line2D segment = new Line2D.Double(x1, y1, x2, y2);
-				if (segment.intersectsLine(line)) 
-				{
-					return true;
-				}
-				x1 = -1;
-				y1 = -1;
-				x2 = -1;
-				y2 = -1;
-			}
-		}
-		return false;
-	} 
 
 } // class: RadioVLC

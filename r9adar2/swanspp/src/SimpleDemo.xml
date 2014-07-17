@@ -22,7 +22,7 @@
 <int>0</int>
 </void>
 <void property="pathloss">
-<int>4</int>
+<int>4</int><!-- 4!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! vlc -->
 </void>
 <void property="transmit">
 <double>50</double>
@@ -83,12 +83,12 @@
 <int>2</int>
 </void>
 <void property="StaticPlacementOptions">
- <!-- <string>100,100,0;125,100,0</string>-->
- <string>
+  <string>100,100,0;125,100,0</string>
+ <!--<string>
  100,100,0;115,100,0;
  100,105,0;115,105,0;
  100,110,0;115,110,0
- </string>
+ </string>-->
 
 <!--   <string>100,100,0;175,175,0;175,90,0</string> -->
 <!--   <string>100,100,0;155,100,90;</string> -->
@@ -97,17 +97,17 @@
 -->
 </void>
 <void property="nodes">
-<int>6</int>
+<int>2</int>
 </void>
 <void property="transmitters">
-<int>6</int>
+<int>2</int>
 </void>
 <void property="MACProtocol">
 <string>MACVLCprotocolBoris</string>
 <!-- <string>MACprotocol802_11</string>-->
 </void>
 <void property="MeasurementMode">
-<boolean>false</boolean>
+<boolean>true</boolean>
 </void>
 <void property="VehicleLength">
 <float>5</float>

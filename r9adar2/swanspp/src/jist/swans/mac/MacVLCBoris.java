@@ -972,9 +972,9 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 		System.out.println("transmit fail error #"+errorCode);
 	}
 	
-	public void notifyReceiveFail(Message msg, int errorCode) {
+	public void notifyReceiveFail(Message msg, int errorCode) 
+	{
 		System.out.println("receive fail error #"+errorCode);
-		
 	}
 }
 

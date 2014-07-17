@@ -1,5 +1,6 @@
 package jist.swans.radio;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Graphics;
@@ -9,6 +10,9 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 
 import javax.swing.JFrame;
+import javax.swing.border.StrokeBorder;
+
+import org.python.modules.newmodule;
 
 public class Vizbt {
 
@@ -40,14 +44,24 @@ public class Vizbt {
 	{
 		this.frame.toFront();
 	}
+	public JFrame GetFrame()
+	{
+		return this.frame;
+	}
 	
 	public void DrawShape(Shape shp, Color clr)
 	{
 		((Graphics2D)getGraph()).setColor(clr);
 		((Graphics2D)getGraph()).draw(att.createTransformedShape(ats.createTransformedShape(shp)));
 	}
+	public void DrawShape(Shape shp, Color clr, float StrokeWidth)
+	{
+		((Graphics2D)getGraph()).setStroke(new BasicStroke(StrokeWidth));	
+		((Graphics2D)getGraph()).setColor(clr);
+		((Graphics2D)getGraph()).draw(att.createTransformedShape(ats.createTransformedShape(shp)));
+	}
 	private Graphics defGraph = null;
-	private Graphics getGraph()
+	public Graphics getGraph()
 	{
 		if(defGraph == null)
 		{

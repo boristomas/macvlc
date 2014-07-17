@@ -240,6 +240,7 @@ public final class Constants
 	public static final int MacVlcErrorSensorTxIsBusy = 2;
 	public static final int MacVlcErrorSensorIsNotRX = 3;
 	public static final int MacVlcErrorSensorRxIsBusy = 4;
+	public static final int MacVlcErrorSensorTxAllBusy = 5;
 	
 	
 	

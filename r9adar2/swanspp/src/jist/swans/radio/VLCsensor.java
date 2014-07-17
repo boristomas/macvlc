@@ -153,7 +153,6 @@ public class VLCsensor
 			if(mode == SensorModes.Receive)
 			{
 				GenericDriver.btviz.DrawShape(poly, Color.yellow);
-				
 			}
 			else
 			{
