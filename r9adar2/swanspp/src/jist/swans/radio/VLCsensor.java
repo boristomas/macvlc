@@ -1,12 +1,13 @@
 package jist.swans.radio;
 
 import java.awt.Color;
-
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.util.HashSet;
+
+import org.python.modules.math;
 
 import jist.swans.field.streets.Shape;
 import jist.swans.misc.Location;
@@ -142,9 +143,66 @@ public class VLCsensor
 		{
 			poly = new Path2D.Float();// Polygon();
 			
-			poly.moveTo(sensorLocation.getX(), sensorLocation.getY());
+			/*poly.moveTo(sensorLocation.getX(), sensorLocation.getY());
 			poly.lineTo(sensorLocation1.getX(), sensorLocation1.getY());
 			poly.lineTo(sensorLocation2.getX(), sensorLocation2.getY());
+			poly.closePath();*/
+			
+			double ax = sensorLocation.getX();
+			double ay = sensorLocation.getY();
+			double by = sensorLocation1.getX();
+			double bx = sensorLocation1.getY();
+			double cx = sensorLocation2.getX();
+			double cy = sensorLocation2.getY();
+			
+			double a = Math.sqrt(Math.pow((sensorLocation.getX() -sensorLocation1.getX()), 2)+Math.pow((sensorLocation.getY() -sensorLocation1.getY()), 2) );
+			
+			double r = Math.sqrt(a*a+ distanceLimit*distanceLimit - 2*a*distanceLimit * Math.cos(Math.toRadians(visionAngle/2)));//duljna BD
+		/*	ax = 1;
+			ay = 3;
+			bx = 4;
+			by = 4;
+			cx = 4;
+			cy = 2;
+			r= 1.4;*/
+			
+			double px = (cx+bx)/2;
+			double py = (cy+by)/2;
+		
+			double N = (py-ay)/(px-ax);
+			double L = -1*N*ax + ay;
+			
+			double M = bx*bx + by*by -r*r;
+			double G = L*L - 2*by*L +M;
+			double F = 1 + N*N;
+			double J = 2* bx - 2*N*L + 2*by*N;
+			
+					
+			double x1= (-1*(-1*J) - Math.sqrt(Math.pow((J),2) - 4* F*G ))/ 2*F;
+			double x2= (-1*(-1*J) + Math.sqrt(Math.pow((J),2) - 4* F*G ))/ 2*F;
+
+			double y1 = N*x1+L;
+			double y2 = N*x2+L;
+			
+			double d1 = Math.sqrt(Math.pow(x1 - ax, 2) + Math.pow(y1 - ay, 2) );
+			double d2 = Math.sqrt(Math.pow(x2 - ax, 2) + Math.pow(y2 - ay, 2) );
+			
+			double dx,dy;
+			
+			if(d1 > d2)
+			{
+				dx= x1;
+				dy= y1;
+			}
+			else
+			{
+				dx= x2;
+				dy =y2;
+			}
+
+			poly.moveTo(sensorLocation.getX(), sensorLocation.getY());
+			poly.lineTo(sensorLocation1.getX(), sensorLocation1.getY());
+			poly.curveTo(sensorLocation1.getX(), sensorLocation1.getY(), dx,dy,sensorLocation2.getX(), sensorLocation2.getY() );
 			poly.closePath();
 			/*
 			poly.addPoint((int)sensorLocation.getX(), (int)sensorLocation.getY());

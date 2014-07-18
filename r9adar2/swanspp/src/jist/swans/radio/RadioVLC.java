@@ -857,8 +857,6 @@ public final class RadioVLC extends RadioNoise
 										{
 											isSomeNodeIntersecting = true;
 											break;
-											
-									//		break;
 										}
 									}//foreach possiblenodes
 									if(!isSomeNodeIntersecting)
