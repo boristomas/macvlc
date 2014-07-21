@@ -2,6 +2,7 @@ package jist.swans.radio;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
@@ -134,9 +135,14 @@ public class VLCsensor
 	private Path2D.Float poly;
 	public void UpdateShape(Location NodeLocation, float NodeBearing)
 	{
+		//https://www.youtube.com/watch?v=Cd3w8kH9g_c
 		sensorBearingNotRelative = NodeBearing + sensorBearing;
 
 		sensorLocation = RadioVLC.rotatePoint(NodeLocation.getX()+ offsetX, NodeLocation.getY()+ offsetY, NodeLocation, NodeBearing); //new Location.Location2D(tmpx, tmpy);//start.
+		//sensorLocation = new Location.Location2D(1, 3);
+		//visionAngle = 60;
+		//distanceLimit = 5;
+		
 		sensorLocation1 = getVLCCornerPoint(sensorBearingNotRelative - (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
 		sensorLocation2 = getVLCCornerPoint(sensorBearingNotRelative + (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
 		//	if(node.NodeID == nodeidtst)
@@ -150,22 +156,28 @@ public class VLCsensor
 			
 			double ax = sensorLocation.getX();
 			double ay = sensorLocation.getY();
-			double by = sensorLocation1.getX();
-			double bx = sensorLocation1.getY();
+			double bx = sensorLocation1.getX();
+			double by = sensorLocation1.getY();
 			double cx = sensorLocation2.getX();
 			double cy = sensorLocation2.getY();
+			double dl = distanceLimit;
+			//dl = dl*1.3;
 			
-			double a = Math.sqrt(Math.pow((sensorLocation.getX() -sensorLocation1.getX()), 2)+Math.pow((sensorLocation.getY() -sensorLocation1.getY()), 2) );
-			
-			double r = Math.sqrt(a*a+ distanceLimit*distanceLimit - 2*a*distanceLimit * Math.cos(Math.toRadians(visionAngle/2)));//duljna BD
-		/*	ax = 1;
+		/*	
+			ax = 1;
 			ay = 3;
 			bx = 4;
 			by = 4;
 			cx = 4;
 			cy = 2;
-			r= 1.4;*/
+			distanceLimit =6;
+			visionAngle =(float) 36.87;
+			*/
 			
+			double a = Math.sqrt(Math.pow((ax - bx), 2) + Math.pow((ay -by), 2)) ;
+			
+			double r = Math.sqrt(a*a+ dl*dl - 2*a*dl * Math.cos(Math.toRadians(visionAngle/2)));//duljna BD
+		
 			double px = (cx+bx)/2;
 			double py = (cy+by)/2;
 		
@@ -199,10 +211,43 @@ public class VLCsensor
 				dx= x2;
 				dy =y2;
 			}
+			/*
+			double K1a =(dy-by)/(dx-bx);
+			double K1c = -1*K1a*by +by;
+			double K1d = (px +(py-K1c)*K1a )/(1 + K1a*K1a);
+			
+			double c1x = 2*K1d -px;
+			double c1y = 2*K1d*K1a -py + 2*K1c;
 
-			poly.moveTo(sensorLocation.getX(), sensorLocation.getY());
-			poly.lineTo(sensorLocation1.getX(), sensorLocation1.getY());
-			poly.curveTo(sensorLocation1.getX(), sensorLocation1.getY(), dx,dy,sensorLocation2.getX(), sensorLocation2.getY() );
+			double K2a =(dy-cy)/(dx-cx);
+			double K2c = -1*K2a*cy +cy;
+			double K2d = (px +(py-K2c)*K2a )/(1 + K2a*K2a);
+			
+			double c2x = 2*K2d -px;
+			double c2y = 2*K2d*K2a -py + 2*K2c;
+			*/
+		/*	double r1 = Point.distance(px, py, bx, by) ; //distance P, b
+			double r2 = Point.distance(dx, dy, bx, by) ; //distance b, d
+			r1=r2;/////////
+			double d = Point.distance(px, py, dx, dy);
+			double dissss = Point.distance(ax, ay, bx, by);
+			double dissss2 = Point.distance(ax, ay, cx, cy);
+		    double ai = (r1*r1 - r2*r2 + d*d)/(2*d); // h is a common leg for two right triangles.  
+		    double hi = Math.sqrt(r1*r1 - ai*ai);
+
+		    double P0x = dx + ai*(px - dx)/d;        // locate midpoint between intersections along line of centers
+		    double P0y = dy + ai*(py - dy)/d;
+
+		    double c1x = P0x + (hi*(py - dy))/d;       // extend to intersection 1 from midpoint
+		    double c1y = P0y - (hi*(px - dx))/d;
+
+		    double c2x = P0x - (hi*(py - dy))/d;       // extend to intersection 2 from midpoint
+		    double c2y = P0y + (hi*(px - dx))/d;
+*/
+			poly.moveTo(ax, ay);
+			poly.lineTo(bx, by);
+			
+			poly.quadTo(dx, dy, cx,cy);// .curveTo(cx, cy, dx+10, dy, dx+10, dy);
 			poly.closePath();
 			/*
 			poly.addPoint((int)sensorLocation.getX(), (int)sensorLocation.getY());
@@ -216,6 +261,7 @@ public class VLCsensor
 			{
 				GenericDriver.btviz.DrawShape(poly, Color.red);
 			}
+	//		((Graphics2D) GenericDriver.btviz.getGraph()).drawString("a(" + ax + ","+ay+")",(float)ax,(float)ay);
 			
 			//((Graphics2D) GenericDriver.btviz.getGraph()).draw(AffineTransform.getTranslateInstance(-500, -500).createTransformedShape(AffineTransform.getScaleInstance(10, 10).createTransformedShape(poly)));
 			//GenericDriver.btviz.getGraph().drawPolygon(poly);
@@ -237,7 +283,8 @@ public class VLCsensor
 	{
 		Location cornerPoint; 
 		int quadrant = 0; 
-		float hypotenuse = (float)(distanceLimit/Math.cos(((visionAngle/2)*Math.PI)/(180))); 
+		distLimit = distLimit * (float)Math.cos(Math.toRadians(visionAngle/2));
+		float hypotenuse = (float)(distLimit/Math.cos(((visionAngle/2)*Math.PI)/(180))); 
 
 		//first detect what quadrant theta falls, to see how bearing affects corner points
 		if(theta >= 0 && theta <= 90)

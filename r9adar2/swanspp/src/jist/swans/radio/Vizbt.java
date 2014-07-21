@@ -13,6 +13,10 @@ import javax.swing.JFrame;
 import javax.swing.border.StrokeBorder;
 
 import org.python.modules.newmodule;
+import javax.swing.JLabel;
+import java.awt.BorderLayout;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseEvent;
 
 public class Vizbt {
 
@@ -85,12 +89,23 @@ public class Vizbt {
 	 */
 	private void initialize() {
 		frame = new JFrame();
+		
 		frame.setBounds(100, 100, 450, 300);
 		frame.setExtendedState( frame.getExtendedState()|JFrame.MAXIMIZED_BOTH );
 		//frame.getGraphics().dra
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		offsetX= frame.getSize().width/2;
-		offsetY = frame.getSize().height/2;
+		
+		final JLabel lblLoc = new JLabel("loc");
+		frame.getContentPane().add(lblLoc, BorderLayout.NORTH);
+		frame.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseMoved(MouseEvent arg0) {
+				 lblLoc.setText(arg0.getPoint().toString());
+			}
+		});
+		
+		offsetX= frame.getSize().width/4;
+		offsetY = frame.getSize().height/4;
 		ats = AffineTransform.getScaleInstance(scaleX, scaleY);
 		att = AffineTransform.getTranslateInstance(offsetX, offsetY);
 	
