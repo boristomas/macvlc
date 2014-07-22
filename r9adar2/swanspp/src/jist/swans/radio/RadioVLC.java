@@ -11,6 +11,7 @@ package jist.swans.radio;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -835,7 +836,7 @@ public final class RadioVLC extends RadioNoise
 			}
 			else if( mode == SensorModes.Receive)
 			{//znaci source sluša poruke
-				possibleNodes =getRangeAreaNodes(SourceID, mode,-1);//send mode
+				possibleNodes =getRangeAreaNodes(SourceID, SensorModes.Receive,-1);//send mode
 				tmpNodeList = getRangeAreaNodes(DestinationID, SensorModes.Transmit,-1);//TODO: test
 
 				if(possibleNodes.contains(DestinationID) && tmpNodeList.contains(SourceID))
@@ -996,14 +997,19 @@ public final class RadioVLC extends RadioNoise
 			return false;
 		}
 	}
-	public boolean visibleToVLCdevice(float p1, float p2, VLCsensor sensor )		
+	public boolean visibleToVLCdevice(double x, double y, VLCsensor sensor )		
 	{	
-		if(Math.sqrt(Math.pow((p1-sensor.sensorLocation.getX()),2) + Math.pow((p2-sensor.sensorLocation.getY()),2)) > sensor.distanceLimit)
+		
+		if(Point.distance(x, y, sensor.sensorLocation.getX(), sensor.sensorLocation.getY()) > sensor.distanceLimit)
 		{
 			return false;
 		}
+		else
+		{
+			return sensor.coverageShape.contains(x, y);
+		}
 		//TODO: testirati radi li pita
-		return visibleToVLCdevice(p1, p2, sensor.sensorLocation.getX(), sensor.sensorLocation.getY(), sensor.sensorLocation1.getX(), sensor.sensorLocation1.getY(), sensor.sensorLocation2.getX(), sensor.sensorLocation2.getY());
+		//return visibleToVLCdevice(p1, p2, sensor.sensorLocation.getX(), sensor.sensorLocation.getY(), sensor.sensorLocation1.getX(), sensor.sensorLocation1.getY(), sensor.sensorLocation2.getX(), sensor.sensorLocation2.getY());
 	}
 
 	public float tripletOrientation(float x1, float y1, float x2, float y2, float x3, float y3)
@@ -1069,16 +1075,37 @@ public final class RadioVLC extends RadioNoise
 	/**
 	 * Gets the list of nodeIDs that source can see
 	 * @param SourceNodeID
-	 * @param sensorID use senorID = -1 to check all sensors. setting to specific sensor will check only for that sensor.
+	 * @param sensorID use sensorID = -1 to check all sensors. setting to specific sensor will check only for that sensor.
 	 * @return
 	 */
 	private HashSet<Integer> getRangeAreaNodes(int SourceNodeID, SensorModes mode, int sensorID)
 	{
-		//ne moram sve senzore gledati od send cvora nego samo one koji su u listi, tako se barem malo smanji optereecnje, teorettski dva
-		//puta provjeravam odnose dva senzor cvora!!!!!
+		//ne moram sve senzore gledati od send cvora nego samo one koji su u listi, tako se barem malo smanji optereecnje
 		HashSet<Integer> returnNodes = new HashSet<Integer>();
-		LinkedList<VLCsensor> sensors1 = new LinkedList<VLCsensor>();
-		LinkedList<VLCsensor> sensors2 = new LinkedList<VLCsensor>();
+		LinkedList<VLCsensor> sourceSensors = new LinkedList<VLCsensor>();
+		LinkedList<VLCsensor> destinationSensors = new LinkedList<VLCsensor>();
+		
+		
+		if(mode == SensorModes.Transmit)
+		{
+			if(sensorID == -1)
+			{
+				sourceSensors = Field.getRadioData(SourceNodeID).vlcdevice.sensorsTx;
+			}
+		}
+		else //receive
+		{
+			if(sensorID == -1)
+			{
+				sourceSensors = Field.getRadioData(SourceNodeID).vlcdevice.sensorsRx;
+			}
+		}
+		if(sensorID != -1)
+		{
+			sourceSensors.add(Field.getRadioData(SourceNodeID).vlcdevice.getSensorByID(sensorID));
+		}
+		
+		
 		for(int i=1;i<=JistExperiment.getJistExperiment().getNodes(); i++) 
 		{	
 			if(SourceNodeID != i)
@@ -1086,29 +1113,17 @@ public final class RadioVLC extends RadioNoise
 				boolean stopSearch = false;
 				if(mode == SensorModes.Transmit)
 				{
-					if(sensorID == -1)
-					{
-						sensors1 = Field.getRadioData(SourceNodeID).vlcdevice.sensorsTx;
-					}
-					sensors2 = Field.getRadioData(i).vlcdevice.sensorsRx;
+					destinationSensors = Field.getRadioData(i).vlcdevice.sensorsRx;
 				}
 				else //receive
 				{
-					if(sensorID == -1)
-					{
-						sensors1 = Field.getRadioData(SourceNodeID).vlcdevice.sensorsRx;
-					}
-					sensors2 = Field.getRadioData(i).vlcdevice.sensorsTx;
+					destinationSensors = Field.getRadioData(i).vlcdevice.sensorsTx;
 				}
-				if(sensorID != -1)
-				{
-					sensors1.add(Field.getRadioData(SourceNodeID).vlcdevice.getSensorByID(sensorID));
-				}
-				for (VLCsensor sensor :sensors1)
+				for (VLCsensor sensor :sourceSensors)
 				{
 					if(stopSearch)
 						break;
-					for (VLCsensor sensor2 :sensors2)
+					for (VLCsensor sensor2 :destinationSensors)
 					{
 						if(visibleToVLCdevice(sensor2.sensorLocation.getX(), sensor2.sensorLocation.getY(),sensor))// sensor.sensorLocation.getX(), sensor.sensorLocation.getY(), sensor.sensorLocation1.getX(), sensor.sensorLocation1.getY(), sensor.sensorLocation2.getX(), sensor.sensorLocation2.getY()))
 						{

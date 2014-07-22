@@ -83,7 +83,7 @@
 <int>2</int>
 </void>
 <void property="StaticPlacementOptions">
- <string>100,100,0;125,100,0</string>
+ <string>100,100,0;125,100,60</string>
  <!-- <string>
  100,100,0;115,100,0;
  100,105,0;115,105,0;

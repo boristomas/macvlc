@@ -12,6 +12,7 @@ import org.python.modules.math;
 
 import jist.swans.field.streets.Shape;
 import jist.swans.misc.Location;
+import jist.swans.misc.Location.Location2D;
 import jist.swans.misc.Message;
 import driver.GenericDriver;
 //širina: 1,7 +-0.3
@@ -28,7 +29,7 @@ import driver.GenericDriver;
 public class VLCsensor
 {
 
-	public float distanceLimit = 250;
+	public double distanceLimit = 250;
 	public float visionAngle = 60;
 	public float offsetX =10;
 	public float offsetY = 10;
@@ -80,7 +81,7 @@ public class VLCsensor
 			return code;
 		}
 	}
-	
+
 	public VLCsensor(int sensorID, RadioVLC node, float distancelimit, float visionAngle,Location originalLoc, float offsetX, float offsetY, float bearing, SensorModes mode) 
 	{
 		/*notes:
@@ -132,38 +133,31 @@ public class VLCsensor
 		return state;
 	}
 
-	private Path2D.Float poly;
+	public Path2D.Float coverageShape;
 	public void UpdateShape(Location NodeLocation, float NodeBearing)
 	{
 		//https://www.youtube.com/watch?v=Cd3w8kH9g_c
 		sensorBearingNotRelative = NodeBearing + sensorBearing;
 
-		sensorLocation = RadioVLC.rotatePoint(NodeLocation.getX()+ offsetX, NodeLocation.getY()+ offsetY, NodeLocation, NodeBearing); //new Location.Location2D(tmpx, tmpy);//start.
-		//sensorLocation = new Location.Location2D(1, 3);
-		//visionAngle = 60;
-		//distanceLimit = 5;
-		
+		sensorLocation = RadioVLC.rotatePoint(NodeLocation.getX()+ offsetX, NodeLocation.getY()+ offsetY, NodeLocation, NodeBearing);
+		//	sensorLocation = new Location.Location2D(10,5);		
+		//distanceLimit = 6;
+
 		sensorLocation1 = getVLCCornerPoint(sensorBearingNotRelative - (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
 		sensorLocation2 = getVLCCornerPoint(sensorBearingNotRelative + (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
 		//	if(node.NodeID == nodeidtst)
-		{
-			poly = new Path2D.Float();// Polygon();
-			
-			/*poly.moveTo(sensorLocation.getX(), sensorLocation.getY());
-			poly.lineTo(sensorLocation1.getX(), sensorLocation1.getY());
-			poly.lineTo(sensorLocation2.getX(), sensorLocation2.getY());
-			poly.closePath();*/
-			
-			double ax = sensorLocation.getX();
-			double ay = sensorLocation.getY();
-			double bx = sensorLocation1.getX();
-			double by = sensorLocation1.getY();
-			double cx = sensorLocation2.getX();
-			double cy = sensorLocation2.getY();
-			double dl = distanceLimit;
-			//dl = dl*1.3;
-			
-		/*	
+
+		coverageShape = new Path2D.Float();// Polygon();
+
+		double ax = sensorLocation.getX();
+		double ay = sensorLocation.getY();
+		double bx = sensorLocation1.getX();
+		double by = sensorLocation1.getY();
+		double cx = sensorLocation2.getX();
+		double cy = sensorLocation2.getY();
+		
+
+			/*
 			ax = 1;
 			ay = 3;
 			bx = 4;
@@ -172,60 +166,115 @@ public class VLCsensor
 			cy = 2;
 			distanceLimit =6;
 			visionAngle =(float) 36.87;
-			*/
-			
-			double a = Math.sqrt(Math.pow((ax - bx), 2) + Math.pow((ay -by), 2)) ;
-			
-			double r = Math.sqrt(a*a+ dl*dl - 2*a*dl * Math.cos(Math.toRadians(visionAngle/2)));//duljna BD
+		 */
+		/*ax = 80;
+		ay = 100;
+		bx = 130;
+		by = 70;
+		cx = 110;
+		cy = 50;
+		distanceLimit =(float)84.85;
+		visionAngle =(float) 28.07;
+		*/
+	/*	ax = 80;
+		ay = 60;
+		bx = 130;
+		by = 60;
+		cx = 120;
+		cy = 30;
+		distanceLimit =(float)76.33;
+		visionAngle =(float) 36.87;
+		*/
 		
-			double px = (cx+bx)/2;
-			double py = (cy+by)/2;
+		double px = (cx+bx)/2;
+		double py = (cy+by)/2;
+		double A =ax;
+		double B=ay;
+		double C=px;
+		double D=py;
+		double R=distanceLimit;
+		//http://www.wolframalpha.com/input/?i=%28x-A%29%5E2+%2B+%28y-B%29%5E2+%3D+R%5E2%2C+y-B%3D%28%28D-B%29%2F%28C-A%29%29*%28x-A%29
+		double x1 = (A*A*A+Math.sqrt((R*R*(A-C)*(A-C)*(A*A-2*A*C+B*B-2*B*D+C*C+D*D)))-2*A*A*C+A*B*B-2*A*B*D+A*C*C+A*D*D) / (A*A-2*A*C+B*B-2*B*D+C*C+D*D);
+		double y1 = (A*A*A*B+B*Math.sqrt(R*R*(A-C)*(A-C)* (A*A-2*A*C+B*B-2*B*D+C*C+D*D))-D*Math.sqrt(R*R*(A-C)*(A-C)*(A*A-2*A*C+B*B-2*B*D+C*C+D*D))-3*A*A*B*C+A*B*B*B-2*A*B*B*D+3*A*B*C*C+A*B*D*D-B*B*B*C+2*B*B*C*D-B*C*C*C-B*C*D*D)/((A-C)*(A*A-2*A*C+B*B-2*B*D+C*C+D*D));
 		
-			double N = (py-ay)/(px-ax);
-			double L = -1*N*ax + ay;
-			
-			double M = bx*bx + by*by -r*r;
-			double G = L*L - 2*by*L +M;
-			double F = 1 + N*N;
-			double J = 2* bx - 2*N*L + 2*by*N;
-			
-					
-			double x1= (-1*(-1*J) - Math.sqrt(Math.pow((J),2) - 4* F*G ))/ 2*F;
-			double x2= (-1*(-1*J) + Math.sqrt(Math.pow((J),2) - 4* F*G ))/ 2*F;
+		double x2 = (A*A*A-Math.sqrt((R*R*(A-C)*(A-C)*(A*A-2*A*C+B*B-2*B*D+C*C+D*D)))-2*A*A*C+A*B*B-2*A*B*D+A*C*C+A*D*D) / (A*A-2*A*C+B*B-2*B*D+C*C+D*D);
+		double y2 = (A*A*A*B-B*Math.sqrt(R*R*(A-C)*(A-C)*(A*A-2*A*C+B*B-2*B*D+C*C+D*D))+D*Math.sqrt(R*R*(A-C)*(A-C)*(A*A-2*A*C+B*B-2*B*D+C*C+D*D))-3*A*A*B*C+A*B*B*B-2*A*B*B*D+3*A*B*C*C+A*B*D*D-B*B*B*C+2*B*B*C*D-B*C*C*C-B*C*D*D)/((A-C)*(A*A-2*A*C+B*B-2*B*D+C*C+D*D));
+		
+		
+		double d1 = Math.sqrt(Math.pow(x1 - px, 2) + Math.pow(y1 - py, 2) );
+		double d2 = Math.sqrt(Math.pow(x2 - px, 2) + Math.pow(y2 - py, 2) );
 
-			double y1 = N*x1+L;
-			double y2 = N*x2+L;
-			
-			double d1 = Math.sqrt(Math.pow(x1 - ax, 2) + Math.pow(y1 - ay, 2) );
-			double d2 = Math.sqrt(Math.pow(x2 - ax, 2) + Math.pow(y2 - ay, 2) );
-			
-			double dx,dy;
-			
-			if(d1 > d2)
-			{
-				dx= x1;
-				dy= y1;
-			}
-			else
-			{
-				dx= x2;
-				dy =y2;
-			}
-			/*
+		double dx,dy;
+
+		if(d1 < d2)
+		{
+			dx= x1;
+			dy= y1;
+		}
+		else
+		{
+			dx= x2;
+			dy =y2;
+		}
+		
+		
+		/*
+		 A^2-2 A C+B^2-2 B D+C^2+D^2!=0,   ,   A-C!=0,   y = (A^3 B+B sqrt(R^2 (A-C)^2 (A^2-2 A C+B^2-2 B D+C^2+D^2))-D sqrt(R^2 (A-C)^2 (A^2-2 A C+B^2-2 B D+C^2+D^2))-3 A^2 B C+A B^3-2 A B^2 D+3 A B C^2+A B D^2-B^3 C+2 B^2 C D-B C^3-B C D^2)/((A-C) (A^2-2 A C+B^2-2 B D+C^2+D^2))
+		 */
+		/*SKORO VALJA
+		double dl = distanceLimit;
+		double a = Math.sqrt(Math.pow((ax - bx), 2) + Math.pow((ay -by), 2)) ;
+		//dl= dl*1.2;
+		double r = dl;// Math.sqrt(a*a+ dl*dl - 2*a*dl * Math.cos(Math.toRadians(visionAngle/2)));//duljna BD
+
+
+
+		double N = (py-ay)/(px-ax);
+		double L = -1*N*ax + ay;
+
+		double M = ax*ax + ay*ay -r*r;// bx*bx + by*by -r*r;
+		double G = L*L - 2*ay*L +M;
+		double F = 1 + N*N;
+		double J = 2* ax - 2*N*L + 2*ay*N;
+
+
+		double x1= (-1*(-1*J) - Math.sqrt(Math.pow((J),2) - 4* F*G ))/ 2*F;
+		double x2= (-1*(-1*J) + Math.sqrt(Math.pow((J),2) - 4* F*G ))/ 2*F;
+
+		double y1 = N*x1+L;
+		double y2 = N*x2+L;
+
+		double d1 = Math.sqrt(Math.pow(x1 - ax, 2) + Math.pow(y1 - ay, 2) );
+		double d2 = Math.sqrt(Math.pow(x2 - ax, 2) + Math.pow(y2 - ay, 2) );
+
+		double dx,dy;
+
+		if(d1 > d2)
+		{
+			dx= x1;
+			dy= y1;
+		}
+		else
+		{
+			dx= x2;
+			dy =y2;
+		}*/
+		
+		/*
 			double K1a =(dy-by)/(dx-bx);
 			double K1c = -1*K1a*by +by;
 			double K1d = (px +(py-K1c)*K1a )/(1 + K1a*K1a);
-			
+
 			double c1x = 2*K1d -px;
 			double c1y = 2*K1d*K1a -py + 2*K1c;
 
 			double K2a =(dy-cy)/(dx-cx);
 			double K2c = -1*K2a*cy +cy;
 			double K2d = (px +(py-K2c)*K2a )/(1 + K2a*K2a);
-			
+
 			double c2x = 2*K2d -px;
 			double c2y = 2*K2d*K2a -py + 2*K2c;
-			*/
+		 */
 		/*	double r1 = Point.distance(px, py, bx, by) ; //distance P, b
 			double r2 = Point.distance(dx, dy, bx, by) ; //distance b, d
 			r1=r2;/////////
@@ -243,31 +292,32 @@ public class VLCsensor
 
 		    double c2x = P0x - (hi*(py - dy))/d;       // extend to intersection 2 from midpoint
 		    double c2y = P0y + (hi*(px - dx))/d;
-*/
-			poly.moveTo(ax, ay);
-			poly.lineTo(bx, by);
-			
-			poly.quadTo(dx, dy, cx,cy);// .curveTo(cx, cy, dx+10, dy, dx+10, dy);
-			poly.closePath();
-			/*
+		 */
+		coverageShape.moveTo(ax, ay);
+		coverageShape.lineTo(bx, by);
+	//	poly.lineTo(cx, cy);
+		coverageShape.quadTo(dx, dy, cx,cy);// .curveTo(cx, cy, dx+10, dy, dx+10, dy);
+		coverageShape.closePath();
+		/*
 			poly.addPoint((int)sensorLocation.getX(), (int)sensorLocation.getY());
 			poly.addPoint((int)sensorLocation1.getX(), (int)sensorLocation1.getY());
 			poly.addPoint((int)sensorLocation2.getX(), (int)sensorLocation2.getY());*/
-			if(mode == SensorModes.Receive)
-			{
-				GenericDriver.btviz.DrawShape(poly, Color.yellow);
-			}
-			else
-			{
-				GenericDriver.btviz.DrawShape(poly, Color.red);
-			}
-	//		((Graphics2D) GenericDriver.btviz.getGraph()).drawString("a(" + ax + ","+ay+")",(float)ax,(float)ay);
-			
-			//((Graphics2D) GenericDriver.btviz.getGraph()).draw(AffineTransform.getTranslateInstance(-500, -500).createTransformedShape(AffineTransform.getScaleInstance(10, 10).createTransformedShape(poly)));
-			//GenericDriver.btviz.getGraph().drawPolygon(poly);
+		if(mode == SensorModes.Receive)
+		{
+			GenericDriver.btviz.DrawShape(coverageShape, Color.yellow);
+		}
+		else
+		{
+			GenericDriver.btviz.DrawShape(coverageShape, Color.red);
+		}
+
+		//((Graphics2D) GenericDriver.btviz.getGraph()).drawArc(x, y, width, height, startAngle, arcAngle); .drawString("a(" + ax + ","+ay+")",(float)ax,(float)ay);
+
+		//((Graphics2D) GenericDriver.btviz.getGraph()).draw(AffineTransform.getTranslateInstance(-500, -500).createTransformedShape(AffineTransform.getScaleInstance(10, 10).createTransformedShape(poly)));
+		//GenericDriver.btviz.getGraph().drawPolygon(poly);
 		//	GenericDriver.btviz.getGraph().setColor(Color.cyan);
 		//	GenericDriver.btviz.getGraph().drawString(""+sensorID, (int)sensorLocation.getX()+5, (int)sensorLocation.getY());
-		}
+
 		//	System.out.println("draw bt "+ sensorBearingNotRelative + " - nb= "+NodeBearing+" - "+(int)sensorLocation.getX() + " "+ (int)sensorLocation.getY() + " " +(int)sensorLocation1.getX() + " "+ (int)sensorLocation1.getY() +" " +(int)sensorLocation2.getX() + " "+ (int)sensorLocation2.getY()  );
 	}
 
@@ -279,12 +329,13 @@ public class VLCsensor
 	 * @param distanceLimit: the max distance the vlc device can see
 	 * @param visionAngle: the angle at which the vlc device can see from the front of the car
 	 */
-	public Location getVLCCornerPoint(float theta, Location origin, float distLimit, float visionAngle)
+	public Location getVLCCornerPoint(float theta, Location origin, double distLimit, float visionAngle)
 	{
 		Location cornerPoint; 
 		int quadrant = 0; 
-		distLimit = distLimit * (float)Math.cos(Math.toRadians(visionAngle/2));
-		float hypotenuse = (float)(distLimit/Math.cos(((visionAngle/2)*Math.PI)/(180))); 
+		//	distLimit = distLimit * (float)Math.cos(Math.toRadians(visionAngle/2));
+
+		double hypotenuse = distLimit;// (float)(distLimit/Math.cos(((visionAngle/2)*Math.PI)/(180))); 
 
 		//first detect what quadrant theta falls, to see how bearing affects corner points
 		if(theta >= 0 && theta <= 90)
