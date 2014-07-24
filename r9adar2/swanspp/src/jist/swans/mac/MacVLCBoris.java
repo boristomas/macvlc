@@ -713,24 +713,10 @@ public class MacVLCBoris implements MacInterface.Mac802_11
 
 	
 	private void receiveData(MacMessage.Data msg)
-	{
-		
-		// not in standard, but ns-2 does.
-		// decCW();
-		// shortRetry = 0;
-	//	if(mode==MAC_MODE_SWFDATA || !isAwaitingResponse())
-	//	{
-		//	if(MacAddress.ANY.equals(msg.getDst()))
-		//	{
-				((NetMessage.Ip)msg.getBody()).Times.add(new TimeEntry(3, "macbtrec", null));
-				netEntity.receive(msg.getBody(), msg.getSrc(), netId, false);
-				//cfDone(false, false);
-		//	}
-		//	else
-		//	{
-		//		cancelTimer();
-		//	}
-		//}
+	{		
+		((NetMessage.Ip)msg.getBody()).Times.add(new TimeEntry(3, "macbtrec", null));
+		netEntity.receive(msg.getBody(), msg.getSrc(), netId, false);
+	
 	}
 /*
 	private void receiveForeign(MacMessage msg)
