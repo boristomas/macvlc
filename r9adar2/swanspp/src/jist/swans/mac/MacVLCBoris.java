@@ -575,7 +575,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		}	
 		else
 		{
-	//		netEntity.packetDropped(msg, nextHop);
+			//netEntity.packetDropped(msg, nextHop);
 		}
 		
 		//if(Main.ASSERT) Util.assertion(!hasPacket());

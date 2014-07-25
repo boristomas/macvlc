@@ -1606,14 +1606,14 @@ public abstract class StreetMobility implements Mobility {
         float dy = distance * (end.getY() - start.getY())/hyp;
 
         //TESTING RADAR CLASS--- GET BEARING OF CURRENT NODE
-        VLC vlcDevice = new VLC(); 
+   /*     VLC vlcDevice = new VLC(); 
         vlcDevice.origin = new Location.Location2D(start.getX(), start.getY()); 						//set the location of the radar on the map
       
         //may need to use smi.getEndPoint() to get the destination location
         float bearingAngle = vlcDevice.getBearing(vlcDevice.origin, end); 					//get the bearing between current location and destination
         vlcDevice.cornerPoint1 = vlcDevice.getVLCCornerPoint(bearingAngle - (vlcDevice.visionAngle/2), vlcDevice.origin, vlcDevice.distanceLimit, vlcDevice.visionAngle);
         vlcDevice.cornerPoint2 = vlcDevice.getVLCCornerPoint(bearingAngle + (vlcDevice.visionAngle/2), vlcDevice.origin, vlcDevice.distanceLimit, vlcDevice.visionAngle);
-
+*/
         //get the neighbors of the vehicle within a certain distance radius
         PriorityList openList = new PriorityList();
         Location nextEnd = smi.getCurrentRS().getEndPoint();        
@@ -1625,7 +1625,7 @@ public abstract class StreetMobility implements Mobility {
         AStarNode node = (AStarNode)openList.removeFirst(); 
 		
 		//List neighbors = node.getNeighbors();													//get the neighboring road segments to the current segment being traveled
-        List neighbors = node.getNeighbors(vlcDevice.origin, vlcDevice.distanceLimit);
+  //      List neighbors = node.getNeighbors(vlcDevice.origin, vlcDevice.distanceLimit);
 		
 		//for all neighbors within a certain radius away..
 		                     
@@ -1647,11 +1647,11 @@ public abstract class StreetMobility implements Mobility {
 		for(int ii=1;ii<numNodes; ii++) 
 		{
 			nodeLocations[ii] = jist.swans.field.Field.getRadioData(ii).getLocation();				
-			nodeVisibleToRadar[ii] = vlcDevice.visibleToVLCdevice(nodeLocations[ii].getX(), nodeLocations[ii].getY(),vlcDevice.origin.getX(), vlcDevice.origin.getY(), vlcDevice.cornerPoint2.getX(), vlcDevice.cornerPoint2.getY(), vlcDevice.cornerPoint1.getX(), vlcDevice.cornerPoint1.getY());
+		//	nodeVisibleToRadar[ii] = vlcDevice.visibleToVLCdevice(nodeLocations[ii].getX(), nodeLocations[ii].getY(),vlcDevice.origin.getX(), vlcDevice.origin.getY(), vlcDevice.cornerPoint2.getX(), vlcDevice.cornerPoint2.getY(), vlcDevice.cornerPoint1.getX(), vlcDevice.cornerPoint1.getY());
 		}
 		//System.out.println("okay?");
 		
-		for(int i = 0; i < neighbors.size(); i ++)												//get the cars for all neighboring road segments
+		/*for(int i = 0; i < neighbors.size(); i ++)												//get the cars for all neighboring road segments
 		{
 			System.out.println("neighbor (" + i + "): " + neighbors.get(i));
 			
@@ -1676,7 +1676,7 @@ public abstract class StreetMobility implements Mobility {
 				carsToEnd.add(carsToEnd.size(), carsToRsEndLinkedList.get(m)); 					//add each car one by one (as the for loop executes) to the end of the list
 			}			
 							
-		}
+		}*/
 				
 		/*try
 		{*/			
@@ -1703,7 +1703,7 @@ public abstract class StreetMobility implements Mobility {
 						carLocsForRadarToCheck[i] = ((StreetMobilityInfo) sm).pointAt(neighborSMI.current.getEndPoint(), neighborSMI, neighborSMI.remainingDist);
 						if(!carLocsForRadarToCheck[i].equals(null))
 						{
-								if(vlcDevice.visibleToVLCdevice(carLocsForRadarToCheck[i].getX(), carLocsForRadarToCheck[i].getY(), vlcDevice.origin.getX(), vlcDevice.origin.getY(), vlcDevice.cornerPoint2.getX(), vlcDevice.cornerPoint2.getY(), vlcDevice.cornerPoint1.getX(), vlcDevice.cornerPoint1.getY()) == true)
+						//		if(vlcDevice.visibleToVLCdevice(carLocsForRadarToCheck[i].getX(), carLocsForRadarToCheck[i].getY(), vlcDevice.origin.getX(), vlcDevice.origin.getY(), vlcDevice.cornerPoint2.getX(), vlcDevice.cornerPoint2.getY(), vlcDevice.cornerPoint1.getX(), vlcDevice.cornerPoint1.getY()) == true)
 								{
 									detectedNeighbors++; 
 								}
