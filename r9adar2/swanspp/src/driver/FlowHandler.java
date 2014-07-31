@@ -88,7 +88,7 @@ class FlowHandler implements Runnable {
             Field field, Placement place, RadioInfo.RadioInfoShared radioInfo, Mapper protMap,
             PacketLoss inLoss, PacketLoss outLoss, 
             Mobility mobility,  VisualizerInterface vis, int flowIndex) {
-        // TODO Auto-generated constructor stub
+        // T-ODO Auto-generated constructor stub
    
         this.field = field;
       

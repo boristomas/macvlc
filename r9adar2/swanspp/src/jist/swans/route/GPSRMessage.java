@@ -34,7 +34,7 @@ public class GPSRMessage implements Message {
     public NetAddress dest; /** final destination */
     
     /** information for using mobility in determining positions 
-     * TODO multiply bearing by speed and save a word 
+     * T-ODO multiply bearing by speed and save a word 
      */
     public float speed;
     public Location bearing;
@@ -96,7 +96,7 @@ public class GPSRMessage implements Message {
      * @see jist.swans.misc.Message#getBytes(byte[], int)
      */
     public void getBytes(byte[] msg, int offset) {
-        // TODO actually get some bytes from this header
+        // T-ODO actually get some bytes from this header
         payload.getBytes(msg, offset);
         
     }

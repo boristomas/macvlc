@@ -33,7 +33,7 @@ public class VLCsensor
 	public float visionAngle = 60;
 	public float offsetX =10;
 	public float offsetY = 10;
-	public float sensorBearing = 0;
+	public float Bearing = 0;
 	public int sensorID = 0;
 	public SensorModes mode;
 	public SensorStates state;
@@ -46,6 +46,7 @@ public class VLCsensor
 	public int signalsRx;
 	public Message CurrentMessage;
 	public long CurrentMessageEnd;
+	public long CurrentMessageDuration;
 
 	public HashSet<Integer> controlSignal = new HashSet<Integer>();
 
@@ -118,7 +119,7 @@ public class VLCsensor
 		{
 			this.offsetY -= stickOut;
 		}
-		this.sensorBearing = bearing;
+		this.Bearing = bearing;
 		this.sensorID = sensorID;
 		this.mode = mode;
 		this.state = SensorStates.Idle;
@@ -137,7 +138,7 @@ public class VLCsensor
 	public void UpdateShape(Location NodeLocation, float NodeBearing)
 	{
 		//https://www.youtube.com/watch?v=Cd3w8kH9g_c
-		sensorBearingNotRelative = NodeBearing + sensorBearing;
+		sensorBearingNotRelative = NodeBearing + Bearing;
 
 		sensorLocation = RadioVLC.rotatePoint(NodeLocation.getX()+ offsetX, NodeLocation.getY()+ offsetY, NodeLocation, NodeBearing);
 		//	sensorLocation = new Location.Location2D(10,5);		

@@ -66,7 +66,7 @@ public class RoadSegment {
     // variables for runtime functions
     /** number of vehicles on segment */
     int numberOfCars=0;
-    // TODO: number of lanes for start and end
+    // T-ODO: number of lanes for start and end
     /** number of lanes in each direction in segment */
     int numberOfLanes;
     /** length of road segment */
@@ -162,7 +162,7 @@ public class RoadSegment {
            numberOfLanes=1;
         }
         
-        // TODO number of lanes per direction
+        // T-ODO number of lanes per direction
         carsToEnd = new LinkedList[numberOfLanes];
         carsToStart = new LinkedList[numberOfLanes];
         
@@ -275,7 +275,7 @@ public class RoadSegment {
         		lanes[index].add(position, smi);
         	}
             if (JistAPI.getTime()>0){
-        	// TODO remove when lane-changing works
+        	// T-ODO remove when lane-changing works
             ListIterator li = lanes[index].listIterator();
             StreetMobilityInfo behind, front = (StreetMobilityInfo)li.next();
             while (li.hasNext()){
@@ -286,7 +286,7 @@ public class RoadSegment {
                 front = behind;
             }
             }
-        	// TODO anything else?   
+        	// T-ODO anything else?   
         	return lanes[index];
         }
         else // no room for car
@@ -336,7 +336,7 @@ public class RoadSegment {
                 throw new RuntimeException("Car added to wrong street!");
             }
             if (behind.currentLane==front.currentLane && front.currentLane == list && behind.currentLane == list){
-	            if (behind.getNextCar()!=front) // TODO stronger debugging - check explicitly for lane changing
+	            if (behind.getNextCar()!=front) // T-ODO stronger debugging - check explicitly for lane changing
 	            {
 	                throw new RuntimeException("Car not following correctly!");
 	            }
@@ -432,7 +432,7 @@ public class RoadSegment {
      * Gets the pause time at an intersection, in seconds
      * @param next the next road taken
      * @return pause time in seconds
-     * TODO come up with more realistic estimates
+     * T-ODO come up with more realistic estimates
      */
 //    public int getPauseTime(RoadSegment next, int numberOfRoads,
 //            boolean stoplights, int pauseTime)
@@ -686,7 +686,7 @@ public class RoadSegment {
                 throw new RuntimeException("Removed node that wasn't" 
                         + " at front of queue");
             }
-            // TODO anything else?   
+            // T-ODO anything else?   
             return;
         }
         else // empty list
@@ -767,7 +767,7 @@ public class RoadSegment {
      * @return
      */
     public int getNumberOfDirections() {
-        // TODO update when support for one-way streets is included in 
+        // T-ODO update when support for one-way streets is included in 
         // map data.
         return 2;
     }
@@ -833,7 +833,7 @@ public class RoadSegment {
      * @return
      */
 	public float getLaneWidth() {
-		// TODO make more accurate
+		// T-ODO make more accurate
 		return 3.6576f; // 12 ft (average lane width in US)
 	}
 

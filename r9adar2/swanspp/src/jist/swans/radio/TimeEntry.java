@@ -11,13 +11,17 @@ import jist.swans.net.NetMessage;
 
 /**
  * timeid:
- *	0 - // kada je poruka kreirana
- *	1 - //kada je poruka puštena na mac sloj. mac.send
- *	2 - //kada je mac sloj poslao poruku sloju ispod, radioentity.transmit
- *  25- //kada je radio primio poruku s druge strane, radioentity.receive.
- *	3 - //kada je drugi mac sloj primio poruku, mac.receive
- *	4 - //kada je drugi mac sloj poslao poruku sloju iznad, netentity.receive.
- *  5 - //kada je drugi mac sloj poslao poruku sloju iznad, netentity.receive. i poruka je naslovljena za primatelja.
+ *	0  - //kada je poruka kreirana
+ *	1  - //kada je poruka puštena na mac sloj. mac.send
+ *  11 - //kada je poruku moguce poslati, nakon provjera zauzetosti senzora i kontrolnih signala 
+ *  12 - //kada je poruka dodana u red, znaci moguce je samo 11 ili 12 (u ovom slucaju ce kad tad morati biti jednom 11.)
+ *	2  - //kada je mac sloj poslao poruku sloju ispod, radioentity.transmit
+ *  250- //kada je radio primio poruku s druge strane, radioentity.receive, programski samo, bez fizicke provjere
+ *  251- //kada je radio primio poruku s druge strane ali fizicki ispravno, prije vremena propagacije.
+ *  252- //kada je radio primio poruku s druge strane nakon propagacije i provjere interferencije, tik prije slanja sloju iznad (mac)
+ *	3  - //kada je drugi mac sloj primio poruku, mac.receive
+ *	4  - //kada je drugi mac sloj poslao poruku sloju iznad, netentity.receive.
+ *  5  - //kada je drugi mac sloj poslao poruku sloju iznad, netentity.receive. i poruka je naslovljena za primatelja.
  * @author BorisTomas
  * 
  */

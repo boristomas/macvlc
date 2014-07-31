@@ -430,11 +430,11 @@ public class StreetMobilityOD extends StreetMobility
      */
     public boolean calculatePath(StreetMobilityInfoOD smiod, RoadSegment origin, Location nextEnd,
             RoadSegment destination) {
-        // TODO support loading from OD pairs    
+        // T-ODO support loading from OD pairs    
         // after calling constructor, objects for A* search must be created
         boolean found = false;
         
-        // TODO the caller should determine direction   
+        // T-ODO the caller should determine direction   
         if (DEBUG_OD)
         {
             System.out.println("Calculating path...");
@@ -502,18 +502,18 @@ public class StreetMobilityOD extends StreetMobility
         }
         if (!found) {
 
-//      TODO support locations at arbitrary points on road
+//      T-ODO support locations at arbitrary points on road
         smiod.destinationSN = endNode;
         smiod.destinationLocation = destination.getEndPoint();         
         
-        AStarSearch ass = new AStarSearch(hm, this); // TODO rename variable
+        AStarSearch ass = new AStarSearch(hm, this); // T-ODO rename variable
         smiod.path = ass.findPath(startNode, endNode); // find the path
         }
         
         // no path found
         if (smiod.path.get(0) == null)
          {
-            AStarSearch ass = new AStarSearch(hm, this); // TODO rename variable
+            AStarSearch ass = new AStarSearch(hm, this); // T-ODO rename variable
             smiod.path = ass.findPath(startNode, endNode); // find the path
             if (v!=null){
                 v.colorSegments(new RoadSegment[]{origin, destination}, new Color[]{Color.RED, Color.RED});

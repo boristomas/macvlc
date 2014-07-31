@@ -80,7 +80,7 @@ public abstract class StreetPlacement implements Placement {
         }
         else if (sm instanceof StreetMobilityCircuit)
         {
-        	// TODO finish
+        	// T-ODO finish
         	smri = new StreetMobilityInfoOD();
         	
         }
@@ -113,7 +113,7 @@ public abstract class StreetPlacement implements Placement {
                     System.out.println("Max cars in lane: " + rs.getMaxCars());
                 }
             }
-            // TODO deal with this intelligently
+            // T-ODO deal with this intelligently
             return null;
 //            throw new RuntimeException("Not enough room for car!");
         }
@@ -173,7 +173,7 @@ public abstract class StreetPlacement implements Placement {
         sm.setNextRoad(smri);
         
         // add car to mobility info object
-        sm.mobInfo.add(smri); // TODO this is NOT thread safe       
+        sm.mobInfo.add(smri); // T-ODO this is NOT thread safe       
         
         if (DEBUG)
         {

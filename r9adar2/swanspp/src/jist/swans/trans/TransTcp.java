@@ -781,7 +781,7 @@ public class TransTcp implements TransInterface.TransTcpInterface
   }
 
 public int getProtocolId() throws Continuation {
-	// TODO Auto-generated method stub
+	// T-ODO Auto-generated method stub
 	return 0;
 }
   

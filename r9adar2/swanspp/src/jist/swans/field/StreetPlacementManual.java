@@ -246,7 +246,7 @@ public class StreetPlacementManual implements Placement {
         smri.extraSpeed = (float)(stdDev*rnd.nextGaussian());
         
         // add car to mobility info object
-        sm.mobInfo.add(smri); // TODO this is NOT thread safe       
+        sm.mobInfo.add(smri); // T-ODO this is NOT thread safe       
         
         // now we have to move the vehicle back from the end of the road if 
         // there is one or more cars ahead

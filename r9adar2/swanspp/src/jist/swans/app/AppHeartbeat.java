@@ -245,7 +245,7 @@ public class AppHeartbeat implements AppInterface, NetInterface.NetHandler
   }
 
 public int getProtocolId() throws Continuation {
-	// TODO Auto-generated method stub
+	// T-ODO Auto-generated method stub
 	return 0;
 }
 

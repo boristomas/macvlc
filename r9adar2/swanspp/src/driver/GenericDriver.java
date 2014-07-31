@@ -136,7 +136,7 @@ public class GenericDriver {
 	 */
 	public static Vizbt btviz = null;
 	@SuppressWarnings("unchecked")
-	public static void addNode(JistExperiment je, int i, Vector nodes,				//TODO: START HERE
+	public static void addNode(JistExperiment je, int i, Vector nodes,				//T-ODO: START HERE
 			Field field, Placement place, RadioInfo.RadioInfoShared radioInfo,
 			Mapper protMap, PacketLoss inLoss, PacketLoss outLoss,
 			Mobility mobility, VisualizerInterface v) {
@@ -222,7 +222,7 @@ public class GenericDriver {
 		else if(je.MACProtocol.equals(MACVLCprotocolBoris))
 		{
 			Constants.VLCconstants.MACimplementationUsed = MACVLCprotocolBoris;
-			mac = new MacVLCBoris(new MacAddress(i), radio.getRadioInfo());
+			mac = new MacVLCBoris(new MacAddress(i), radio.getRadioInfo(), (RadioVLC) radio);
 			((MacVLCBoris) mac).setRadioEntity(radio.getProxy());
 			macProxy = ((MacVLCBoris) mac).getProxy();
 			((MacVLCBoris) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);
@@ -523,7 +523,7 @@ public class GenericDriver {
 
 		if (je.useVisualizer) {
 			v = new Visualizer();            
-			mobility.setGUI(v); // TODO deprecate this and use static getter from Visualizer
+			mobility.setGUI(v); // T-ODO deprecate this and use static getter from Visualizer
 		}
 
 		je.visualizer = v;
@@ -677,7 +677,7 @@ public class GenericDriver {
 
 				break;
 
-			case Constants.PLACEMENT_STREET_RANDOM: // TODO update and add one for intersections only
+			case Constants.PLACEMENT_STREET_RANDOM: // T-ODO update and add one for intersections only
 				smr = (StreetMobility) mobility;
 				bounds = (Location.Location2D[]) smr.getBounds();
 				staticPlace = new StreetPlacementRandom(bounds[0], bounds[3],
@@ -696,7 +696,7 @@ public class GenericDriver {
 			// initialize shared radio information
 			RadioInfo.RadioInfoShared staticRadioInfo = RadioInfo.createShared(je.frequency,
 					je.bandwidth, je.staticTransmit, je.staticGain,
-					Util.fromDB(je.staticSensitivity), // TODO update these with decent values
+					Util.fromDB(je.staticSensitivity), // T-ODO update these with decent values
 					Util.fromDB(je.threshold), je.temperature,
 					je.temperature_factor, je.ambiant_noise);
 			int max = je.staticNodes + i;
@@ -906,13 +906,13 @@ public class GenericDriver {
 
 			ois.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			// T-ODO Auto-generated catch block
 			//      e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// T-ODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
+			// T-ODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -1000,6 +1000,7 @@ public class GenericDriver {
 			chosen[dests[i]] = true;
 		}
 
+		//int cnter = 0;
 		// send messages
 		for (int i = 0; i < iterations; i++) {
 			for (int j = 0; j < je.transmitters; j++) {
@@ -1029,6 +1030,7 @@ public class GenericDriver {
 										Constants.NET_PROTOCOL_UDP,
 										Constants.NET_PRIORITY_NORMAL,
 										(byte) Constants.TTL_DEFAULT);
+		//		cnter++;
 				srcRoute.send(msg);
 				//System.out.println("BTc src= "+((NetMessage.Ip )msg).getSrc() + " dest= " + ((NetMessage.Ip )msg).getDst() + " .... " + src + " .... " + dest);
 			} // send message for each transmitter
@@ -1043,6 +1045,7 @@ public class GenericDriver {
 			}
 			currentTime += delayInterval;
 		}
+//		System.out.println("BTc src= " + cnter);
 	}
 
 	/**
@@ -1156,7 +1159,7 @@ public class GenericDriver {
 				JistAPI.endAt(endTime * Constants.SECOND);
 			}
 
-			/** TODO change seed default value to named constant */
+			
 			// set random seed for simulator
 			if (je.seed != 0) {
 				Constants.random = new Random(je.seed);

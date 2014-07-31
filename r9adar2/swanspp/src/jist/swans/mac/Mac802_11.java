@@ -23,6 +23,7 @@ import jist.swans.net.NetMessage;
 import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioInterface;
 import jist.swans.radio.TimeEntry;
+import jist.swans.radio.VLCsensor;
 import jist.swans.trans.TransUdp;
 import driver.JistExperiment;
 
@@ -1007,7 +1008,7 @@ public class Mac802_11 implements MacInterface.Mac802_11
 	{
 
 		decCW();
-		switch (mode) // TODO check that this is right
+		switch (mode) // T-ODO check that this is right
 		{
 		case MAC_MODE_SWFCTS:
 			stats.droppedCtsPackets++;
@@ -1252,7 +1253,7 @@ public class Mac802_11 implements MacInterface.Mac802_11
 		case MAC_MODE_SWFACK:    
 		case MAC_MODE_XBROADCAST:
 		case MAC_MODE_XUNICAST:
-			// TODO drc: dunno if the following ones should be here...
+			// T-ODO drc: dunno if the following ones should be here...
 		case MAC_MODE_XACK:
 			// don't care
 			break;
@@ -1268,7 +1269,7 @@ public class Mac802_11 implements MacInterface.Mac802_11
 		switch(mode)
 		{
 		case MAC_MODE_SIDLE:
-			// TODO drc: are these in the right place
+			// T-ODO drc: are these in the right place
 		case MAC_MODE_SNAV: // not sure, but maybe we want to do Difs here
 
 			doDifs();
@@ -1341,7 +1342,7 @@ public class Mac802_11 implements MacInterface.Mac802_11
 			{
 				idle();
 				if (packet==null && packetNextHop==null) 
-					netEntity.pump(netId); // DRC: TODO check
+					netEntity.pump(netId); // DRC: T-ODO check
 			}
 			break;
 		case MAC_MODE_SBO:
@@ -1397,26 +1398,26 @@ public class Mac802_11 implements MacInterface.Mac802_11
 	}
 
 	@Override
-	public void notifyInterference(Sensor[] sensors) {
-		// TODO Auto-generated method stub
+	public void notifyInterference(VLCsensor sensors) {
+		// T-ODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void notifyError(int errorCode, String message) {
-		// TODO Auto-generated method stub
+		// T-ODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void notifyTransmitFail(Message msg, int errorCode) {
-		// TODO Auto-generated method stub
+		// T-ODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void notifyReceiveFail(Message msg, int errorCode) {
-		// TODO Auto-generated method stub
+		// T-ODO Auto-generated method stub
 		
 	}
 }

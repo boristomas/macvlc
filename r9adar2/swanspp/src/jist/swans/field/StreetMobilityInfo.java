@@ -109,7 +109,7 @@ public class StreetMobilityInfo implements MobilityInfo {
         super();
     }
     
-    // TODO implement vehicle size in here      
+    // T-ODO implement vehicle size in here      
     public double getRemainingDist()
     {
     	return remainingDist;
@@ -134,7 +134,7 @@ public class StreetMobilityInfo implements MobilityInfo {
      * @return
      */
     public RoadSegment getCurrentRS() {
-        // TODO Auto-generated method stub
+        // T-ODO Auto-generated method stub
         return current;
     }
 
@@ -142,7 +142,7 @@ public class StreetMobilityInfo implements MobilityInfo {
      * @return
      */
     public Location getRSEnd() {
-        // TODO Auto-generated method stub
+        // T-ODO Auto-generated method stub
         return rsEnd;
     }
 
@@ -158,7 +158,7 @@ public class StreetMobilityInfo implements MobilityInfo {
      * @see jist.swans.field.Mobility.MobilityInfo#getBearing()
      */
     public Location getBearing() {
-        if (nextEnd==null) return new Location.Location2D(0,0); // TODO something better here...
+        if (nextEnd==null) return new Location.Location2D(0,0); // T-ODO something better here...
         if (nextEnd.distance(current.getEndPoint())==0)
         {
             return current.getStartPoint().bearing(current.getEndPoint());
@@ -210,7 +210,7 @@ public class StreetMobilityInfo implements MobilityInfo {
     }
 
     public RoadSegment getNextRS() {
-        // TODO Auto-generated method stub
+        // T-ODO Auto-generated method stub
         return nextRS;
     }
 

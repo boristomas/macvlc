@@ -89,7 +89,7 @@ public class DBLogger implements ClosableLogger {
 
 				// System.out.println("Connected to and created database
 				// derbyDB");
-				//TODO change if there will be overload
+				//T-ODO change if there will be overload
 				conn.setAutoCommit(true);
 			}
 			

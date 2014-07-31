@@ -369,13 +369,14 @@ public class NetIp implements NetInterface
   {
     if(msg==null) throw new NullPointerException();
     NetMessage.Ip ipmsg = (NetMessage.Ip)msg;
+    ipmsg.Times.add(new TimeEntry(4, "netiprec", null));
     
     if(incomingLoss.shouldDrop(ipmsg)) return;
     if(log.isInfoEnabled())
     {
       log.info("receive t="+JistAPI.getTime()+" from="+lastHop+" on="+macId+" data="+msg);
     }
-    ipmsg.Times.add(new TimeEntry(4, "netiprec", null));
+    
     if(routing!=null) routing.peek(ipmsg, lastHop);
  //   Constants.VLCconstants.NetIPReceived++;
     if(!promisc)
@@ -429,7 +430,7 @@ public class NetIp implements NetInterface
     //Constants.VLCconstants.NetIPSent++;
     if (ni.q.isFull())
     {
-        // TODO call a separate function -- this should not be confused with 
+        // T-ODO call a separate function -- this should not be confused with 
         // a lost link
         packetDropped(msg, nextHop); // inform of packets being dropped from queue
     }
@@ -497,7 +498,7 @@ public class NetIp implements NetInterface
         log.info("send t="+JistAPI.getTime()+" to="+qmsg.getNextHop()+" data="+ip);
       }
       JistAPI.sleep(Constants.NET_DELAY);
-      //TODO dont understatnd it with javadocs(notifying)
+      //T-ODO dont understatnd it with javadocs(notifying)
       ni.mac.send(ip, qmsg.getNextHop());
     }
   }

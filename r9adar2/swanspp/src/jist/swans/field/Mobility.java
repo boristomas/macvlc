@@ -73,7 +73,7 @@ public interface Mobility
         public Location getBearing(){return null;};
         public float getBearingAsAngle()
   	  {
-  			// TODO Auto-generated method stub
+  			// T-ODO Auto-generated method stub
   			return 0;
   	  }
         public void setStopped(boolean stop){ isStopped = stop;};
@@ -152,7 +152,7 @@ public interface Mobility
 
   	public Location getBearing() {
   		
-  	/*	 if (nextEnd==null) return new Location.Location2D(0,0); // TODO something better here...
+  	/*	 if (nextEnd==null) return new Location.Location2D(0,0); // T-ODO something better here...
          if (nextEnd.distance(current.getEndPoint())==0)
          {
              return current.getStartPoint().bearing(current.getEndPoint());
@@ -181,17 +181,17 @@ public interface Mobility
   	  }
 
   	public float getSpeed() {
-  		// TODO Auto-generated method stub
+  		// T-ODO Auto-generated method stub
   		return 0;
   	}
 
   	public boolean isStopped() {
-  		// TODO Auto-generated method stub
+  		// T-ODO Auto-generated method stub
   		return false;
   	}
 
   	public void setStopped(boolean stop) {
-  		// TODO Auto-generated method stub
+  		// T-ODO Auto-generated method stub
   		
   	}
   	  
@@ -226,7 +226,7 @@ public interface Mobility
     public Location bearing;
     public float getBearingAsAngle()
 	  {
-			// TODO Auto-generated method stub
+			// T-ODO Auto-generated method stub
 			return 0;
 	  }
     
@@ -643,27 +643,27 @@ public static class RandomDirectionInfo implements MobilityInfo
 	  public double direction = 2*Math.PI*Constants.random.nextDouble();
 
 	public Location getBearing() {
-		// TODO Auto-generated method stub
+		// T-ODO Auto-generated method stub
 		return null;
 	}
 	public float getBearingAsAngle()
 	  {
-			// TODO Auto-generated method stub
+			// T-ODO Auto-generated method stub
 			return 0;
 	  }
 
 	public float getSpeed() {
-		// TODO Auto-generated method stub
+		// T-ODO Auto-generated method stub
 		return 0;
 	}
 
 	public boolean isStopped() {
-		// TODO Auto-generated method stub
+		// T-ODO Auto-generated method stub
 		return false;
 	}
 
 	public void setStopped(boolean stop) {
-		// TODO Auto-generated method stub
+		// T-ODO Auto-generated method stub
 		
 	}
 	  
@@ -796,7 +796,7 @@ public static class RandomDirection implements Mobility
   }
 
 public void setGUI(VisualizerInterface visualizer) {
-	// TODO Auto-generated method stub
+	// T-ODO Auto-generated method stub
 	
 }  
 	
@@ -816,26 +816,26 @@ public static class BoundlessSimulationAreaInfo implements MobilityInfo
 
 	  public float getBearingAsAngle()
 	  {
-			// TODO Auto-generated method stub
+			// T-ODO Auto-generated method stub
 			return 0;
 	  }
 	public Location getBearing() {
-		// TODO Auto-generated method stub
+		// T-ODO Auto-generated method stub
 		return null;
 	}
 
 	public float getSpeed() {
-		// TODO Auto-generated method stub
+		// T-ODO Auto-generated method stub
 		return 0;
 	}
 
 	public boolean isStopped() {
-		// TODO Auto-generated method stub
+		// T-ODO Auto-generated method stub
 		return false;
 	}
 
 	public void setStopped(boolean stop) {
-		// TODO Auto-generated method stub
+		// T-ODO Auto-generated method stub
 		
 	}
 	  
@@ -857,7 +857,7 @@ public static class BoundlessSimulationArea implements Mobility
 	  }
 	  
 	  public BoundlessSimulationArea(Location2D bounds, String config) {
-		// TODO Auto-generated constructor stub
+		// T-ODO Auto-generated constructor stub
 	    	String directionConfigOptions [];
 	    	directionConfigOptions= config.split(":");
 	    	
@@ -951,7 +951,7 @@ public static class BoundlessSimulationArea implements Mobility
   }
 
 	public void setGUI(VisualizerInterface visualizer) {
-		// TODO Auto-generated method stub
+		// T-ODO Auto-generated method stub
 		
 	}  
 	

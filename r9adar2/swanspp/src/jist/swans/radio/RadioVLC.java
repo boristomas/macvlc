@@ -30,8 +30,7 @@ import javax.management.RuntimeErrorException;
 import javax.swing.JEditorPane;
 
 import org.apache.derby.impl.sql.execute.HashScanResultSet;
-
-import sun.management.Sensor;
+import org.omg.CORBA.SystemException;
 
 import com.sun.xml.internal.ws.api.PropertySet.Property;
 
@@ -66,7 +65,11 @@ public final class RadioVLC extends RadioNoise
 	public int NodeID;
 	//public Location currentLocation;
 	private Location newLocation;//used to store new location
-	public float vehicleStaticBearing =0F; 
+	public float vehicleStaticBearing = 0F;
+	/**
+	 * Automatically set control channel to busy on receive.
+	 */
+	public static boolean AutoSetControlOnRx =true;
 
 	//////////////////////////////////////////////////
 	// locals
@@ -236,36 +239,222 @@ public final class RadioVLC extends RadioNoise
 	 * sets Control signal for current radio and sensor
 	 * 
 	 * @param value
+	 * @author BorisTomas
 	 */
 
 	public void setControlSignal(int sensorID, Integer channelID)
 	{
-		/*if(channelID <= 0 || channelID == 127)
+		setControlSignal(getSensorByID(sensorID), channelID);
+	}
+	/**
+	 * sets control signal, if set for receiving sensor this method will find neared same bearing transmitting sensors and set control signal on them.
+	 * @param sensor
+	 * @param channelID
+	 */
+	public void setControlSignal(VLCsensor sensor, Integer channelID)
+	{
+		if(sensor != null)
 		{
-			throw new RuntimeException("invalid values: less than 0 and 127");
-		}*/
-		tmpsensor = getSensorByID(sensorID);
-
-		if(tmpsensor != null)
-		{
-			if(tmpsensor.mode != SensorModes.Transmit)
+			if(sensor.mode != SensorModes.Transmit)
 			{
-				throw new RuntimeException("Signal can not be set to a non sending sensor. change sensor to set signal.");
+				for (VLCsensor item : getNearestOpositeSensor(sensor)) 
+				{
+					item.controlSignal.add(channelID);
+				}
+				//throw new RuntimeException("Signal can not be set to a non sending sensor. change sensor to set signal.");
 			}
-			tmpsensor.controlSignal.add(channelID);
+			else
+			{
+				sensor.controlSignal.add(channelID);
+			}
 		}
+	}
+	/**
+	 * Gets the nearest sensor of the opposite
+	 * @param sensor
+	 * @param mode
+	 * @return
+	 */
+	public HashSet<VLCsensor> getNearestOpositeSensor (VLCsensor sensor)
+	{
+		//TODO: ovo bi trebalo biti dinamicno, da gledam bearing i ako je isti ili barem slican tek onda vratiti
+		
+		HashSet<VLCsensor> returnme = new HashSet<VLCsensor>();	
+		//1 3 5 - front 
+		//2 4 6 - back
+		if(sensor.mode == SensorModes.Receive)
+		{
+			for (VLCsensor item : sensorsTx) 
+			{
+				if(item.Bearing == sensor.Bearing)
+				{
+					returnme.add(item);
+				}
+			}
+			/*
+			if(sensor.sensorID == 5)
+			{
+				returnme.add(getSensorByID(1));
+				returnme.add(getSensorByID(3));
+				
+			}
+			if(sensor.sensorID == 6)
+			{
+				returnme.add(getSensorByID(2));
+				returnme.add(getSensorByID(4));
+			}*/
+		}
+		else
+		{//transmit je
+			for (VLCsensor item : sensorsRx) 
+			{
+				if(item.Bearing == sensor.Bearing)
+				{
+					returnme.add(item);
+				}
+			}
+			/*
+			if(sensor.sensorID == 1 || sensor.sensorID == 3)
+			{
+				returnme.add(getSensorByID(5));
+				
+			}
+			if(sensor.sensorID == 2 || sensor.sensorID == 4)
+			{
+				returnme.add(getSensorByID(6));
+			}*/
+		}
+		return returnme;
+	}
+	
+	
+	public boolean areAllIdle(SensorModes mode)
+	{
+		
+		switch (mode) {
+			case Receive:
+			{
+			
+				for (VLCsensor item: sensorsRx) 
+				{
+					if(item.state != SensorStates.Idle)
+					{
+						return false;
+					}
+				}	
+				break;
+			}
+			case Transmit:
+			{
+				for (VLCsensor item: sensorsTx) 
+				{
+					if(item.state != SensorStates.Idle)
+					{
+						return false;
+					}
+				}
+				break;
+			}
+			default:
+			{
+				throw new RuntimeException("mode should be transmit or receive");
+	
+			}
+		}
+		return true;
+	}
+	
+	public boolean isAtLeastOneIdle(SensorModes mode)
+	{
+		switch (mode) {
+			case Receive:
+			{
+				for (VLCsensor item: sensorsRx) 
+				{
+					if(item.state == SensorStates.Idle)
+					{
+						return true;
+					}
+				}	
+				break;
+			}
+			case Transmit:
+			{
+				for (VLCsensor item: sensorsTx) 
+				{
+					if(item.state == SensorStates.Idle)
+					{
+						return true;
+					}
+				}
+				break;
+			}
+			default:
+			{
+				throw new RuntimeException("mode should be transmit or receive");
+	
+			}
+		}
+		return false;
+	}
+	/**
+	 * Gets only the list of sensorIDs.
+	 * @param mode
+	 * @return
+	 * @author BorisTomas
+	 */
+	public HashSet<Integer> GetSensors(SensorModes mode)
+	{
+		HashSet<Integer> returnme = new HashSet<Integer>();
+
+		switch (mode) {
+		case Receive:
+		{
+			for (VLCsensor item: sensorsRx) 
+			{
+				returnme.add(item.sensorID);
+			}	
+			break;
+		}
+		case Transmit:
+		{
+			for (VLCsensor item: sensorsTx) 
+			{
+				returnme.add(item.sensorID);
+			}
+			break;
+		}
+		default:
+		{
+			throw new RuntimeException("mode should be transmit or receive");
+
+		}
+		}
+
+		return returnme;
 	}
 
 	/**
 	 * Clears sensor control signal
 	 * @param sensorID
+	 * @author BorisTomas
 	 */
 	public void clearControlSignal (int sensorID, byte channelID)
 	{
-		tmpsensor = getSensorByID(sensorID);
-		if(tmpsensor != null)
+	 	clearControlSignal(getSensorByID(sensorID), channelID);
+		
+	}
+	/**
+	 * Clears sensor control signal
+	 * @param sensor
+	 * @param channelID
+	 * @author BorisTomas
+	 */
+	public void clearControlSignal (VLCsensor sensor, byte channelID)
+	{
+		if(sensor != null)
 		{
-			tmpsensor.controlSignal.remove(channelID);
+			sensor.controlSignal.remove(channelID);
 		}
 	}
 	/**
@@ -285,17 +474,21 @@ public final class RadioVLC extends RadioNoise
 
 	public boolean queryControlSignal (int sensorID, Integer channelID)
 	{
+		return queryControlSignal(getSensorByID(sensorID), channelID);
+	}
+	public boolean queryControlSignal (VLCsensor sensor, Integer channelID)
+	{
 		byte returnValue = 0;
 		boolean tmpVal =false;
-		tmpsensor = getSensorByID(sensorID);
-		if(tmpsensor != null)
+		
+		if(sensor != null)
 		{
-			if(tmpsensor.mode != SensorModes.Receive)
+			if(sensor.mode != SensorModes.Receive)
 			{
 				throw new RuntimeException("sensor mode is not receiving");
 			}
 			this.checkLocation(false);//updating location of the node and sensors and bearings etc
-			for (Integer[] node : getRangeAreaNodesAndSensors(this.NodeID,SensorModes.Receive, sensorID)) 
+			for (Integer[] node : getRangeAreaNodesAndSensors(this.NodeID,SensorModes.Receive, sensor.sensorID)) 
 			{
 				tmpVal = Field.getRadioData(node[0]).vlcdevice.getControlSignal(node[1], channelID);	
 				if(tmpVal)
@@ -310,7 +503,6 @@ public final class RadioVLC extends RadioNoise
 		}
 		return false;		
 	}
-
 
 
 	public static int nodeidtst = -1;
@@ -421,7 +613,7 @@ public final class RadioVLC extends RadioNoise
 			//GenericDriver.btviz.getGraph().setColor(Color.red);
 		}
 	}
-	public static Location rotatePoint(float ptx, float pty, Location center, double angleDeg)
+	protected static Location rotatePoint(float ptx, float pty, Location center, double angleDeg)
 	{
 		double angleRad = (angleDeg/180)*Math.PI;
 
@@ -435,7 +627,7 @@ public final class RadioVLC extends RadioNoise
 		return new Location.Location2D(ptx, pty);
 	}
 
-	public Dictionary<Sensor, Message> messagesOnAir;
+	//	public Dictionary<Sensor, Message> messagesOnAir;
 	//////////////////////////////////////////////////
 	// reception
 	//
@@ -468,7 +660,7 @@ public final class RadioVLC extends RadioNoise
 
 		checkLocation(false);
 
-		///ako poruka nema postavljene senzore postavljam u sve.
+		
 
 		for (VLCsensor item : this.sensorsRx)
 		{
@@ -503,7 +695,7 @@ public final class RadioVLC extends RadioNoise
 			tmpSensorReceive.CurrentMessage = msg;
 			tmpSensorReceive.CurrentMessageEnd = JistAPI.getTime() + duration;
 			tmpSensorReceive.signalsRx ++;
-
+			setControlSignal(tmpSensorReceive, 1);
 			if(tmpSensorReceive.mode == SensorModes.Receive)
 			{//ok
 				if(tmpSensorReceive.state != SensorStates.Idle)
@@ -539,7 +731,7 @@ public final class RadioVLC extends RadioNoise
 			//mjerenje vremena.
 			((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(251, "radiovlct-rec", null));
 		}
-
+		
 		///mode set
 		if(isVLC)
 		{
@@ -580,22 +772,43 @@ public final class RadioVLC extends RadioNoise
 	/** {@inheritDoc} */
 	public void endReceive(final Double powerObj_mW, Long seqNumber)
 	{
+		//TODO: treba sve poruke na senzoru staviti u listu i onda treba isto staviti i power i treba vidjeti ako je suma (minus onaj koji gledam) u odnosu na onaj koji gledam, taj omjer treba biti ispod zadanog
+		//praga. ako je ispod onda znaci da mogu primiti poruku, za ovo bi trebalo napraviti katalog svih transmisija i gledati koje su u isto vrijeme i sl. pa onda racunati taj omjer...
+		
 		if(mode==Constants.RADIO_MODE_SLEEP) return;
 
 		if(isVLC)
 		{
 			for (VLCsensor item : sensorsRx)
 			{
-				item.signalsRx --;
-				if(item.signalsRx == 0 && item.CurrentMessageEnd == JistAPI.getTime())
-				{//poruka je dosla i samo je jedna
-
-					this.macEntity.receive(item.CurrentMessage);
-				}
-				else
-				{
-					//item.signalsRx = 0;
-				}
+					if(item.state == SensorStates.Receiving)
+					{
+						item.signalsRx --;
+						if(item.signalsRx != 0 || item.CurrentMessage == null)
+						{
+							item.CurrentMessage = null;
+							this.macEntity.notifyInterference(item);
+						}
+						else
+						{
+							if(item.signalsRx == 0 && item.CurrentMessageEnd == JistAPI.getTime())
+							{//poruka je dosla i samo je jedna
+								 
+								((NetMessage.Ip)(((MacMessage.Data)item.CurrentMessage).getBody())).Times.add(new TimeEntry(252, "macbtrec", null));
+								this.macEntity.receive(item.CurrentMessage);
+								item.setState(SensorStates.Idle );
+							}
+							else
+							{
+								//item.signalsRx = 0;
+							}
+						}
+						if(item.signalsRx == 0 && item.CurrentMessage == null)
+						{
+							//znaci da se dogodila interferencija i da su sve poruke koje su kolidirane dosle.
+							clearControlSignal(item, (byte)1);
+						}
+					}
 			}
 		}
 		else
@@ -667,6 +880,7 @@ public final class RadioVLC extends RadioNoise
 			}
 		}
 		isAtLeastOneTransmitting = false;
+		//System.out.println("radio: "+((MacMessage)msg).getSensorIDTx().toString() );
 		for (int item : ((MacMessage)msg).getSensorIDTx())
 		{
 			tmpSensorTransmit= this.getSensorByID(item);
@@ -679,6 +893,7 @@ public final class RadioVLC extends RadioNoise
 					tmpSensorTransmit.setState(SensorStates.Transmitting );
 					tmpSensorTransmit.CurrentMessage = msg;
 					tmpSensorTransmit.CurrentMessageEnd = JistAPI.getTime()+duration + delay;
+					tmpSensorTransmit.CurrentMessageDuration = duration + delay;
 					isAtLeastOneTransmitting = true;
 				}
 				else if(tmpSensorTransmit.state == SensorStates.Transmitting)
@@ -762,7 +977,7 @@ public final class RadioVLC extends RadioNoise
 
 			//if(mode!=Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio is not transmitting");
 			isStillTransmitting = false;
-			for (VLCsensor item : sensorsTx) 
+			for (VLCsensor item : sensorsTx)
 			{
 				if(item.state == SensorStates.Transmitting )
 				{
@@ -776,13 +991,11 @@ public final class RadioVLC extends RadioNoise
 						isStillTransmitting = true;
 					}
 				}
-
 			}
 			if(!isStillTransmitting)
 			{
 				setMode(Constants.RADIO_MODE_IDLE);
 			}
-
 		}
 		else
 		{
@@ -850,27 +1063,27 @@ public final class RadioVLC extends RadioNoise
 							if(msg.getSensorIDTx().contains(sensorSrc.sensorID))
 							{//ako je mac zadao da se šalje sa odreðenog senzora.
 								for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.sensorsRx) {
-								{//znaci da listam sve senzore na src i dest koji su zadani u msg sensor listama
-									isSomeNodeIntersecting = false;
-									for (Integer node : possibleNodes)//listam sve aute koji su mi vidljivi (u trokutu)
-									{
-										if(intersects(Field.getRadioData(node).vlcdevice.outlineShape, new Line2D.Float(sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY())))
+									{//znaci da listam sve senzore na src i dest koji su zadani u msg sensor listama
+										isSomeNodeIntersecting = false;
+										for (Integer node : possibleNodes)//listam sve aute koji su mi vidljivi (u trokutu)
 										{
-											isSomeNodeIntersecting = true;
-											break;
+											if(intersects(Field.getRadioData(node).vlcdevice.outlineShape, new Line2D.Float(sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY())))
+											{
+												isSomeNodeIntersecting = true;
+												break;
+											}
+										}//foreach possiblenodes
+										if(!isSomeNodeIntersecting)
+										{
+											tmpSensorTx.add(sensorSrc.sensorID);
+											tmpSensorRx.add(sensorDest.sensorID);
 										}
-									}//foreach possiblenodes
-									if(!isSomeNodeIntersecting)
-									{
-										tmpSensorTx.add(sensorSrc.sensorID);
-										tmpSensorRx.add(sensorDest.sensorID);
 									}
-								}
 								}
 							}
 						}
-						msg.SensorIDTx.clear();
-						msg.SensorIDTx.addAll(tmpSensorTx);
+					//	msg.SensorIDTx.clear();
+						msg.setSensorIDTx(tmpSensorTx);
 						msg.SensorIDRx.clear();
 						msg.SensorIDRx.addAll(tmpSensorRx);
 						if(msg.SensorIDTx.size() == 0 || msg.SensorIDRx.size() == 0)
@@ -880,7 +1093,14 @@ public final class RadioVLC extends RadioNoise
 					}
 					else
 					{
-						System.out.println("neva2");
+						if(msg.SensorIDTx.size() == 0)
+						{
+							System.out.println("neva2 "+ msg.hashCode() + " cnt = "+msg.SensorIDTx.size());
+						}
+						else
+						{
+							System.out.println("neva4 "+ msg.hashCode());
+						}
 					}
 				}
 				else
@@ -904,7 +1124,7 @@ public final class RadioVLC extends RadioNoise
 
 	public static boolean intersects(Path2D.Double path, Line2D line) {
 		double x1 = -1 ,y1 = -1 , x2= -1, y2 = -1,sx=-1,sy=-1;
-	/*	Color boja1 = Color.black;
+		/*	Color boja1 = Color.black;
 		Color boja2 = Color.orange;
 		GenericDriver.btviz.GetFrame().repaint();
 		GenericDriver.btviz.getGraph().clearRect(0, 0,GenericDriver.btviz.GetFrame().getSize().width , GenericDriver.btviz.GetFrame().getSize().height);
@@ -928,31 +1148,31 @@ public final class RadioVLC extends RadioNoise
 				}
 			}
 			case PathIterator.SEG_LINETO:
+			{
+				if(x1 == -1 && y1 == -1 )
 				{
-					if(x1 == -1 && y1 == -1 )
-					{
-						x1= coordinates[0];
-						y1= coordinates[1];
-						break;
-					}				
-					if(x2 == -1 && y2 == -1)
-					{
-						x2= coordinates[0];				
-						y2= coordinates[1];
-						break;
-					}
+					x1= coordinates[0];
+					y1= coordinates[1];
+					break;
+				}				
+				if(x2 == -1 && y2 == -1)
+				{
+					x2= coordinates[0];				
+					y2= coordinates[1];
 					break;
 				}
-			
-				default:
-				{
-					break;
-				}
+				break;
+			}
+
+			default:
+			{
+				break;
+			}
 			}
 			if(x1 != -1 && y1 != -1 && x2 != -1 && y2 != -1)
 			{
 				Line2D segment = new Line2D.Double(x1, y1, x2, y2);
-			/*	if(boja1 == Color.black)
+				/*	if(boja1 == Color.black)
 				{
 					boja1 = Color.blue;
 					boja2 = Color.green;
@@ -985,7 +1205,7 @@ public final class RadioVLC extends RadioNoise
 	 * @param x3,y3 are the x,y coordinates of the third point on the triangle, a second point calculated by the getVLCBounds method
 	 * @return true/false of whether or not the location falls within our calculated vlc bounds. 
 	 */
-	public boolean visibleToVLCdevice(float p1, float p2, float x1, float y1, float x2, float y2, float x3, float y3)		
+	/*public boolean visibleToVLCdevice(float p1, float p2, float x1, float y1, float x2, float y2, float x3, float y3)		
 	{		
 
 		if(tripletOrientation(x1,y1,x2,y2,p1,p2)*tripletOrientation(x1,y1,x2,y2,x3,y3)>0 && tripletOrientation(x2,y2,x3,y3,p1,p2)*tripletOrientation(x2,y2,x3,y3,x1,y1)>0)// && tripletOrientation(x3,y3,x1,y1,p1,p2)*tripletOrientation(x3,y3,x1,y1,x2,y2)>0)
@@ -996,10 +1216,10 @@ public final class RadioVLC extends RadioNoise
 		{
 			return false;
 		}
-	}
+	}*/
 	public boolean visibleToVLCdevice(double x, double y, VLCsensor sensor )		
 	{	
-		
+
 		if(Point.distance(x, y, sensor.sensorLocation.getX(), sensor.sensorLocation.getY()) > sensor.distanceLimit)
 		{
 			return false;
@@ -1012,11 +1232,11 @@ public final class RadioVLC extends RadioNoise
 		//return visibleToVLCdevice(p1, p2, sensor.sensorLocation.getX(), sensor.sensorLocation.getY(), sensor.sensorLocation1.getX(), sensor.sensorLocation1.getY(), sensor.sensorLocation2.getX(), sensor.sensorLocation2.getY());
 	}
 
-	public float tripletOrientation(float x1, float y1, float x2, float y2, float x3, float y3)
+/*	public float tripletOrientation(float x1, float y1, float x2, float y2, float x3, float y3)
 	{
 		return x1*(y2 - y3) + x2*(y3 - y1) + x3*(y1 - y2);  
 	}
-
+*/
 
 	/**
 	 * Gets the list of nodeIDs that source can see
@@ -1036,7 +1256,6 @@ public final class RadioVLC extends RadioNoise
 		for(int i=1;i<=JistExperiment.getJistExperiment().getNodes(); i++) 
 		{	
 
-			//BT todo: treba uzeti samo cvorove koji su blizu, za sada sam checkloc stavio za sve!! a to ne valja :( ***
 			if(SourceNodeID != i)
 			{
 				boolean stopSearch = false;
@@ -1080,11 +1299,10 @@ public final class RadioVLC extends RadioNoise
 	 */
 	private HashSet<Integer> getRangeAreaNodes(int SourceNodeID, SensorModes mode, int sensorID)
 	{
-		//ne moram sve senzore gledati od send cvora nego samo one koji su u listi, tako se barem malo smanji optereecnje
+		//TODO: ne moram sve senzore gledati od send cvora nego samo one koji su u listi, tako se barem malo smanji optereecnje
 		HashSet<Integer> returnNodes = new HashSet<Integer>();
 		LinkedList<VLCsensor> sourceSensors = new LinkedList<VLCsensor>();
 		LinkedList<VLCsensor> destinationSensors = new LinkedList<VLCsensor>();
-		
 		
 		if(mode == SensorModes.Transmit)
 		{
@@ -1104,8 +1322,8 @@ public final class RadioVLC extends RadioNoise
 		{
 			sourceSensors.add(Field.getRadioData(SourceNodeID).vlcdevice.getSensorByID(sensorID));
 		}
-		
-		
+
+
 		for(int i=1;i<=JistExperiment.getJistExperiment().getNodes(); i++) 
 		{	
 			if(SourceNodeID != i)

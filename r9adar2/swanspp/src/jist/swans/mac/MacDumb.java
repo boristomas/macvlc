@@ -16,6 +16,7 @@ import jist.swans.misc.Message;
 import jist.swans.net.NetInterface;
 import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioInterface;
+import jist.swans.radio.VLCsensor;
 
 /**
  * A dumb, pass-through mac implementation.
@@ -297,26 +298,26 @@ public class MacDumb implements MacInterface
   }
 
 @Override
-public void notifyInterference(Sensor[] sensors) {
-	// TODO Auto-generated method stub
+public void notifyInterference(VLCsensor sensors) {
+	// T-ODO Auto-generated method stub
 	
 }
 
 @Override
 public void notifyError(int errorCode, String message) {
-	// TODO Auto-generated method stub
+	// T-ODO Auto-generated method stub
 	
 }
 
 @Override
 public void notifyTransmitFail(Message msg, int errorCode) {
-	// TODO Auto-generated method stub
+	// T-ODO Auto-generated method stub
 	
 }
 
 @Override
 public void notifyReceiveFail(Message msg, int errorCode) {
-	// TODO Auto-generated method stub
+	// T-ODO Auto-generated method stub
 	
 }
 }

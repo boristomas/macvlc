@@ -223,7 +223,7 @@ public class Intersection {
                 }
                 else  // no light for lesser roads
                 {
-                    // TODO there should be no stoplight...the intersecting road 
+                    // T-ODO there should be no stoplight...the intersecting road 
                     // should have a stop sign.
                     return 0;
                 }
@@ -292,7 +292,7 @@ public class Intersection {
                     return 0;
                 }
                 else  // stop sign
-                { // TODO implement stop lights at secondary roads?
+                { // T-ODO implement stop lights at secondary roads?
                     return stopSign(current, next, smi);
                 }
             }

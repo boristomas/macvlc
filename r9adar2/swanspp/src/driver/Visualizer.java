@@ -121,7 +121,7 @@ public class Visualizer implements VisualizerInterface
         JistExperiment.getJistExperiment().isShowTitle();
 
     static public final boolean SHOW_INTERFERENCE = 
-        JistExperiment.getJistExperiment().isShowInterference(); // TODO make a checkbox
+        JistExperiment.getJistExperiment().isShowInterference(); // T-ODO make a checkbox
     
     /** key types */
     public static final int CIRCLE = 1;
@@ -342,7 +342,7 @@ public class Visualizer implements VisualizerInterface
             try {
                 Thread.sleep(Node.INTERSTEP_TIME);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
+                // T-ODO Auto-generated catch block
                 e.printStackTrace();
             }
             }
@@ -388,7 +388,7 @@ public class Visualizer implements VisualizerInterface
         public ZoomToggle() {
             super();
             this.addChangeListener(this);
-            // TODO Auto-generated constructor stub
+            // T-ODO Auto-generated constructor stub
         }
 
         /**
@@ -396,7 +396,7 @@ public class Visualizer implements VisualizerInterface
          */
         public ZoomToggle(SpinnerModel model) {
             super(model);
-            // TODO Auto-generated constructor stub
+            // T-ODO Auto-generated constructor stub
             this.addChangeListener(this);
         }
 
@@ -1032,7 +1032,7 @@ public class Visualizer implements VisualizerInterface
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
-//                    // TODO Auto-generated catch block
+//                    // T-ODO Auto-generated catch block
 //                    e.printStackTrace();
                 }
 			colorMapSegments(ids, colors,streetMap.createGraphics());
@@ -1084,22 +1084,22 @@ public class Visualizer implements VisualizerInterface
         }
 
         public void mousePressed(MouseEvent e) {
-            // TODO Auto-generated method stub
+            // T-ODO Auto-generated method stub
             
         }
 
         public void mouseReleased(MouseEvent e) {
-            // TODO Auto-generated method stub
+            // T-ODO Auto-generated method stub
             
         }
 
         public void mouseEntered(MouseEvent e) {
-            // TODO Auto-generated method stub
+            // T-ODO Auto-generated method stub
             
         }
 
         public void mouseExited(MouseEvent e) {
-            // TODO Auto-generated method stub
+            // TO-DO Auto-generated method stub
             
         }
 	}	
@@ -1794,7 +1794,7 @@ public class Visualizer implements VisualizerInterface
      * @see driver.VisualizerInterface#drawCircle(int, jist.swans.misc.Location)
      */
 	public void drawCircle(int r, Location loc) {
-		// TODO update such that center of circle is at loc
+		// T-ODO update such that center of circle is at loc
 		FieldPanel fp = (FieldPanel)panel;
 		fp.circleRadius = r;
 		fp.circleLoc = loc;
@@ -2193,7 +2193,7 @@ public class Visualizer implements VisualizerInterface
             frame.setVisible(false);
             frame.dispose();
         } catch (Throwable e) {
-            // TODO Auto-generated catch block
+            // T-ODO Auto-generated catch block
             e.printStackTrace();
         }
         

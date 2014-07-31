@@ -10,8 +10,10 @@
 package jist.swans.mac;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-import sun.management.Sensor;
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.Main;
@@ -22,7 +24,11 @@ import jist.swans.net.NetInterface;
 import jist.swans.net.NetMessage;
 import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioInterface;
+import jist.swans.radio.RadioVLC;
 import jist.swans.radio.TimeEntry;
+import jist.swans.radio.VLCsensor;
+import jist.swans.radio.VLCsensor.SensorModes;
+import jist.swans.radio.VLCsensor.SensorStates;
 import jist.swans.trans.TransUdp;
 import driver.JistExperiment;
 
@@ -34,6 +40,18 @@ import driver.JistExperiment;
 
 public class MacVLCBoris implements  MacInterface.Mac802_11
 {
+
+	/*TODO:
+	 * #Koristiti kontrolni kanal.
+	 * #Napraviti varijantu samo sa redom, poruke se salju na sve senzore
+	 * #Napraviti varijantu sa redom i sa slanjem poruke samo na onaj senzor na koji je primljena nekada bila poruka. 
+	 *  treba napraviti katalog u koji cu zapisivati adresu odredista, na koji senzor je primljena poruka i kada je primljena poruka na tom senzoru.
+	 * #Napraviti tablicu sensora koji primaju i salju, i ako ja saljem jednom mac sloju i on primi poruku na senzor 5 onda ce na njegovoj strani znaciti da treba poslati poruku
+	 *   na senzore 1 i 3, naravno, prvi puta, dok se ne dobije odgovor se salje na sve senzore. obzirom da ce rezultat odabira senzora biti lista onda se salje na prvi koji je slobodan.
+	 * 
+	 *  
+	 *  
+	 * */
 
 	////////////////////////////////////////////////////
 	// short 802.11 lexicon:
@@ -211,20 +229,20 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		}
 	}
 	// MacInterface.Mac802_11 interface
-		public void cfDone(boolean backoff, boolean delPacket)
+	public void cfDone(boolean backoff, boolean delPacket)
+	{
+		if(backoff)
 		{
-			if(backoff)
-			{
-				//setBackoff();
-			}
-//			doDifs();
-			if(delPacket)
-			{
-				packet = null;
-				packetNextHop = null;
-				netEntity.pump(netId);
-			}
+			//setBackoff();
 		}
+		//			doDifs();
+		if(delPacket)
+		{
+			packet = null;
+			packetNextHop = null;
+			netEntity.pump(netId);
+		}
+	}
 
 	//////////////////////////////////////////////////
 	// locals
@@ -260,7 +278,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	protected byte radioMode;
 
 	/** whether last reception had an error. */
-//	protected boolean needEifs;
+	//	protected boolean needEifs;
 
 	// timer
 
@@ -313,6 +331,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	protected StreetMobility sm =null;
 
 	private double airTime;
+	public RadioVLC myRadio = null;
 
 	// stats
 	/** collects network stats */
@@ -333,9 +352,9 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	 * @param radioInfo radio properties
 	 * @param newstats mac stats object
 	 */
-	public MacVLCBoris(MacAddress addr, RadioInfo radioInfo, boolean promisc)
+	public MacVLCBoris(MacAddress addr, RadioInfo radioInfo, boolean promisc, RadioVLC vlcradio)
 	{
-		
+		myRadio = vlcradio;
 		SourceNodeID = addr.hashCode();//BT: store node ID;
 		droppedPackets = new HashMap();
 		// properties
@@ -350,20 +369,21 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	 * nodeID for source radio.
 	 */
 	public int SourceNodeID;
-	
+
 	/**
 	 * Instantiate new 802_11b entity.
 	 *
 	 * @param addr local mac address
 	 * @param radioInfo radio properties
 	 */
-	public MacVLCBoris(MacAddress addr, RadioInfo radioInfo)
+	public MacVLCBoris(MacAddress addr, RadioInfo radioInfo, RadioVLC vlcradio)
 	{  
+		myRadio = vlcradio;
 		SourceNodeID = addr.hashCode();//BT: store node ID;
 		bandwidth = radioInfo.getShared().getBandwidth() / 8;
 		// proxy
 		self = (MacInterface.Mac802_11)JistAPI.proxy(this, MacInterface.Mac802_11.class);
-		init(addr, radioInfo, Constants.MAC_PROMISCUOUS_DEFAULT);
+		init(addr, radioInfo, true);// Constants.MAC_PROMISCUOUS_DEFAULT);
 	}
 
 	void init(MacAddress addr, RadioInfo radioInfo, boolean promisc)
@@ -433,7 +453,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		this.netId = netid;
 	}
 
-	
+
 	//////////////////////////////////////////////////
 	// mac states
 	//
@@ -457,12 +477,12 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	{
 		switch(mode)
 		{
-			case MAC_MODE_SWFCTS:
-			case MAC_MODE_SWFDATA:
-			case MAC_MODE_SWFACK:
-				return true;
-			default:
-				return false;
+		case MAC_MODE_SWFCTS:
+		case MAC_MODE_SWFDATA:
+		case MAC_MODE_SWFACK:
+			return true;
+		default:
+			return false;
 		}
 	}
 
@@ -475,14 +495,14 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	{
 		switch(mode)
 		{
-			case MAC_MODE_XRTS:
-			case MAC_MODE_XCTS:
-			case MAC_MODE_XUNICAST:
-			case MAC_MODE_XBROADCAST:
-			case MAC_MODE_XACK:
-				return true;
-			default:
-				return false;
+		case MAC_MODE_XRTS:
+		case MAC_MODE_XCTS:
+		case MAC_MODE_XUNICAST:
+		case MAC_MODE_XBROADCAST:
+		case MAC_MODE_XACK:
+			return true;
+		default:
+			return false;
 		}
 	}
 
@@ -549,50 +569,298 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		//maknuo sam nav
 	}
 
+	private java.util.concurrent.ConcurrentLinkedQueue<MacMessage.Data> MessageQueue = new ConcurrentLinkedQueue<MacMessage.Data>();  
+	private VLCsensor tmpSensorTx1;
+	/**
+	 * send messaga
+	 * @param msg
+	 * @param destination
+	 * @author BorisTomas
+	 */
+	private void sendMessage(MacMessage.Data msg )
+	{
+	//	System.out.println("neva1 "+ msg.hashCode()  + " cnt: " + msg.SensorIDTx.size());
+		setMode(MAC_MODE_XBROADCAST);
+		long delay = RX_TX_TURNAROUND;//TODO: provjeriti ima li ovoga.
+		long duration = transmitTime(msg);
+		radioEntity.transmit(msg, delay, duration);
+		JistAPI.sleep(delay+duration);
+	}
+
+	private void addToQueue(MacMessage.Data msg)
+	{
+		MessageQueue.add(msg);
+	}
+
+	private HashSet<Integer> tmpSensorsTx = new HashSet<Integer>();
+	private VLCsensor tmpSensorTx;
 	
+	private boolean canSendMessage(MacMessage.Data msg, boolean fixTx)
+	{
+	//	fixTx = false;
+		if(!fixTx)
+		{
+			for (Integer item : msg.SensorIDTx) 
+			{
+				if(myRadio.getSensorByID(item).state == SensorStates.Idle)
+				{
+					for (VLCsensor sensor : myRadio.getNearestOpositeSensor(myRadio.getSensorByID(item))) 
+					{
+						if(!myRadio.queryControlSignal(sensor, 1))
+						{
+							return true;
+						}
+					}
+				}
+			}
+			return false;
+		}	
+		else
+		{
+			tmpSensorsTx.clear();
+
+			for (Integer item : msg.SensorIDTx) 
+			{
+				tmpSensorTx =myRadio.getSensorByID(item);
+				if(tmpSensorTx.state == SensorStates.Idle)
+				{
+
+					for (VLCsensor sensor : myRadio.getNearestOpositeSensor(tmpSensorTx)) 
+					{
+						if(!myRadio.queryControlSignal(sensor, 1))
+						{
+							tmpSensorsTx.add(tmpSensorTx.sensorID);
+							//	msg.SensorIDTx = tmpSensorsTx;
+							//return false;
+						}
+					}
+
+				}
+			}
+			msg.setSensorIDTx(tmpSensorsTx);
+
+
+			if(msg.SensorIDTx.size() != 0)
+			{
+				//if(msg.SensorIDTx.size() < 3)
+				//		System.out.println("cta: "+((MacMessage)msg).getSensorIDTx().toString() );
+				return true;
+			}
+			else
+			{
+				//System.out.println("neva3 "+ msg.hashCode());
+				return false;
+			}
+		}
+		//provjeravam control signal
+
+
+		//	if(myRadio.rotatePoint(ptx, pty, center, angleDeg))
+		//if(myRadio.tripletOrientation(x1, y1, x2, y2, x3, y3) )
+		//	((RadioVLC)radioEntity).messagesOnAir
+	//	return false;
+		
+	}
+
+	private long tmpDelay;
+	private long minDelay;
+	private long maxDelay;
+	private VLCsensor tmpSensor2;
+	private long getMessageEndTimeForSensors(LinkedList<VLCsensor> sensors, boolean isMin )
+	{
+		if(sensors.size() == 0)
+		{
+			return Constants.MICRO_SECOND;//nikada se ne bi trebalo desiti.
+		}
+		minDelay = Constants.DAY;//jako veliki broj
+		maxDelay = 0;
+		for (VLCsensor sensor : sensors)
+		{
+			tmpSensor2 = sensor;//myRadio.getSensorByID(sensor);
+			if(tmpSensor2.state == SensorStates.Transmitting)
+			{
+				tmpDelay = tmpSensor2.CurrentMessageDuration;
+	
+				if(isMin)
+				{
+					if(tmpDelay< minDelay)
+					{
+						minDelay= tmpDelay;
+					}
+				}
+				else
+				{
+					if(tmpDelay > maxDelay)
+					{
+						maxDelay = tmpDelay;
+					}
+				}
+			}
+		}
+
+		if(minDelay == Constants.DAY)
+		{
+			minDelay = Constants.MICRO_SECOND;
+		}
+		if(isMin)
+		{
+			return minDelay;
+		}
+		else
+		{		
+			return maxDelay;
+		}
+	}
+	private MacMessage.Data tmpMsg;
+	private long transmitDelay; 
+	private void sendMacMessage(Message msg, MacAddress nextHop)
+	{
+		if(((NetMessage.Ip)msg).isFresh)
+		{
+			((NetMessage.Ip)msg).Times.add(new TimeEntry(1, "macbt", null));
+			((NetMessage.Ip)msg).isFresh = false;
+		}
+		/*else
+		{
+			((NetMessage.Ip)msg).isFresh = false;
+		}*/
+		MacMessage.Data data = new MacMessage.Data(nextHop, localAddr,0, msg);	
+		data.setSensorIDTx(myRadio.GetSensors(SensorModes.Transmit));//todo: izraditi strategiju odabira senzora
+		
+		
+	
+	//	int a = data.SensorIDTx.size();
+		if(canSendMessage(data, true))
+		{
+		/*	if(a != data.SensorIDTx.size())
+			{
+				System.out.println("aaaaaaa");
+			}*/
+			((NetMessage.Ip)msg).Times.add(new TimeEntry(11, "macbt", null));
+			sendMessage(data);
+			//		System.out.println("are all idle: "+ myRadio.areAllIdle(SensorModes.Transmit));
+
+			//nakon sto je poslana poruka opet zovem
+			/*if(!MessageQueue.isEmpty())
+			{
+			//	self.startTimer(transmitDelay, (byte)1);
+				
+				//if(canSendMessage(MessageQueue.peek(),false))
+				{
+					tmpMsg = MessageQueue.poll();
+					self.send(tmpMsg.getBody(), tmpMsg.getDst());
+				}
+			}*/
+		}	
+		else
+		{
+			((NetMessage.Ip)msg).Times.add(new TimeEntry(12, "macbt", null));
+			addToQueue(data);
+			
+			if(!TimerRunning)
+			{
+				
+				TimerRunning = true;
+				self.startTimer(transmitDelay, (byte)1);
+			}
+		//	System.out.println("sensor cnt : " + data.SensorIDTx.size());
+			
+		//	self.startTimer(transmitDelay, (byte)1);
+			
+			//ne moze i ide na queue;
+			//netEntity.packetDropped(msg, nextHop);
+		}
+
+	}
 	//////////////////////////////////////////////////
 	// send-related functions
 	//
 
 	// MacInterface interface
-	@SuppressWarnings("unused")
 	public void send(Message msg, MacAddress nextHop)
 	{
-//		netEntity.packetDropped(msg, nextHop);
+		sendMacMessage(msg,nextHop);
+	}
+	//////////////////////////////////////////////////
+	// timer routines
+	//
 
-		((NetMessage.Ip)msg).Times.add(new TimeEntry(1, "macbt", null));//= JistAPI.getTime();
-		MacMessage.Data data = new MacMessage.Data(nextHop, localAddr,0, msg);
-				
-		if(isRadioIdle())
-		{
-				// set mode and transmit
-				setMode(MAC_MODE_XBROADCAST);
-				long delay = RX_TX_TURNAROUND, duration = transmitTime(data);
-				radioEntity.transmit(data, delay, duration);
-				// wait for EOT, check for outgoing packet
-				JistAPI.sleep(delay+duration);
-			//	self.cfDone(true, true);
-		}	
-		else
-		{
-			//netEntity.packetDropped(msg, nextHop);
-		}
+	// MacInterface
+	private boolean TimerRunning = false;
+	public void startTimer(long delay, byte mode)
+	{
+	//	if(delay == 0) return;
 		
-		//if(Main.ASSERT) Util.assertion(!hasPacket());
-		//if(Main.ASSERT) Util.assertion(nextHop!=null);
-	/*	packet = msg;
-		packetNextHop = nextHop;
-		if(mode==MAC_MODE_SIDLE)
-		{
-			if(!isCarrierIdle())
-			{
-			//	setBackoff();
-			}
-			doDifs();
-		}*/
+	//	if(TimerRunning)return;
+		//TimerRunning = true;
+		//cancelTimer();
+		//setMode(mode);
+		transmitDelay = getMessageEndTimeForSensors(myRadio.sensorsTx, true);//-JistAPI.getTime();
+		JistAPI.sleep(transmitDelay);
+		self.timeout(timerId);
 	}
 
-/*	private void doDifs()
+	/**
+	 * Cancel timer event, by incrementing the timer identifer.
+	 */
+	private void cancelTimer()
+	{
+		timerId++;
+	}
+
+	private void idle()
+	{
+		cancelTimer();
+		setMode(MAC_MODE_SIDLE);
+	}
+
+	// MacInterface
+	
+	MacMessage.Data tmpmsg1;
+	MacMessage.Data first;
+	public void timeout(int timerId)
+	{
+	//	System.out.println("id = " + myRadio.NodeID + " QS = " +MessageQueue.size());
+		if(timerId!=this.timerId) return;
+		if(!MessageQueue.isEmpty())
+		{
+			first = MessageQueue.peek();
+			do{
+				tmpmsg1 = MessageQueue.poll();
+				tmpmsg1.setSensorIDTx(myRadio.GetSensors(SensorModes.Transmit));//todo: izraditi strategiju odabira senzora
+				if(canSendMessage(tmpmsg1, false))
+				{
+					self.send(tmpmsg1.getBody(), tmpmsg1.getDst());
+					break;
+				}
+				else
+				{
+					MessageQueue.add(tmpmsg1);
+				}
+			} while(MessageQueue.peek() != first);
+			
+			
+			if(!MessageQueue.isEmpty())
+			{
+				self.startTimer(transmitDelay, (byte)1);
+			}
+			else
+			{
+				TimerRunning = false;
+			}
+		}
+		else
+		{
+			//red je prazan.
+			TimerRunning = false;
+		}
+		
+		
+			//throw new RuntimeException("unexpected mode: "+mode);
+			//	System.err.println("unexpected mode: "+getModeString(mode));
+	}
+
+	/*	private void doDifs()
 	{
 		if(isRadioIdle())
 		{
@@ -615,11 +883,11 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		return false;
 		//return nav > JistAPI.getTime();
 	}
-*/
+	 */
 
-	
 
-/*	private void sendData(boolean afterCts)
+
+	/*	private void sendData(boolean afterCts)
 	{
 		if(isBroadcast())
 		{
@@ -627,7 +895,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		}
 	}*/
 
-/*	private void sendDataBroadcast()
+	/*	private void sendDataBroadcast()
 	{
 
 	//	MacMessage.Data msg;
@@ -638,13 +906,13 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 			sendDataUnicast(false);
 			//send(msg, new MacAddress(item));
 		}*/
-		
-		// create data packet
+
+	// create data packet
 	/*			MacMessage.Data data = new MacMessage.Data(packetNextHop, localAddr,0, packet);
 		//		data.TimeCreated = ((MacMessage)packet).TimeCreated;//.TimeEntry = JistAPI.getTime();
 		//		data.TimeEntry = ((MacMessage)packet).TimeEntry;
 		//		data.TimeSent =JistAPI.getTime();
-				
+
 				// set mode and transmit
 				setMode(MAC_MODE_XBROADCAST);
 				long delay = RX_TX_TURNAROUND, duration = transmitTime(data);
@@ -654,7 +922,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 				self.cfDone(true, true);
 	}*/
 
-	
+
 
 
 	//////////////////////////////////////////////////
@@ -664,7 +932,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	// MacInterface
 	public void peek(Message msg)
 	{
-	//	needEifs = true;
+		//	needEifs = true;
 		if (mode == MAC_MODE_SNAV_RTS) 
 		{
 			idle();
@@ -674,6 +942,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	// MacInterface
 	public void receive(Message msg)
 	{
+		((NetMessage.Ip)(((MacMessage.Data)msg).getBody())).Times.add(new TimeEntry(3, "macbtrec", null));
 		receivePacket((MacMessage)msg);
 	}
 
@@ -692,7 +961,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		/*
 		if(localAddr.equals(dst))
 		{
-			
+
 		}
 		else if(MacAddress.ANY.equals(dst))
 		{
@@ -712,14 +981,14 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		}*/
 	}
 
-	
+
 	private void receiveData(MacMessage.Data msg)
 	{		
-		((NetMessage.Ip)msg.getBody()).Times.add(new TimeEntry(3, "macbtrec", null));
+		
 		netEntity.receive(msg.getBody(), msg.getSrc(), netId, false);
-	
+
 	}
-/*
+	/*
 	private void receiveForeign(MacMessage msg)
 	{
 		long currentTime = JistAPI.getTime();
@@ -808,7 +1077,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		case MAC_MODE_SWFACK:    
 		case MAC_MODE_XBROADCAST:
 		case MAC_MODE_XUNICAST:
-			// TODO drc: dunno if the following ones should be here...
+			// T-ODO drc: dunno if the following ones should be here...
 		case MAC_MODE_XACK:
 			// don't care
 			break;
@@ -824,9 +1093,9 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		switch(mode)
 		{
 		case MAC_MODE_SIDLE:
-			// TODO drc: are these in the right place
+			// T-ODO drc: are these in the right place
 		case MAC_MODE_SNAV: // not sure, but maybe we want to do Difs here
-	//		doDifs();
+			//		doDifs();
 			break;
 		case MAC_MODE_SWFCTS:
 		case MAC_MODE_SWFDATA:
@@ -847,80 +1116,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		}
 	}
 
-	//////////////////////////////////////////////////
-	// timer routines
-	//
 
-	// MacInterface
-	public void startTimer(long delay, byte mode)
-	{
-		cancelTimer();
-		setMode(mode);
-		JistAPI.sleep(delay);
-		self.timeout(timerId);
-	}
-
-	/**
-	 * Cancel timer event, by incrementing the timer identifer.
-	 */
-	private void cancelTimer()
-	{
-		timerId++;
-	}
-
-	private void idle()
-	{
-		cancelTimer();
-		setMode(MAC_MODE_SIDLE);
-	}
-
-	// MacInterface
-	public void timeout(int timerId)
-	{
-	
-		if(timerId!=this.timerId) return;
-		switch(mode)
-		{
-		case MAC_MODE_SIDLE:
-			idle();
-			break;
-		case MAC_MODE_DIFS:
-			{
-				idle();
-				if (packet==null && packetNextHop==null) 
-					netEntity.pump(netId); // DRC: TODO check
-			}
-			break;
-		case MAC_MODE_SBO:
-			if(Main.ASSERT) Util.assertion(boStart + bo == JistAPI.getTime());
-			if(hasPacket())
-			{
-		//		sendData(false);
-			}
-			else
-			{
-				idle();
-			}
-			break;
-		case MAC_MODE_SNAV_RTS:
-		case MAC_MODE_SNAV:
-		
-		//	doDifs();
-			break;
-		case MAC_MODE_SWFDATA:
-
-			//doDifs();
-			break;
-
-		case MAC_MODE_SWFACK:
-			stats.retries++;
-		case MAC_MODE_SWFCTS:    
-			break;
-		default:
-			//throw new RuntimeException("unexpected mode: "+mode);
-		//	System.err.println("unexpected mode: "+getModeString(mode));
-		}
-	}
 
 	/**
 	 * @param sm The StreetMobility object to set.
@@ -944,11 +1140,11 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		return localAddr.toString();
 	}
 
-	public void notifyInterference(Sensor[] sensors) 
+	public void notifyInterference(VLCsensor sensors) 
 	{
-		System.out.println("interference");
+		System.out.println("interference on sensor: " + sensors.sensorID);
 	}
-	
+
 	public void notifyError(int errorCode, String message) 
 	{
 		System.out.println("notfiy error #"+errorCode);
@@ -958,7 +1154,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	{
 		System.out.println("transmit fail error #"+errorCode);
 	}
-	
+
 	public void notifyReceiveFail(Message msg, int errorCode) 
 	{
 		System.out.println("receive fail error #"+errorCode);

@@ -590,7 +590,7 @@ public class RoadSegment {
      * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object obj) {
-        // TODO Auto-generated method stub
+        // T-ODO Auto-generated method stub
         return ((RoadSegment)obj).selfIndex == this.selfIndex;
     }
 

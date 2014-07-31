@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.4.2_05" class="java.beans.XMLDecoder">
+<object class="driver.JistExperiment">
+<!--  timing  -->
+<void property="duration">
+<int>90</int>
+</void>
+<void property="resolutionTime">
+<int>60</int>
+</void>
+<void property="startTime">
+<int>60</int>
+</void>
+<!--  environment  -->
+<void property="exponent">
+<double>2.8</double>
+</void>
+<void property="stdDeviation">
+<double>0.0</double>
+</void>
+<void property="loss">
+<int>0</int>
+</void>
+<void property="pathloss">
+<int>4</int><!-- 4!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! vlc -->
+</void>
+<void property="transmit">
+<double>50</double>
+</void>
+<!--  mobility options  -->
+<void property="mobility">
+<int>1</int>
+</void>
+<void property="max_speed">
+<int>20</int>
+</void>
+<void property="min_speed">
+<int>1</int>
+</void>
+<void property="pause_time">
+<int>5</int>
+</void>
+<void property="granularity">
+<int>5</int>
+</void>
+<void property="segmentFile">
+<string>swanspp/suffolk/segments.dat</string>
+</void>
+<void property="streetFile">
+<string>swanspp/suffolk/names.dat</string>
+</void>
+<void property="shapeFile">
+<string>swanspp/suffolk/chains.dat</string>
+</void>
+<void property="degree">
+<int>4</int>
+</void>
+<void property="probability">
+<double>0.3</double>
+</void>
+<void property="minLat">
+<float>42.36134</float>
+</void>
+<void property="minLong">
+<float>-71.05870</float>
+</void>
+<void property="maxLat">
+<float>42.36808</float>
+</void>
+<void property="maxLong">
+<float>-71.05024</float>
+</void>
+<!--  node options  -->
+
+<void property="sendRate">
+<double>1.0</double>
+</void>
+<!--  placement options  -->
+<void property="placement">
+<int>2</int>
+</void>
+<void property="spatial_mode">
+<int>2</int>
+</void>
+<void property="StaticPlacementOptions">
+ <string>100,100,0;125,100,20</string>
+ <!-- <string>
+ 100,100,0;115,100,0;
+ 100,105,0;115,105,0;
+ 100,110,0;115,110,0
+ </string>-->
+
+<!--   <string>100,100,0;175,175,0;175,90,0</string> -->
+<!--   <string>100,100,0;155,100,90;</string> -->
+<!--
+<string>100,100;150,150;200,200;200,200;200,200;200,200</string> 
+-->
+</void>
+<void property="nodes">
+<int>2</int>
+</void>
+<void property="transmitters">
+<int>2</int>
+</void>
+<void property="MACProtocol">
+<string>MACVLCprotocolBoris</string>
+<!-- <string>MACprotocol802_11</string>-->
+</void>
+<void property="MeasurementMode">
+<boolean>true</boolean>
+</void>
+<void property="VehicleLength">
+<float>5</float>
+<!--  5  -->
+</void>
+<void property="VehicleWidth">
+<float>1.7</float>
+<!--  1.7  -->
+</void>
+<void property="VehicleLengthDev">
+<float>0.5</float>
+<!--  0.5  -->
+</void>
+<void property="VehicleWidthDev">
+<float>0.3</float>
+<!--  0.3  -->
+</void>
+<void property="VLCvisionAngleTx">
+<float>70</float>
+</void>
+<void property="VLCvisionAngleRx">
+<float>70</float>
+</void>
+<!--  field options  -->
+<void property="placement">
+<int>2</int>
+</void>
+<void property="spatial_mode">
+<int>2</int>
+</void>
+<!--
+<void property="fieldX">
+	<int>90</int>
+</void>
+<void property="fieldY">
+	<int>90</int>
+</void>
+-->
+<!--  visualization options  -->
+<void property="useVisualizer">
+<boolean>false</boolean>
+</void>
+<!--  other options  -->
+<void property="port">
+<int>3001</int>
+</void>
+<void property="protocol">
+<int>123</int>
+</void>
+<void property="help">
+<boolean>false</boolean>
+</void>
+</object>
+</java>

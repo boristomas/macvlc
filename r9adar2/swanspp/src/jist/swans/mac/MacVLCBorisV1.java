@@ -23,6 +23,7 @@ import jist.swans.net.NetMessage;
 import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioInterface;
 import jist.swans.radio.TimeEntry;
+import jist.swans.radio.VLCsensor;
 import jist.swans.trans.TransUdp;
 import driver.JistExperiment;
 
@@ -808,7 +809,7 @@ public class MacVLCBorisV1 implements  MacInterface.Mac802_11
 		case MAC_MODE_SWFACK:    
 		case MAC_MODE_XBROADCAST:
 		case MAC_MODE_XUNICAST:
-			// TODO drc: dunno if the following ones should be here...
+			// T-ODO drc: dunno if the following ones should be here...
 		case MAC_MODE_XACK:
 			// don't care
 			break;
@@ -824,7 +825,7 @@ public class MacVLCBorisV1 implements  MacInterface.Mac802_11
 		switch(mode)
 		{
 		case MAC_MODE_SIDLE:
-			// TODO drc: are these in the right place
+			// T-ODO drc: are these in the right place
 		case MAC_MODE_SNAV: // not sure, but maybe we want to do Difs here
 	//		doDifs();
 			break;
@@ -888,7 +889,7 @@ public class MacVLCBorisV1 implements  MacInterface.Mac802_11
 			{
 				idle();
 				if (packet==null && packetNextHop==null) 
-					netEntity.pump(netId); // DRC: TODO check
+					netEntity.pump(netId); // DRC: T-ODO check
 			}
 			break;
 		case MAC_MODE_SBO:
@@ -944,7 +945,7 @@ public class MacVLCBorisV1 implements  MacInterface.Mac802_11
 		return localAddr.toString();
 	}
 
-	public void notifyInterference(Sensor[] sensors) 
+	public void notifyInterference(VLCsensor sensors) 
 	{
 		System.out.println("interference");
 	}

@@ -79,7 +79,7 @@ import driver.VisualizerInterface;
  */
 public abstract class StreetMobility implements Mobility {
     
-    // TODO sleep time should be incremented by a matter of nanoseconds for 
+    // T-ODO sleep time should be incremented by a matter of nanoseconds for 
     // according to the position of a vehicle in a lane. This ensures proper 
     // ordering of vehicles when updating
     
@@ -407,7 +407,7 @@ public abstract class StreetMobility implements Mobility {
                             
                         }
                         
-                        JistAPI.sleep(Constants.SECOND); // TODO use turn signaling
+                        JistAPI.sleep(Constants.SECOND); // T-ODO use turn signaling
                         
                         if (ENABLE_LANE_DISPLACEMENT){
                             smi.offset = getLaneDisplacement(smi, null);
@@ -419,7 +419,7 @@ public abstract class StreetMobility implements Mobility {
                     else // the vehicle has been moved to the next segment
                     {
                         moveToNextRoad(id, nextLaneTemp, smi, is);
-                        smi.currSpeed = 2.32f; // TODO: more dynamic
+                        smi.currSpeed = 2.32f; // T-ODO: more dynamic
                     }
                     
                 } // end waiting to turn            
@@ -500,7 +500,7 @@ public abstract class StreetMobility implements Mobility {
             } // end if at end of road segment        
             
             // advance simulation time
-            // TODO make this speed-based
+            // T-ODO make this speed-based
             JistAPI.sleep((long)(smi.stepTime*Constants.SECOND + 
                     + smi.currentLane.indexOf(smi))); // proper ordering    
             
@@ -569,7 +569,7 @@ public abstract class StreetMobility implements Mobility {
         
         setNextRoad(smi); // set next road info        
 
-        smi.current.checkLane(smi.currentLane); // TODO remove when stable
+        smi.current.checkLane(smi.currentLane); // T-ODO remove when stable
 	}
 
     /**
@@ -932,7 +932,7 @@ public abstract class StreetMobility implements Mobility {
                 float stopDist = (smi.currSpeed/smi.acceleration)*(smi.currSpeed/2);
                 if (smi.remainingDist <= stopDist) // slow down only if close to intersection
                 {
-                    // TODO adjust acceleration according to actual room for stopping
+                    // T-ODO adjust acceleration according to actual room for stopping
                     newSpeed = Math.max(smi.currSpeed-smi.acceleration*smi.stepTime, 0);
                 }   
             } // end case slowing down for next intersection
@@ -1139,7 +1139,7 @@ public abstract class StreetMobility implements Mobility {
                 roadClass = (char)mbb.get();
                 if (roadClass < 11 || roadClass > 74)
                 {
-                    // TODO figure out what road classes 51 and 64 are
+                    // T-ODO figure out what road classes 51 and 64 are
                     System.out.println("Unknown road class for road: " + roadClass);
                 }
                 
@@ -1242,7 +1242,7 @@ public abstract class StreetMobility implements Mobility {
             rs.setSelfIndex(i);
         }
         
-        // TODO intersection cleanup
+        // T-ODO intersection cleanup
         
     }
     
@@ -1683,7 +1683,7 @@ public abstract class StreetMobility implements Mobility {
 			carLocsForRadarToCheck = new Location[carsToEnd.size() + carsToStart.size()];
 			int detectedNeighbors = 0; 
 			
-			//TODO: get file output to work.
+			//T-ODO: get file output to work.
 			//BufferedWriter out = new BufferedWriter(new FileWriter("carsOutput.txt"));
 			int bounds = 0; 
 			
@@ -1948,7 +1948,7 @@ public abstract class StreetMobility implements Mobility {
     public RoadSegment getStreet(Location clickLoc) {
         SpatialStreets.fuzzy = true;
         Intersection is = getIntersections().findIntersectingRoads(clickLoc);
-        if (is==null) return null; // TODO make sure this never happens
+        if (is==null) return null; // T-ODO make sure this never happens
         LinkedList ll = is.getRoads();
         ListIterator li = ll.listIterator();
         RoadSegment rs = null;
@@ -2002,7 +2002,7 @@ public abstract class StreetMobility implements Mobility {
         max = new Location.Location2D(maxX+10, maxY+10);
         if (clickLoc.inside(min, max)){
 
-            return true; // TODO better way of narrowing down which street was clicked
+            return true; // T-ODO better way of narrowing down which street was clicked
         }
         else return false;
 	}

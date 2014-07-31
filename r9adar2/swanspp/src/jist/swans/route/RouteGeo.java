@@ -78,8 +78,8 @@ public abstract class RouteGeo implements RouteInterface.Geo {
     {
         double brg;
 
-        // XXX only deal with 2D for now
-        // XXX check for (0, 0) args, a domain error
+        // X-XX only deal with 2D for now
+        // X-XX check for (0, 0) args, a domain error
         brg = Math.atan2(l2.getY() - l1.getY(), l2.getX() - l1.getX());
         if (brg < 0)
           brg += 2*Math.PI;

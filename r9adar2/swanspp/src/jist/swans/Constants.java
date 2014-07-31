@@ -306,13 +306,13 @@ public final class Constants
 	/** network level (IP) protocol number. */
 	public static final short NET_PROTOCOL_ZRP            = 133;
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_GPSR           = 888; // TODO non-standard
+	public static final short NET_PROTOCOL_GPSR           = 888; // T-ODO non-standard
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_GLS_GPSR		= 887;	// TODO non-standard
+	public static final short NET_PROTOCOL_GLS_GPSR		= 887;	// T-ODO non-standard
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_GLS_GPSR_old	= 886;	// TODO non-standard
+	public static final short NET_PROTOCOL_GLS_GPSR_old	= 886;	// T-ODO non-standard
 
-	public static final short NET_PROTOCOL_GM = 777; // TODO non-standard
+	public static final short NET_PROTOCOL_GM = 777; // T-ODO non-standard
 	/** network level (IP) protocol number. */
 	public static final short NET_PROTOCOL_TAGR			= 885;
 	/** network level (IP) protocol number. */
@@ -545,10 +545,10 @@ public final class Constants
 				}
 				writer.close();
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
+				// T-ODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
+				// T-ODO Auto-generated catch block
 				e.printStackTrace();
 			}
 

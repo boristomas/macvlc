@@ -244,7 +244,7 @@ private static class Counter implements JistAPI.DoNotRewrite{
      * @return number of retries
      */
     public int getRetries() {
-        // TODO Auto-generated method stub
+        // T-ODO Auto-generated method stub
         return retries;
     }
     
@@ -406,7 +406,7 @@ private static class Counter implements JistAPI.DoNotRewrite{
         try {
             Util.writeResult(fname, output);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            // T-ODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -425,7 +425,7 @@ private static class Counter implements JistAPI.DoNotRewrite{
         try {
             Util.writeResult(fname, output);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            // T-ODO Auto-generated catch block
             e.printStackTrace();
         }
         

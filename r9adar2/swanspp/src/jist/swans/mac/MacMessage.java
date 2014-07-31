@@ -31,13 +31,16 @@ import jist.swans.misc.Message;
 
 public abstract class MacMessage implements Message
 {
-	
-	
-	
 	//sensor control
 	public HashSet<Integer> SensorIDTx = new HashSet<Integer>();
 	public HashSet<Integer> SensorIDRx = new HashSet<Integer>();
 
+	public void setSensorIDTx(HashSet<Integer> value)
+	{
+		
+//		System.out.println("set hsh: "+this.hashCode() + " cnt = "+ value.size() );
+		SensorIDTx = value;
+	}
 	//////////////////////////////////////////////////
 	// frame control
 	//
@@ -509,6 +512,25 @@ public abstract class MacMessage implements Message
 		 */
 		private MacAddress src;
 
+	//	private MacAddress nextHop;
+		/**
+		 * get next hop address
+		 * @return
+		 * @author BorisTomas
+		 */
+/*		public MacAddress getNextHop()
+		{
+			return nextHop;
+		}*/
+		/**
+		 * set next hop address
+		 * @param value
+		 * @author BorisTomas
+		 */
+	/*	public void setNextHop(MacAddress value)
+		{
+			nextHop = value;
+		}*/
 		/**
 		 * Packet transmission duration.
 		 */

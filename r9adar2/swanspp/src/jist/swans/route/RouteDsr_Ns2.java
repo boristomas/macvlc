@@ -278,7 +278,7 @@ public class RouteDsr_Ns2 implements RouteInterface.Dsr_NS2 {
 //     from a reply in it (in which case we salvage, but cut out the rt reply)
     boolean dsragent_require_bi_routes = true;
 //     do we need to have bidirectional source routes? 
-//     [XXX this flag doesn't control all the behaviors and code that assume
+//     [X-XX this flag doesn't control all the behaviors and code that assume
 //     bidirectional links -dam 5/14/98]
 
 /*
@@ -890,7 +890,7 @@ public class RouteDsr_Ns2 implements RouteInterface.Dsr_NS2 {
      */
 //    @Override
     public String toString() {
-        // TODO Auto-generated method stub
+        // T-ODO Auto-generated method stub
         return "len="+len+";cur_index="+cur_index+";path_owner="+path_owner+"\n"+Arrays.toString(path);
     }
     }
@@ -937,7 +937,7 @@ public class RouteDsr_Ns2 implements RouteInterface.Dsr_NS2 {
           // returns the index of a suitable victim in the cache
           // will spare the life of exclude
           public  boolean searchRoute(final ID dest, Int i, Path path, int index){
-              // TODO drc: return values
+              // T-ODO drc: return values
               for (; index < size; index++){
                   if (cache[index]==null) continue;
                   for (int n = 0 ; n < cache[index].length(); n++)
@@ -954,7 +954,7 @@ public class RouteDsr_Ns2 implements RouteInterface.Dsr_NS2 {
           // look for dest in cache, starting at index, 
           //if found, rtn true with path s.t. cache[index] == path && path[i] == dest
           public  Path addRoute(Path path, Int common_prefix_len){
-              // TODO DRC: return common_prefix_len somehow
+              // T-ODO drc: return common_prefix_len somehow
               boolean done = false;
               int index, m, n;
               int victim;
@@ -1696,7 +1696,7 @@ public class RouteDsr_Ns2 implements RouteInterface.Dsr_NS2 {
                         if (te.sourceRoute.get(n).equals(from)&&
                             te.sourceRoute.get(n+1).equals(to)) {
                             te.timeout = now - 1;
-                            // XXX ych rediscover??? 5/2/01
+                            // X-XX ych rediscover??? 5/2/01
                         }
             }
         }
@@ -2078,7 +2078,7 @@ public class RouteDsr_Ns2 implements RouteInterface.Dsr_NS2 {
 
 //      LIST_INSERT_HEAD(&agthead, this, link);
       
-    // TODO drc: evaluation this below
+    // T-ODO drc: evaluation this below
       //#ifdef DSR_FILTER_TAP
     //  bzero(tap_uid_cache, sizeof(tap_uid_cache));
     //#endif
@@ -2284,7 +2284,7 @@ public class RouteDsr_Ns2 implements RouteInterface.Dsr_NS2 {
       //  cmh.direction() = hdr_cmn.DOWN;
       // no jitter required
       //Scheduler.instance().schedule(ll, p, 0.0);
-        // TODO drc: check that this is alreayd an IP message
+        // T-ODO drc: check that this is alreayd an IP message
         assert(((NetMessage.Ip)p).getProtocol()==Constants.NET_PROTOCOL_DSR_NS2);
         visualizePacketType((NetMessage.Ip)p);
         
@@ -2395,7 +2395,7 @@ public class RouteDsr_Ns2 implements RouteInterface.Dsr_NS2 {
     //#endif */
       
 //      cmh.size() -= srh.size();   // cut off the SR header 4/7/99 -dam
-//      srh.setValid(false); // TODO drc removed this because it messes with the references
+//      srh.setValid(false); // T-ODO drc removed this because it messes with the references
 //      cmh.size() -= IP_HDR_LEN;    // cut off IP header size 4/7/99 -dam
       
       if (srh.getPayload()==null) return;
@@ -2435,7 +2435,7 @@ public class RouteDsr_Ns2 implements RouteInterface.Dsr_NS2 {
         return;
       }
 
-      // XXX should also check prevhop
+      // X-XX should also check prevhop
 
       handleFlowForwarding(p, flowidx);
     }
@@ -2472,9 +2472,9 @@ public class RouteDsr_Ns2 implements RouteInterface.Dsr_NS2 {
 //        p.src.dump(), p.dest.dump(), ((TableEntry)flow_table.get(flowidx)).flowId,
 //        ((TableEntry)flow_table.get(flowidx)).nextHop);
 
-      // XXX ych 5/8/01 ARS also should check previous hop
+      // X-XX ych 5/8/01 ARS also should check previous hop
       if (!srh.salvaged() && 
-              // TODO drc: fix
+              // T-ODO drc: fix
           (amt = ars_table.findAndClear(p.iph.getId(), ((TableEntry)flow_table.get(flowidx)).flowId))!=0 &&
           p.route.index() - amt > 0) {
 //        trace("SFARS %.9f _%s_ %d [%s . %s] %d %d", 
@@ -2489,7 +2489,7 @@ public class RouteDsr_Ns2 implements RouteInterface.Dsr_NS2 {
       }
 
       if (dsragent_always_reestablish) {
-        // XXX this is an utter hack. the flow_table needs to remember the original
+        // X-XX this is an utter hack. the flow_table needs to remember the original
         // timeout value specified, as well as the original time to timeout. No
         // establishment packets are allowed after the original time. Must make sure
         // flowids assigned do not overlap. ych 5/8/01
@@ -2514,7 +2514,7 @@ public class RouteDsr_Ns2 implements RouteInterface.Dsr_NS2 {
      * @param drop_rtr_ttl2
      */
     private void drop(RouteDsrMsg_Ns2 pkt, int drop_rtr_ttl2) {
-        // TODO Auto-generated method stub
+        // T-ODO Auto-generated method stub
         
     }
 
@@ -2799,7 +2799,7 @@ public class RouteDsr_Ns2 implements RouteInterface.Dsr_NS2 {
       assert(!p.route.member(net_id, MAC_id));
 
       // do we have a cached route the target?
-      /* XXX what if we have more than 1?  (and one is legal for reply from
+      /* X-XX what if we have more than 1?  (and one is legal for reply from
          cache and one isn't?) 1/28/97 -dam */
       if (!route_cache.findRoute(p.dest, rest_of_route, false))
         { // no route => we're done
@@ -2830,7 +2830,7 @@ public class RouteDsr_Ns2 implements RouteInterface.Dsr_NS2 {
       RouteDsrMsg_Ns2 srh =  p.pkt;
       int request_seqnum = srh.rtreq_seq();
       
-      if ( srh.payload!=null  || //PT_DSR != cmh.ptype() ||   // there's data // TODO drc: check that this was ok to comment out
+      if ( srh.payload!=null  || //PT_DSR != cmh.ptype() ||   // there's data // T-ODO drc: check that this was ok to comment out
            srh.route_reply()
           || (srh.route_error() && 
           !srh.down_links()[srh.num_route_errors()-1].tell_addr.equals(GRAT_ROUTE_ERROR) ))
@@ -3036,7 +3036,7 @@ public class RouteDsr_Ns2 implements RouteInterface.Dsr_NS2 {
         }
 
         if (dsragent_always_reestablish) {
-          // XXX see major problems detailed above (search for dsragent_always_re..)
+          // X-XX see major problems detailed above (search for dsragent_always_re..)
           ((TableEntry)flow_table.get(flowidx)).timeout = now + default_flow_timeout;
         }
 
@@ -3417,7 +3417,7 @@ if (NEW_SALVAGE_LOGIC){
           }
           self.sendIpMsg(p_copy.iph, Constants.NET_INTERFACE_DEFAULT, MacAddress.ANY);
 //          Scheduler.instance().schedule(this, p_copy.pkt, d);
-          // TODO drc: this implies being sent through DSR's receive... should I do this?
+          // T-ODO drc: this implies being sent through DSR's receive... should I do this?
       }
     }
 
@@ -3450,7 +3450,7 @@ if (NEW_SALVAGE_LOGIC){
          - doesn't free the pkt */
     {
 //      RouteDsrMsg_NS2 srh =  p.pkt
-        // TODO drc: what is this?
+        // T-ODO drc: what is this?
       Path reply_route = new Path(p.pkt.reply_addrs(), p.pkt.route_reply_len());
 
       if (!p.pkt.route_reply())
@@ -3510,7 +3510,7 @@ if (NEW_SALVAGE_LOGIC){
     //#ifdef DEBUG
 //          hdr_cmn ch = HDR_CMN(send_buf[c].p.pkt);
 //          if(ch.size() < 0) {
-//            drop(send_buf[c].p.pkt, "XXX");
+//            drop(send_buf[c].p.pkt, "X-XX");
 //            abort();
 //          }
     //#endif
@@ -3522,7 +3522,7 @@ if (NEW_SALVAGE_LOGIC){
           /* we need to spread out the rate at which we send packets
              in to the link layer to give ARP time to complete.  If we
              dump all the packets in at once, all but the last one will
-             be dropped.  XXX THIS IS A MASSIVE HACK -dam 4/14/98 */
+             be dropped.  X-XX THIS IS A MASSIVE HACK -dam 4/14/98 */
           sendOutPacketWithRoute(send_buf[c].p, true, delay);
           delay += arp_timeout; 
           send_buf[c].p.pkt = null;
@@ -3613,7 +3613,7 @@ if (NEW_SALVAGE_LOGIC){
       
       /* if we hear A.B is dead, should we also run the link B.A through the
          cache as being dead, since 802.11 requires bidirectional links 
-          XXX -dam 4/23/98 */
+          X-XX -dam 4/23/98 */
 
       // since CPU time is cheaper than network time, we'll process
       // all the dead links in the error packet
@@ -3626,7 +3626,7 @@ if (NEW_SALVAGE_LOGIC){
                      JistAPI.getTime());
           flow_table.noticeDeadLink(new ID(srh.down_links()[c].from_addr.toInt(),ID_Type.IP),
                      new ID(srh.down_links()[c].to_addr.toInt(),ID_Type.IP));
-          // I'll assume everything's of type NS_AF_INET for the printout... XXX
+          // I'll assume everything's of type NS_AF_INET for the printout... X-XX
 //          if (verbose_srr)
 //            trace("SRR %.9f _%s_ dead-link tell %d  %d . %d",
 //                  JistAPI.getTime(), net_id.dump(),
@@ -3746,7 +3746,7 @@ if (NEW_SALVAGE_LOGIC){
       // this is a _MAJOR_ problem!!!
       if (((TableEntry)flow_table.get(flowidx)).sourceRoute.length() < shortamt)
         return;
-// TODO drc: reimplement this
+// T-ODO drc: reimplement this
       ars_table.insert(iph.getId(), flowid, shortamt);
     }
 
@@ -3863,7 +3863,7 @@ if (NEW_SALVAGE_LOGIC){
     /*==============================================================
       Callback for link layer transmission failures
     ------------------------------------------------------------*/
-//     XXX Obviously this structure and FilterFailure() is not used anywhere, 
+//     X-XX Obviously this structure and FilterFailure() is not used anywhere, 
 //     because off_cmn_ in this structure cannot be populated at all!
 //     Instead of deleting, I'm simply commenting them out, perhaps they'll be 
 //     salvaged sometime in the future. - haoboy
@@ -3935,7 +3935,7 @@ if (NEW_SALVAGE_LOGIC){
       }
 
     if( NEW_SALVAGE_LOGIC) {
-        // TODO change type to int
+        // T-ODO change type to int
       if((srh.salvaged()?1:0) >= dsr_salvage_max_attempts) {
           assert(mine);
           drop(srh, DROP_RTR_SALVAGE);
@@ -4029,11 +4029,11 @@ if (NEW_SALVAGE_LOGIC){
           // remove size of SR header, added back in sendOutPacketWithRoute
 //          cmh.size() -= srh.size(); 
 //          assert(cmh.size() >= 0);
-          // TODO update
+          // T-ODO update
           if( NEW_SALVAGE_LOGIC)
              srh.set_salvaged(true);
 
-//          p.pkt.valid_ = true; // TODO drc: is this ok?
+//          p.pkt.valid_ = true; // T-ODO drc: is this ok?
           sendOutPacketWithRoute(p, false, 0);
       }
 
@@ -4067,7 +4067,7 @@ if (NEW_SALVAGE_LOGIC){
       }
     }
 
-    // TODO drc: put this up top
+    // T-ODO drc: put this up top
     //#ifdef USE_GOD_FEEDBACK
     // static int linkerr_is_wrong = 0;
     //#endif
@@ -4189,7 +4189,7 @@ if (NEW_SALVAGE_LOGIC){
 //      cmh.num_forwards() = 0;
       // assign this packet a new uid, since we're sending it
       
-      // TODO drc: ignoring for now
+      // T-ODO drc: ignoring for now
 //      cmh.uid() = uidcnt_++;
 
       handlePktWithoutSR(p, false);
@@ -4263,13 +4263,13 @@ if (NEW_SALVAGE_LOGIC){
 
 //      assert(cmh.size() >= 0);
 
-      // TODO why is this happening?
+      // T-ODO why is this happening?
 //      if (srh.cur_addr()>0 || !net_id.getNSAddr_t().equals(srh.addrs()[0].addr)) {
 //          srh.set_cur_addr(srh.cur_addr()-1); // correct for inc already done on sending
 //      }
       srh.set_cur_addr(srh.cur_addr()-1);
       if (srh.cur_addr() < 0){
-          // TODO figure out why this is happening
+          // T-ODO figure out why this is happening
           srh.set_cur_addr(0);
           //throw new RuntimeException();
       }
@@ -4347,14 +4347,14 @@ if (NEW_SALVAGE_LOGIC){
              already retried the xmission multiple times => a persistent
              failure. */
 
-          /* XXX YCH 5/4/01 shouldn't each of these packets get Route Errors
+          /* X-XX YCH 5/4/01 shouldn't each of these packets get Route Errors
            * if one hasn't already been sent? ie if two different routes
            * are using this link?
            */
           {
               int size = ifq.size();
               MessageQueue ifq_ = ifq;
-              QueuedMessage qm; // TODO check
+              QueuedMessage qm; // T-ODO check
               MacAddress nextHop = new MacAddress(iph.getNextHop().toInt());
 
               Vector unchanged = new Vector();
@@ -4362,7 +4362,7 @@ if (NEW_SALVAGE_LOGIC){
               refactor.add(new QueuedMessage(iph, nextHop)); // add dropped packet to list
               
 
-              // TODO this section needs thorough debugging
+              // T-ODO this section needs thorough debugging
               // grab packets in the ifq bound for the same next hop
               while(!ifq_.isEmpty()) {
                   qm = ifq_.remove(Constants.NET_PRIORITY_NORMAL);
@@ -4469,7 +4469,7 @@ if (NEW_SALVAGE_LOGIC){
           // this pkt's been bouncing around so much, let's just drop and let
           // the originator retry
           // Another possibility is to just strip off the outer error, and
-          // launch a Route discovey for the inner error XXX -dam 6/5/98
+          // launch a Route discovey for the inner error X-XX -dam 6/5/98
 //          trace("SDFU  %.5f _%s_ dumping maximally nested error %s  %d . %d",
 //            JistAPI.getTime(), net_id.dump(),
 //            tell_id.dump(),
@@ -4535,7 +4535,7 @@ if (NEW_SALVAGE_LOGIC){
 //      cmh.size() = IP_HDR_LEN;
 //      cmh.num_forwards() = 0;
       // assign this packet a new uid, since we're sending it
-      // TODO drc: ignoring this for now
+      // T-ODO drc: ignoring this for now
       //cmh.uid() = 
       //    uidcnt_++;
 
@@ -4731,7 +4731,7 @@ if (NEW_SALVAGE_LOGIC){
         RouteDsrMsg_Ns2 srh =  (RouteDsrMsg_Ns2) iph.getPayload();           
         SRPacket p = new SRPacket(iph, srh);
         // special process for GAF
-        // TODO drc: wtf is this?
+        // T-ODO drc: wtf is this?
         /*if (cmh.ptype() == PT_GAF) {
           if (iph.daddr() == (int)IP_BROADCAST) { 
             if(cmh.direction() == hdr_cmn.UP)
@@ -5036,7 +5036,7 @@ if (NEW_SALVAGE_LOGIC){
      * @see jist.swans.route.RouteInterface#forwardMessages(jist.swans.net.NetInterface.NetHandler)
      */
     public void forwardMessages(NetHandler handler) {
-        // TODO Auto-generated method stub
+        // T-ODO Auto-generated method stub
         
     }
 
@@ -5044,7 +5044,7 @@ if (NEW_SALVAGE_LOGIC){
      * @see jist.swans.route.RouteInterface#unForwardMessages()
      */
     public void unForwardMessages() {
-        // TODO Auto-generated method stub
+        // T-ODO Auto-generated method stub
         
     }
 
@@ -5060,7 +5060,7 @@ if (NEW_SALVAGE_LOGIC){
          * go, according to the above comment.         
         */
         
-        // TODO drc: figure out what to do with internal calls to receive...
+        // T-ODO drc: figure out what to do with internal calls to receive...
         recv(new NetMessage.Ip(msg, src, dst, Constants.NET_PROTOCOL_DSR_NS2, priority, ttl), lastHop);
         
     }
@@ -5143,7 +5143,7 @@ if (NEW_SALVAGE_LOGIC){
                             try {
                                 Thread.sleep(1000);
                             } catch (InterruptedException e) {
-                                // TODO Auto-generated catch block
+                                // T-ODO Auto-generated catch block
                                 e.printStackTrace();
                             }
                         }
@@ -5172,7 +5172,7 @@ if (NEW_SALVAGE_LOGIC){
     private boolean diff_subnet(ID dest, ID myid) 
     {
         return false;
-        // TODO drc: figure out why this is useful and do a real implemenation
+        // T-ODO drc: figure out why this is useful and do a real implemenation
         /*int dst = dest.addr;
         int id = myid.addr;
         char* dstnet = Address::instance().get_subnetaddr(dst);
@@ -5215,7 +5215,7 @@ if (NEW_SALVAGE_LOGIC){
      * @return
      */
     public Dsr_NS2 getProxy() {
-        // TODO Auto-generated method stub
+        // T-ODO Auto-generated method stub
         return self;
     }
 

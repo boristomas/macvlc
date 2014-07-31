@@ -93,7 +93,7 @@ public class StreetPlacementFlow extends StreetPlacement {
                 SegmentNode endNode = new SegmentNode(ends[i].getEndPoint(), 
                         ends[i].getSelfIndex(), false, false);
                 SegmentNode.info.dest = endNode;                
-                AStarSearch ass = new AStarSearch(null); // TODO rename variable
+                AStarSearch ass = new AStarSearch(null); // T-ODO rename variable
                 LinkedList path = ass.findPath(startNode, endNode); // find the path
                 paths.addAll(path);
             }
@@ -103,7 +103,7 @@ public class StreetPlacementFlow extends StreetPlacement {
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
+            // T-ODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -140,7 +140,7 @@ public class StreetPlacementFlow extends StreetPlacement {
             
             SpatialStreets.fuzzy = true;
             is = sm.intersections.findIntersectingRoads(s[i]);
-            if (is==null) continue; // TODO more intelligent things
+            if (is==null) continue; // T-ODO more intelligent things
             ll = is.getRoads();
             it = ll.iterator();
             minDist = Float.MAX_VALUE;
@@ -165,7 +165,7 @@ public class StreetPlacementFlow extends StreetPlacement {
             
             SpatialStreets.fuzzy = true;
             is = sm.intersections.findIntersectingRoads(e[i]);
-            if (is==null) continue; // TODO more intelligent things
+            if (is==null) continue; // T-ODO more intelligent things
             ll = is.getRoads();
             it = ll.iterator();
             minDist = Float.MAX_VALUE;
@@ -239,7 +239,7 @@ public class StreetPlacementFlow extends StreetPlacement {
         
         ((StreetMobilityInfoOD)smri).config = Constants.MOBILITY_STREET_FLOW;
         
-        // TODO better workaround
+        // T-ODO better workaround
         while (starts[currentIndex]==null || ends[currentIndex]==null){
             if (currentIndex < starts.length-1) currentIndex++;
             else currentIndex = 0;

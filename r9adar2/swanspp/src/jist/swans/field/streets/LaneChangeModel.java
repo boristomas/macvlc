@@ -51,7 +51,7 @@ public abstract class LaneChangeModel {
                 return true;
             }
             else{
-                // TODO handle node changing road segment while changing lane
+                // T-ODO handle node changing road segment while changing lane
                 laneChangers.remove(id); // remove from list of lane changers
                 int index = smi.currentLane.indexOf(smi);
                 smi.currentLane.remove(index); // remove from old lane

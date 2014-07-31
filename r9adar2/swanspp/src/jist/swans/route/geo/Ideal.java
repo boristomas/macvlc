@@ -47,7 +47,7 @@ public class Ideal extends LocationDatabase
 
     /**
      * @param field
-     * @param database TODO
+     * @param database 
      */
     public Ideal(Field field) {
         super(field);

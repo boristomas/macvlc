@@ -73,6 +73,11 @@ public abstract class NetMessage implements Message, Cloneable
     
     public ArrayList<TimeEntry> Times = new ArrayList<TimeEntry>();
     
+    /**
+     * Is message fresh, first time entered mac? this is false if message was queued at least once.
+     * @author BorisTomas
+     */
+    public boolean isFresh = true;
     
     //////////////////////////////////////////////////
     // message contents
@@ -93,7 +98,7 @@ public abstract class NetMessage implements Message, Cloneable
     /** ip packet time-to-live. */
     private int ttl;
     /** ip packet identification. */
-    private short id;
+    public short id;
     /** ip packet fragment offset. */
     private short fragOffset;
 
@@ -583,7 +588,7 @@ public abstract class NetMessage implements Message, Cloneable
   public static class IpOptionNextHop extends IpOption
   {
     /** option type constant: source route. */
-    public static final byte TYPE = (byte)138; // TODO find a real number for this
+    public static final byte TYPE = (byte)138; // T-ODO find a real number for this
 
     /** next hop. */
     private NetAddress nextHop;
@@ -651,7 +656,7 @@ public abstract class NetMessage implements Message, Cloneable
   public static class IpOptionLocation extends IpOption
   {
     /** option type constant: location. */
-    public static final byte TYPE = (byte)139; // TODO find a real number for this
+    public static final byte TYPE = (byte)139; // T-ODO find a real number for this
 
     /** location. */
     private Location location;

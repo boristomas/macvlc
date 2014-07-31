@@ -163,7 +163,7 @@ public abstract class RouteCache  extends HashSet {
     {
       assert(!(net_id.equals(invalid_addr)));
       
-      if (route.length() < 1) // TODO check why this was set to 2 instead of 1
+      if (route.length() < 1) // T-ODO check why this was set to 2 instead of 1
         return STOP_PROCESSING; // we laugh in your face
 
 //      if(verbose_debug)

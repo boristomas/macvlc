@@ -446,7 +446,7 @@ public final class Controller implements ControllerRemote, Runnable
     catch(JistException.JistSimulationEndException e)
     {
     } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
+        // T-ODO Auto-generated catch block
         e.printStackTrace();
     } 
     return numEvents;

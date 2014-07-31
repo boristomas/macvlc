@@ -265,7 +265,7 @@ public class RouteGPSR extends RouteGeo {
                 existing.lastSeen = JistAPI.getTime();
                 existing.dnt.force_cancel();
                 
-                /* XXX overwriting table entry shouldn't affect when to probe this
+                /* X-XX overwriting table entry shouldn't affect when to probe this
                  perimeter */
                 // (*pne)->ppt.force_cancel();              
                 return existing;
@@ -273,7 +273,7 @@ public class RouteGPSR extends RouteGeo {
             
             // invalidate the perimeter that may be cached by this neighbor entry
             ne.perilen = 0;
-            // XXX gross way to indicate entry is *new* entry, graph needs planarizing
+            // X-XX gross way to indicate entry is *new* entry, graph needs planarizing
             ne.live = -1;
             
             // do insertion to maintain order
@@ -430,7 +430,7 @@ public class RouteGPSR extends RouteGeo {
         public NeighborEntry ent_next_ccw(double basebrg, Location l, boolean p,
                 NeighborEntry inne)
         {
-        	// TODO this doesn't support vehicles with the exact same bearing
+        	// T-ODO this doesn't support vehicles with the exact same bearing
             NeighborEntry minne = null, ne;
             Iterator ni;
             double brg, minbrg = 3*Math.PI;
@@ -442,7 +442,7 @@ public class RouteGPSR extends RouteGeo {
                     continue;
                 if (p && ne.live<1)
                     continue;
-                // TODO displace nodes from center of road to eliminate (mitigate?) this problem
+                // T-ODO displace nodes from center of road to eliminate (mitigate?) this problem
                 if (inne!=null && inne.loc.distance(ne.loc)==0)
                     continue;
                 brg = bearing(l, ne.loc) - basebrg;
@@ -490,7 +490,7 @@ public class RouteGPSR extends RouteGeo {
                 return minne;
 //            else if (index < totalCount)
 //            {
-//            	// TODO make sure postincrement is working right here
+//            	// T-ODO make sure postincrement is working right here
 //                return (NeighborEntry)sameBrg.get(++index);
 //            }
 //            else // move to next one
@@ -903,7 +903,7 @@ public class RouteGPSR extends RouteGeo {
         
     }
     
-    // TODO implement this method
+    // T-ODO implement this method
     void tracepkt(Message p, double now, int me, String type)
     {
         
@@ -965,7 +965,7 @@ public class RouteGPSR extends RouteGeo {
                         }
                         // prev hop position lives in hops_[0]
                         pe = (PerimeterEntry)gpsrmsg.hops_.get(0);
-                        // TODO figure out why messages are not being cloned properly
+                        // T-ODO figure out why messages are not being cloned properly
                         if (pe.address.equals(netAddr)) 
                         	break;
                     	beacon_proc(pe.address, pe.loc, pe.macAddr, gpsrmsg.speed, gpsrmsg.bearing);
@@ -987,7 +987,7 @@ public class RouteGPSR extends RouteGeo {
                     	beacon_proc(pe.address, pe.loc, pe.macAddr, gpsrmsg.speed, gpsrmsg.bearing);
                     break;
                     case GPSRMessage.GPSRH_DATA_PERI:
-                        // XXX was hops_[gpsrmsg.currhop_-1]
+                        // X-XX was hops_[gpsrmsg.currhop_-1]
                         // prev hop position lives in hops_[0]
                         pe = (PerimeterEntry)gpsrmsg.hops_.get(0);
                         if (pe!=null)
@@ -1079,7 +1079,7 @@ public class RouteGPSR extends RouteGeo {
         }
         if (use_timed_plnrz_) {
             planar_timer_ = new GPSR_PlanarTimer(this);
-            // XXX should make interval configurable!!
+            // X-XX should make interval configurable!!
             planar_timer_.sched(1.0);
         }
     }
@@ -1277,7 +1277,7 @@ public class RouteGPSR extends RouteGeo {
             ntab_.planarize(PLANARIZE_RNG, getCurrentLocation());
         }
         // reschedule us
-        // XXX should make interval tunable!!!
+        // X-XX should make interval tunable!!!
         planar_timer_.resched(1.0);
     }
     //    public abstract int command(int argc, const char * const * argv);
@@ -1332,14 +1332,14 @@ public class RouteGPSR extends RouteGeo {
             if (CONFIG_RECOVER)
             {
                 ifq_ = netEntity.getMessageQueue(Constants.NET_INTERFACE_DEFAULT);
-                QueuedMessage qm; // TODO check
+                QueuedMessage qm; // T-ODO check
 
                 Vector unchanged = new Vector();
                 Vector refactor = new Vector();
                 refactor.add(new QueuedMessage(ipmsg, nextHop)); // add dropped packet to list
                 
 
-                // TODO this section needs thorough debugging
+                // T-ODO this section needs thorough debugging
                 // grab packets in the ifq bound for the same next hop
                 while(!ifq_.isEmpty()) {
                     qm = ifq_.remove(Constants.NET_PRIORITY_NORMAL);
@@ -1489,7 +1489,7 @@ public class RouteGPSR extends RouteGeo {
     @SuppressWarnings("unchecked")
 	private void forwardPacket(NetMessage.Ip p, boolean rtxflag)
     {
-//    	 clean up stale entries (TODO this should not be necessary if i could find the bug causing stale entries)
+//    	 clean up stale entries (T-ODO this should not be necessary if i could find the bug causing stale entries)
     	ntab_.removeStale();
     	
         if (p.getDst().equals(this.netAddr)){
@@ -1512,7 +1512,7 @@ public class RouteGPSR extends RouteGeo {
 			ipmsg = p.copy();
 			ipmsg.setPayload(gpsrh);
 		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
+			// T-ODO Auto-generated catch block
 			e.printStackTrace();
 		}
         MacAddress nextHop = MacAddress.ANY;
@@ -1550,7 +1550,7 @@ public class RouteGPSR extends RouteGeo {
             if (use_peri_ && use_planar_) {
                 // no proactive probes, so no peri_proact_ to worry about
                 ne = ntab_.ent_findface(ipmsg.getLocation(), use_planar_);
-                // TODO  is it ok that this is returning the node that it was just forwarded from?
+                // T-ODO  is it ok that this is returning the node that it was just forwarded from?
                 if (ne==null) {
                     // no face toward the destination
                     
@@ -1655,7 +1655,7 @@ public class RouteGPSR extends RouteGeo {
             }
             else {
                 // no closer neighbor! unforwardable; drop it.
-                /* TODO someday, may want to queue up packets for currently unforwardable
+                /* T-ODO someday, may want to queue up packets for currently unforwardable
                  destinations */
                 // record we had a data packet that needed a perimeter
                 if (lastperi_timer_ != null)
@@ -1829,7 +1829,7 @@ public class RouteGPSR extends RouteGeo {
                         return;
                     }
                     else if (ne == null) {
-                        // XXX might we now be able to forward anyway?? know loc of prev hop.
+                        // X-XX might we now be able to forward anyway?? know loc of prev hop.
                         /* we're trying to retransmit a packet, but the ingress hop is
                          gone. drop it. */
                         drop(p, DROP_RTR_MAC_CALLBACK);
@@ -1987,7 +1987,7 @@ public class RouteGPSR extends RouteGeo {
         try {
 			m = (GPSRMessage) m.clone();
 		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
+			// T-ODO Auto-generated catch block
 			e.printStackTrace();
 		}
         // update neighbor record for previous hop
@@ -2376,7 +2376,7 @@ public class RouteGPSR extends RouteGeo {
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        // TODO add more info
+        // T-ODO add more info
         return netAddr.toString();
     }
 

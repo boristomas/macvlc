@@ -103,7 +103,7 @@ public class SegmentNode extends AStarNode {
 		RoadSegment currentRS = ((RoadSegment)info.segment.get(segmentID));
 		d = rs.length;
 		
-		// TODO find less arbitrary optimizations
+		// T-ODO find less arbitrary optimizations
 		// penalize non-interstate segments because there is a chance that 
 		// you may get the red light! 
         if (n.point.distance(info.dest.point)>1600){

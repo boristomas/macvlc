@@ -22,7 +22,7 @@ import jist.swans.radio.RadioInterface;
 /*be careful: non-timeless class*/
 public class RadioData implements RadioDataInterface {
 	/*----------------<tariavo's addons>-----------------*/
-	//TODO change it
+	//T-ODO change it
 	private final boolean debug = true;
 	
 	//<Channel, Set<Signal> >
