@@ -579,6 +579,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	 */
 	private void sendMessage(MacMessage.Data msg )
 	{
+		
 	//	System.out.println("neva1 "+ msg.hashCode()  + " cnt: " + msg.SensorIDTx.size());
 		setMode(MAC_MODE_XBROADCAST);
 		long delay = RX_TX_TURNAROUND;//TODO: provjeriti ima li ovoga.
@@ -634,7 +635,9 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 							//return false;
 						}
 					}
-
+				}else
+				{
+			//		System.out.println("not idle");
 				}
 			}
 			msg.setSensorIDTx(tmpSensorsTx);
@@ -795,7 +798,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		//TimerRunning = true;
 		//cancelTimer();
 		//setMode(mode);
-		transmitDelay = getMessageEndTimeForSensors(myRadio.sensorsTx, true);//-JistAPI.getTime();
+		transmitDelay = getMessageEndTimeForSensors(myRadio.sensorsTx, false);//-JistAPI.getTime();
 		JistAPI.sleep(transmitDelay);
 		self.timeout(timerId);
 	}

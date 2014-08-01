@@ -9,6 +9,8 @@
 
 package jist.swans.field;
 
+import java.util.LinkedList;
+
 import jist.swans.Main;
 import jist.swans.misc.Location;
 import jist.swans.misc.Message;
@@ -310,6 +312,7 @@ public abstract class Spatial
 
     /** list of radios in bin. */
     private Field.RadioData radioList;
+    private LinkedList<Field.RadioData> radiolist2 = new LinkedList<Field.RadioData>();
 
     /**
      * Create a new linear-lookup bin.
@@ -367,6 +370,7 @@ public abstract class Spatial
       if(Main.ASSERT) Util.assertion(data.loc.inside(bl, tr));
       if(Main.ASSERT) Util.assertion(data.next==null);
       if(Main.ASSERT) Util.assertion(data.prev==null);
+      radiolist2.add(data);
       data.next = radioList;
       if(radioList!=null) radioList.prev = data;
       radioList = data;
@@ -394,6 +398,7 @@ public abstract class Spatial
       if(data.prev!=null) data.prev.next = data.next;
       if(data.next!=null) data.next.prev = data.prev;
       if(radioList==data) radioList = radioList.next;
+      radiolist2.remove(data);
       data.next = null;
       data.prev = null;
       size--;
@@ -427,10 +432,19 @@ public abstract class Spatial
     public int visitTransmit(SpatialTransmitVisitor visitor, RadioInfo srcInfo, Location srcLoc, Message msg, Long durationObj, double limit)
     {
       int visited=0;
-      for(Field.RadioData dst=radioList; dst!=null && visited<size; dst=dst.next, visited++)
+      
+      for (Field.RadioData item : radiolist2)
+      {
+	//	if(visited<size)
+	//	{
+			visited++;
+			visitor.visitTransmit(srcInfo, srcLoc, item.info, item.entity, item.loc, msg, durationObj);
+	//	}
+      }
+      /*for(Field.RadioData dst=radioList; dst!=null && visited<size; dst=dst.next, visited++)
       {
         visitor.visitTransmit(srcInfo, srcLoc, dst.info, dst.entity, dst.loc, msg, durationObj);
-      }
+      }*/
       return visited;
     }
 
@@ -850,8 +864,10 @@ public abstract class Spatial
         RadioInfo srcInfo, Location srcLoc, 
         Message msg, Long durationObj, double limit)
     {
-      if(!srcLoc.inside(bl, tr) && 
-          visitor.computeSignal(srcInfo, srcLoc, getNearest(srcLoc))<limit) return 0;
+      if(!srcLoc.inside(bl, tr) && visitor.computeSignal(srcInfo, srcLoc, getNearest(srcLoc))<limit)
+    	  {
+    	  	return 0;
+    	  }
       int total = 0;
       for(int i=0; i<bins.length; i++)
       {

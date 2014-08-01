@@ -488,6 +488,10 @@ public final class Constants
 			int t0 = 0;
 			int t1 = 0;
 			int t2 = 0;
+			int t21 = 0;
+			int t240 = 0;
+			//int t250 = 0;
+			int t251 = 0;
 			int t3 = 0;
 			int t4 = 0;
 			int t5 = 0;
@@ -518,6 +522,21 @@ public final class Constants
 						case 2:
 						{
 							t2++;
+							break;
+						}
+						case 21:
+						{
+							t21++;
+							break;
+						}
+						case 240:
+						{
+							t240++;
+							break;
+						}
+						case 251:
+						{
+							t251++;
 							break;
 						}
 						case 3:
@@ -560,6 +579,9 @@ public final class Constants
 			"MAC count(T0) = " + t0 + "\n"+
 			"MAC count(T1) = " + t1 + "\n"+
 			"MAC count(T2) = " + t2 + "\n"+
+			"MAC count(T21) = " + t21 + "\n"+
+			"MAC count(T240) = " + t240 + "\n"+
+			"MAC count(T251) = " + t251 + "\n"+
 			"MAC count(T3) = " + t3 + "\n"+
 			"MAC count(T4) = " + t4 + "\n"+
 			"MAC count(T5) = " + t5 + "\n"+

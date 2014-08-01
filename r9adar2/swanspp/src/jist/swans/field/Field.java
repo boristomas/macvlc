@@ -404,7 +404,10 @@ public class Field implements FieldInterface
 		public void visitTransmit(RadioInfo srcInfo, Location srcLoc, RadioInfo dstInfo, RadioInterface dstEntity, Location dstLoc, Message msg, Long durationObj)
 		{
 
-			if(srcInfo.getUnique().getID()==dstInfo.getUnique().getID()) return;
+			if(srcInfo.getUnique().getID()==dstInfo.getUnique().getID()) 
+				{
+					return;				
+				}
 			double dstPower_mW =0;
 			// compute signal strength
 			if(JistExperiment.getJistExperiment().pathloss == Constants.PATHLOSS_VLC)
@@ -421,7 +424,10 @@ public class Field implements FieldInterface
 			}
 			
 			//if(dstPower_mW < dstInfo.getShared().getBackground_mW()) return;
-			if(dstPower_mW < dstInfo.getShared().getSensitivity_mW()) return;
+			if(dstPower_mW < dstInfo.getShared().getSensitivity_mW())
+				{
+					return;
+				}
 
 			//compute the direction and points of the radar
 			//	RadioData rd = getRadioData(srcInfo.getUnique().getID());

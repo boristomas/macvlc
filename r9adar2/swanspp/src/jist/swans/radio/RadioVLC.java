@@ -635,6 +635,8 @@ public final class RadioVLC extends RadioNoise
 	/** {@inheritDoc} */
 	public void receive(Message msg, Double powerObj_mW, Long durationObj)
 	{ 
+		System.out.println("<-- " + msg.hashCode());
+		((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(240, "radiovlct-rec", null));
 		if(mode==Constants.RADIO_MODE_SLEEP) return;
 
 		if(!isVLC && mode == Constants.RADIO_MODE_TRANSMITTING)
@@ -655,7 +657,7 @@ public final class RadioVLC extends RadioNoise
 		if(msg instanceof MacMessage.Data)
 		{
 			//mjerenje vremena.
-			((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(250, "radiovlct-rec", null));
+		//	((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(250, "radiovlct-rec", null));
 		}
 
 		checkLocation(false);
@@ -864,8 +866,9 @@ public final class RadioVLC extends RadioNoise
 		if(msg instanceof MacMessage.Data)
 		{
 			//mjerenje vremena
-			((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(2, "radiovlct", null));
+			
 		}
+		((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(2, "radiovlct", null));
 
 		// radio in sleep mode
 		if(mode == Constants.RADIO_MODE_SLEEP) return;
@@ -957,8 +960,10 @@ public final class RadioVLC extends RadioNoise
 		// set mode to transmitting
 		setMode(Constants.RADIO_MODE_TRANSMITTING);
 
+		((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(21, "radiovlct", null));
 		// schedule message propagation delay
 		JistAPI.sleep(delay);
+		System.out.println("--> " + msg.hashCode());
 		fieldEntity.transmit(radioInfo, msg, duration);
 		// schedule end of transmission
 		JistAPI.sleep(duration);
@@ -1061,11 +1066,13 @@ public final class RadioVLC extends RadioNoise
 						for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.sensorsTx)
 						{
 							if(msg.getSensorIDTx().contains(sensorSrc.sensorID))
+								/*tu sam stao. da bi dobio 100% problem je ovdje jer senzor nije zadan na poruci, ako iskljucim provjeru, tj. pretpostavim da se salje sa svih
+								senzora onda dobijem 100%*/
 							{//ako je mac zadao da se šalje sa odreðenog senzora.
 								for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.sensorsRx) {
 									{//znaci da listam sve senzore na src i dest koji su zadani u msg sensor listama
 										isSomeNodeIntersecting = false;
-										for (Integer node : possibleNodes)//listam sve aute koji su mi vidljivi (u trokutu)
+										for (Integer node : possibleNodes)//listam sve aute koji su mi vidljivi (u trokutu), ukljucujuci i sebe.
 										{
 											if(intersects(Field.getRadioData(node).vlcdevice.outlineShape, new Line2D.Float(sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest.sensorLocation.getX(), sensorDest.sensorLocation.getY())))
 											{
@@ -1075,11 +1082,19 @@ public final class RadioVLC extends RadioNoise
 										}//foreach possiblenodes
 										if(!isSomeNodeIntersecting)
 										{
-											tmpSensorTx.add(sensorSrc.sensorID);
-											tmpSensorRx.add(sensorDest.sensorID);
+											if (visibleToVLCdevice(sensorSrc.sensorLocation.getX(), sensorSrc.sensorLocation.getY(), sensorDest)) 
+											{
+												tmpSensorTx.add(sensorSrc.sensorID);
+												tmpSensorRx.add(sensorDest.sensorID);
+											}
+											
 										}
 									}
 								}
+							}
+							else
+							{
+								//u poruci je tx previse restriktivan, stovise zadani su zadnji senzori a auto je ispred.
 							}
 						}
 					//	msg.SensorIDTx.clear();

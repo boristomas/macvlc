@@ -47,6 +47,7 @@ public class VLCsensor
 	public Message CurrentMessage;
 	public long CurrentMessageEnd;
 	public long CurrentMessageDuration;
+	public Path2D.Float coverageShape;
 
 	public HashSet<Integer> controlSignal = new HashSet<Integer>();
 
@@ -134,7 +135,7 @@ public class VLCsensor
 		return state;
 	}
 
-	public Path2D.Float coverageShape;
+	
 	public void UpdateShape(Location NodeLocation, float NodeBearing)
 	{
 		//https://www.youtube.com/watch?v=Cd3w8kH9g_c

@@ -80,10 +80,10 @@
 <int>2</int>
 </void>
 <void property="spatial_mode">
-<int>0</int>
+<int>2</int>
 </void>
 <void property="StaticPlacementOptions">
- <string>100,100,0;115,100,15</string>
+ <string>100,100,0;125,100,40</string>
  <!-- <string>
  100,100,0;115,100,0;
  100,105,0;115,105,0;
@@ -135,14 +135,17 @@
 <void property="placement">
 <int>2</int>
 </void>
-<!-- fieldx i fieldy su granice polja, definiraju velicinu, svi cvorovi trebaju biti unutar pravokutnika definiranog sa fieldx i fieldy -->
+<void property="spatial_mode">
+<int>2</int>
+</void>
+<!--
 <void property="fieldX">
-	<int>600</int>
+	<int>90</int>
 </void>
 <void property="fieldY">
-	<int>600</int>
+	<int>90</int>
 </void>
-
+-->
 <!--  visualization options  -->
 <void property="useVisualizer">
 <boolean>false</boolean>
