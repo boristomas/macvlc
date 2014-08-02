@@ -12,6 +12,7 @@ package jist.swans.mac;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import com.puppycrawl.tools.checkstyle.api.Utils;
 
@@ -20,6 +21,7 @@ import jist.runtime.JistAPI;
 import jist.runtime.Util;
 import jist.swans.Constants;
 import jist.swans.misc.Message;
+import jist.swans.radio.VLCsensor;
 
 /**
  * Defines the various message used by the Mac entity.
@@ -40,6 +42,14 @@ public abstract class MacMessage implements Message
 		
 //		System.out.println("set hsh: "+this.hashCode() + " cnt = "+ value.size() );
 		SensorIDTx = value;
+	}
+	public void setSensorIDTx(LinkedList<VLCsensor> value)
+	{
+		SensorIDTx.clear();
+		for (VLCsensor sensor : value)
+		{
+			SensorIDTx.add(sensor.sensorID);
+		}
 	}
 	//////////////////////////////////////////////////
 	// frame control

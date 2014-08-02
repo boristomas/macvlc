@@ -59,16 +59,16 @@
 <double>0.3</double>
 </void>
 <void property="minLat">
-<float>42.36134</float>
+<float>-1000</float>
 </void>
 <void property="minLong">
-<float>-71.05870</float>
+<float>-1000</float>
 </void>
 <void property="maxLat">
-<float>42.36808</float>
+<float>1000</float>
 </void>
 <void property="maxLong">
-<float>-71.05024</float>
+<float>1000</float>
 </void>
 <!--  node options  -->
 
@@ -80,7 +80,7 @@
 <int>2</int>
 </void>
 <void property="spatial_mode">
-<int>0</int>
+<int>2</int>
 </void>
 <void property="StaticPlacementOptions">
  <string>100,100,0;115,100,15</string>
