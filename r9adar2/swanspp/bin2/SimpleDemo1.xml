@@ -59,16 +59,16 @@
 <double>0.3</double>
 </void>
 <void property="minLat">
-<float>42.36134</float>
+<float>-1000</float>
 </void>
 <void property="minLong">
-<float>-71.05870</float>
+<float>-1000</float>
 </void>
 <void property="maxLat">
-<float>42.36808</float>
+<float>1000</float>
 </void>
 <void property="maxLong">
-<float>-71.05024</float>
+<float>1000</float>
 </void>
 <!--  node options  -->
 
@@ -83,7 +83,7 @@
 <int>2</int>
 </void>
 <void property="StaticPlacementOptions">
- <string>100,100,0;155,100,40</string>
+ <string>100,100,0;115,100,0;130,100,0</string>
  <!-- <string>
  100,100,0;115,100,0;
  100,105,0;115,105,0;
@@ -97,10 +97,10 @@
 -->
 </void>
 <void property="nodes">
-<int>2</int>
+<int>3</int>
 </void>
 <void property="transmitters">
-<int>2</int>
+<int>3</int>
 </void>
 <void property="MACProtocol">
 <string>MACVLCprotocolBoris</string>
@@ -135,17 +135,14 @@
 <void property="placement">
 <int>2</int>
 </void>
-<void property="spatial_mode">
-<int>2</int>
-</void>
-<!--
+<!-- fieldx i fieldy su granice polja, definiraju velicinu, svi cvorovi trebaju biti unutar pravokutnika definiranog sa fieldx i fieldy -->
 <void property="fieldX">
-	<int>90</int>
+	<int>600</int>
 </void>
 <void property="fieldY">
-	<int>90</int>
+	<int>600</int>
 </void>
--->
+
 <!--  visualization options  -->
 <void property="useVisualizer">
 <boolean>false</boolean>

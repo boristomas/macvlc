@@ -112,7 +112,7 @@ public class GenericDriver {
 	private static Ideal locDB = null;
 	static int idUdp = 0;
 
-//	public static String MACprotocol;
+	//	public static String MACprotocol;
 	public static String MACVLCprotocolWill ="MACVLCprotocolWill";
 	public static String MACVLCprotocolBoris ="MACVLCprotocolBoris";
 	public static String MACVLCprotocolMate="MACVLCprotocolMate";
@@ -981,28 +981,53 @@ public class GenericDriver {
 		boolean[] chosen = new boolean[nodes.size()];
 
 		// pick destinations for streams
-		for (int i = 0; i < je.transmitters; i++) {
-			//pick send node
-			do {
-				if(!je.MeasurementMode)
-				{
+		if(!je.MeasurementMode)
+		{
+			for (int i = 0; i < je.transmitters; i++) {
+				//pick send node
+				do {
 					//pick random dest node
 					dests[i] = myRandom.nextInt(nodes.size());
-				}
-				else
-				{
-					//
-					dests[i] = je.transmitters - i -1;
-				}
-			} while ((dests[i] == ((Integer) sources.get(i)).intValue()) ||
-					chosen[dests[i]]);
 
-			chosen[dests[i]] = true;
+				} while ((dests[i] == ((Integer) sources.get(i)).intValue()) || chosen[dests[i]]);
+
+				chosen[dests[i]] = true;
+			}
+		}
+		else
+		{
+			//measurement mode
+
+			for (int i = 0; i < je.transmitters; i++) 
+			{
+				/*
+				 * 1 - 5
+				 * 2 - 4
+				 * 3 - 2
+				 * 4 - 1
+				 * 5 - 1
+				 * 
+				 * 1 - 3
+				 * 2 - 3
+				 * 3 - 1
+				 * */
+				//pick send node
+
+				//pick random dest node
+				dests[i] = je.transmitters - i -1;
+				if(dests[i] == i)
+				{
+					dests[i] = je.transmitters - 1;
+				}
+			}
 		}
 
 		//int cnter = 0;
 		// send messages
-		for (int i = 0; i < iterations; i++) {
+		for (int i = 0; i < iterations; i++) 
+		{
+			//todo: nikada se ne mijenjau odredista sve iteracije su iste sto se tice ishodista i odredista, cak i u stvarnom scenariju, mozda
+			//da ovdje uvedem rotaciju nekakvu???
 			for (int j = 0; j < je.transmitters; j++) {
 				//             if (j%numProtocols == 0 ) currentProtocol = je.protocol;
 				//             else currentProtocol = je.protocol2;
@@ -1013,7 +1038,7 @@ public class GenericDriver {
 
 				int src = ((Integer) sources.get(j)).intValue();
 				int dest = dests[j]+1;//dodaje se +1 zato jer adrese pocinju od 1.
-		
+
 
 				//             NetIp srcNet = (NetIp) sources.elementAt(j);
 				//             NetIp destNet = (NetIp) nodes.elementAt(dests[j]);
@@ -1030,7 +1055,7 @@ public class GenericDriver {
 										Constants.NET_PROTOCOL_UDP,
 										Constants.NET_PRIORITY_NORMAL,
 										(byte) Constants.TTL_DEFAULT);
-		//		cnter++;
+				//		cnter++;
 				srcRoute.send(msg);
 				//System.out.println("BTc src= "+((NetMessage.Ip )msg).getSrc() + " dest= " + ((NetMessage.Ip )msg).getDst() + " .... " + src + " .... " + dest);
 			} // send message for each transmitter
@@ -1045,7 +1070,7 @@ public class GenericDriver {
 			}
 			currentTime += delayInterval;
 		}
-//		System.out.println("BTc src= " + cnter);
+		//		System.out.println("BTc src= " + cnter);
 	}
 
 	/**
@@ -1159,7 +1184,7 @@ public class GenericDriver {
 				JistAPI.endAt(endTime * Constants.SECOND);
 			}
 
-			
+
 			// set random seed for simulator
 			if (je.seed != 0) {
 				Constants.random = new Random(je.seed);
@@ -1175,8 +1200,8 @@ public class GenericDriver {
 			if(btviz == null)
 			{
 				btviz = new Vizbt();
-				
-			//	btviz.getGraph().setColor(Color.RED);
+
+				//	btviz.getGraph().setColor(Color.RED);
 				//			btviz.getGraph().fillRect(150, 10, 100, 100);
 			}
 			buildField(je, nodes);
