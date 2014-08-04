@@ -96,6 +96,9 @@
 <string>100,100;150,150;200,200;200,200;200,200;200,200</string> 
 -->
 </void>
+<void property="cbrRate">
+<int>2048</int>
+</void>
 <void property="nodes">
 <int>6</int>
 </void>

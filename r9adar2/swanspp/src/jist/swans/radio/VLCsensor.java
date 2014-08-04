@@ -7,10 +7,12 @@ import java.awt.Polygon;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import org.python.modules.math;
 
 import jist.swans.field.streets.Shape;
+import jist.swans.mac.MacMessage;
 import jist.swans.misc.Location;
 import jist.swans.misc.Location.Location2D;
 import jist.swans.misc.Message;
@@ -43,10 +45,10 @@ public class VLCsensor
 	public Location sensorLocation2;//bottom
 	private float sensorBearingNotRelative;
 	private float stickOut = 0.001F; //1cm
-	public int signalsRx;
-	public Message CurrentMessage;
-	public long CurrentMessageEnd;
-	public long CurrentMessageDuration;
+//	public int signalsRx;
+	public LinkedList<MacMessage> Messages = new LinkedList<MacMessage>();
+//	public long CurrentMessageEnd;
+	//public long CurrentMessageDuration;
 	public Path2D.Float coverageShape;
 
 	public HashSet<Integer> controlSignal = new HashSet<Integer>();
@@ -99,7 +101,7 @@ public class VLCsensor
 		 * http://djw.cs.washington.edu/papers/mimo_for_dummies.pdf
 		 * */
 		this.node = node;
-		this.signalsRx = 0;
+		//this.signalsRx = 0;
 		this.distanceLimit = distancelimit; 
 		this.visionAngle = visionAngle;
 		this.offsetX = offsetX;

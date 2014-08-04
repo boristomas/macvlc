@@ -192,7 +192,7 @@ public final class Constants
 	/** Default radio frequency (units: Hz). */
 	public static final double FREQUENCY_DEFAULT = 2.4e9; // 2.4 GHz
 	/** Default radio bandwidth (units: bits/second). */
-	public static final int BANDWIDTH_DEFAULT = (int)2e6; // 2Mb/s
+	public static final int BANDWIDTH_DEFAULT = 102400; // 11Mb/s (int)2e6; // 2Mb/s
 	/** Default transmission strength (units: dBm). */
 	public static final double TRANSMIT_DEFAULT = 15.0;
 	/** Default antenna gain (units: dB). */
@@ -470,6 +470,7 @@ public final class Constants
 		public static int Received = 0;
 		public static String MACimplementationUsed;
 		public static long CBRmessages= 0;
+		private static int prevtimeid;
 		public static String PrintData()
 		{
 
@@ -488,10 +489,12 @@ public final class Constants
 			int t0 = 0;
 			int t1 = 0;
 			int t2 = 0;
+			int t11 = 0;
+			int t12 = 0;
 			int t21 = 0;
-			int t240 = 0;
-			//int t250 = 0;
+			int t250 = 0;
 			int t251 = 0;
+			int t252 = 0;
 			int t3 = 0;
 			int t4 = 0;
 			int t5 = 0;
@@ -500,12 +503,16 @@ public final class Constants
 			PrintWriter writer;
 			try {
 				writer = new PrintWriter(filename, "UTF-8");
+				//header
+			//	res += "\n";
+				writer.write("msgid,source,destination,0,1,11,12,2,21,250,251,252,3,4,5\n");
 				for (NetMessage.Ip item : TimeEntry.AllMessages)
 				{
 					res = "";
 					res+= item.getId()+ ","+ item.getSrc() +"," + item.getDst(); 
 					for (TimeEntry time : item.Times) 
 					{
+						//System.out.println("tid= " + time.TimeID);
 						switch (time.TimeID) {
 						case 0:
 						{
@@ -524,19 +531,34 @@ public final class Constants
 							t2++;
 							break;
 						}
+						case 11:
+						{
+							t11++;
+							break;
+						}
+						case 12:
+						{
+							t12++;
+							break;
+						}
 						case 21:
 						{
 							t21++;
 							break;
 						}
-						case 240:
+						case 250:
 						{
-							t240++;
+							t250++;
 							break;
 						}
 						case 251:
 						{
 							t251++;
+							break;
+						}
+						case 252:
+						{
+							t252++;
 							break;
 						}
 						case 3:
@@ -557,7 +579,13 @@ public final class Constants
 						}
 
 						}
-						res += "," +time.TimeID + " - " + time.Time;
+						if(prevtimeid == 11 && time.TimeID != 12)
+						{
+							res += ",0";
+						}
+						prevtimeid =  time.TimeID;
+						res += "," /*+time.TimeID + " - "*/ + time.Time;
+						
 					}
 					res += "\n";
 					writer.write(res);
@@ -578,10 +606,13 @@ public final class Constants
 			"MAC avg(t5-t1) = " + (float)sumt5t1/(float)t5 + "\n"+
 			"MAC count(T0) = " + t0 + "\n"+
 			"MAC count(T1) = " + t1 + "\n"+
+			"MAC count(T11) = " + t11 + "\n"+
+			"MAC count(T12) = " + t12 + "\n"+
 			"MAC count(T2) = " + t2 + "\n"+
 			"MAC count(T21) = " + t21 + "\n"+
-			"MAC count(T240) = " + t240 + "\n"+
+			"MAC count(T250) = " + t250 + "\n"+
 			"MAC count(T251) = " + t251 + "\n"+
+			"MAC count(T252) = " + t252 + "\n"+
 			"MAC count(T3) = " + t3 + "\n"+
 			"MAC count(T4) = " + t4 + "\n"+
 			"MAC count(T5) = " + t5 + "\n"+

@@ -15,7 +15,8 @@ import jist.swans.net.NetMessage;
  *	1  - //kada je poruka puštena na mac sloj. mac.send
  *  11 - //kada je poruku moguce poslati, nakon provjera zauzetosti senzora i kontrolnih signala 
  *  12 - //kada je poruka dodana u red, znaci moguce je samo 11 ili 12 (u ovom slucaju ce kad tad morati biti jednom 11.)
- *	2  - //kada je mac sloj poslao poruku sloju ispod, radioentity.transmit
+ *	2  - //kada je mac sloj poslao poruku sloju ispod, radioentity.transmit prije provjera
+ *  21 - //kada je mac sloj poslao poruku sloju ispod, radioentity.transmit nakon provjera.
  *  250- //kada je radio primio poruku s druge strane, radioentity.receive, programski samo, bez fizicke provjere
  *  251- //kada je radio primio poruku s druge strane ali fizicki ispravno, prije vremena propagacije.
  *  252- //kada je radio primio poruku s druge strane nakon propagacije i provjere interferencije, tik prije slanja sloju iznad (mac)

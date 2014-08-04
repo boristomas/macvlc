@@ -36,7 +36,17 @@ public abstract class MacMessage implements Message
 	//sensor control
 	public HashSet<Integer> SensorIDTx = new HashSet<Integer>();
 	public HashSet<Integer> SensorIDRx = new HashSet<Integer>();
-
+	public long StartRx;
+	public long EndRx;
+	public long DurationRx;
+	public double PowerRx;
+	public boolean InterferedRx;
+	public long StartTx;
+	public long EndTx;
+	public long DurationTx;
+	public double PowerTx;
+	public boolean InterferedTx;
+	
 	public void setSensorIDTx(HashSet<Integer> value)
 	{
 		

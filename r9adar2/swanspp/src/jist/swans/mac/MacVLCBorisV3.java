@@ -38,7 +38,7 @@ import driver.JistExperiment;
  * @version 1
  */
 
-public class MacVLCBoris implements  MacInterface.Mac802_11
+public class MacVLCBorisV3 implements  MacInterface.Mac802_11
 {
 
 	/*TODO:
@@ -354,7 +354,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	 * @param radioInfo radio properties
 	 * @param newstats mac stats object
 	 */
-	public MacVLCBoris(MacAddress addr, RadioInfo radioInfo, boolean promisc, RadioVLC vlcradio)
+	public MacVLCBorisV3(MacAddress addr, RadioInfo radioInfo, boolean promisc, RadioVLC vlcradio)
 	{
 		myRadio = vlcradio;
 		SourceNodeID = addr.hashCode();//BT: store node ID;
@@ -378,7 +378,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	 * @param addr local mac address
 	 * @param radioInfo radio properties
 	 */
-	public MacVLCBoris(MacAddress addr, RadioInfo radioInfo, RadioVLC vlcradio)
+	public MacVLCBorisV3(MacAddress addr, RadioInfo radioInfo, RadioVLC vlcradio)
 	{  
 		myRadio = vlcradio;
 		SourceNodeID = addr.hashCode();//BT: store node ID;

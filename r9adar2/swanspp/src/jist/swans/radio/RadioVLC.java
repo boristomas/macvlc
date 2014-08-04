@@ -666,7 +666,7 @@ public final class RadioVLC extends RadioNoise
 			aa += item + " ";
 		}String bb="";
 
-		((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(240, "radiovlct-rec", null));
+		((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(250, "radiovlct-rec", null));
 		if(mode==Constants.RADIO_MODE_SLEEP) return;
 
 		if(!isVLC && mode == Constants.RADIO_MODE_TRANSMITTING)
@@ -720,11 +720,13 @@ public final class RadioVLC extends RadioNoise
 
 		for (int item : ((MacMessage)msg).SensorIDRx)
 		{
-
 			tmpSensorReceive = getSensorByID(item);
-			tmpSensorReceive.CurrentMessage = msg;
-			tmpSensorReceive.CurrentMessageEnd = JistAPI.getTime() + duration;
-			tmpSensorReceive.signalsRx ++;
+			((MacMessage)msg).StartRx = JistAPI.getTime();
+			((MacMessage)msg).EndRx = JistAPI.getTime() + duration;
+			((MacMessage)msg).PowerRx = power_mW;
+			((MacMessage)msg).InterferedRx = false;
+			tmpSensorReceive.Messages.addFirst((MacMessage)msg);
+			//	tmpSensorReceive.signalsRx ++;
 			setControlSignal(tmpSensorReceive, 1);
 			if(tmpSensorReceive.mode == SensorModes.Receive)
 			{//ok
@@ -736,7 +738,7 @@ public final class RadioVLC extends RadioNoise
 					}
 					else
 					{//obicni mac
-						//validirati ovo!!! 
+						//TODO: validirati ovo!!! 
 						continue;
 					}
 				}
@@ -798,13 +800,12 @@ public final class RadioVLC extends RadioNoise
 		self.endReceive(powerObj_mW, new Long(seqNumber));
 	}
 
+	private int msgcounter;
+	private double cumpower;
 	// RadioInterface interface
 	/** {@inheritDoc} */
 	public void endReceive(final Double powerObj_mW, Long seqNumber)
 	{
-		//TODO: treba sve poruke na senzoru staviti u listu i onda treba isto staviti i power i treba vidjeti ako je suma (minus onaj koji gledam) u odnosu na onaj koji gledam, taj omjer treba biti ispod zadanog
-		//praga. ako je ispod onda znaci da mogu primiti poruku, za ovo bi trebalo napraviti katalog svih transmisija i gledati koje su u isto vrijeme i sl. pa onda racunati taj omjer...
-
 		if(mode==Constants.RADIO_MODE_SLEEP) return;
 
 		if(isVLC)
@@ -813,31 +814,54 @@ public final class RadioVLC extends RadioNoise
 			{
 				if(item.state == SensorStates.Receiving)
 				{
-					item.signalsRx --;
-					if(item.signalsRx != 0 || item.CurrentMessage == null)
+					msgcounter = 0;
+					cumpower = 0;
+					for (MacMessage msg1 : item.Messages) 
 					{
-						item.CurrentMessage = null;
-						this.macEntity.notifyInterference(item);
-					}
-					else
-					{
-						if(item.signalsRx == 0 && item.CurrentMessageEnd == JistAPI.getTime())
-						{//poruka je dosla i samo je jedna
-
-							((NetMessage.Ip)(((MacMessage.Data)item.CurrentMessage).getBody())).Times.add(new TimeEntry(252, "macbtrec", null));
-							clearControlSignal(item, (byte)1);
-							this.macEntity.receive(item.CurrentMessage);
-							item.setState(SensorStates.Idle );
-						}
-						else
+						if(msg1.EndRx > JistAPI.getTime())
 						{
-							//item.signalsRx = 0;
+							//brojim poruke da znam da postoji transmisija u zraku;
+							msgcounter++;
 						}
-					}
-					if(item.signalsRx == 0 && item.CurrentMessage == null)
+						if(msg1.EndRx == JistAPI.getTime())
+						{
+
+							//dohvatiti trenutne u zraku.
+							for (MacMessage msg2 : item.Messages) 
+							{
+								//dohvatiti trenutne u zraku.
+								if(msg1 != msg2 && msg1.EndRx == JistAPI.getTime() )//&& !msg1.Interfered && !msg2.Interfered)
+								{
+									//u msg1 imam poruku koja je taman zavrsila, u msg2 imam sve ostale poruke.
+									if(msg2.StartRx< msg1.EndRx && msg2.EndRx > msg1.StartRx)
+									{
+										//ako je bilo koja poruka pocela prije trenutne koju gledam.
+										cumpower += msg2.PowerRx;
+									}
+								}
+							}//for msg2;
+						
+							
+							if(cumpower == 0 || Util.toDB(msg1.PowerRx/cumpower) > 16)//16 = tablica 2 iz: http://www.cisco.com/c/en/us/td/docs/wireless/technology/mesh/7-3/design/guide/Mesh/Mesh_chapter_011.pdf
+							{
+								//ok je poruka se moze primiti
+								((NetMessage.Ip)(((MacMessage.Data)msg1).getBody())).Times.add(new TimeEntry(252, "macbtrec", null));
+								this.macEntity.receive(msg1);
+							}
+							else
+							{
+								//nije ok, msg1 je interferirana
+								msg1.InterferedRx= true;
+								this.macEntity.notifyInterference(item);
+							}
+						}
+					}//for msg1
+		
+					if(msgcounter == 0)
 					{
 						//znaci da se dogodila interferencija i da su sve poruke koje su kolidirane dosle.
 						clearControlSignal(item, (byte)1);
+						item.setState(SensorStates.Idle );
 					}
 				}
 			}
@@ -923,9 +947,12 @@ public final class RadioVLC extends RadioNoise
 				{
 					//ok
 					tmpSensorTransmit.setState(SensorStates.Transmitting );
-					tmpSensorTransmit.CurrentMessage = msg;
-					tmpSensorTransmit.CurrentMessageEnd = JistAPI.getTime()+duration + delay;
-					tmpSensorTransmit.CurrentMessageDuration = duration + delay;
+
+					((MacMessage)msg).EndTx = JistAPI.getTime()+duration + delay;
+					((MacMessage)msg).StartTx = JistAPI.getTime();
+					((MacMessage)msg).DurationTx = duration + delay;
+					tmpSensorTransmit.Messages.addFirst(((MacMessage)msg));
+
 					isAtLeastOneTransmitting = true;
 				}
 				else if(tmpSensorTransmit.state == SensorStates.Transmitting)
@@ -1026,10 +1053,10 @@ public final class RadioVLC extends RadioNoise
 			{
 				if(item.state == SensorStates.Transmitting )
 				{
-					if (item.CurrentMessageEnd == JistAPI.getTime()) 
+					if (item.Messages.getFirst().EndTx == JistAPI.getTime()) 
 					{
 						item.state = SensorStates.Idle;
-						item.CurrentMessageEnd = 0;
+			//			item.CurrentMessages.getFirst().EndTx = 0;//TODO: provjeriti trebam li ovo ponistiti
 					}
 					else
 					{

@@ -3,7 +3,7 @@
 <object class="driver.JistExperiment">
 <!--  timing  -->
 <void property="duration">
-<int>90</int>
+<int>990</int>
 </void>
 <void property="resolutionTime">
 <int>60</int>
@@ -95,6 +95,10 @@
 <!--
 <string>100,100;150,150;200,200;200,200;200,200;200,200</string> 
 -->
+
+</void>
+<void property="cbrRate">
+<int>4096</int>
 </void>
 <void property="nodes">
 <int>2</int>
