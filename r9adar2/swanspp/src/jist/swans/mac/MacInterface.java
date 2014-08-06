@@ -69,7 +69,7 @@ public interface MacInterface extends JistAPI.Proxiable
   void setRadioEntity(RadioInterface radio);
   void setNetEntity(NetInterface net, byte netid);
   
-  void notifyInterference(VLCsensor sensors);
+  void notifyInterference(MacMessage msg, VLCsensor sensors);
 	void notifyError(int errorCode, String message);
 	void notifyTransmitFail(Message msg, int errorCode);
 	void notifyReceiveFail(Message msg, int errorCode);

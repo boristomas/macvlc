@@ -945,7 +945,7 @@ public class MacVLCBorisV1 implements  MacInterface.Mac802_11
 		return localAddr.toString();
 	}
 
-	public void notifyInterference(VLCsensor sensors) 
+	public void notifyInterference(MacMessage msg, VLCsensor sensors) 
 	{
 		System.out.println("interference");
 	}

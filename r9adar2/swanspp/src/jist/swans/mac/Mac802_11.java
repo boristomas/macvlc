@@ -1398,7 +1398,7 @@ public class Mac802_11 implements MacInterface.Mac802_11
 	}
 
 	@Override
-	public void notifyInterference(VLCsensor sensors) {
+	public void notifyInterference(MacMessage msg, VLCsensor sensors) {
 		// T-ODO Auto-generated method stub
 		
 	}

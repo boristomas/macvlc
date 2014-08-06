@@ -8,9 +8,13 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Vector;
+
+
 
 import org.python.modules.math;
 
+import jist.swans.Constants;
 import jist.swans.field.streets.Shape;
 import jist.swans.mac.MacMessage;
 import jist.swans.misc.Location;
@@ -300,6 +304,7 @@ public class VLCsensor
 		coverageShape.moveTo(ax, ay);
 		coverageShape.lineTo(bx, by);
 	//	poly.lineTo(cx, cy);
+		
 		coverageShape.quadTo(dx, dy, cx,cy);// .curveTo(cx, cy, dx+10, dy, dx+10, dy);
 		coverageShape.closePath();
 		/*
@@ -308,12 +313,14 @@ public class VLCsensor
 			poly.addPoint((int)sensorLocation2.getX(), (int)sensorLocation2.getY());*/
 		if(mode == SensorModes.Receive)
 		{
-			GenericDriver.btviz.DrawShape(coverageShape, Color.yellow);
+			GenericDriver.btviz.DrawShape(coverageShape, Color.blue,1);
 		}
 		else
 		{
-			GenericDriver.btviz.DrawShape(coverageShape, Color.red);
+			GenericDriver.btviz.DrawShape(coverageShape, Color.red,1);
 		}
+				
+		GenericDriver.btviz.DrawString(this.sensorID+"", Color.BLACK, sensorLocation.getX(), sensorLocation.getY() , node.NodeLocation.getX(), node.NodeLocation.getY(), 0.3F, 0.9F);
 
 		//((Graphics2D) GenericDriver.btviz.getGraph()).drawArc(x, y, width, height, startAngle, arcAngle); .drawString("a(" + ax + ","+ay+")",(float)ax,(float)ay);
 

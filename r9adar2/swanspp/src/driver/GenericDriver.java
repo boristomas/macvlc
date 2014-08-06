@@ -1056,6 +1056,7 @@ public class GenericDriver {
 										Constants.NET_PRIORITY_NORMAL,
 										(byte) Constants.TTL_DEFAULT);
 				//		cnter++;
+				
 				srcRoute.send(msg);
 				//System.out.println("BTc src= "+((NetMessage.Ip )msg).getSrc() + " dest= " + ((NetMessage.Ip )msg).getDst() + " .... " + src + " .... " + dest);
 			} // send message for each transmitter

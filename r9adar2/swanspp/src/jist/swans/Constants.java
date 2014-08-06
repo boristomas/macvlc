@@ -471,6 +471,7 @@ public final class Constants
 		public static String MACimplementationUsed;
 		public static long CBRmessages= 0;
 		private static int prevtimeid;
+		public static int broadcasts = 0;
 		public static String PrintData()
 		{
 
@@ -498,6 +499,7 @@ public final class Constants
 			int t3 = 0;
 			int t4 = 0;
 			int t5 = 0;
+			int t6 = 0;
 			long time1 =0;
 			long sumt5t1 =0;
 			PrintWriter writer;
@@ -505,7 +507,7 @@ public final class Constants
 				writer = new PrintWriter(filename, "UTF-8");
 				//header
 			//	res += "\n";
-				writer.write("msgid,source,destination,0,1,11,12,2,21,250,251,252,3,4,5\n");
+				writer.write("msgid,source,destination,0,1,11,12,2,21,250,251,252,3,4,5,6\n");
 				for (NetMessage.Ip item : TimeEntry.AllMessages)
 				{
 					res = "";
@@ -577,6 +579,11 @@ public final class Constants
 							sumt5t1 += (time.Time-time1);
 							break;
 						}
+						case 6:
+						{
+							t6++;
+							break;
+						}
 
 						}
 						if(prevtimeid == 11 && time.TimeID != 12)
@@ -602,7 +609,9 @@ public final class Constants
 			System.out.println();
 			return "-----VLC data-----" + "\n"+
 			"MAC implementation = "+ MACimplementationUsed + "\n"+
-			"MAC PDR = " + 100*((float)t5/(float)t1) + "%\n"+
+			"Broadcasts = " + broadcasts + "\n"+
+			"MAC PDR all= " + 100*((float)t5/(float)t1) + "%\n"+
+			"MAC PDR exact= " + 100*((float)t6/(float)t1) + "%\n"+
 			"MAC avg(t5-t1) = " + (float)sumt5t1/(float)t5 + "\n"+
 			"MAC count(T0) = " + t0 + "\n"+
 			"MAC count(T1) = " + t1 + "\n"+
@@ -616,6 +625,7 @@ public final class Constants
 			"MAC count(T3) = " + t3 + "\n"+
 			"MAC count(T4) = " + t4 + "\n"+
 			"MAC count(T5) = " + t5 + "\n"+
+			"MAC count(T6) = " + t6 + "\n"+
 			"-----VLC data-----" + "\n";
 		}
 	}

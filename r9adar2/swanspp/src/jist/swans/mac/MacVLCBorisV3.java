@@ -603,7 +603,7 @@ public class MacVLCBorisV3 implements  MacInterface.Mac802_11
 		//	fixTx = false;
 		if(!fixTx)
 		{
-			for (Integer item : msg.SensorIDTx) 
+			for (Integer item : msg.getSensorIDTx(myRadio.NodeID))//.SensorIDTx) 
 			{
 				if(myRadio.getSensorByID(item).state == SensorStates.Idle)
 				{
@@ -622,7 +622,7 @@ public class MacVLCBorisV3 implements  MacInterface.Mac802_11
 		{
 			tmpSensorsTx.clear();
 
-			for (Integer item : msg.SensorIDTx)
+			for (Integer item : msg.getSensorIDTx(myRadio.NodeID))//.SensorIDTx)
 			{
 				tmpSensorTx =myRadio.getSensorByID(item);
 				if(tmpSensorTx.state == SensorStates.Idle)
@@ -642,10 +642,10 @@ public class MacVLCBorisV3 implements  MacInterface.Mac802_11
 					//		System.out.println("not idle");
 				}
 			}
-			msg.setSensorIDTx(tmpSensorsTx);
+			msg.setSensorIDTx(tmpSensorsTx, myRadio.NodeID);
 
 
-			if(msg.SensorIDTx.size() != 0)
+			if(msg.getSensorIDTxSize(myRadio.NodeID) != 0)
 			{
 				//if(msg.SensorIDTx.size() < 3)
 				//		System.out.println("cta: "+((MacMessage)msg).getSensorIDTx().toString() );
@@ -684,7 +684,7 @@ public class MacVLCBorisV3 implements  MacInterface.Mac802_11
 			tmpSensor2 = sensor;//myRadio.getSensorByID(sensor);
 			if(tmpSensor2.state == SensorStates.Transmitting)
 			{
-				tmpDelay = tmpSensor2.Messages.getFirst().DurationTx;
+				tmpDelay = tmpSensor2.Messages.getFirst().getDurationTx(myRadio.NodeID);//.DurationTx;
 
 				if(isMin)
 				{
@@ -732,7 +732,7 @@ public class MacVLCBorisV3 implements  MacInterface.Mac802_11
 		
 		MacMessage.Data data = new MacMessage.Data(nextHop, localAddr,0, msg);	
 		
-		data.setSensorIDTx(GetTransmitSensors(nextHop));//myRadio.GetSensors(SensorModes.Transmit));//todo: izraditi strategiju odabira senzora
+		data.setSensorIDTx(GetTransmitSensors(nextHop), myRadio.NodeID);//myRadio.GetSensors(SensorModes.Transmit));//todo: izraditi strategiju odabira senzora
 
 		//	int a = data.SensorIDTx.size();
 		if(canSendMessage(data, true))
@@ -832,7 +832,7 @@ public class MacVLCBorisV3 implements  MacInterface.Mac802_11
 			first = MessageQueue.peek();
 			do{
 				tmpmsg1 = MessageQueue.poll();
-				tmpmsg1.setSensorIDTx(GetTransmitSensors(tmpmsg1.getDst()));//myRadio.GetSensors(SensorModes.Transmit));//todo: izraditi strategiju odabira senzora
+				tmpmsg1.setSensorIDTx(GetTransmitSensors(tmpmsg1.getDst()), myRadio.NodeID);//myRadio.GetSensors(SensorModes.Transmit));//todo: izraditi strategiju odabira senzora
 				
 				if(canSendMessage(tmpmsg1, false))
 				{
@@ -959,7 +959,7 @@ public class MacVLCBorisV3 implements  MacInterface.Mac802_11
 			{
 				if(msg.getSrc() == newdest)
 				{
-					return myRadio.getNearestOpositeSensor(msg.SensorIDRx);
+					return myRadio.getNearestOpositeSensor(msg.getSensorIDRx(myRadio.NodeID));//.SensorIDRx);
 				}
 			}
 		}
@@ -1140,7 +1140,7 @@ public class MacVLCBorisV3 implements  MacInterface.Mac802_11
 		return localAddr.toString();
 	}
 
-	public void notifyInterference(VLCsensor sensors) 
+	public void notifyInterference(MacMessage msg, VLCsensor sensors) 
 	{
 		System.out.println("interference on sensor: " + sensors.sensorID);
 	}

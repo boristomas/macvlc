@@ -113,7 +113,7 @@ public void setRadioEntity(RadioInterface radioEntity) {
 }
 
 @Override
-public void notifyInterference(VLCsensor sensors) {
+public void notifyInterference(MacMessage msg, VLCsensor sensors) {
 	// T-ODO Auto-generated method stub
 	
 }

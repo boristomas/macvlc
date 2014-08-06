@@ -298,7 +298,7 @@ public class MacDumb implements MacInterface
   }
 
 @Override
-public void notifyInterference(VLCsensor sensors) {
+public void notifyInterference(MacMessage msg, VLCsensor sensors) {
 	// T-ODO Auto-generated method stub
 	
 }

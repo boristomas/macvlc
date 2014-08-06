@@ -24,6 +24,7 @@ import jist.swans.misc.Util;
 import jist.swans.net.NetAddress;
 import jist.swans.net.NetInterface;
 import jist.swans.net.NetMessage;
+import jist.swans.radio.RadioVLC;
 
 
 /**
@@ -1692,10 +1693,16 @@ public class RouteAodv implements RouteInterface.Aodv
 
     //Look up next hop address for this destination IP in routing table
     NetAddress destNetAddr = ipMsg.getDst();
+    
     RouteTableEntry routeEntry = routeTable.lookup(destNetAddr);
     MacAddress nextHopMacAddr = routeEntry == null ? null : routeEntry.getNextHop();
 
     //If next hop address found in routing table, forward message
+ /*   if(nextHopMacAddr == null )//&& RadioVLC.isVLC) 
+    {
+    	//TO-DO: ovdje hardcodiram adresu nexthopa zato da neamm broadcastova. u vlc scenarijima ce
+    	nextHopMacAddr = new MacAddress(ipMsg.getDst().toInt());
+    }*/
     if (nextHopMacAddr != null)
     {      
       printlnDebug("Attempting to route from " + netAddr

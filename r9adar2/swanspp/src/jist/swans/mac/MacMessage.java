@@ -10,6 +10,7 @@
 package jist.swans.mac;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -34,32 +35,247 @@ import jist.swans.radio.VLCsensor;
 public abstract class MacMessage implements Message
 {
 	//sensor control
-	public HashSet<Integer> SensorIDTx = new HashSet<Integer>();
-	public HashSet<Integer> SensorIDRx = new HashSet<Integer>();
-	public long StartRx;
-	public long EndRx;
-	public long DurationRx;
-	public double PowerRx;
-	public boolean InterferedRx;
-	public long StartTx;
-	public long EndTx;
-	public long DurationTx;
-	public double PowerTx;
-	public boolean InterferedTx;
+	private HashMap<Integer, HashSet<Integer>> SensorIDTx = new HashMap<Integer, HashSet<Integer>>();
+	private HashMap<Integer, HashSet<Integer>> SensorIDRx = new HashMap<Integer, HashSet<Integer>>();
+	//public HashSet<Integer> SensorIDRx = new HashSet<Integer>();
 	
-	public void setSensorIDTx(HashSet<Integer> value)
+	private HashMap<Integer, Long> StartRx = new HashMap<Integer, Long>();
+	public long getStartRx(int nodeID)
 	{
-		
-//		System.out.println("set hsh: "+this.hashCode() + " cnt = "+ value.size() );
-		SensorIDTx = value;
+		if(!StartRx.containsKey(nodeID))
+		{
+			StartRx.put(nodeID, (long)0);
+		}
+		return StartRx.get(nodeID);
 	}
-	public void setSensorIDTx(LinkedList<VLCsensor> value)
+	public void setStartRx(int nodeID, long value)
 	{
-		SensorIDTx.clear();
+		StartRx.put(nodeID, value);
+	}
+	
+	private HashMap<Integer, Long> EndRx = new HashMap<Integer, Long>();
+	public long getEndRx(int nodeID)
+	{
+		if(!EndRx.containsKey(nodeID))
+		{
+			EndRx.put(nodeID, (long)0);
+		}
+		return EndRx.get(nodeID);
+	}
+	public void setEndRx(int nodeID, long value)
+	{
+		EndRx.put(nodeID, value);
+	}
+	private HashMap<Integer, Long> DurationRx = new HashMap<Integer, Long>();
+	public long getDurationRx(int nodeID)
+	{
+		if(!DurationRx.containsKey(nodeID))
+		{
+			DurationRx.put(nodeID, (long)0);
+		}
+		return DurationRx.get(nodeID);
+	}
+	public void setDurationRx(int nodeID, long value)
+	{
+		DurationRx.put(nodeID, value);
+	}
+	
+	private HashMap<Integer, Double> PowerRx = new HashMap<Integer, Double>();
+	public double getPowerRx(int nodeID)
+	{
+		if(!PowerRx.containsKey(nodeID))
+		{
+			PowerRx.put(nodeID, (double)0);
+		}
+		return PowerRx.get(nodeID);
+	}
+	public void setPowerRx(int nodeID, double value)
+	{
+		PowerRx.put(nodeID, value);
+	}
+	
+	private HashMap<Integer, Boolean> InterferedRx = new HashMap<Integer, Boolean>();
+	public boolean getInterferedRx(int nodeID)
+	{
+		if(!InterferedRx.containsKey(nodeID))
+		{
+			InterferedRx.put(nodeID, false);
+		}
+		return InterferedRx.get(nodeID);
+	}
+	public void setInterferedRx(int nodeID, boolean value)
+	{
+		InterferedRx.put(nodeID, value);
+	}
+	
+	private HashMap<Integer, Long> StartTx = new HashMap<Integer, Long>();
+	public long getStartTx(int nodeID)
+	{
+		if(!StartTx.containsKey(nodeID))
+		{
+			StartTx.put(nodeID, (long)0);
+		}
+		return StartTx.get(nodeID);
+	}
+	public void setStartTx(int nodeID, long value)
+	{
+		StartTx.put(nodeID, value);
+	}
+	
+	private HashMap<Integer, Long> EndTx = new HashMap<Integer, Long>();
+	public long getEndTx(int nodeID)
+	{
+		if(!EndTx.containsKey(nodeID))
+		{
+			EndTx.put(nodeID, (long)0);
+		}
+		return EndTx.get(nodeID);
+	}
+	public void setEndTx(int nodeID, long value)
+	{
+		EndTx.put(nodeID, value);
+	}
+	
+	private HashMap<Integer, Long> DurationTx = new HashMap<Integer, Long>();
+	public long getDurationTx(int nodeID)
+	{
+		if(!DurationTx.containsKey(nodeID))
+		{
+			DurationTx.put(nodeID, (long)0);
+		}
+		return DurationTx.get(nodeID);
+	}
+	public void setDurationTx(int nodeID, long value)
+	{
+		DurationTx.put(nodeID, value);
+	}
+	private HashMap<Integer, Double> PowerTx = new HashMap<Integer,Double>();
+	public double getPowerTx(int nodeID)
+	{
+		if(!PowerTx.containsKey(nodeID))
+		{
+			PowerTx.put(nodeID, (double)0);
+		}
+		return PowerTx.get(nodeID);
+	}
+	public void setPowerTx(int nodeID, double value)
+	{
+		PowerTx.put(nodeID, value);
+	}
+	
+	private HashMap<Integer, Boolean> InterferedTx = new HashMap<Integer, Boolean>();
+	public boolean getInterferedTx(int nodeID)
+	{
+		if(!InterferedTx.containsKey(nodeID))
+		{
+			InterferedTx.put(nodeID, false);
+		}
+		return InterferedTx.get(nodeID);
+	}
+	public void setInterferedTx(int nodeID, boolean value)
+	{
+		InterferedTx.put(nodeID, value);
+	}
+	
+	/*public long StartRx1;
+	public long EndRx1;
+	public long DurationRx1;
+	public double PowerRx1;
+	public boolean InterferedRx1;
+	public long StartTx1;
+	public long EndTx1;
+	public long DurationTx1;
+	public double PowerTx1;
+	public boolean InterferedTx1;*/
+	
+	
+	
+	
+	
+	
+	public int getSensorIDTxSize(int nodeID)
+	{
+		return getSensorIDTx(nodeID).size();
+	}
+	public int getSensorIDRxSize(int nodeID)
+	{
+		return getSensorIDRx(nodeID).size();
+	}
+	public void setSensorIDTx(HashSet<Integer> value, Integer nodeID)
+	{
+		SensorIDTx.put(nodeID, value);
+	}
+	public void setSensorIDRx(HashSet<Integer> value, Integer nodeID)
+	{
+		SensorIDRx.put(nodeID, value);
+	}	
+	public void setSensorIDTx(LinkedList<VLCsensor> value, Integer nodeID)
+	{
+		HashSet<Integer> hs = new HashSet<Integer>();
 		for (VLCsensor sensor : value)
 		{
-			SensorIDTx.add(sensor.sensorID);
+			hs.add(sensor.sensorID);
 		}
+		SensorIDTx.put(nodeID, hs);
+	}
+	public void setSensorIDRx(LinkedList<VLCsensor> value, Integer nodeID)
+	{
+		HashSet<Integer> hs = new HashSet<Integer>();
+		for (VLCsensor sensor : value)
+		{
+			hs.add(sensor.sensorID);
+		}
+		SensorIDRx.put(nodeID, hs);
+	}
+	/**
+	 * Gets sensor ID this message is assigned to for Tx
+	 * @return
+	 */
+	public HashSet<Integer> getSensorIDTx(Integer nodeID)
+	{
+		if(!SensorIDTx.containsKey(nodeID))
+		{
+			SensorIDTx.put(nodeID, new HashSet<Integer>());
+		}
+		return SensorIDTx.get(nodeID);
+	}
+	/**
+	 * Gets sensor ID this message is assigned to for Rx
+	 * @return
+	 */
+	public HashSet<Integer> getSensorIDRx(Integer nodeID)
+	{
+		if(!SensorIDRx.containsKey(nodeID))
+		{
+			SensorIDRx.put(nodeID, new HashSet<Integer>());
+		}
+		return SensorIDRx.get(nodeID);
+	}
+	/**
+	 * Add Tx sensor ID for this message
+	 * @return
+	 */
+	public void addSensorIDTx(int sensorID, int nodeID)
+	{
+		getSensorIDTx(nodeID).add(sensorID);
+	}
+	
+	public void removeSensorIDTx(int sensorID, int nodeID)
+	{
+		getSensorIDTx(nodeID).remove(sensorID);
+	}
+	/**
+	 * Add Rx sensor ID for this message
+	 * @return
+	 */
+	public void addSensorIDRx(int sensorID, int nodeID)
+	{
+		getSensorIDRx(nodeID).add(sensorID);
+	}
+	
+	public void removeSensorIDRx(int sensorID, int nodeID)
+	{
+		getSensorIDRx(nodeID).remove(sensorID);
 	}
 	//////////////////////////////////////////////////
 	// frame control
@@ -130,38 +346,7 @@ public abstract class MacMessage implements Message
 		return retry;
 	}
 
-	/**
-	 * Gets sensor ID this message is assigned to for Tx
-	 * @return
-	 */
-	public HashSet<Integer> getSensorIDTx()
-	{
-		return SensorIDTx;
-	}
-	/**
-	 * Gets sensor ID this message is assigned to for Rx
-	 * @return
-	 */
-	public HashSet<Integer> getSensorIDRx()
-	{
-		return SensorIDRx;
-	}
-	/**
-	 * Sets Tx sensor ID for this message
-	 * @return
-	 */
-	public void setSensorIDTx(int sensorID)
-	{
-			SensorIDTx.add(sensorID);
-	}
-	/**
-	 * Sets Rx sensor ID for this message
-	 * @return
-	 */
-	public void setSensorIDRx(int sensorID)
-	{
-			SensorIDRx.add(sensorID);
-	}
+	
 
 	/**
 	 * Return packet destination address.
