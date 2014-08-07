@@ -12,11 +12,13 @@ import java.util.Vector;
 
 
 
+
 import org.python.modules.math;
 
 import jist.swans.Constants;
 import jist.swans.field.streets.Shape;
 import jist.swans.mac.MacMessage;
+import jist.swans.mac.MacMessageVLC;
 import jist.swans.misc.Location;
 import jist.swans.misc.Location.Location2D;
 import jist.swans.misc.Message;
@@ -50,7 +52,7 @@ public class VLCsensor
 	private float sensorBearingNotRelative;
 	private float stickOut = 0.001F; //1cm
 //	public int signalsRx;
-	public LinkedList<MacMessage> Messages = new LinkedList<MacMessage>();
+	public LinkedList<MacMessageVLC> Messages = new LinkedList<MacMessageVLC>();
 //	public long CurrentMessageEnd;
 	//public long CurrentMessageDuration;
 	public Path2D.Float coverageShape;

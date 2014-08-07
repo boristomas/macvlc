@@ -86,13 +86,13 @@ public interface PathLoss
 			fiAngle = Math.toDegrees(Math.atan( (srcLocation.getY()-dstLocation.getY())/(srcLocation.getX()-dstLocation.getX())));
 		//	System.out.println(" S fiangle = " +fiAngle);
 			//psiAngle = fiAngle- (fiAngle + ((RadioVLC) dstRadio.getUnique().GetRadio()).GetBearing());  // Field.getRadioData(dstRadio.getUnique().getID()).getMobilityInfo().getBearingAsAngle();
-			psiAngle = ( 180- fiAngle- ((RadioVLC) dstRadio.getUnique().GetRadio()).GetBearing() - 180);
+			psiAngle = ( 180- fiAngle- ((RadioVLC) dstRadio.getUnique().GetRadio()).getBearing() - 180);
 			
 		/*	if(psiAngle != 0)
 			{
 	//			psiAngle = 360%psiAngle;
 			}*/
-			fiAngle = fiAngle+ ((RadioVLC) srcRadio.getUnique().GetRadio()).GetBearing();
+			fiAngle = fiAngle+ ((RadioVLC) srcRadio.getUnique().GetRadio()).getBearing();
 			
 			psiAngle = Math.abs(psiAngle);
 			fiAngle = Math.abs(fiAngle);

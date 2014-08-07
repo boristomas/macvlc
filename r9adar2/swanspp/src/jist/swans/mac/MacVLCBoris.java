@@ -54,7 +54,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	 *  
 	 *  
 	 * */
-
+//TODO: pdr je vise od 100% jer na net sloju ima metoda isForMe koja uzima u obzir i broadcast poruke i loopback i sl. a ja vrijeme brojim ako je taj uvijet ok.
 	////////////////////////////////////////////////////
 	// short 802.11 lexicon:
 	//   slot - minimum time to sense medium
@@ -572,7 +572,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		//maknuo sam nav
 	}
 
-	private java.util.concurrent.ConcurrentLinkedQueue<MacMessage.Data> MessageQueue = new ConcurrentLinkedQueue<MacMessage.Data>();  
+	private java.util.concurrent.ConcurrentLinkedQueue<MacMessageVLC> MessageQueue = new ConcurrentLinkedQueue<MacMessageVLC>();  
 	private VLCsensor tmpSensorTx1;
 	/**
 	 * send messaga
@@ -580,7 +580,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	 * @param destination
 	 * @author BorisTomas
 	 */
-	private void sendMessage(MacMessage.Data msg )
+	private void sendMessage(MacMessageVLC msg )
 	{
 
 		//	System.out.println("neva1 "+ msg.hashCode()  + " cnt: " + msg.SensorIDTx.size());
@@ -591,7 +591,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		JistAPI.sleep(delay+duration);
 	}
 
-	private void addToQueue(MacMessage.Data msg)
+	private void addToQueue(MacMessageVLC msg)
 	{
 		MessageQueue.add(msg);
 	}
@@ -599,16 +599,17 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	private HashSet<Integer> tmpSensorsTx = new HashSet<Integer>();
 	private VLCsensor tmpSensorTx;
 
-	private boolean canSendMessage(MacMessage.Data msg, boolean fixTx)
+	private boolean canSendMessage(MacMessageVLC msg, boolean fixTx)
 	{
+		tmpSensorsTx = new HashSet<Integer>();
 		//	fixTx = false;
 		if(!fixTx)
 		{
 			for (Integer item : msg.getSensorIDTx(myRadio.NodeID))//.SensorIDTx) 
 			{
-				if(myRadio.getSensorByID(item).state == SensorStates.Idle)
+				if(myRadio.GetSensorByID(item).state == SensorStates.Idle)
 				{
-					for (VLCsensor sensor : myRadio.getNearestOpositeSensor(myRadio.getSensorByID(item))) 
+					for (VLCsensor sensor : myRadio.getNearestOpositeSensor(myRadio.GetSensorByID(item))) 
 					{
 						if(!myRadio.queryControlSignal(sensor, 1))
 						{
@@ -621,11 +622,11 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		}	
 		else
 		{
-			tmpSensorsTx.clear();
+			
 
 			for (Integer item : msg.getSensorIDTx(myRadio.NodeID))//.SensorIDTx)
 			{
-				tmpSensorTx =myRadio.getSensorByID(item);
+				tmpSensorTx =myRadio.GetSensorByID(item);
 				if(tmpSensorTx.state == SensorStates.Idle)
 				{
 
@@ -685,7 +686,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 			tmpSensor2 = sensor;//myRadio.getSensorByID(sensor);
 			if(tmpSensor2.state == SensorStates.Transmitting)
 			{
-				tmpDelay = tmpSensor2.Messages.getFirst().getDurationTx(myRadio.NodeID);//.DurationTx;
+				tmpDelay = tmpSensor2.Messages.getFirst().getDurationTx(tmpSensor2);//.DurationTx;
 
 				if(isMin)
 				{
@@ -721,7 +722,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 			return maxDelay;
 		}
 	}
-	private MacMessage.Data tmpMsg;
+	private MacMessageVLC tmpMsg;
 	private long transmitDelay; 
 	private void sendMacMessage(Message msg, MacAddress nextHop)
 	{
@@ -734,7 +735,9 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		{
 			Constants.VLCconstants.broadcasts++;
 		}
-		MacMessage.Data data = new MacMessage.Data(nextHop, localAddr,0, msg);	
+		
+		MacMessageVLC data = new MacMessageVLC(nextHop, localAddr,0, msg);
+		//MacMessage data = new MacMessage(nextHop, localAddr,0, msg);
 		
 		data.setSensorIDTx(GetTransmitSensors(nextHop), myRadio.NodeID);//myRadio.GetSensors(SensorModes.Transmit));//todo: izraditi strategiju odabira senzora
 
@@ -826,8 +829,8 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 
 	// MacInterface
 
-	MacMessage.Data tmpmsg1;
-	MacMessage.Data first;
+	MacMessageVLC tmpmsg1;
+	MacMessageVLC first;
 	public void timeout(int timerId)
 	{
 			System.out.println("id = " + myRadio.NodeID + " QS = " +MessageQueue.size());
@@ -909,17 +912,17 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	/*	private void sendDataBroadcast()
 	{
 
-	//	MacMessage.Data msg;
+	//	MacMessageVLC msg;
 		/*	for (Integer item : getQualifiyingNodes()) 
 		{
-			//msg = new MacMessage.Data( new MacAddress(item), localAddr, 0, packet);
+			//msg = new MacMessageVLC( new MacAddress(item), localAddr, 0, packet);
 			packetNextHop = new MacAddress(item);
 			sendDataUnicast(false);
 			//send(msg, new MacAddress(item));
 		}*/
 
 	// create data packet
-	/*			MacMessage.Data data = new MacMessage.Data(packetNextHop, localAddr,0, packet);
+	/*			MacMessageVLC data = new MacMessageVLC(packetNextHop, localAddr,0, packet);
 		//		data.TimeCreated = ((MacMessage)packet).TimeCreated;//.TimeEntry = JistAPI.getTime();
 		//		data.TimeEntry = ((MacMessage)packet).TimeEntry;
 		//		data.TimeSent =JistAPI.getTime();
@@ -953,8 +956,8 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	// MacInterface
 	public void receive(Message msg)
 	{
-		((NetMessage.Ip)(((MacMessage.Data)msg).getBody())).Times.add(new TimeEntry(3, "macbtrec", null));
-		netEntity.receive(((MacMessage.Data)msg).getBody(), ((MacMessage)msg).getSrc(), netId, false);
+		((NetMessage.Ip)(((MacMessageVLC)msg).getBody())).Times.add(new TimeEntry(3, "macbtrec", null));
+		netEntity.receive(((MacMessageVLC)msg).getBody(), ((MacMessage)msg).getSrc(), netId, false);
 		receivedMessages.addFirst((MacMessage)msg);
 	}
 	private LinkedList<VLCsensor> GetTransmitSensors(MacAddress newdest)
@@ -983,7 +986,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		switch(msg.getType())
 		{
 		case MacMessage.TYPE_DATA:
-			receiveData((MacMessage.Data)msg);
+			receiveData((MacMessageVLC)msg);
 			break;
 		default:
 			throw new RuntimeException("illegal frame type");
@@ -992,7 +995,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	}
 
 
-	private void receiveData(MacMessage.Data msg)
+	private void receiveData(MacMessageVLC msg)
 	{		
 
 
@@ -1030,7 +1033,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		}
 		if (promisc && msg.getType()==MacMessage.TYPE_DATA)
 		{
-			MacMessage.Data macDataMsg = (MacMessage.Data)msg;
+			MacMessageVLC macDataMsg = (MacMessageVLC)msg;
 			netEntity.receive(macDataMsg.getBody(), macDataMsg.getSrc(), netId, true);
 		}
 	}*/

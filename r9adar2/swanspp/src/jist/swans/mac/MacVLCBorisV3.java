@@ -605,9 +605,9 @@ public class MacVLCBorisV3 implements  MacInterface.Mac802_11
 		{
 			for (Integer item : msg.getSensorIDTx(myRadio.NodeID))//.SensorIDTx) 
 			{
-				if(myRadio.getSensorByID(item).state == SensorStates.Idle)
+				if(myRadio.GetSensorByID(item).state == SensorStates.Idle)
 				{
-					for (VLCsensor sensor : myRadio.getNearestOpositeSensor(myRadio.getSensorByID(item))) 
+					for (VLCsensor sensor : myRadio.getNearestOpositeSensor(myRadio.GetSensorByID(item))) 
 					{
 						if(!myRadio.queryControlSignal(sensor, 1))
 						{
@@ -624,7 +624,7 @@ public class MacVLCBorisV3 implements  MacInterface.Mac802_11
 
 			for (Integer item : msg.getSensorIDTx(myRadio.NodeID))//.SensorIDTx)
 			{
-				tmpSensorTx =myRadio.getSensorByID(item);
+				tmpSensorTx =myRadio.GetSensorByID(item);
 				if(tmpSensorTx.state == SensorStates.Idle)
 				{
 
@@ -684,7 +684,7 @@ public class MacVLCBorisV3 implements  MacInterface.Mac802_11
 			tmpSensor2 = sensor;//myRadio.getSensorByID(sensor);
 			if(tmpSensor2.state == SensorStates.Transmitting)
 			{
-				tmpDelay = tmpSensor2.Messages.getFirst().getDurationTx(myRadio.NodeID);//.DurationTx;
+				tmpDelay = tmpSensor2.Messages.getFirst().getDurationTx(tmpSensor2);//.DurationTx;
 
 				if(isMin)
 				{
