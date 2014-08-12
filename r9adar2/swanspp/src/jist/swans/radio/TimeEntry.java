@@ -23,6 +23,9 @@ import jist.swans.net.NetMessage;
  *	3  - //kada je drugi mac sloj primio poruku, mac.receive
  *	4  - //kada je drugi mac sloj poslao poruku sloju iznad, netentity.receive.
  *  5  - //kada je drugi mac sloj poslao poruku sloju iznad, netentity.receive. i poruka je naslovljena za primatelja.
+ *  6  - //kada je poruka prosla isforme(...) provjeru na net sloju.
+ *  70 - //ako je poruka na phy sloju za cvor u kojem se i nalazi.
+ *  71 - //ako je poruka na net sloju i destination poruke odgovara adresi cvora na net sloju.
  * @author BorisTomas
  * 
  */

@@ -158,7 +158,8 @@ public class VLCsensor
 		//	if(node.NodeID == nodeidtst)
 
 		coverageShape = new Path2D.Float();// Polygon();
-
+//TODO: provjeri zasto ne radi bas dobro za 90°
+		
 		double ax = sensorLocation.getX();
 		double ay = sensorLocation.getY();
 		double bx = sensorLocation1.getX();
@@ -305,7 +306,6 @@ public class VLCsensor
 		 */
 		coverageShape.moveTo(ax, ay);
 		coverageShape.lineTo(bx, by);
-	//	poly.lineTo(cx, cy);
 		
 		coverageShape.quadTo(dx, dy, cx,cy);// .curveTo(cx, cy, dx+10, dy, dx+10, dy);
 		coverageShape.closePath();

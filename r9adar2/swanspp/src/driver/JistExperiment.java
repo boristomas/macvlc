@@ -180,6 +180,8 @@ public class JistExperiment implements JistAPI.DoNotRewrite
     
     public float VLCvisionAngleTx=0;
     public float VLCvisionAngleRx=0;
+    public float VLCLOSRx = 0;
+    public float VLCLOSTx = 0;
     public float VehicleLength=0;
     public float VehicleWidth =0;
     public float VehicleLengthDev =0;
@@ -462,6 +464,22 @@ public class JistExperiment implements JistAPI.DoNotRewrite
     public void setMACProtocol( String mACProtocol)
     {
     	this.MACProtocol = mACProtocol;
+    }
+    public float getVLCLOSRx()
+    {
+    	return VLCLOSRx;
+    }
+    public float getVLCLOSTx()
+    {
+    	return VLCLOSTx;
+    }
+    public void setVLCLOSTx(float value)
+    {
+    	 VLCLOSTx = value;
+    }
+    public void setVLCLOSRx(float value)
+    {
+    	 VLCLOSRx = value;
     }
     
     public float getVLCvisionAngleTx()

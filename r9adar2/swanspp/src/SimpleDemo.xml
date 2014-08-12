@@ -3,10 +3,10 @@
 <object class="driver.JistExperiment">
 <!--  timing  -->
 <void property="duration">
-<int>90</int>
+<int>30</int>
 </void>
 <void property="resolutionTime">
-<int>60</int>
+<int>6000</int>
 </void>
 <void property="startTime">
 <int>60</int>
@@ -97,7 +97,7 @@
 -->
 </void>
 <void property="cbrRate">
-<int>2048</int>
+<int>512</int>
 </void>
 <void property="nodes">
 <int>6</int>
@@ -134,6 +134,13 @@
 <void property="VLCvisionAngleRx">
 <float>70</float>
 </void>
+<void property="VLCLOSTx">
+<float>30</float>
+</void>
+<void property="VLCLOSRx">
+<float>30</float>
+</void>
+
 <!--  field options  -->
 <void property="placement">
 <int>2</int>

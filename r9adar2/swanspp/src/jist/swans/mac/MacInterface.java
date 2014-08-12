@@ -24,7 +24,7 @@ import jist.swans.radio.VLCsensor;
  * @since SWANS1.0
  */
 
-public interface MacInterface extends JistAPI.Proxiable
+public interface MacInterface extends JistAPI.Proxiable, VLCmacInterface
 {
 
   //////////////////////////////////////////////////
@@ -69,10 +69,10 @@ public interface MacInterface extends JistAPI.Proxiable
   void setRadioEntity(RadioInterface radio);
   void setNetEntity(NetInterface net, byte netid);
   
-  void notifyInterference(MacMessage msg, VLCsensor sensors);
+  /*void notifyInterference(MacMessage msg, VLCsensor sensors);
 	void notifyError(int errorCode, String message);
 	void notifyTransmitFail(Message msg, int errorCode);
-	void notifyReceiveFail(Message msg, int errorCode);
+	void notifyReceiveFail(Message msg, int errorCode);*/
  
   
   //////////////////////////////////////////////////

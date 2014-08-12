@@ -474,7 +474,7 @@ public final class Constants
 		public static int broadcasts = 0;
 		public static String PrintData()
 		{
-
+//TOOD: treba popraviti ispis zbog dodanih kolona koje su i kondicionalne.
 			String res = "";
 
 			String filename =System.getProperty("user.home") + "/Desktop/" +"VLCMeasureData.csv";
@@ -500,6 +500,8 @@ public final class Constants
 			int t4 = 0;
 			int t5 = 0;
 			int t6 = 0;
+			int t70 = 0;
+			int t71 = 0;
 			long time1 =0;
 			long sumt5t1 =0;
 			PrintWriter writer;
@@ -516,6 +518,16 @@ public final class Constants
 					{
 						//System.out.println("tid= " + time.TimeID);
 						switch (time.TimeID) {
+						case 70:
+						{
+							t70++;
+							break;
+						}
+						case 71:
+						{
+							t71++;
+							break;
+						}
 						case 0:
 						{
 							t0++;
@@ -611,7 +623,7 @@ public final class Constants
 			"MAC implementation = "+ MACimplementationUsed + "\n"+
 			"Broadcasts = " + broadcasts + "\n"+
 			"MAC PDR all= " + 100*((float)t5/(float)t1) + "%\n"+
-			"MAC PDR exact= " + 100*((float)t6/(float)t1) + "%\n"+
+			"MAC PDR exact= " + 100*((float)t70/(float)t70) + "%\n"+
 			"MAC avg(t5-t1) = " + (float)sumt5t1/(float)t5 + "\n"+
 			"MAC count(T0) = " + t0 + "\n"+
 			"MAC count(T1) = " + t1 + "\n"+
@@ -626,6 +638,8 @@ public final class Constants
 			"MAC count(T4) = " + t4 + "\n"+
 			"MAC count(T5) = " + t5 + "\n"+
 			"MAC count(T6) = " + t6 + "\n"+
+			"MAC count(T70) = " + t70 + "\n"+
+			"MAC count(T71) = " + t71 + "\n"+
 			"-----VLC data-----" + "\n";
 		}
 	}

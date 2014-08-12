@@ -16,10 +16,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
-import jist.swans.Main;
 import jist.swans.field.StreetMobility;
 import jist.swans.misc.Message;
-import jist.swans.misc.Util;
 import jist.swans.net.NetInterface;
 import jist.swans.net.NetMessage;
 import jist.swans.radio.RadioInfo;
@@ -27,9 +25,7 @@ import jist.swans.radio.RadioInterface;
 import jist.swans.radio.RadioVLC;
 import jist.swans.radio.TimeEntry;
 import jist.swans.radio.VLCsensor;
-import jist.swans.radio.VLCsensor.SensorModes;
 import jist.swans.radio.VLCsensor.SensorStates;
-import jist.swans.trans.TransUdp;
 import driver.JistExperiment;
 
 /**
@@ -42,16 +38,16 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 {
 
 	/*TODO:
-	 * #Koristiti kontrolni kanal.
-	 * #Napraviti varijantu samo sa redom, poruke se salju na sve senzore
-	 * #Napraviti varijantu sa redom i sa slanjem poruke samo na onaj senzor na koji je primljena nekada bila poruka. 
-	 *  treba napraviti katalog u koji cu zapisivati adresu odredista, na koji senzor je primljena poruka i kada je primljena poruka na tom senzoru.
-	 * #Napraviti tablicu sensora koji primaju i salju, i ako ja saljem jednom mac sloju i on primi poruku na senzor 5 onda ce na njegovoj strani znaciti da treba poslati poruku
+	 * # Koristiti kontrolni kanal.
+	 * # Napraviti varijantu samo sa redom, poruke se salju na sve senzore
+	 * # Napraviti varijantu sa redom i sa slanjem poruke samo na onaj senzor na koji je primljena nekada bila poruka. 
+	 *   treba napraviti katalog u koji cu zapisivati adresu odredista, na koji senzor je primljena poruka i kada je primljena poruka na tom senzoru.
+	 * # Napraviti tablicu sensora koji primaju i salju, i ako ja saljem jednom mac sloju i on primi poruku na senzor 5 onda ce na njegovoj strani znaciti da treba poslati poruku
 	 *   na senzore 1 i 3, naravno, prvi puta, dok se ne dobije odgovor se salje na sve senzore. obzirom da ce rezultat odabira senzora biti lista onda se salje na prvi koji je slobodan.
-	 * #u v3. koristim staticni layout senzora, npr ako ja znam da mi je poruka dosla na senzor 6 od posiljatelja A onda cu posiljatelju A slati sa senzora 2 i 4.
-	 *  u nekom boljem scenariju svaki cvor bi trebao znati konkretni bearing od senzora + vision angle i sl. pa da u realnom vremenu ja mogu odluciti sa kojeg cu slati, a znam
-	 *  ID senzora s kojeg je poruka poslana meni (pise u mac poruci.), a i znam na kojem mojem je prethodna poruka primljena.
-	 *  
+	 * # u v3. koristim staticni layout senzora, npr ako ja znam da mi je poruka dosla na senzor 6 od posiljatelja A onda cu posiljatelju A slati sa senzora 2 i 4.
+	 *   u nekom boljem scenariju svaki cvor bi trebao znati konkretni bearing od senzora + vision angle i sl. pa da u realnom vremenu ja mogu odluciti sa kojeg cu slati, a znam
+	 *   ID senzora s kojeg je poruka poslana meni (pise u mac poruci.), a i znam na kojem mojem je prethodna poruka primljena.
+	 * # Vidjeti zasto se radi delay tri puta, jednom na transmit a drugi puta na receive na radio objektu kao i u macu na transmit???
 	 *  
 	 * */
 //TODO: pdr je vise od 100% jer na net sloju ima metoda isForMe koja uzima u obzir i broadcast poruke i loopback i sl. a ja vrijeme brojim ako je taj uvijet ok.
@@ -560,17 +556,6 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		return (SYNCHRONIZATION + size) * Constants.SECOND/bandwidth;
 	}
 
-	/**
-	 * Determine whether channel is idle according to both physical and virtual
-	 * carrier sense.
-	 *
-	 * @return physical and virtual carrier sense
-	 */
-	private boolean isCarrierIdle()
-	{
-		return isRadioIdle();
-		//maknuo sam nav
-	}
 
 	private java.util.concurrent.ConcurrentLinkedQueue<MacMessageVLC> MessageQueue = new ConcurrentLinkedQueue<MacMessageVLC>();  
 	private VLCsensor tmpSensorTx1;
@@ -582,11 +567,10 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	 */
 	private void sendMessage(MacMessageVLC msg )
 	{
-
-		//	System.out.println("neva1 "+ msg.hashCode()  + " cnt: " + msg.SensorIDTx.size());
 		setMode(MAC_MODE_XBROADCAST);
 		long delay = RX_TX_TURNAROUND;//TODO: provjeriti ima li ovoga.
 		long duration = transmitTime(msg);
+		transmitDelayMultiplier = 1;
 		radioEntity.transmit(msg, delay, duration);
 		JistAPI.sleep(delay+duration);
 	}
@@ -613,6 +597,19 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 					{
 						if(!myRadio.queryControlSignal(sensor, 1))
 						{
+							if(msg.getDst().equals(MacAddress.ANY))
+							{
+								//ovdje provjeravam jesu li svi senzori slobodni prije slanja broadcasta. request by mate :)
+								if(myRadio.InstalledSensorsTx.size() == msg.getSensorIDTxSize(myRadio.NodeID))
+								{
+									return true;
+								}
+								else
+								{
+									return false;
+								}
+							}
+							
 							return true;
 						}
 					}
@@ -649,6 +646,18 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 
 			if(msg.getSensorIDTxSize(myRadio.NodeID) != 0)
 			{
+				if(msg.getDst().equals(MacAddress.ANY))
+				{
+					//ovdje provjeravam jesu li svi senzori slobodni prije slanja broadcasta. request by mate :)
+					if(myRadio.InstalledSensorsTx.size() == msg.getSensorIDTxSize(myRadio.NodeID))
+					{
+						return true;
+					}
+					else
+					{
+						return false;
+					}
+				}
 				//if(msg.SensorIDTx.size() < 3)
 				//		System.out.println("cta: "+((MacMessage)msg).getSensorIDTx().toString() );
 				return true;
@@ -707,11 +716,16 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 
 		if(minDelay == Constants.DAY)
 		{
-			minDelay = Constants.SECOND;
+			//TODO: pitati matu jel dobro ovako dinamicno mijenjanje vrijeme cekanja na provjeru kanala opet?
+			transmitDelayMultiplier++;
+	//		transmitDelayMultiplier=10;
+			minDelay = Constants.MILLI_SECOND*20*transmitDelayMultiplier;
+		//	System.out.println("delay" + myRadio.NodeID + " -- "+ minDelay);
 		}
 		if(maxDelay == 0)
 		{
-			maxDelay = Constants.SECOND;
+			transmitDelayMultiplier++;
+			maxDelay = Constants.MILLI_SECOND*20*transmitDelayMultiplier;
 		}
 		if(isMin)
 		{
@@ -724,46 +738,34 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	}
 	private MacMessageVLC tmpMsg;
 	private long transmitDelay; 
+	private int transmitDelayMultiplier= 1;
 	private void sendMacMessage(Message msg, MacAddress nextHop)
 	{
-		if(((NetMessage.Ip)msg).isFresh)
-		{
-			((NetMessage.Ip)msg).Times.add(new TimeEntry(1, "macbt", null));
-			((NetMessage.Ip)msg).isFresh = false;
-		}
 		if(nextHop == MacAddress.ANY)
 		{
 			Constants.VLCconstants.broadcasts++;
 		}
-		
 		MacMessageVLC data = new MacMessageVLC(nextHop, localAddr,0, msg);
-		//MacMessage data = new MacMessage(nextHop, localAddr,0, msg);
-		
+		if(((NetMessage.Ip)msg).isFresh)
+		{
+			((NetMessage.Ip)msg).Times.add(new TimeEntry(1, "macbt", null));
+			((NetMessage.Ip)msg).isFresh = false;
+			if (!MessageQueue.isEmpty()) 
+			{
+				addToQueue(data);
+				if(!TimerRunning)
+				{
+					TimerRunning = true;
+					self.startTimer(transmitDelay, (byte)1);
+				}
+				return;
+			}
+		}
 		data.setSensorIDTx(GetTransmitSensors(nextHop), myRadio.NodeID);//myRadio.GetSensors(SensorModes.Transmit));//todo: izraditi strategiju odabira senzora
-
-		//	int a = data.SensorIDTx.size();
 		if(canSendMessage(data, true))
 		{
-			/*	if(a != data.SensorIDTx.size())
-			{
-				System.out.println("aaaaaaa");
-			}*/
 			((NetMessage.Ip)msg).Times.add(new TimeEntry(11, "macbt", null));
 			sendMessage(data);
-			//System.out.println("are all idle: "+ myRadio.areAllIdle(SensorModes.Transmit));
-
-			//nakon sto je poslana poruka opet zovem
-			
-			/*if(!MessageQueue.isEmpty())
-			{
-			//	self.startTimer(transmitDelay, (byte)1);
-
-				//if(canSendMessage(MessageQueue.peek(),false))
-				{
-					tmpMsg = MessageQueue.poll();
-					self.send(tmpMsg.getBody(), tmpMsg.getDst());
-				}
-			}*/
 		}	
 		else
 		{
@@ -772,16 +774,10 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 
 			if(!TimerRunning)
 			{
-
 				TimerRunning = true;
+				transmitDelay = getMessageEndTimeForSensors(myRadio.InstalledSensorsTx, true);//-JistAPI.getTime();
 				self.startTimer(transmitDelay, (byte)1);
 			}
-			//	System.out.println("sensor cnt : " + data.SensorIDTx.size());
-
-			//	self.startTimer(transmitDelay, (byte)1);
-
-			//ne moze i ide na queue;
-			//netEntity.packetDropped(msg, nextHop);
 		}
 
 	}
@@ -808,35 +804,27 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		//TimerRunning = true;
 		//cancelTimer();
 		//setMode(mode);
-		transmitDelay = getMessageEndTimeForSensors(myRadio.sensorsTx, true);//-JistAPI.getTime();
-		JistAPI.sleep(transmitDelay);
+		
+		JistAPI.sleep(delay);
 		self.timeout(timerId);
-	}
-
-	/**
-	 * Cancel timer event, by incrementing the timer identifer.
-	 */
-	private void cancelTimer()
-	{
-		timerId++;
-	}
-
-	private void idle()
-	{
-		cancelTimer();
-		setMode(MAC_MODE_SIDLE);
 	}
 
 	// MacInterface
 
 	MacMessageVLC tmpmsg1;
 	MacMessageVLC first;
+//	private boolean canSendFromQueue = false;
 	public void timeout(int timerId)
 	{
-			System.out.println("id = " + myRadio.NodeID + " QS = " +MessageQueue.size());
-		if(timerId!=this.timerId) return;
+		System.out.println("id = " + myRadio.NodeID + " QS = " +MessageQueue.size());
+		
+	/*	for (MacMessage item : MessageQueue) {
+			System.out.println(item.hashCode());
+		}*/
+		
 		if(!MessageQueue.isEmpty())
 		{
+//			canSendFromQueue = false;
 			first = MessageQueue.peek();
 			do{
 				tmpmsg1 = MessageQueue.poll();
@@ -844,18 +832,22 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 				
 				if(canSendMessage(tmpmsg1, false))
 				{
-					self.send(tmpmsg1.getBody(), tmpmsg1.getDst());
+		//			canSendFromQueue = true;
+					sendMacMessage(tmpmsg1.getBody(), tmpmsg1.getDst());
+					//self.send(tmpmsg1.getBody(), tmpmsg1.getDst());
 					break;
 				}
 				else
 				{
-					MessageQueue.add(tmpmsg1);
+					addToQueue(tmpmsg1);
+					//MessageQueue.add(tmpmsg1);
 				}
 			} while(MessageQueue.peek() != first);
 
 
 			if(!MessageQueue.isEmpty())
 			{
+				transmitDelay = getMessageEndTimeForSensors(myRadio.InstalledSensorsTx, true);//-JistAPI.getTime();
 				self.startTimer(transmitDelay, (byte)1);
 			}
 			else
@@ -947,10 +939,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	public void peek(Message msg)
 	{
 		//	needEifs = true;
-		if (mode == MAC_MODE_SNAV_RTS) 
-		{
-			idle();
-		}
+		
 	}
 
 	// MacInterface
@@ -964,7 +953,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	{
 		if(newdest == MacAddress.ANY)
 		{
-			return myRadio.sensorsTx;
+			return myRadio.InstalledSensorsTx;
 		}
 		if(receivedMessages.size() !=0)
 		{
@@ -977,29 +966,9 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 			}
 		}
 
-		return myRadio.sensorsTx;
+		return myRadio.InstalledSensorsTx;
 	}
 	
-	private void receivePacket(MacMessage msg)
-	{
-	
-		switch(msg.getType())
-		{
-		case MacMessage.TYPE_DATA:
-			receiveData((MacMessageVLC)msg);
-			break;
-		default:
-			throw new RuntimeException("illegal frame type");
-		}
-
-	}
-
-
-	private void receiveData(MacMessageVLC msg)
-	{		
-
-
-	}
 	/*
 	private void receiveForeign(MacMessage msg)
 	{
@@ -1077,11 +1046,11 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		switch(mode)
 		{
 		case MAC_MODE_SBO:
-			idle();
+		//	idle();
 			break;
 		case MAC_MODE_DIFS:
 		case MAC_MODE_SNAV:
-			idle();
+		//	idle();
 			break;
 		case MAC_MODE_SIDLE:
 		case MAC_MODE_SWFCTS:
@@ -1169,7 +1138,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 
 	public void notifyReceiveFail(Message msg, int errorCode) 
 	{
-		System.out.println("receive fail error #"+errorCode);
+		System.out.println("recFail #"+errorCode +" n: "+myRadio.NodeID+ " s: "+((MacMessageVLC)msg).getSrc()+" d: "+((MacMessageVLC)msg).getDst()+" msg hsh: "+msg.hashCode()); 
 	}
 }
 

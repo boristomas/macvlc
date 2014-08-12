@@ -800,7 +800,7 @@ public class MacVLCBorisV3 implements  MacInterface.Mac802_11
 		//TimerRunning = true;
 		//cancelTimer();
 		//setMode(mode);
-		transmitDelay = getMessageEndTimeForSensors(myRadio.sensorsTx, true);//-JistAPI.getTime();
+		transmitDelay = getMessageEndTimeForSensors(myRadio.InstalledSensorsTx, true);//-JistAPI.getTime();
 		JistAPI.sleep(transmitDelay);
 		self.timeout(timerId);
 	}
@@ -964,7 +964,7 @@ public class MacVLCBorisV3 implements  MacInterface.Mac802_11
 			}
 		}
 
-		return myRadio.sensorsTx;
+		return myRadio.InstalledSensorsTx;
 	}
 	private LinkedList<MacMessage> receivedMessages = new LinkedList<MacMessage>();
 	private void receivePacket(MacMessage msg)

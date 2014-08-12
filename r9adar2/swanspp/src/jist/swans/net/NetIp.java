@@ -385,7 +385,10 @@ public class NetIp implements NetInterface
       if(isForMe(ipmsg))
       {       
     	  ipmsg.Times.add(new TimeEntry(6, "formenetip", null));
-    	  
+    	  if(localAddr.equals(ipmsg.getDst()))
+    	  {
+    		  ipmsg.Times.add(new TimeEntry(71, "formenetip", null));  
+    	  }
           JistAPI.sleep(Constants.NET_DELAY);
  //         Constants.VLCconstants.NetIPReceivedForMe++;
         getProtocolHandler(ipmsg.getProtocol()).receive(ipmsg.getPayload(), 

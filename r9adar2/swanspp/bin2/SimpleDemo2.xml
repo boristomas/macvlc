@@ -134,6 +134,12 @@
 <void property="VLCvisionAngleRx">
 <float>70</float>
 </void>
+<void property="VLCLOSTx">
+<float>30</float>
+</void>
+<void property="VLCLOSRx">
+<float>30</float>
+</void>
 <!--  field options  -->
 <void property="placement">
 <int>2</int>
