@@ -41,508 +41,518 @@ import com.sun.corba.se.impl.orbutil.closure.Constant;
 
 public class NetIp implements NetInterface
 {
-  /**
-   * IP logger.
-   */
-  public static final Logger log = Logger.getLogger(NetIp.class.getName());
+	/**
+	 * IP logger.
+	 */
+	public static final Logger log = Logger.getLogger(NetIp.class.getName());
 
-  /**
-  *
-  * MacStats collects stats such as latency, packet loss and general overhead.
-  * @author  David Choffnes
-  */
- public static class IpStats {
-     
-     /** data structure to track which sent messages were received */
-     public TreeMap packets;
-     
+	/**
+	 *
+	 * MacStats collects stats such as latency, packet loss and general overhead.
+	 * @author  David Choffnes
+	 */
+	public static class IpStats {
 
-     
-     /** Creates a new instance of MacStats */
-     public IpStats() 
-     {
-         packets = new TreeMap();
-     }
-     
-     
-     /**
-      * add packet to list of undelivered packets
-      * @param msg The mesasge entity that was sent
-      */
-     @SuppressWarnings("unchecked")
-	public void addPacket(NetMessage.Ip msg, MacAddress nextHop)
-     {
-     	packets.put(new Integer(msg.hashCode()), nextHop);
-     }
-     
-     /**
-      * remove packet from list of undelivered packets
-      *
-      * caller should make sure that these are instance of Ip messages
-      * and that their payloads are Udp messages, the kind we're intersted in tracking
-      *
-      * @param msg The message entity that was sent.
-      */
-     public void removePacket(NetMessage.Ip msg, NetAddress localAddr)
-     {
-         MacAddress ma=null;
-         Object o =null;
-         
-         if (packets.containsKey(new Integer(msg.hashCode())))
-             o = packets.get(new Integer(msg.hashCode()));
-         if (o!=null)
-              ma = (MacAddress)o;
-        
-        
-         if (ma!=null)
-         {
-             if (ma.toString().compareTo(localAddr.toString())==0)
-             {
-                 packets.remove(msg);
-             }
-             
-         }
-     }
-     
- }
+		/** data structure to track which sent messages were received */
+		public TreeMap packets;
 
-  
-  /**
-   * Information about each network interface.
-   */
-  public static class NicInfo
-  {
-    /** mac entity. */
-    public MacInterface mac;
-    /** outgoing packet queue. */
-    public MessageQueue q;
-    /** whether link layer is busy. */
-    public boolean busy;
-  }
 
-  //////////////////////////////////////////////////
-  // constants
-  //
 
-  /**
-   * Packet fragmentation threshold.
-   */
-  public static final int THRESHOLD_FRAGMENT = 2048;
+		/** Creates a new instance of MacStats */
+		public IpStats() 
+		{
+			packets = new TreeMap();
+		}
 
-  /**
-   * Maximum packet queue length.
-   */
-  public static final int DEFAULT_QUEUE_LENGTH = 100;
-  /**
-   * Maximum packet queue length. Default is 100 in linux
-   */
-  public static final int MAX_QUEUE_LENGTH = 100;
 
-  //////////////////////////////////////////////////
-  // locals
-  //
+		/**
+		 * add packet to list of undelivered packets
+		 * @param msg The mesasge entity that was sent
+		 */
+		@SuppressWarnings("unchecked")
+		public void addPacket(NetMessage.Ip msg, MacAddress nextHop)
+		{
+			packets.put(new Integer(msg.hashCode()), nextHop);
+		}
 
-  // entity hookup
-  /** self-referencing proxy entity. */
-  protected NetInterface self;
+		/**
+		 * remove packet from list of undelivered packets
+		 *
+		 * caller should make sure that these are instance of Ip messages
+		 * and that their payloads are Udp messages, the kind we're intersted in tracking
+		 *
+		 * @param msg The message entity that was sent.
+		 */
+		public void removePacket(NetMessage.Ip msg, NetAddress localAddr)
+		{
+			MacAddress ma=null;
+			Object o =null;
 
-  /** local network address. */
-  protected NetAddress localAddr;
+			if (packets.containsKey(new Integer(msg.hashCode())))
+				o = packets.get(new Integer(msg.hashCode()));
+			if (o!=null)
+				ma = (MacAddress)o;
 
-  /** routing protocol. */
-  protected RouteInterface routing;
 
-  /** protocol number mapping. */
-  protected Mapper protocolMap;
+			if (ma!=null)
+			{
+				if (ma.toString().compareTo(localAddr.toString())==0)
+				{
+					packets.remove(msg);
+				}
 
-  /** protocol handlers. */
-  protected NetHandler[] protocolHandlers;
+			}
+		}
 
-  /** network interfaces. */
-  protected NicInfo[] nics;
+	}
 
-  /** packet loss models. */
-  protected PacketLoss incomingLoss, outgoingLoss;
 
-  /** the stats for the IP layer */
-  protected IpStats stats;
+	/**
+	 * Information about each network interface.
+	 */
+	public static class NicInfo
+	{
+		/** mac entity. */
+		public MacInterface mac;
+		/** outgoing packet queue. */
+		public MessageQueue q;
+		/** whether link layer is busy. */
+		public boolean busy;
+	}
 
-  //////////////////////////////////////////////////
-  // initialization 
-  //
+	//////////////////////////////////////////////////
+	// constants
+	//
 
-  /**
-   * Initialize IP implementation with given address and protocol mapping.
-   *
-   * @param addr local network address
-   * @param protocolMap protocol number mapping
-   * @param in incoming packet loss model
-   * @param out outgoing packet loss model
-   */
-  public NetIp(NetAddress addr, Mapper protocolMap, PacketLoss in, PacketLoss out)
-  {
-    // proxy entity
-    this.self = (NetInterface)JistAPI.proxy(this, NetInterface.class);
-    // local address
-    setAddress(addr);
-    // protocol number mapping
-    this.protocolMap = protocolMap;
-    // protocol handlers
-    this.protocolHandlers = new NetHandler[protocolMap.getLimit()];
-    // network interfaces
-    this.nics = new NicInfo[0];
-    // packet loss
-    this.incomingLoss = in;
-    this.outgoingLoss = out;
-    // add loopback mac:
-    //   therefore, loopback = 0, Constants.NET_INTERFACE_LOOPBACK
-    //              next     = 1, Constants.NET_INTERFACE_DEFAULT
-    MacLoop loopback = new MacLoop(); 
-    byte netid = addInterface(loopback.getProxy());
-    if(Main.ASSERT) Util.assertion(netid==Constants.NET_INTERFACE_LOOPBACK);
-    loopback.setNetEntity(getProxy(), netid);
-  }
-  
-  /**
-   * Initialize IP implementation with given address and protocol mapping.
-   *
-   * @param addr local network address
-   * @param protocolMap protocol number mapping
-   * @param in incoming packet loss model
-   * @param out outgoing packet loss model
-   */
-  public NetIp(NetAddress addr, Mapper protocolMap, PacketLoss in, PacketLoss out, IpStats stats)
-  {
-    // proxy entity
-    this.self = (NetInterface)JistAPI.proxy(this, NetInterface.class);
-    // local address
-    setAddress(addr);
-    // protocol number mapping
-    this.protocolMap = protocolMap;
-    // protocol handlers
-    this.protocolHandlers = new NetHandler[protocolMap.getLimit()];
-    // network interfaces
-    this.nics = new NicInfo[0];
-    // packet loss
-    this.incomingLoss = in;
-    this.outgoingLoss = out;
-    this.stats = stats;
-    // add loopback mac:
-    //   therefore, loopback = 0, Constants.NET_INTERFACE_LOOPBACK
-    //              next     = 1, Constants.NET_INTERFACE_DEFAULT
-    MacLoop loopback = new MacLoop();
-    byte netid = addInterface(loopback.getProxy());
-    if(Main.ASSERT) Util.assertion(netid==Constants.NET_INTERFACE_LOOPBACK);
-    loopback.setNetEntity(getProxy(), netid);
-    
-  }
+	/**
+	 * Packet fragmentation threshold.
+	 */
+	public static final int THRESHOLD_FRAGMENT = 2048;
 
-  //////////////////////////////////////////////////
-  // entity hookup
-  //
+	/**
+	 * Maximum packet queue length.
+	 */
+	public static final int DEFAULT_QUEUE_LENGTH = 100;
+	/**
+	 * Maximum packet queue length. Default is 100 in linux
+	 */
+	public static final int MAX_QUEUE_LENGTH = 100;
 
-  /**
-   * Return self-referencing proxy entity.
-   *
-   * @return self-referencing proxy entity
-   */
-  public NetInterface getProxy()
-  {
-    return this.self;
-  }
+	//////////////////////////////////////////////////
+	// locals
+	//
 
-  //////////////////////////////////////////////////
-  // address
-  //
+	// entity hookup
+	/** self-referencing proxy entity. */
+	protected NetInterface self;
 
-  /**
-   * Set local network address.
-   *
-   * @param addr local network address
-   */
-  public void setAddress(NetAddress addr)
-  {
-    if(Main.ASSERT) Util.assertion(addr!=null);
-    this.localAddr = addr;
-  }
+	/** local network address. */
+	protected NetAddress localAddr;
 
-  /**
-   * Whether packet is for local consumption.
-   *
-   * @param msg packet to inspect
-   * @return whether packet is for local consumption
-   */
-  private boolean isForMe(NetMessage.Ip msg)
-  {
-    NetAddress addr = msg.getDst();
-    return NetAddress.ANY.equals(addr)
-      || NetAddress.LOCAL.equals(addr)
-      || localAddr.equals(addr);
-  }
+	/** routing protocol. */
+	protected RouteInterface routing;
 
-  //////////////////////////////////////////////////
-  // routing, protocols, interfaces
-  //
+	/** protocol number mapping. */
+	protected Mapper protocolMap;
 
-  /**
-   * Set routing implementation.
-   *
-   * @param routingEntity routing entity
-   */
-  public void setRouting(RouteInterface routingEntity)
-  {
-    if(!JistAPI.isEntity(routingEntity)) throw new IllegalArgumentException("expected entity");
-    this.routing = routingEntity;
-  }
+	/** protocol handlers. */
+	protected NetHandler[] protocolHandlers;
 
-  /**
-   * Add network interface with default queue.
-   *
-   * @param macEntity link layer entity
-   * @return network interface identifier
-   */
-  public byte addInterface(MacInterface macEntity)
-  {
-    return addInterface(macEntity, 
-        new MessageQueue.NoDropMessageQueue(
-          Constants.NET_PRIORITY_NUM, MAX_QUEUE_LENGTH));
-  }
+	/** network interfaces. */
+	protected NicInfo[] nics;
 
-  /**
-   * Add network interface.
-   *
-   * @param macEntity link layer entity
-   * @return network interface identifier
-   */
-  public byte addInterface(MacInterface macEntity, MessageQueue q)
-  {
-  //  if(!JistAPI.isEntity(macEntity)) throw new IllegalArgumentException("expected entity");
-    // create new nicinfo
-    NicInfo ni = new NicInfo();
-    ni.mac = macEntity;
-    ni.q = q;
-    ni.busy = false;
-    // store
-    NicInfo[] nics2 = new NicInfo[nics.length+1];
-    System.arraycopy(nics, 0, nics2, 0, nics.length);
-    nics2[nics.length] = ni;
-    nics = nics2;
-    // return interface id
-    return (byte)(nics.length-1);
-  }
+	/** packet loss models. */
+	protected PacketLoss incomingLoss, outgoingLoss;
 
-  /**
-   * Set network protocol handler.
-   *
-   * @param protocolId protocol identifier
-   * @param handler protocol handler
-   */
-  public void setProtocolHandler(int protocolId, NetHandler handler)
-  {
-	  if(protocolId < 0) throw new RuntimeException("protocolId must be >= 0");
-    protocolHandlers[protocolMap.getMap(protocolId)] = handler;
-  }
+	/** the stats for the IP layer */
+	protected IpStats stats;
 
-  /**
-   * Return network protocol handler.
-   *
-   * @param protocolId protocol identifier
-   * @return procotol handler
-   */
-  private NetHandler getProtocolHandler(int protocolId)
-  {
-    return protocolHandlers[protocolMap.getMap(protocolId)];
-  }
+	//////////////////////////////////////////////////
+	// initialization 
+	//
 
-  //////////////////////////////////////////////////
-  // NetInterface implementation
-  //
+	/**
+	 * Initialize IP implementation with given address and protocol mapping.
+	 *
+	 * @param addr local network address
+	 * @param protocolMap protocol number mapping
+	 * @param in incoming packet loss model
+	 * @param out outgoing packet loss model
+	 */
+	public NetIp(NetAddress addr, Mapper protocolMap, PacketLoss in, PacketLoss out)
+	{
+		// proxy entity
+		this.self = (NetInterface)JistAPI.proxy(this, NetInterface.class);
+		// local address
+		setAddress(addr);
+		// protocol number mapping
+		this.protocolMap = protocolMap;
+		// protocol handlers
+		this.protocolHandlers = new NetHandler[protocolMap.getLimit()];
+		// network interfaces
+		this.nics = new NicInfo[0];
+		// packet loss
+		this.incomingLoss = in;
+		this.outgoingLoss = out;
+		// add loopback mac:
+		//   therefore, loopback = 0, Constants.NET_INTERFACE_LOOPBACK
+		//              next     = 1, Constants.NET_INTERFACE_DEFAULT
+		MacLoop loopback = new MacLoop(); 
+		byte netid = addInterface(loopback.getProxy());
+		if(Main.ASSERT) Util.assertion(netid==Constants.NET_INTERFACE_LOOPBACK);
+		loopback.setNetEntity(getProxy(), netid);
+	}
 
-  /** {@inheritDoc} */
-  public NetAddress getAddress() throws JistAPI.Continuation
-  {
-    return localAddr;
-  }
+	/**
+	 * Initialize IP implementation with given address and protocol mapping.
+	 *
+	 * @param addr local network address
+	 * @param protocolMap protocol number mapping
+	 * @param in incoming packet loss model
+	 * @param out outgoing packet loss model
+	 */
+	public NetIp(NetAddress addr, Mapper protocolMap, PacketLoss in, PacketLoss out, IpStats stats)
+	{
+		// proxy entity
+		this.self = (NetInterface)JistAPI.proxy(this, NetInterface.class);
+		// local address
+		setAddress(addr);
+		// protocol number mapping
+		this.protocolMap = protocolMap;
+		// protocol handlers
+		this.protocolHandlers = new NetHandler[protocolMap.getLimit()];
+		// network interfaces
+		this.nics = new NicInfo[0];
+		// packet loss
+		this.incomingLoss = in;
+		this.outgoingLoss = out;
+		this.stats = stats;
+		// add loopback mac:
+		//   therefore, loopback = 0, Constants.NET_INTERFACE_LOOPBACK
+		//              next     = 1, Constants.NET_INTERFACE_DEFAULT
+		MacLoop loopback = new MacLoop();
+		byte netid = addInterface(loopback.getProxy());
+		if(Main.ASSERT) Util.assertion(netid==Constants.NET_INTERFACE_LOOPBACK);
+		loopback.setNetEntity(getProxy(), netid);
 
-  /** {@inheritDoc} */
-  public void receive(Message msg, MacAddress lastHop, byte macId, boolean promisc)
-  {
-    if(msg==null) throw new NullPointerException();
-    NetMessage.Ip ipmsg = (NetMessage.Ip)msg;
-    ipmsg.Times.add(new TimeEntry(4, "netiprec", null));
-    
-    if(incomingLoss.shouldDrop(ipmsg)) return;
-    if(log.isInfoEnabled())
-    {
-      log.info("receive t="+JistAPI.getTime()+" from="+lastHop+" on="+macId+" data="+msg);
-    }
-    
-    if(routing!=null) routing.peek(ipmsg, lastHop);
- //   Constants.VLCconstants.NetIPReceived++;
-    if(!promisc)
-    {
-    	ipmsg.Times.add(new TimeEntry(5, "formenetip", null));
-      if(isForMe(ipmsg))
-      {       
-    	  ipmsg.Times.add(new TimeEntry(6, "formenetip", null));
-    	  if(localAddr.equals(ipmsg.getDst()))
-    	  {
-    		  ipmsg.Times.add(new TimeEntry(71, "formenetip", null));  
-    	  }
-          JistAPI.sleep(Constants.NET_DELAY);
- //         Constants.VLCconstants.NetIPReceivedForMe++;
-        getProtocolHandler(ipmsg.getProtocol()).receive(ipmsg.getPayload(), 
-            ipmsg.getSrc(), lastHop, macId, ipmsg.getDst(), 
-            ipmsg.getPriority(), (byte)ipmsg.getTTL());
-      }
-      else
-      {
-        if(ipmsg.getTTL()>0)
-        {
-          if(ipmsg.isFrozen()) ipmsg = ipmsg.copy();
-          ipmsg.decTTL();
-          sendIp(ipmsg);
-        }
-      }
-    }
-  }
+	}
 
-  /** {@inheritDoc} */
-  public void send(Message msg, NetAddress dst, 
-      short protocol, byte priority, byte ttl) 
-  {
-	  
-   sendIp(new NetMessage.Ip(msg, localAddr, dst, 
-          protocol, priority, ttl));
-  }
+	//////////////////////////////////////////////////
+	// entity hookup
+	//
 
-  /** {@inheritDoc} */
-  public void send(NetMessage.Ip msg, int interfaceId, MacAddress nextHop) 
-  {
-    if(msg==null) throw new NullPointerException();
-    if(outgoingLoss.shouldDrop(msg)) return;
-    /*
+	/**
+	 * Return self-referencing proxy entity.
+	 *
+	 * @return self-referencing proxy entity
+	 */
+	public NetInterface getProxy()
+	{
+		return this.self;
+	}
+
+	//////////////////////////////////////////////////
+	// address
+	//
+
+	/**
+	 * Set local network address.
+	 *
+	 * @param addr local network address
+	 */
+	public void setAddress(NetAddress addr)
+	{
+		if(Main.ASSERT) Util.assertion(addr!=null);
+		this.localAddr = addr;
+	}
+
+	/**
+	 * Whether packet is for local consumption.
+	 *
+	 * @param msg packet to inspect
+	 * @return whether packet is for local consumption
+	 */
+	private boolean isForMe(NetMessage.Ip msg)
+	{
+		NetAddress addr = msg.getDst();
+		return NetAddress.ANY.equals(addr)
+				|| NetAddress.LOCAL.equals(addr)
+				|| localAddr.equals(addr);
+	}
+
+	//////////////////////////////////////////////////
+	// routing, protocols, interfaces
+	//
+
+	/**
+	 * Set routing implementation.
+	 *
+	 * @param routingEntity routing entity
+	 */
+	public void setRouting(RouteInterface routingEntity)
+	{
+		if(!JistAPI.isEntity(routingEntity)) throw new IllegalArgumentException("expected entity");
+		this.routing = routingEntity;
+	}
+
+	/**
+	 * Add network interface with default queue.
+	 *
+	 * @param macEntity link layer entity
+	 * @return network interface identifier
+	 */
+	public byte addInterface(MacInterface macEntity)
+	{
+		return addInterface(macEntity, 
+				new MessageQueue.NoDropMessageQueue(
+						Constants.NET_PRIORITY_NUM, MAX_QUEUE_LENGTH));
+	}
+
+	/**
+	 * Add network interface.
+	 *
+	 * @param macEntity link layer entity
+	 * @return network interface identifier
+	 */
+	public byte addInterface(MacInterface macEntity, MessageQueue q)
+	{
+		//  if(!JistAPI.isEntity(macEntity)) throw new IllegalArgumentException("expected entity");
+		// create new nicinfo
+		NicInfo ni = new NicInfo();
+		ni.mac = macEntity;
+		ni.q = q;
+		ni.busy = false;
+		// store
+		NicInfo[] nics2 = new NicInfo[nics.length+1];
+		System.arraycopy(nics, 0, nics2, 0, nics.length);
+		nics2[nics.length] = ni;
+		nics = nics2;
+		// return interface id
+		return (byte)(nics.length-1);
+	}
+
+	/**
+	 * Set network protocol handler.
+	 *
+	 * @param protocolId protocol identifier
+	 * @param handler protocol handler
+	 */
+	public void setProtocolHandler(int protocolId, NetHandler handler)
+	{
+		if(protocolId < 0) throw new RuntimeException("protocolId must be >= 0");
+		protocolHandlers[protocolMap.getMap(protocolId)] = handler;
+	}
+
+	/**
+	 * Return network protocol handler.
+	 *
+	 * @param protocolId protocol identifier
+	 * @return procotol handler
+	 */
+	private NetHandler getProtocolHandler(int protocolId)
+	{
+		return protocolHandlers[protocolMap.getMap(protocolId)];
+	}
+
+	//////////////////////////////////////////////////
+	// NetInterface implementation
+	//
+
+	/** {@inheritDoc} */
+	public NetAddress getAddress() throws JistAPI.Continuation
+	{
+		return localAddr;
+	}
+
+	/** {@inheritDoc} */
+	public void receive(Message msg, MacAddress lastHop, byte macId, boolean promisc)
+	{
+		if(msg==null) throw new NullPointerException();
+		NetMessage.Ip ipmsg = (NetMessage.Ip)msg;
+		ipmsg.Times.add(new TimeEntry(4, "netiprec", null));
+
+		if(incomingLoss.shouldDrop(ipmsg)) return;
+		if(log.isInfoEnabled())
+		{
+			log.info("receive t="+JistAPI.getTime()+" from="+lastHop+" on="+macId+" data="+msg);
+		}
+
+		if(routing!=null) routing.peek(ipmsg, lastHop);
+		//   Constants.VLCconstants.NetIPReceived++;
+	/*	if(localAddr.equals(ipmsg.getDst()))//) || NetAddress.LOCAL.equals(ipmsg.getDst()) )
+		{
+			ipmsg.Times.add(new TimeEntry(71, "formenetip", null));  
+		}*/
+		/*else
+		{
+		//	System.out.println("bbbbbb " + macId);
+		}*/
+		//System.out.println("bbbbbb s: " + ipmsg.getSrc() + " d: "+ ipmsg.getDst() +  " hsh : "+ ipmsg.hashCode());
+		/*if(ipmsg.getDst().equals(NetAddress.ANY))
+		{
+			Constants.VLCconstants.broadcasts ++;
+		}*/
+		
+		if(!promisc)
+		{
+			ipmsg.Times.add(new TimeEntry(5, "formenetip", null));
+			if(isForMe(ipmsg))
+			{       
+				ipmsg.Times.add(new TimeEntry(6, "formenetip", null));
+			
+				JistAPI.sleep(Constants.NET_DELAY);
+				getProtocolHandler(ipmsg.getProtocol()).receive(ipmsg.getPayload(), 
+						ipmsg.getSrc(), lastHop, macId, ipmsg.getDst(), 
+						ipmsg.getPriority(), (byte)ipmsg.getTTL());
+			}
+			else
+			{
+				if(ipmsg.getTTL()>0)
+				{
+					if(ipmsg.isFrozen()) ipmsg = ipmsg.copy();
+					ipmsg.decTTL();
+					sendIp(ipmsg);
+				}
+			}
+		}
+	}
+
+	/** {@inheritDoc} */
+	public void send(Message msg, NetAddress dst, 
+			short protocol, byte priority, byte ttl) 
+	{
+
+		sendIp(new NetMessage.Ip(msg, localAddr, dst, 
+				protocol, priority, ttl));
+	}
+
+	/** {@inheritDoc} */
+	public void send(NetMessage.Ip msg, int interfaceId, MacAddress nextHop) 
+	{
+		if(msg==null) throw new NullPointerException();
+		if(outgoingLoss.shouldDrop(msg)) return;
+		/*
     if(msg.getSize()>THRESHOLD_FRAGMENT)
     {
       throw new RuntimeException("ip fragmentation not implemented");
     }
-    */
-    if(log.isDebugEnabled())
-    {
-      log.debug("queue t="+JistAPI.getTime()+" to="+nextHop+" on="+interfaceId+" data="+msg);
-    }
-    NicInfo ni = nics[interfaceId];
-    //Constants.VLCconstants.NetIPSent++;
-    if (ni.q.isFull())
-    {
-        // T-ODO call a separate function -- this should not be confused with 
-        // a lost link
-        packetDropped(msg, nextHop); // inform of packets being dropped from queue
-    }
-    
-    if (ni.q.isEmpty()){
-        if (ni.busy)
-            ni.busy = false;
-    }
-    
-    ni.q.insert(new QueuedMessage(msg, nextHop), msg.getPriority());
-    
-    if(!ni.busy)
-        pump(interfaceId);
-  }
+		 */
+		if(log.isDebugEnabled())
+		{
+			log.debug("queue t="+JistAPI.getTime()+" to="+nextHop+" on="+interfaceId+" data="+msg);
+		}
+		NicInfo ni = nics[interfaceId];
+		//Constants.VLCconstants.NetIPSent++;
+		if (ni.q.isFull())
+		{
+			// T-ODO call a separate function -- this should not be confused with 
+			// a lost link
+			packetDropped(msg, nextHop); // inform of packets being dropped from queue
+		}
 
-  //////////////////////////////////////////////////
-  // send/receive
-  //
+		if (ni.q.isEmpty()){
+			if (ni.busy)
+				ni.busy = false;
+		}
 
-  /**
-   * Send an IP packet. Knows how to broadcast, to deal
-   * with loopback. Will call routing for all other destinations.
-   *
-   * @param msg ip packet
-   */
-  private void sendIp(NetMessage.Ip msg) 
-  {
-    if (NetAddress.ANY.equals(msg.getDst()))
-    {
-      // broadcast
-      send(msg, Constants.NET_INTERFACE_DEFAULT, MacAddress.ANY);
-    }
-    else if(NetAddress.LOCAL.equals(msg.getDst()) || localAddr.equals(msg.getDst()))
-    {
-      // loopback
-      send(msg, Constants.NET_INTERFACE_LOOPBACK, MacAddress.LOOP);
-    }
-    else if (msg.getNextHop()==null || msg.getNextHop().equals(localAddr))
-    {
-      // route and send
-      routing.send(msg);
-    }
-  }
+		ni.q.insert(new QueuedMessage(msg, nextHop), msg.getPriority());
 
-  //////////////////////////////////////////////////
-  // send pump
-  //
+		if(!ni.busy)
+			pump(interfaceId);
+	}
 
-  /** {@inheritDoc} */
-  public void pump(int interfaceId)
-  {
-    NicInfo ni = nics[interfaceId];
-    if(ni.q.isEmpty())
-    {
-      ni.busy = false;
-    }
-    else
-    {
-      ni.busy = true;
-      QueuedMessage qmsg = ni.q.remove();
-      NetMessage.Ip ip = (NetMessage.Ip)qmsg.getPayload();
-      ip = ip.freeze(); // immutable once packet leaves node
-      if(log.isInfoEnabled())
-      {
-        log.info("send t="+JistAPI.getTime()+" to="+qmsg.getNextHop()+" data="+ip);
-      }
-      JistAPI.sleep(Constants.NET_DELAY);
-      //T-ODO dont understatnd it with javadocs(notifying)
-      ni.mac.send(ip, qmsg.getNextHop());
-    }
-  }
+	//////////////////////////////////////////////////
+	// send/receive
+	//
 
-  //////////////////////////////////////////////////
-  // display
-  //
+	/**
+	 * Send an IP packet. Knows how to broadcast, to deal
+	 * with loopback. Will call routing for all other destinations.
+	 *
+	 * @param msg ip packet
+	 */
+	private void sendIp(NetMessage.Ip msg) 
+	{
+		if (NetAddress.ANY.equals(msg.getDst()))
+		{
+			// broadcast
+			send(msg, Constants.NET_INTERFACE_DEFAULT, MacAddress.ANY);
+		}
+		else if(NetAddress.LOCAL.equals(msg.getDst()) || localAddr.equals(msg.getDst()))
+		{
+			// loopback
+			send(msg, Constants.NET_INTERFACE_LOOPBACK, MacAddress.LOOP);
+		}
+		else if (msg.getNextHop()==null || msg.getNextHop().equals(localAddr))
+		{
+			// route and send
+			routing.send(msg);
+		}
+	}
 
-  /** {@inheritDoc} */
-  public String toString()
-  {
-    return "ip:"+localAddr;
-  }
+	//////////////////////////////////////////////////
+	// send pump
+	//
 
-  
-  ///////////////////////////////////////////////////
-  // access to message queue for routing layer
-  //
-  public MessageQueue getMessageQueue(int interfaceId)  throws JistAPI.Continuation
-  {
-      NicInfo ni = nics[interfaceId];
-      return ni.q;
-  }
+	/** {@inheritDoc} */
+	public void pump(int interfaceId)
+	{
+		NicInfo ni = nics[interfaceId];
+		if(ni.q.isEmpty())
+		{
+			ni.busy = false;
+		}
+		else
+		{
+			ni.busy = true;
+			QueuedMessage qmsg = ni.q.remove();
+			NetMessage.Ip ip = (NetMessage.Ip)qmsg.getPayload();
+			ip = ip.freeze(); // immutable once packet leaves node
+			if(log.isInfoEnabled())
+			{
+				log.info("send t="+JistAPI.getTime()+" to="+qmsg.getNextHop()+" data="+ip);
+			}
+			JistAPI.sleep(Constants.NET_DELAY);
+			//T-ODO dont understatnd it with javadocs(notifying)
+			ni.mac.send(ip, qmsg.getNextHop());
+		}
+	}
 
-/* (non-Javadoc)
- * @see jist.swans.net.NetInterface#packetDropped(jist.swans.misc.Message, jist.swans.mac.MacAddress)
- */
-public void packetDropped(Message packet, MacAddress packetNextHop) {
-    // anything to do here?
-	//Constants.VLCconstants.NetIPDropped++;
-    routing.packetDropped(packet, packetNextHop);    
-}
+	//////////////////////////////////////////////////
+	// display
+	//
 
-/**
- * {@inheritDoc}
- */
-public byte addMacInterface(MacInterface macEntity, MessageQueue q) throws Continuation {
-	return addInterface(macEntity, q);
-}
+	/** {@inheritDoc} */
+	public String toString()
+	{
+		return "ip:"+localAddr;
+	}
+
+
+	///////////////////////////////////////////////////
+	// access to message queue for routing layer
+	//
+	public MessageQueue getMessageQueue(int interfaceId)  throws JistAPI.Continuation
+	{
+		NicInfo ni = nics[interfaceId];
+		return ni.q;
+	}
+
+	/* (non-Javadoc)
+	 * @see jist.swans.net.NetInterface#packetDropped(jist.swans.misc.Message, jist.swans.mac.MacAddress)
+	 */
+	public void packetDropped(Message packet, MacAddress packetNextHop) {
+		// anything to do here?
+		//Constants.VLCconstants.NetIPDropped++;
+		routing.packetDropped(packet, packetNextHop);    
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public byte addMacInterface(MacInterface macEntity, MessageQueue q) throws Continuation {
+		return addInterface(macEntity, q);
+	}
 
 }
 

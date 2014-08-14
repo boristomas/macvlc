@@ -25,7 +25,7 @@ import jist.swans.radio.VLCsensor;
  * @since SWANS1.0
  */
 
-public class MacLoop implements MacInterface, VLCmacInterface
+public class MacLoop implements MacInterface.VLCmacInterface
 {
   //////////////////////////////////////////////////
   // locals
@@ -46,7 +46,23 @@ public class MacLoop implements MacInterface, VLCmacInterface
   {
     self = (MacInterface)JistAPI.proxy(this, MacInterface.class);
   }
+  /**
+   * Initiate a timer event. Note that only one timer event can be active at a
+   * given time.
+   *
+   * @param delay timer duration
+   * @param mode new mode
+   */
+  public void startTimer(long delay, byte mode) {
+	}
 
+  /**
+   * Process mac timeout.
+   *
+   * @param timerId timer identifier
+   */
+  public void timeout(int timerId) {
+	}
   //////////////////////////////////////////////////
   // entity hookup
   //

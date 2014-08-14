@@ -34,9 +34,12 @@ import jist.swans.radio.VLCsensor;
 
 public  class MacMessageVLC extends MacMessage
 {
+	
+	
+	
 	//sensor control
 	private java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>> SensorIDTx = new java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>>();
-	//TODO: ove hashmape su mogle bili i liste VLCsensor objekata??
+	
 	private java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>> SensorIDRx = new java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>>();
 	//public HashSet<Integer> SensorIDRx = new HashSet<Integer>();
 	

@@ -14,10 +14,13 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.omg.CORBA.SystemException;
+
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.field.StreetMobility;
 import jist.swans.misc.Message;
+import jist.swans.net.NetAddress;
 import jist.swans.net.NetInterface;
 import jist.swans.net.NetMessage;
 import jist.swans.radio.RadioInfo;
@@ -34,7 +37,7 @@ import driver.JistExperiment;
  * @version 1
  */
 
-public class MacVLCBoris implements  MacInterface.Mac802_11
+public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface.Mac802_11
 {
 
 	/*TODO:
@@ -48,9 +51,9 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	 *   u nekom boljem scenariju svaki cvor bi trebao znati konkretni bearing od senzora + vision angle i sl. pa da u realnom vremenu ja mogu odluciti sa kojeg cu slati, a znam
 	 *   ID senzora s kojeg je poruka poslana meni (pise u mac poruci.), a i znam na kojem mojem je prethodna poruka primljena.
 	 * # Vidjeti zasto se radi delay tri puta, jednom na transmit a drugi puta na receive na radio objektu kao i u macu na transmit???
-	 *  
+	 * # 71 i 72 vremena nisu zapisana zbog vremena i njihovo vrijeme nije toliko bitno (ni tocno), ta vremena sluze samo za brojanje poruka koje su poslane i koje su primljene.
 	 * */
-//TODO: pdr je vise od 100% jer na net sloju ima metoda isForMe koja uzima u obzir i broadcast poruke i loopback i sl. a ja vrijeme brojim ako je taj uvijet ok.
+	
 	////////////////////////////////////////////////////
 	// short 802.11 lexicon:
 	//   slot - minimum time to sense medium
@@ -249,7 +252,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 
 	// entity hookup
 	/** Self-referencing mac entity reference. */
-	protected final MacInterface.Mac802_11 self;
+	protected final MacInterface.VLCmacInterface /*MacInterface.Mac802_11*/ self;
 	/** Radio downcall entity reference. */
 	protected RadioInterface radioEntity;
 	/** Network upcall entity interface. */
@@ -360,7 +363,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		bandwidth = radioInfo.getShared().getBandwidth() / 8;
 
 		// proxy
-		self = (MacInterface.Mac802_11)JistAPI.proxy(this, MacInterface.Mac802_11.class);
+		self = (MacInterface.VLCmacInterface)JistAPI.proxy(this, MacInterface.VLCmacInterface.class);
 		init(addr, radioInfo, promisc);
 	}
 
@@ -381,7 +384,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		SourceNodeID = addr.hashCode();//BT: store node ID;
 		bandwidth = radioInfo.getShared().getBandwidth() / 8;
 		// proxy
-		self = (MacInterface.Mac802_11)JistAPI.proxy(this, MacInterface.Mac802_11.class);
+		self = (VLCmacInterface)JistAPI.proxy(this, VLCmacInterface.class);
 		init(addr, radioInfo, true);// Constants.MAC_PROMISCUOUS_DEFAULT);
 	}
 
@@ -423,9 +426,9 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	 *
 	 * @return self-referencing proxy entity.
 	 */
-	public MacInterface.Mac802_11 getProxy()
+	public MacInterface/*.Mac802_11*/ getProxy()
 	{
-		return this.self;
+		return (MacInterface)this.self;
 	}
 
 	/**
@@ -570,6 +573,10 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		setMode(MAC_MODE_XBROADCAST);
 		long delay = RX_TX_TURNAROUND;//TODO: provjeriti ima li ovoga.
 		long duration = transmitTime(msg);
+		if(msg.getDst() != MacAddress.ANY && msg.getDst() != MacAddress.LOOP)// || ((NetMessage.Ip)msg).getDst() != NetAddress.ANY)
+		{
+			((NetMessage.Ip)msg.getBody()).Times.add(new TimeEntry(72, "radiovlct-rec", null));
+		}
 		transmitDelayMultiplier = 1;
 		radioEntity.transmit(msg, delay, duration);
 		JistAPI.sleep(delay+duration);
@@ -750,6 +757,8 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		{
 			((NetMessage.Ip)msg).Times.add(new TimeEntry(1, "macbt", null));
 			((NetMessage.Ip)msg).isFresh = false;
+			
+			
 			if (!MessageQueue.isEmpty()) 
 			{
 				addToQueue(data);
@@ -761,12 +770,13 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 				return;
 			}
 		}
+		
 		data.setSensorIDTx(GetTransmitSensors(nextHop), myRadio.NodeID);//myRadio.GetSensors(SensorModes.Transmit));//todo: izraditi strategiju odabira senzora
 		if(canSendMessage(data, true))
 		{
 			((NetMessage.Ip)msg).Times.add(new TimeEntry(11, "macbt", null));
 			sendMessage(data);
-		}	
+		}
 		else
 		{
 			((NetMessage.Ip)msg).Times.add(new TimeEntry(12, "macbt", null));
@@ -779,7 +789,6 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 				self.startTimer(transmitDelay, (byte)1);
 			}
 		}
-
 	}
 	//////////////////////////////////////////////////
 	// send-related functions
@@ -788,6 +797,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	// MacInterface interface
 	public void send(Message msg, MacAddress nextHop)
 	{
+		
 		sendMacMessage(msg,nextHop);
 	}
 	//////////////////////////////////////////////////
@@ -946,7 +956,18 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 	public void receive(Message msg)
 	{
 		((NetMessage.Ip)(((MacMessageVLC)msg).getBody())).Times.add(new TimeEntry(3, "macbtrec", null));
-		netEntity.receive(((MacMessageVLC)msg).getBody(), ((MacMessage)msg).getSrc(), netId, false);
+		
+		//if(localAddr.equals(((NetMessage.Ip)(((MacMessageVLC)msg).getBody())).getDst()) /*|| ((MacMessageVLC)msg).getDst().hashCode() == myRadio.NodeID )//) || NetAddress.LOCAL.equals(ipmsg.getDst()) */)
+//		if(myRadio.NodeID == ((NetMessage.Ip)(((MacMessageVLC)msg).getBody())).getDst().hashCode() || ((MacMessageVLC)msg).getDst().hashCode() == myRadio.NodeID)
+		//if(((MacMessageVLC)msg).getDst().hashCode() == myRadio.NodeID)
+	//	System.out.println("aa n: " + myRadio.NodeID + " dst: "+((MacMessageVLC)msg).getDst() + "  dst hsh: "+((MacMessageVLC)msg).getDst().hashCode() );
+		if(((MacMessageVLC)msg).getDst().hashCode() == myRadio.NodeID)
+		{
+		//	System.out.println("bam");
+			((NetMessage.Ip)(((MacMessageVLC)msg).getBody())).Times.add(new TimeEntry(71, "formenetip", null));  
+		}
+		
+		netEntity.receive(((MacMessageVLC)msg).getBody(), ((MacMessageVLC)msg).getSrc(), netId, false);
 		receivedMessages.addFirst((MacMessage)msg);
 	}
 	private LinkedList<VLCsensor> GetTransmitSensors(MacAddress newdest)
@@ -959,6 +980,7 @@ public class MacVLCBoris implements  MacInterface.Mac802_11
 		{
 			for (MacMessage msg : receivedMessages) 
 			{
+				//TODO: ovdje bi trebalo odabrati samo zadnje poruke ne starije od X ms ili tako nesto.
 				if(msg.getSrc() == newdest)
 				{
 					return myRadio.getNearestOpositeSensor(msg.getSensorIDRx(myRadio.NodeID));//.SensorIDRx);

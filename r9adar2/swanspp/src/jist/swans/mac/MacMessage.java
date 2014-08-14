@@ -36,7 +36,7 @@ public abstract class MacMessage implements Message
 {
 	//sensor control
 	private HashMap<Integer, HashSet<Integer>> SensorIDTx = new HashMap<Integer, HashSet<Integer>>();
-	//TODO: ove hashmape su mogle bili i liste VLCsensor objekata??
+	
 	private HashMap<Integer, HashSet<Integer>> SensorIDRx = new HashMap<Integer, HashSet<Integer>>();
 	//public HashSet<Integer> SensorIDRx = new HashSet<Integer>();
 	
@@ -210,7 +210,7 @@ public abstract class MacMessage implements Message
 	{
 		for (Integer sensor : value)
 		{
-			System.out.println("set2: "+sensor+ " " + nodeID + " hsh: " + hashCode());
+			//System.out.println("set2: "+sensor+ " " + nodeID + " hsh: " + hashCode());
 		}
 		SensorIDRx.put(nodeID, value);
 	}	
@@ -229,7 +229,7 @@ public abstract class MacMessage implements Message
 		for (VLCsensor sensor : value)
 		{
 			hs.add(sensor.sensorID);
-			System.out.println("set1: "+sensor.sensorID+ " " + nodeID + " hsh: " + hashCode());
+			//System.out.println("set1: "+sensor.sensorID+ " " + nodeID + " hsh: " + hashCode());
 		}
 		
 		SensorIDRx.put(nodeID, hs);
@@ -277,7 +277,7 @@ public abstract class MacMessage implements Message
 	 */
 	public void addSensorIDRx(int sensorID, int nodeID)
 	{
-		System.out.println("add: "+sensorID+ " " + nodeID + " hsh: " + hashCode());
+		//System.out.println("add: "+sensorID+ " " + nodeID + " hsh: " + hashCode());
 		getSensorIDRx(nodeID).add(sensorID);
 	}
 	

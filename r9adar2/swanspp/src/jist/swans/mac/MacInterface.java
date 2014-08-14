@@ -24,7 +24,7 @@ import jist.swans.radio.VLCsensor;
  * @since SWANS1.0
  */
 
-public interface MacInterface extends JistAPI.Proxiable, VLCmacInterface
+public interface MacInterface extends JistAPI.Proxiable
 {
 
   //////////////////////////////////////////////////
@@ -73,7 +73,40 @@ public interface MacInterface extends JistAPI.Proxiable, VLCmacInterface
 	void notifyError(int errorCode, String message);
 	void notifyTransmitFail(Message msg, int errorCode);
 	void notifyReceiveFail(Message msg, int errorCode);*/
- 
+  public interface VLCmacInterface extends MacInterface
+  {
+  	
+  	/**
+  	 * Notifies interference occurrence on radio sensor. during receiving of data.
+  	 * @param sensor
+  	 */
+  	/*void notifyInterference(Sensor[] sensors);
+  	void notifyError(int errorCode, String message);
+  	void notifyTransmitFail(Message msg, int errorCode);
+  	void notifyReceiveFail(Message msg, int errorCode);*/
+  	
+  	void notifyInterference(MacMessage msg, VLCsensor sensors);
+  	void notifyError(int errorCode, String message);
+  	void notifyTransmitFail(Message msg, int errorCode);
+  	void notifyReceiveFail(Message msg, int errorCode);
+  	 /**
+       * Initiate a timer event. Note that only one timer event can be active at a
+       * given time.
+       *
+       * @param delay timer duration
+       * @param mode new mode
+       */
+      void startTimer(long delay, byte mode);
+
+      /**
+       * Process mac timeout.
+       *
+       * @param timerId timer identifier
+       */
+      void timeout(int timerId);
+
+  	
+  }
   
   //////////////////////////////////////////////////
   // 802.11 interface

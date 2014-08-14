@@ -92,6 +92,7 @@ public final class RadioVLC extends RadioNoise
 	float Ax,Ay, Bx,By,Cx,Cy,Dx,Dy;
 	float NodeBearing =0;
 	Location NodeLocation;
+	public static boolean isVLC = false;
 
 	//////////////////////////////////////////////////
 	// initialize
@@ -124,7 +125,6 @@ public final class RadioVLC extends RadioNoise
 		 */
 		super(id, sharedInfo);
 		this.NodeID = id;
-
 		if(nodeidtst == -1)
 		{
 			nodeidtst = id;
@@ -190,7 +190,7 @@ public final class RadioVLC extends RadioNoise
 		//		this.setControlSignal(2, 3);
 		//	}
 	}
-	public static boolean isVLC = false;
+	
 	public float getBearing()
 	{
 
@@ -664,8 +664,19 @@ public final class RadioVLC extends RadioNoise
 	{ 
 
 
-		((NetMessage.Ip)((MacMessageVLC)msg).getBody()).Times.add(new TimeEntry(250, "radiovlct-rec", null));
-		if(mode==Constants.RADIO_MODE_SLEEP) return;
+		if(isVLC)
+		{
+			((NetMessage.Ip)((MacMessageVLC)msg).getBody()).Times.add(new TimeEntry(250, "radiovlct-rec", null));
+		}
+		else
+		{
+			((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(250, "radiovlct-rec", null));
+		}
+		if(mode==Constants.RADIO_MODE_SLEEP) 
+			{
+				System.out.println("radio sleeping!!");
+				return;
+			}
 
 		if(!isVLC && mode == Constants.RADIO_MODE_TRANSMITTING)
 		{
@@ -709,14 +720,32 @@ public final class RadioVLC extends RadioNoise
 			//Constants.VLCconstants.DroppedOnReceive++;
 			return;
 		}
-		((NetMessage.Ip)((MacMessageVLC)msg).getBody()).Times.add(new TimeEntry(251, "radiovlct-rec", null));
-	
-		if( ((NetMessage.Ip)((MacMessageVLC)msg).getBody()).getDst().hashCode() == NodeID)
+		if(isVLC)
 		{
-			((NetMessage.Ip)((MacMessageVLC)msg).getBody()).Times.add(new TimeEntry(70, "radiovlct-rec", null));
-		//	System.out.println("dm : "+ msg.hashCode());
+			((NetMessage.Ip)((MacMessageVLC)msg).getBody()).Times.add(new TimeEntry(251, "radiovlct-rec", null));
+		}
+		else
+		{
+			((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(251, "radiovlct-rec", null));
 		}
 	
+		if(isVLC)
+		{
+			if( ((NetMessage.Ip)((MacMessageVLC)msg).getBody()).getDst().hashCode() == NodeID)
+			{
+				((NetMessage.Ip)((MacMessageVLC)msg).getBody()).Times.add(new TimeEntry(70, "radiovlct-rec", null));
+			}
+		}
+		else
+		{
+			if( ((NetMessage.Ip)((MacMessage.Data)msg).getBody()).getDst().hashCode() == NodeID)
+			{
+				((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(70, "radiovlct-rec", null));
+			}
+		}
+	
+		 
+		 
 
 		//Constants.VLCconstants.Received++;
 
@@ -727,7 +756,14 @@ public final class RadioVLC extends RadioNoise
 			((MacMessage)msg).setEndRx(tmpSensorReceive, JistAPI.getTime() + duration);
 			((MacMessage)msg).setPowerRx(tmpSensorReceive,  power_mW);
 			((MacMessage)msg).setInterferedRx(tmpSensorReceive, false);// .InterferedRx = false;
-			tmpSensorReceive.Messages.addFirst((MacMessageVLC)msg);
+			if(isVLC)
+			{
+				tmpSensorReceive.Messages.addFirst((MacMessageVLC)msg);
+			}
+			else
+			{
+				
+			}
 			//	tmpSensorReceive.signalsRx ++;
 			setControlSignal(tmpSensorReceive, 1);
 			if(tmpSensorReceive.mode == SensorModes.Receive)
@@ -736,7 +772,7 @@ public final class RadioVLC extends RadioNoise
 				{
 					if(isVLC)
 					{
-						(macEntity).notifyReceiveFail(msg, Constants.MacVlcErrorSensorRxIsBusy);
+						((MacInterface.VLCmacInterface) this.macEntity).notifyReceiveFail(msg, Constants.MacVlcErrorSensorRxIsBusy);
 					}
 					else
 					{//obicni mac
@@ -754,22 +790,22 @@ public final class RadioVLC extends RadioNoise
 			else
 			{
 				//nikada se ne bi trebalo desiti
-				( macEntity).notifyReceiveFail(msg, Constants.MacVlcErrorSensorIsNotRX);
+				((MacInterface.VLCmacInterface) this.macEntity).notifyReceiveFail(msg, Constants.MacVlcErrorSensorIsNotRX);
 				return;
 
 			}
 		}
 
-		if(msg instanceof MacMessageVLC)
+	/*	if(msg instanceof MacMessageVLC)
 		{
 			//mjerenje vremena.
 			((NetMessage.Ip)((MacMessageVLC)msg).getBody()).Times.add(new TimeEntry(251, "radiovlct-rec", null));
-		}
+		}*/
 
 		///mode set
 		if(isVLC)
 		{
-			this.macEntity.peek(msg);
+			((MacInterface.VLCmacInterface) this.macEntity).peek(msg);
 		}
 		else
 		{//neki obican mac je.
@@ -806,6 +842,7 @@ public final class RadioVLC extends RadioNoise
 	/** {@inheritDoc} */
 	public void endReceive(final Double powerObj_mW, Long seqNumber)
 	{
+		
 		if(mode==Constants.RADIO_MODE_SLEEP) return;
 
 		if(isVLC)
@@ -862,14 +899,14 @@ public final class RadioVLC extends RadioNoise
 									clearControlSignal(item, (byte)1);
 									item.setState(SensorStates.Idle );
 								}
-								this.macEntity.receive(msg1);
+								((MacInterface.VLCmacInterface) this.macEntity).receive(msg1);
 								return;
 							}
 							else
 							{
 								//nije ok, msg1 je interferirana
 								msg1.setInterferedRx(item, true);// .InterferedRx= true;
-								this.macEntity.notifyInterference(msg1, item);
+								((MacInterface.VLCmacInterface) this.macEntity).notifyInterference(msg1, item);
 							}
 						}
 					}//for msg1
@@ -893,7 +930,18 @@ public final class RadioVLC extends RadioNoise
 			{
 				if(signalBuffer!=null && JistAPI.getTime()==signalFinish)
 				{
-					this.macEntity.receive(signalBuffer);
+					String aa="";
+					for (int item2 : ((MacMessage)(signalBuffer)).getSensorIDTx(((MacMessage)(signalBuffer)).getSrc().hashCode()))
+					{
+						aa += item2 + " ";
+					}
+					String bb="";
+					for (int item3 : ((MacMessage)(signalBuffer)).getSensorIDRx(NodeID))
+					{
+						bb += item3 + " ";
+					}
+					System.out.println("r - n: "+NodeID+ " tm: "+JistAPI.getTime()+" s: "+((MacMessage)(signalBuffer)).getSrc()+ "("+aa+") d: "+ ((MacMessage)(signalBuffer)).getDst() +"("+bb+") mhs: " + signalBuffer.hashCode());
+					((MacInterface.VLCmacInterface) this.macEntity).receive(signalBuffer);
 					unlockSignal();
 				}
 				else
@@ -937,7 +985,17 @@ public final class RadioVLC extends RadioNoise
 			//mjerenje vremena
 
 		}*/
-		((NetMessage.Ip)((MacMessageVLC)msg).getBody()).Times.add(new TimeEntry(2, "radiovlct", null));
+		if(isVLC)
+		{
+			((NetMessage.Ip)((MacMessageVLC)msg).getBody()).Times.add(new TimeEntry(2, "radiovlct", null));
+		}
+		else
+		{
+			if(msg instanceof MacMessage.Data)
+			{
+				((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(2, "radiovlct", null));
+			}
+		}
 
 		// radio in sleep mode
 		if(mode == Constants.RADIO_MODE_SLEEP) return;
@@ -964,10 +1022,17 @@ public final class RadioVLC extends RadioNoise
 					//ok
 					tmpSensorTransmit.setState(SensorStates.Transmitting );
 
-					((MacMessage)msg).setEndTx(tmpSensorTransmit, JistAPI.getTime()+duration + delay);
+					((MacMessage)msg).setEndTx(tmpSensorTransmit, JistAPI.getTime() + duration + delay);
 					((MacMessage)msg).setStartTx(tmpSensorTransmit, JistAPI.getTime());
 					((MacMessage)msg).setDurationTx(tmpSensorTransmit, duration + delay);
-					tmpSensorTransmit.Messages.addFirst((MacMessageVLC)msg);
+					if(isVLC)
+					{
+						tmpSensorTransmit.Messages.addFirst((MacMessageVLC)msg);
+					}
+					else
+					{
+					//	tmpSensorTransmit.Messages.addFirst((MacMessageVLC)msg);
+					}
 
 					isAtLeastOneTransmitting = true;
 				}
@@ -975,7 +1040,7 @@ public final class RadioVLC extends RadioNoise
 				{
 					if(isVLC)
 					{
-						(macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxIsBusy);
+						((MacInterface.VLCmacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxIsBusy);
 					}
 					//ako je dobar mac ovo se ne smjelo desiti.
 					//setMode(Constants.RADIO_MODE_TRANSMITTING);
@@ -991,7 +1056,7 @@ public final class RadioVLC extends RadioNoise
 			{
 				if(isVLC)
 				{
-					(macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorIsNotTX);
+					((MacInterface.VLCmacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorIsNotTX);
 				}
 				//isto se ne bi smjelo desiti
 				return;
@@ -1002,7 +1067,7 @@ public final class RadioVLC extends RadioNoise
 		{
 			if(!isAtLeastOneTransmitting)
 			{
-				macEntity.notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxAllBusy);	
+				((MacInterface.VLCmacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxAllBusy);	
 			}
 
 		}
@@ -1033,7 +1098,14 @@ public final class RadioVLC extends RadioNoise
 		// set mode to transmitting
 		setMode(Constants.RADIO_MODE_TRANSMITTING);
 
-		((NetMessage.Ip)((MacMessageVLC)msg).getBody()).Times.add(new TimeEntry(21, "radiovlct", null));
+		if(isVLC)
+		{
+			((NetMessage.Ip)((MacMessageVLC)msg).getBody()).Times.add(new TimeEntry(21, "radiovlct", null));
+		}
+		else
+		{
+			((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(21, "radiovlct", null));
+		}
 		// schedule message propagation delay
 		JistAPI.sleep(delay);
 		String aa="";
@@ -1046,7 +1118,15 @@ public final class RadioVLC extends RadioNoise
 		{
 			bb += item + " ";
 		}
-		System.out.println("t - n: "+NodeID+ " tm: "+JistAPI.getTime()+" s: "+((MacMessageVLC)msg).getSrc()+ "("+aa+") d: "+((MacMessageVLC)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + " mhs: " + msg.hashCode());
+		if(isVLC)
+		{
+			//(NetMessage.Ip)(((MacMessageVLC)msg).getBody()
+			System.out.println("t - n: "+NodeID+ " tm: "+JistAPI.getTime()+" s: "+((MacMessageVLC)msg).getSrc()+ "("+aa+") d: "+((MacMessageVLC)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + " mhs: " + msg.hashCode());
+		}
+		else
+		{
+			System.out.println("t - n: "+NodeID+ " tm: "+JistAPI.getTime()+" s: "+((MacMessage)msg).getSrc()+ "("+aa+") d: "+((MacMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + " mhs: " + msg.hashCode());
+		}
 		fieldEntity.transmit(radioInfo, msg, duration);
 		// schedule end of transmission
 		JistAPI.sleep(duration);
@@ -1112,6 +1192,7 @@ public final class RadioVLC extends RadioNoise
 	 */
 	private MacMessage CheckPhyConditions(int SourceID, int DestinationID, SensorModes mode, MacMessage msg)
 	{
+		//System.out.println("hshs : "+ msg.hashCode() );
 		tmpSensorRx = new HashSet<Integer>();
 		if(DestinationID != -1)//znaci da nije broadcast poruka, teoretski nikada nece sourceid biti -1 odnosno broadcast adresa
 		{

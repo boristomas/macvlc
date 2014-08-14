@@ -14,6 +14,8 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
+import jist.swans.misc.MessageNest;
+import jist.swans.net.NetIp;
 import jist.swans.net.NetMessage;
 import jist.swans.radio.TimeEntry;
 
@@ -502,8 +504,10 @@ public final class Constants
 			int t6 = 0;
 			int t70 = 0;
 			int t71 = 0;
+			int t72 = 0;
 			long time1 =0;
 			long sumt5t1 =0;
+			boolean id72set = false;
 			PrintWriter writer;
 			try {
 				writer = new PrintWriter(filename, "UTF-8");
@@ -514,6 +518,7 @@ public final class Constants
 				{
 					res = "";
 					res+= item.getId()+ ","+ item.getSrc() +"," + item.getDst(); 
+					id72set = false;
 					for (TimeEntry time : item.Times) 
 					{
 						//System.out.println("tid= " + time.TimeID);
@@ -526,6 +531,11 @@ public final class Constants
 						case 71:
 						{
 							t71++;
+							break;
+						}
+						case 72:
+						{
+								t72++;
 							break;
 						}
 						case 0:
@@ -604,7 +614,6 @@ public final class Constants
 						}
 						prevtimeid =  time.TimeID;
 						res += "," /*+time.TimeID + " - "*/ + time.Time;
-						
 					}
 					res += "\n";
 					writer.write(res);
@@ -618,12 +627,32 @@ public final class Constants
 				e.printStackTrace();
 			}
 
+			boolean hastid;
+			for (NetMessage.Ip msg : TimeEntry.AllMessages) 
+			{
+				hastid = false;
+				for (TimeEntry time : msg.Times) 
+				{
+					if(time.TimeID ==4 )
+					{
+						hastid = true;
+						break;
+					}
+					
+				}
+				if(!hastid)
+				{
+					System.out.println("tid msh : "+msg.hashCode());
+				}
+			}
+			
 			System.out.println();
+			
 			return "-----VLC data-----" + "\n"+
 			"MAC implementation = "+ MACimplementationUsed + "\n"+
 			"Broadcasts = " + broadcasts + "\n"+
 			"MAC PDR all= " + 100*((float)t5/(float)t1) + "%\n"+
-			"MAC PDR exact= " + 100*((float)t70/(float)t70) + "%\n"+
+			"MAC PDR exact= " + 100*((float)t71/(float)t72) + "%\n"+
 			"MAC avg(t5-t1) = " + (float)sumt5t1/(float)t5 + "\n"+
 			"MAC count(T0) = " + t0 + "\n"+
 			"MAC count(T1) = " + t1 + "\n"+
@@ -640,7 +669,9 @@ public final class Constants
 			"MAC count(T6) = " + t6 + "\n"+
 			"MAC count(T70) = " + t70 + "\n"+
 			"MAC count(T71) = " + t71 + "\n"+
+			"MAC count(T72) = " + t72 + "\n"+
 			"-----VLC data-----" + "\n";
+			
 		}
 	}
 } // class: Constants

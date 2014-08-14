@@ -26,11 +26,12 @@ import jist.swans.radio.VLCsensor;
  * @since SWANS1.0
  */
 
-public class MacDumb implements MacInterface, VLCmacInterface
+public class MacDumb implements MacInterface.VLCmacInterface
 {
   //////////////////////////////////////////////////
   // messages
   //
+	
 
   /**
    * MacDumbMessage is the packet sent out by the MacDumb mac.
@@ -66,6 +67,8 @@ public class MacDumb implements MacInterface, VLCmacInterface
       this.dst = dst;
       this.body = body;
     }
+
+
 
     //////////////////////////////////////////////////
     // accessors
@@ -189,6 +192,24 @@ public class MacDumb implements MacInterface, VLCmacInterface
     this.promisc = promisc;
   }
 
+  /**
+   * Initiate a timer event. Note that only one timer event can be active at a
+   * given time.
+   *
+   * @param delay timer duration
+   * @param mode new mode
+   */
+  public void startTimer(long delay, byte mode) {
+	}
+
+  /**
+   * Process mac timeout.
+   *
+   * @param timerId timer identifier
+   */
+  public void timeout(int timerId) {
+	}
+  
   //////////////////////////////////////////////////
   // entity hookup
   //

@@ -67,8 +67,8 @@ import jist.swans.mac.MacDumb;
 import jist.swans.mac.MacInterface;
 import jist.swans.mac.MacVLC;
 import jist.swans.mac.MacVLCBoris;
-import jist.swans.mac.MacVLCMate;
-import jist.swans.mac.MacVLCWill;
+//import jist.swans.mac.MacVLCMate;
+//import jist.swans.mac.MacVLCWill;
 import jist.swans.misc.Location;
 import jist.swans.misc.Mapper;
 import jist.swans.misc.Message;
@@ -214,26 +214,26 @@ public class GenericDriver {
 		if(je.MACProtocol.equals(MACVLCprotocolWill))
 		{
 			Constants.VLCconstants.MACimplementationUsed = MACVLCprotocolWill;
-			mac = new MacVLCWill(new MacAddress(i), radio.getRadioInfo());
+		/*	mac = new MacVLCWill(new MacAddress(i), radio.getRadioInfo());
 			((MacVLCWill) mac).setRadioEntity(radio.getProxy());
 			macProxy = ((MacVLCWill) mac).getProxy();
-			((MacVLCWill) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);
+			((MacVLCWill) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);*/
 		}
 		else if(je.MACProtocol.equals(MACVLCprotocolBoris))
 		{
 			Constants.VLCconstants.MACimplementationUsed = MACVLCprotocolBoris;
 			mac = new MacVLCBoris(new MacAddress(i), radio.getRadioInfo(), (RadioVLC) radio);
 			((MacVLCBoris) mac).setRadioEntity(radio.getProxy());
-			macProxy = ((MacVLCBoris) mac).getProxy();
+			macProxy = ((MacVLCBoris)mac).getProxy();
 			((MacVLCBoris) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);
 		}
 		else if(je.MACProtocol.equals(MACVLCprotocolMate))
 		{
 			Constants.VLCconstants.MACimplementationUsed = MACVLCprotocolMate;
-			mac = new MacVLCMate(new MacAddress(i), radio.getRadioInfo());
+			/*mac = new MacVLCMate(new MacAddress(i), radio.getRadioInfo());
 			((MacVLCMate) mac).setRadioEntity(radio.getProxy());
 			macProxy = ((MacVLCMate) mac).getProxy();
-			((MacVLCMate) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);
+			((MacVLCMate) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);*/
 		}
 		else if(je.MACProtocol.equals(MACprotocol802_11))
 		{

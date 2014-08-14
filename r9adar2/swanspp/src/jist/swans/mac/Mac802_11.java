@@ -37,7 +37,7 @@ import driver.JistExperiment;
  * @since SWANS1.0
  */
 
-public class Mac802_11 implements MacInterface.Mac802_11, VLCmacInterface
+public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VLCmacInterface
 {
 
 	////////////////////////////////////////////////////

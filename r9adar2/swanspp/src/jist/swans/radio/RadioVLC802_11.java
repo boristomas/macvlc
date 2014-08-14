@@ -731,7 +731,7 @@ public final class RadioVLC802_11 extends RadioNoise
 				{
 					if(isVLC)
 					{
-						(macEntity).notifyReceiveFail(msg, Constants.MacVlcErrorSensorRxIsBusy);
+						((MacInterface.VLCmacInterface) this.macEntity).notifyReceiveFail(msg, Constants.MacVlcErrorSensorRxIsBusy);
 					}
 					else
 					{//obicni mac
@@ -749,7 +749,7 @@ public final class RadioVLC802_11 extends RadioNoise
 			else
 			{
 				//nikada se ne bi trebalo desiti
-				( macEntity).notifyReceiveFail(msg, Constants.MacVlcErrorSensorIsNotRX);
+				((MacInterface.VLCmacInterface) this.macEntity).notifyReceiveFail(msg, Constants.MacVlcErrorSensorIsNotRX);
 				return;
 
 			}
@@ -864,7 +864,7 @@ public final class RadioVLC802_11 extends RadioNoise
 							{
 								//nije ok, msg1 je interferirana
 								msg1.setInterferedRx(item, true);// .InterferedRx= true;
-								this.macEntity.notifyInterference(msg1, item);
+								((MacInterface.VLCmacInterface) this.macEntity).notifyInterference(msg1, item);
 							}
 						}
 					}//for msg1
@@ -970,7 +970,7 @@ public final class RadioVLC802_11 extends RadioNoise
 				{
 					if(isVLC)
 					{
-						(macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxIsBusy);
+						((MacInterface.VLCmacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxIsBusy);
 					}
 					//ako je dobar mac ovo se ne smjelo desiti.
 					//setMode(Constants.RADIO_MODE_TRANSMITTING);
@@ -986,7 +986,7 @@ public final class RadioVLC802_11 extends RadioNoise
 			{
 				if(isVLC)
 				{
-					(macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorIsNotTX);
+					((MacInterface.VLCmacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorIsNotTX);
 				}
 				//isto se ne bi smjelo desiti
 				return;
@@ -997,7 +997,7 @@ public final class RadioVLC802_11 extends RadioNoise
 		{
 			if(!isAtLeastOneTransmitting)
 			{
-				macEntity.notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxAllBusy);	
+				((MacInterface.VLCmacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxAllBusy);	
 			}
 
 		}
