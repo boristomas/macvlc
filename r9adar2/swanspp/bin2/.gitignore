@@ -1,7 +1,3 @@
-/Makefile
-/SimpleDemo.xml
-/SimpleDemo1.xml
-/SimpleDemo2.xml
 /SimpleDemo3.xml
 /SimpleDemo4.xml
 /SimpleDemo5.xml
@@ -22,4 +18,8 @@
 /swans.properties
 /ChicagoFlowTest.xml
 /Flow
+/Makefile
+/SimpleDemo.xml
+/SimpleDemo1.xml
+/SimpleDemo2.xml
 /tariavo

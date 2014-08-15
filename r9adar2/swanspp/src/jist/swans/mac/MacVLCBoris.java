@@ -41,18 +41,26 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 {
 
 	/*TODO:
-	 * # Koristiti kontrolni kanal.
-	 * # Napraviti varijantu samo sa redom, poruke se salju na sve senzore
-	 * # Napraviti varijantu sa redom i sa slanjem poruke samo na onaj senzor na koji je primljena nekada bila poruka. 
+	 * # ok - Koristiti kontrolni kanal.
+	 * 
+	 * # ok - Napraviti varijantu samo sa redom, poruke se salju na sve senzore 
+	 * 
+	 * # ok - Napraviti varijantu sa redom i sa slanjem poruke samo na onaj senzor na koji je primljena nekada bila poruka.
 	 *   treba napraviti katalog u koji cu zapisivati adresu odredista, na koji senzor je primljena poruka i kada je primljena poruka na tom senzoru.
-	 * # Napraviti tablicu sensora koji primaju i salju, i ako ja saljem jednom mac sloju i on primi poruku na senzor 5 onda ce na njegovoj strani znaciti da treba poslati poruku
+	 * 
+	 * # ok - Napraviti tablicu sensora koji primaju i salju, i ako ja saljem jednom mac sloju i on primi poruku na senzor 5 onda ce na njegovoj strani znaciti da treba poslati poruku
 	 *   na senzore 1 i 3, naravno, prvi puta, dok se ne dobije odgovor se salje na sve senzore. obzirom da ce rezultat odabira senzora biti lista onda se salje na prvi koji je slobodan.
-	 * # u v3. koristim staticni layout senzora, npr ako ja znam da mi je poruka dosla na senzor 6 od posiljatelja A onda cu posiljatelju A slati sa senzora 2 i 4.
+	 * 
+	 * # ok - u v3. koristim staticni layout senzora, npr ako ja znam da mi je poruka dosla na senzor 6 od posiljatelja A onda cu posiljatelju A slati sa senzora 2 i 4.
 	 *   u nekom boljem scenariju svaki cvor bi trebao znati konkretni bearing od senzora + vision angle i sl. pa da u realnom vremenu ja mogu odluciti sa kojeg cu slati, a znam
 	 *   ID senzora s kojeg je poruka poslana meni (pise u mac poruci.), a i znam na kojem mojem je prethodna poruka primljena.
-	 * # Vidjeti zasto se radi delay tri puta, jednom na transmit a drugi puta na receive na radio objektu kao i u macu na transmit???
+	 *
+	 * NOTE: 
 	 * # 71 i 72 vremena nisu zapisana zbog vremena i njihovo vrijeme nije toliko bitno (ni tocno), ta vremena sluze samo za brojanje poruka koje su poslane i koje su primljene.
+	 *
+	 *
 	 * */
+	//TODO: Vidjeti zasto se radi delay tri puta, jednom na transmit a drugi puta na receive na radio objektu kao i u macu na transmit???
 	
 	////////////////////////////////////////////////////
 	// short 802.11 lexicon:
@@ -571,7 +579,7 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 	private void sendMessage(MacMessageVLC msg )
 	{
 		setMode(MAC_MODE_XBROADCAST);
-		long delay = RX_TX_TURNAROUND;//TODO: provjeriti ima li ovoga.
+		long delay = RX_TX_TURNAROUND;//TODO: pitaj matu jel ima ovoga.
 		long duration = transmitTime(msg);
 		if(msg.getDst() != MacAddress.ANY && msg.getDst() != MacAddress.LOOP)// || ((NetMessage.Ip)msg).getDst() != NetAddress.ANY)
 		{
@@ -723,7 +731,7 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 
 		if(minDelay == Constants.DAY)
 		{
-			//TODO: pitati matu jel dobro ovako dinamicno mijenjanje vrijeme cekanja na provjeru kanala opet?
+			//TODO: pitati matu jel dobro ovako dinamicno mijenjanje vrijeme cekanja na provjeru kanala opet?, ovo bi trebao biti backoff
 			transmitDelayMultiplier++;
 	//		transmitDelayMultiplier=10;
 			minDelay = Constants.MILLI_SECOND*20*transmitDelayMultiplier;
@@ -966,10 +974,13 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 		//	System.out.println("bam");
 			((NetMessage.Ip)(((MacMessageVLC)msg).getBody())).Times.add(new TimeEntry(71, "formenetip", null));  
 		}
-		
-		netEntity.receive(((MacMessageVLC)msg).getBody(), ((MacMessageVLC)msg).getSrc(), netId, false);
 		receivedMessages.addFirst((MacMessage)msg);
+		netEntity.receive(((MacMessageVLC)msg).getBody(), ((MacMessageVLC)msg).getSrc(), netId, false);
+		
 	}
+
+	private long receivedMessagesAge = 0; //TODO: odrediti ovo nekako pametnije, ili napraviti analizu pa izracunati neki prosjek ili napraviti programski tako da npr. prosjecnu duzinu trajanja poruke od svih prethodnik komunikacija, ili da uzme najduze trajanje poruke ili tako nesto.
+	private long durationAgeMultiplier = 40;
 	private LinkedList<VLCsensor> GetTransmitSensors(MacAddress newdest)
 	{
 		if(newdest == MacAddress.ANY)
@@ -978,10 +989,15 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 		}
 		if(receivedMessages.size() !=0)
 		{
-			for (MacMessage msg : receivedMessages) 
+			receivedMessagesAge = 0;
+			for (MacMessage msg : receivedMessages)
 			{
-				//TODO: ovdje bi trebalo odabrati samo zadnje poruke ne starije od X ms ili tako nesto.
-				if(msg.getSrc() == newdest)
+			/*	if(receivedMessagesAge == 0)
+				{
+					receivedMessagesAge = msg.getDurationRx((myRadio.GetSensorByID((Integer)msg.getSensorIDRx(myRadio.NodeID).toArray()[0]))) * durationAgeMultiplier;
+				}*/
+				//System.out.println("time: " + (JistAPI.getTime() - msg.getEndRx(myRadio.GetSensorByID((Integer)msg.getSensorIDRx(myRadio.NodeID).toArray()[0]))));
+				if(msg.getSrc() == newdest)// && (JistAPI.getTime() - msg.getEndRx(myRadio.GetSensorByID((Integer)msg.getSensorIDRx(myRadio.NodeID).toArray()[0]))) < receivedMessagesAge  )
 				{
 					return myRadio.getNearestOpositeSensor(msg.getSensorIDRx(myRadio.NodeID));//.SensorIDRx);
 				}

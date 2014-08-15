@@ -41,19 +41,7 @@ import driver.JistExperiment;
 public class MacVLCBorisV3 implements  MacInterface.Mac802_11
 {
 
-	/*TODO:
-	 * #Koristiti kontrolni kanal.
-	 * #Napraviti varijantu samo sa redom, poruke se salju na sve senzore
-	 * #Napraviti varijantu sa redom i sa slanjem poruke samo na onaj senzor na koji je primljena nekada bila poruka. 
-	 *  treba napraviti katalog u koji cu zapisivati adresu odredista, na koji senzor je primljena poruka i kada je primljena poruka na tom senzoru.
-	 * #Napraviti tablicu sensora koji primaju i salju, i ako ja saljem jednom mac sloju i on primi poruku na senzor 5 onda ce na njegovoj strani znaciti da treba poslati poruku
-	 *   na senzore 1 i 3, naravno, prvi puta, dok se ne dobije odgovor se salje na sve senzore. obzirom da ce rezultat odabira senzora biti lista onda se salje na prvi koji je slobodan.
-	 * #u v3. koristim staticni layout senzora, npr ako ja znam da mi je poruka dosla na senzor 6 od posiljatelja A onda cu posiljatelju A slati sa senzora 2 i 4.
-	 *  u nekom boljem scenariju svaki cvor bi trebao znati konkretni bearing od senzora + vision angle i sl. pa da u realnom vremenu ja mogu odluciti sa kojeg cu slati, a znam
-	 *  ID senzora s kojeg je poruka poslana meni (pise u mac poruci.), a i znam na kojem mojem je prethodna poruka primljena.
-	 *  
-	 *  
-	 * */
+	
 
 	////////////////////////////////////////////////////
 	// short 802.11 lexicon:
@@ -584,7 +572,7 @@ public class MacVLCBorisV3 implements  MacInterface.Mac802_11
 
 		//	System.out.println("neva1 "+ msg.hashCode()  + " cnt: " + msg.SensorIDTx.size());
 		setMode(MAC_MODE_XBROADCAST);
-		long delay = RX_TX_TURNAROUND;//TODO: provjeriti ima li ovoga.
+		long delay = RX_TX_TURNAROUND;
 		long duration = transmitTime(msg);
 		radioEntity.transmit(msg, delay, duration);
 		JistAPI.sleep(delay+duration);

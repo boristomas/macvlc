@@ -156,7 +156,7 @@ public final class RadioVLC802_11 extends RadioNoise
 		float visionRx = JistExperiment.getJistExperiment().getVLCvisionAngleRx();
 
 		//right
-		/*TODO: kod testiranja 802_11 umjesto null ide this, pa treba fixati konstruktor senzora, idealno i najlakse bi bilo imati istu klasu za radio koja se isto zove pa samo zamijeniti kôd*/
+		/*T+ODO: kod testiranja 802_11 umjesto null ide this, pa treba fixati konstruktor senzora, idealno i najlakse bi bilo imati istu klasu za radio koja se isto zove pa samo zamijeniti kôd*/
 		sensorsTx.add(new VLCsensor(1, null, lineOfSight, visionTx, location,    offsetx, offsety, 0, SensorModes.Transmit));//front Tx
 		sensorsTx.add(new VLCsensor(2, null, lineOfSight, visionTx, location, -1*offsetx, offsety, 180, SensorModes.Transmit));//back Tx
 
@@ -572,7 +572,7 @@ public final class RadioVLC802_11 extends RadioNoise
 				{
 
 					return;//nema promjena
-					//TODO: bearing change not used, it is assumed that vehicle can't rotate in place.
+					
 				}
 			}
 			//ima promjena lokacije
@@ -632,7 +632,7 @@ public final class RadioVLC802_11 extends RadioNoise
 		{
 			GenericDriver.btviz.DrawShape(outlineShape, Color.black);
 			GenericDriver.btviz.DrawString(NodeID+"", Color.BLUE, NodeLocation.getX(),  NodeLocation.getY());
-			//TODO: maknuti ovo nodeidtst jer sluzi samo za testiranje vizualizacije.
+			//T+ODO: maknuti ovo nodeidtst jer sluzi samo za testiranje vizualizacije.
 			//	
 			//GenericDriver.btviz.getGraph().drawRect(, y, width, height);, yPoints, nPoints); fillPolygon(outlineShape);//.drawRect((int)tmpx1, (int)tmpy1, 20 , 20);
 			//	GenericDriver.btviz.getGraph().setColor(Color.red);
@@ -735,7 +735,7 @@ public final class RadioVLC802_11 extends RadioNoise
 					}
 					else
 					{//obicni mac
-						//TODO: validirati ovo!!! 
+						//TO+DO: validirati ovo!!! 
 						continue;
 					}
 				}
@@ -1067,7 +1067,7 @@ public final class RadioVLC802_11 extends RadioNoise
 					if (item.Messages.getFirst().getEndTx(item) == JistAPI.getTime()) 
 					{
 						item.state = SensorStates.Idle;
-						//			item.CurrentMessages.getFirst().EndTx = 0;//TODO: provjeriti trebam li ovo ponistiti
+						//			item.CurrentMessages.getFirst().EndTx = 0;//TO+DO: provjeriti trebam li ovo ponistiti
 					}
 					else
 					{
@@ -1132,7 +1132,7 @@ public final class RadioVLC802_11 extends RadioNoise
 			else if( mode == SensorModes.Receive)
 			{//znaci source sluša poruke
 				possibleNodes =getRangeAreaNodes(SourceID, SensorModes.Receive,-1);//send mode
-				tmpNodeList = getRangeAreaNodes(DestinationID, SensorModes.Transmit,-1);//TODO: test
+				tmpNodeList = getRangeAreaNodes(DestinationID, SensorModes.Transmit,-1);//TO+DO: test
 
 				if(possibleNodes.contains(DestinationID) && tmpNodeList.contains(SourceID))
 				{
@@ -1387,7 +1387,7 @@ public final class RadioVLC802_11 extends RadioNoise
 	 */
 	private HashSet<Integer> getRangeAreaNodes(int SourceNodeID, SensorModes mode, int sensorID)
 	{
-		//TODO: ne moram sve senzore gledati od send cvora nego samo one koji su u listi, tako se barem malo smanji optereecnje
+		//T+ODO: ne moram sve senzore gledati od send cvora nego samo one koji su u listi, tako se barem malo smanji optereecnje
 		HashSet<Integer> returnNodes = new HashSet<Integer>();
 		LinkedList<VLCsensor> sourceSensors = new LinkedList<VLCsensor>();
 		LinkedList<VLCsensor> destinationSensors = new LinkedList<VLCsensor>();
