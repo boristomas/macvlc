@@ -40,6 +40,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -970,8 +971,17 @@ public class GenericDriver {
 	{	
 		long delayInterval = (long) (((double) je.cbrPacketSize / je.cbrRate) * 1 * Constants.SECOND);
 		long iterations = (long) Math.ceil(((double) je.duration * (double) Constants.SECOND) / delayInterval);
-		byte[] data = new byte[je.cbrPacketSize];
+		String poruka = "mac-vlc-intel-ntu-foi";
+		
+		byte[] data = null;
+		try {
+			data = java.util.Arrays.copyOf(poruka.getBytes("UTF-8"), je.cbrPacketSize);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}// new byte[je.cbrPacketSize];
+		
 		Message payload = new MessageBytes(data);
+
 		long currentTime = je.startTime * Constants.SECOND;
 
 		Constants.VLCconstants.CBRmessages = iterations * je.transmitters;

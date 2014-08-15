@@ -640,10 +640,10 @@ public final class Constants
 					}
 					
 				}
-				if(!hastid)
+				/*if(!hastid)
 				{
 					System.out.println("tid msh : "+msg.hashCode());
-				}
+				}*/
 			}
 			
 			System.out.println();

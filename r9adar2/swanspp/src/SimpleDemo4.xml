@@ -105,8 +105,8 @@
 <int>3</int>
 </void>
 <void property="MACProtocol">
-<string>MACVLCprotocolBoris</string>
-<!-- <string>MACprotocol802_11</string>-->
+<!-- <string>MACVLCprotocolBoris</string> --> 
+<string>MACprotocol802_11</string>
 </void>
 <void property="MeasurementMode">
 <boolean>true</boolean>

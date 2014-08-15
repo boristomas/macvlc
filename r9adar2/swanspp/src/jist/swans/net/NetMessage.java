@@ -448,6 +448,7 @@ public abstract class NetMessage implements Message, Cloneable
         this.payload = payload;
         
     }
+   
 
     /**
      * @param dst The dst to set.

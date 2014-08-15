@@ -834,7 +834,7 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 //	private boolean canSendFromQueue = false;
 	public void timeout(int timerId)
 	{
-		System.out.println("id = " + myRadio.NodeID + " QS = " +MessageQueue.size());
+		System.out.println("q - sid = " + myRadio.NodeID + " QSize = " +MessageQueue.size());
 		
 	/*	for (MacMessage item : MessageQueue) {
 			System.out.println(item.hashCode());

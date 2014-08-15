@@ -901,6 +901,11 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VLCmacInt
 		// set mode and transmit
 		setMode(MAC_MODE_XBROADCAST);
 		long delay = RX_TX_TURNAROUND, duration = transmitTime(data);
+		
+		if(data.getDst() != MacAddress.ANY && data.getDst() != MacAddress.LOOP)// || ((NetMessage.Ip)msg).getDst() != NetAddress.ANY)
+		{
+			((NetMessage.Ip)data.getBody()).Times.add(new TimeEntry(72, "radiovlct-rec", null));
+		}
 		radioEntity.transmit(data, delay, duration);
 		// wait for EOT, check for outgoing packet
 		JistAPI.sleep(delay+duration);
@@ -925,7 +930,10 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VLCmacInt
 		// set mode and transmit
 		setMode(MAC_MODE_XUNICAST);
 		long delay = afterCts ? SIFS : RX_TX_TURNAROUND, duration = transmitTime(data);
-		
+		if(data.getDst() != MacAddress.ANY && data.getDst() != MacAddress.LOOP)// || ((NetMessage.Ip)msg).getDst() != NetAddress.ANY)
+		{
+			((NetMessage.Ip)data.getBody()).Times.add(new TimeEntry(72, "radiovlct-rec", null));
+		}
 		radioEntity.transmit(data, delay, duration);
 
 		//    if (stats.DISTANCE_TRACKING)
@@ -1059,6 +1067,13 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VLCmacInt
 	// MacInterface
 	public void receive(Message msg)
 	{
+		if(msg instanceof MacMessage.Data)
+		{
+			if(((MacMessage)msg).getDst().hashCode() == localAddr.hashCode())
+			{
+				((NetMessage.Ip)(((MacMessage.Data)msg).getBody())).Times.add(new TimeEntry(71, "formenetip", null));  
+			}
+		}
 		receivePacket((MacMessage)msg);
 	}
 
