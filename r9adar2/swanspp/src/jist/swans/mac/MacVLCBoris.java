@@ -55,6 +55,12 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 	 *   u nekom boljem scenariju svaki cvor bi trebao znati konkretni bearing od senzora + vision angle i sl. pa da u realnom vremenu ja mogu odluciti sa kojeg cu slati, a znam
 	 *   ID senzora s kojeg je poruka poslana meni (pise u mac poruci.), a i znam na kojem mojem je prethodna poruka primljena.
 	 *
+	 * # ja bi implementirao poseban state, security critical - npr u slucaju nesrece. auto koji je izvor odasilje kontrolni signal (mozda neki posebni) i onda mac zaustavlja sve i svaki
+	 *   bit koji se primi na fotodiodi se automatski relaya na transmittere iza (suprotno od dolaznog vektora), dok se to relaya MAC/radio pokusava procitati poruku, fora 
+	 *   je da su sve poruke koje dolaze iste i evidentno stvaraju koliziju, meðutim! poruka se moze dekodirati jer ako je ista i dolazi u isto vrijeme onda nema problema, mali
+	 *   problem je ako dolazi sa vremenskim pomakom od npr duzine jednog bita. prvi bit nece biti u koliziji, meðutim drugi hoce, ali ako znam prethodni i znam stanje kolizije, onda mogu 
+	 *   "zakljuciti" o drugom bitu. i tako dalje za sve ostale. ne treba crc i sl za ovo jer se u ovom slucaju poruke salju jako sporo (1mb/s???), to ce biti ako vise cvorova, lako je sa pomakom za jedan bit, ???? 
+	 * 
 	 * NOTE: 
 	 * # 71 i 72 vremena nisu zapisana zbog vremena i njihovo vrijeme nije toliko bitno (ni tocno), ta vremena sluze samo za brojanje poruka koje su poslane i koje su primljene.
 	 *

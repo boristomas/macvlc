@@ -97,7 +97,12 @@ public final class RadioVLC extends RadioNoise
 	float NodeBearing =0;
 	Location NodeLocation;
 	public static boolean isVLC = false;
-
+	
+	//802.11
+	protected int signalsRx;
+	protected int signalsTx;
+	protected Message signalBufferRx;
+	protected Message signalBufferTx;
 	//////////////////////////////////////////////////
 	// initialize
 	//
@@ -122,27 +127,15 @@ public final class RadioVLC extends RadioNoise
 	 */
 	public RadioVLC(int id, RadioInfo.RadioInfoShared sharedInfo, double thresholdSNR, Location location, float staticBearing)
 	{
-		/*90rx
-		30tx
-		los 30m
-		4rx 4tx
-		 */
+		
 		super(id, sharedInfo);
 		this.NodeID = id;
-		if(nodeidtst == -1)
-		{
-			nodeidtst = id;
-		}
 		setThresholdSNR(thresholdSNR);
-
+		
 		Random rand = new Random();
-
 		nodeInitialBearing = staticBearing;
-		//System.out.println("bt bearing start nid "+NodeID + " - "+ vehicleStaticBearing);
 		startLocation = location;
-		//offsets are half length from center point to edge of vehicle. example vehicle length is 5m and width is 2m. xoffset is 2.5 and yoffset is 1. if
-		//offsetx = (float) ((vehicleLength + (rand.nextFloat()*2*vehicleDevLength)-vehicleDevLength)/2);
-		//offsety = (float) ((vehicleWidth + (rand.nextFloat()*2*vehicleDevWidth)-vehicleDevWidth)/2);
+		//offsets are half length from center point to edge of vehicle. example vehicle length is 5m and width is 2m. xoffset is 2.5 and yoffset is 1. 
 		if(!JistExperiment.getJistExperiment().MeasurementMode)
 		{
 			offsetx = (float) ((JistExperiment.getJistExperiment().getVehicleLength() + (rand.nextFloat()*2*JistExperiment.getJistExperiment().getVehicleLengthDev())-JistExperiment.getJistExperiment().getVehicleLengthDev())/2);
@@ -544,7 +537,7 @@ public final class RadioVLC extends RadioNoise
 	}
 
 
-	public static int nodeidtst = -1;
+	//public static int nodeidtst = -1;
 	Location tmpLoc;
 	/****
 	 * Checks and updated location of sensor nodes as well the node itself.
@@ -660,8 +653,6 @@ public final class RadioVLC extends RadioNoise
 	/** {@inheritDoc} */
 	public void receive(Message msg, Double powerObj_mW, Long durationObj)
 	{ 
-
-
 		if(isVLC)
 		{
 			((NetMessage.Ip)((MacMessageVLC)msg).getBody()).Times.add(new TimeEntry(250, "radiovlct-rec", null));
@@ -681,7 +672,7 @@ public final class RadioVLC extends RadioNoise
 
 		if(!isVLC && mode == Constants.RADIO_MODE_TRANSMITTING)
 		{
-			//TODO: 802.11 - teoretski ne moze primati i slati u isto vrijeme
+			//TODO: 802.11 - teoretski ne moze primati i slati u isto vrijeme?? moze, kaze hsin-mu
 
 			//	System.out.println("receiving while transmitting is not allowed.");
 			//radio ne moze primat i slati, ako pocne ista primati a traje slanje jednostavno cu discardati poruku.
@@ -720,7 +711,6 @@ public final class RadioVLC extends RadioNoise
 
 		if(msg == null)
 		{
-			//Constants.VLCconstants.DroppedOnReceive++;
 			return;
 		}
 		if(isVLC)
@@ -839,7 +829,7 @@ public final class RadioVLC extends RadioNoise
 				throw new RuntimeException("invalid radio mode: "+mode);
 			}
 			// increment number of incoming signals
-			signals++;
+			signalsRx++;
 		}
 		// schedule an endReceive
 		JistAPI.sleep(duration); 
@@ -927,13 +917,13 @@ public final class RadioVLC extends RadioNoise
 		{//neki obican mac je.
 
 			//TODO: dodao sam da 802.11 moze u isto vrijeme i primati i slati.
-			signals--;
-			if(mode==Constants.RADIO_MODE_RECEIVING || mode == Constants.RADIO_MODE_TRANSMITTING)
+			signalsRx--;
+			if(mode==Constants.RADIO_MODE_RECEIVING || mode == Constants.RADIO_MODE_TRANSMITTING || mode== Constants.RADIO_MODE_IDLE)
 			{
-				if(signalBuffer!=null && JistAPI.getTime()==signalFinish)
+				if(signalBufferRx!=null && JistAPI.getTime()==signalFinish)
 				{
-					printMessageTransmissionData(signalBuffer, 0, "r");
-					((MacInterface.Mac802_11)this.macEntity).receive(signalBuffer);
+					printMessageTransmissionData(signalBufferRx, 0, "r");
+					((MacInterface.Mac802_11)this.macEntity).receive(signalBufferRx);
 					unlockSignal();
 				}
 				else
@@ -943,7 +933,7 @@ public final class RadioVLC extends RadioNoise
 
 					//					System.out.println("interferencija");
 				}
-				if(signals==0) setMode(Constants.RADIO_MODE_IDLE);
+				if(signalsRx==0) setMode(Constants.RADIO_MODE_IDLE);
 			}
 			else
 			{
@@ -953,6 +943,34 @@ public final class RadioVLC extends RadioNoise
 		}
 	}
 
+	
+	  /**
+	   * Lock onto current packet signal.
+	   *
+	   * @param msg packet currently on the air
+	   * @param power_mW signal power (units: mW)
+	   * @param duration time to EOT (units: simtime)
+	   */
+	  protected void lockSignal(Message msg, double power_mW, long duration)
+	  {
+	      
+	      seqNumber++;
+	    signalBufferRx = msg;
+	    signalPower_mW = power_mW;
+	    signalFinish = JistAPI.getTime() + duration;
+	    this.macEntity.peek(msg);
+	  }
+	  
+	  /**
+	   * Unlock from current packet signal.
+	   */
+	  protected void unlockSignal()
+	  {
+	    signalBufferRx = null;
+	    signalPower_mW = 0;
+	    signalFinish = -1;
+	  }  
+	  
 	//bt
 	public long getSimulationTime()
 	{
@@ -1076,7 +1094,7 @@ public final class RadioVLC extends RadioNoise
 				//System.out.println("radio receiving, can't transmit at the same time");
 				//		return;//dodao jer mislim da radio ne bi trebao slati poruku ako ju vec prima, ali samo za ne vlc mac
 			}
-			signalBuffer = null;
+			signalBufferTx = null;
 		}
 
 		// ensure not currently transmitting
@@ -1202,7 +1220,7 @@ public final class RadioVLC extends RadioNoise
 				throw new RuntimeException("radio is not transmitting");
 			}
 			// set mode
-			setMode(signals>0 ? Constants.RADIO_MODE_RECEIVING : Constants.RADIO_MODE_IDLE);
+			setMode(signalsTx>0 ? Constants.RADIO_MODE_RECEIVING : Constants.RADIO_MODE_IDLE);
 		}
 	}
 
