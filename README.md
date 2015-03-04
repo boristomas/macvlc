@@ -1,3 +1,3 @@
 macvlc
 ======
-implementation of MAC protocol for V2VLC
+JiST/SWANS Simulation extension for V2V VLC MAC protocol design
