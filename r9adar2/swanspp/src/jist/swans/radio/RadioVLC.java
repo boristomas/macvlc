@@ -19,6 +19,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -44,7 +45,7 @@ import jist.swans.field.Field;
 import jist.swans.field.Mobility.StaticInfo;
 import jist.swans.mac.MacInterface;
 import jist.swans.mac.MacMessage;
-import jist.swans.mac.MacMessageVLC;
+import jist.swans.mac.MacVLCMessage;
 import jist.swans.misc.Location;
 import jist.swans.misc.Message;
 import jist.swans.misc.MessageBytes;
@@ -125,34 +126,26 @@ public final class RadioVLC extends RadioNoise
 	 * @param sharedInfo shared radio properties
 	 * @param thresholdSNR threshold signal-to-noise ratio
 	 */
-	public RadioVLC(int id, RadioInfo.RadioInfoShared sharedInfo, double thresholdSNR, Location location, float staticBearing)
+	public RadioVLC(int id, RadioInfo.RadioInfoShared sharedInfo, double thresholdSNR, Location location, float staticBearing, float w, float l, float dw, float dl, float ox, float oy)
 	{
 		
 		super(id, sharedInfo);
 		this.NodeID = id;
 		setThresholdSNR(thresholdSNR);
 		
-		Random rand = new Random();
+		
 		nodeInitialBearing = staticBearing;
 		startLocation = location;
 		//offsets are half length from center point to edge of vehicle. example vehicle length is 5m and width is 2m. xoffset is 2.5 and yoffset is 1. 
-		if(!JistExperiment.getJistExperiment().MeasurementMode)
-		{
-			offsetx = (float) ((JistExperiment.getJistExperiment().getVehicleLength() + (rand.nextFloat()*2*JistExperiment.getJistExperiment().getVehicleLengthDev())-JistExperiment.getJistExperiment().getVehicleLengthDev())/2);
-			offsety = (float) ((JistExperiment.getJistExperiment().getVehicleWidth() + (rand.nextFloat()*2*JistExperiment.getJistExperiment().getVehicleWidthDev())-JistExperiment.getJistExperiment().getVehicleWidthDev())/2);
-		}
-		else
-		{
-			offsetx = (float) ((JistExperiment.getJistExperiment().getVehicleLength())/2);
-			offsety = (float) ((JistExperiment.getJistExperiment().getVehicleWidth())/2);
-		}
+		offsetx = ox;
+		offsety = oy;
 
 		UpdateNodeShape(true);
-
-		float visionTx = JistExperiment.getJistExperiment().getVLCvisionAngleTx();
-		float visionRx = JistExperiment.getJistExperiment().getVLCvisionAngleRx();
-		float lineOfSightRx = JistExperiment.getJistExperiment().getVLCLOSRx();
-		float lineOfSightTx = JistExperiment.getJistExperiment().getVLCLOSTx();
+/*
+		float visionTx = 60;//JistExperiment.getJistExperiment().getVLCvisionAngleTx();
+		float visionRx = 60;//JistExperiment.getJistExperiment().getVLCvisionAngleRx();
+		float lineOfSightRx = 30;//JistExperiment.getJistExperiment().getVLCLOSRx();
+		float lineOfSightTx = 30;//JistExperiment.getJistExperiment().getVLCLOSTx();
 		//right
 		InstalledSensorsTx.add(new VLCsensor(1, this, lineOfSightTx, visionTx, location,    offsetx, offsety, 0, SensorModes.Transmit));//front Tx
 		InstalledSensorsTx.add(new VLCsensor(2, this, lineOfSightTx, visionTx, location, -1*offsetx, offsety, 180, SensorModes.Transmit));//back Tx
@@ -163,7 +156,7 @@ public final class RadioVLC extends RadioNoise
 
 		InstalledSensorsRx.add(new VLCsensor(5, this, lineOfSightRx, visionRx, location,    offsetx, 0, 0, SensorModes.Receive));//front Rx
 		InstalledSensorsRx.add(new VLCsensor(6, this, lineOfSightRx, visionRx, location, -1*offsetx, 0, 180, SensorModes.Receive));//back Rx
-
+*/
 		if(JistExperiment.getJistExperiment().getMACProtocol().contains("VLC"))
 		{
 			isVLC = true;
@@ -655,7 +648,7 @@ public final class RadioVLC extends RadioNoise
 	{ 
 		if(isVLC)
 		{
-			((NetMessage.Ip)((MacMessageVLC)msg).getBody()).Times.add(new TimeEntry(250, "radiovlct-rec", null));
+			((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(250, "radiovlct-rec", null));
 		}
 		else
 		{
@@ -715,7 +708,7 @@ public final class RadioVLC extends RadioNoise
 		}
 		if(isVLC)
 		{
-			((NetMessage.Ip)((MacMessageVLC)msg).getBody()).Times.add(new TimeEntry(251, "radiovlct-rec", null));
+			((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(251, "radiovlct-rec", null));
 		}
 		else
 		{
@@ -727,9 +720,9 @@ public final class RadioVLC extends RadioNoise
 
 		if(isVLC)
 		{
-			if( ((NetMessage.Ip)((MacMessageVLC)msg).getBody()).getDst().hashCode() == NodeID)
+			if( ((NetMessage.Ip)((MacVLCMessage)msg).getBody()).getDst().hashCode() == NodeID)
 			{
-				((NetMessage.Ip)((MacMessageVLC)msg).getBody()).Times.add(new TimeEntry(70, "radiovlct-rec", null));
+				((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(70, "radiovlct-rec", null));
 			}
 		}
 		else
@@ -758,7 +751,7 @@ public final class RadioVLC extends RadioNoise
 			((MacMessage)msg).setInterferedRx(tmpSensorReceive, false);// .InterferedRx = false;
 			if(isVLC)
 			{
-				tmpSensorReceive.Messages.addFirst((MacMessageVLC)msg);
+				tmpSensorReceive.Messages.addFirst((MacVLCMessage)msg);
 			}
 			else
 			{
@@ -772,7 +765,7 @@ public final class RadioVLC extends RadioNoise
 				{
 					if(isVLC)
 					{
-						((MacInterface.VLCmacInterface) this.macEntity).notifyReceiveFail(msg, Constants.MacVlcErrorSensorRxIsBusy);
+						((MacInterface.VlcMacInterface) this.macEntity).notifyReceiveFail(msg, Constants.MacVlcErrorSensorRxIsBusy);
 					}
 					else
 					{//obicni mac
@@ -790,7 +783,7 @@ public final class RadioVLC extends RadioNoise
 			else
 			{
 				//nikada se ne bi trebalo desiti
-				((MacInterface.VLCmacInterface) this.macEntity).notifyReceiveFail(msg, Constants.MacVlcErrorSensorIsNotRX);
+				((MacInterface.VlcMacInterface) this.macEntity).notifyReceiveFail(msg, Constants.MacVlcErrorSensorIsNotRX);
 				return;
 
 			}
@@ -805,7 +798,7 @@ public final class RadioVLC extends RadioNoise
 		///mode set
 		if(isVLC)
 		{
-			((MacInterface.VLCmacInterface) this.macEntity).peek(msg);
+			((MacInterface.VlcMacInterface) this.macEntity).peek(msg);
 		}
 		else
 		{//neki obican mac je.
@@ -881,7 +874,7 @@ public final class RadioVLC extends RadioNoise
 							if(cumpower == 0 || Util.toDB(msg1.getPowerRx(item)/cumpower) > 16)//16 = tablica 2 iz: http://www.cisco.com/c/en/us/td/docs/wireless/technology/mesh/7-3/design/guide/Mesh/Mesh_chapter_011.pdf
 							{
 								//ok je poruka se moze primiti
-								((NetMessage.Ip)(((MacMessageVLC)msg1).getBody())).Times.add(new TimeEntry(252, "macbtrec", null));
+								((NetMessage.Ip)(((MacVLCMessage)msg1).getBody())).Times.add(new TimeEntry(252, "macbtrec", null));
 								printMessageTransmissionData(msg1, 0, "r");
 
 								if(msgcounter == 0)
@@ -890,14 +883,14 @@ public final class RadioVLC extends RadioNoise
 									clearControlSignal(item, (byte)1);
 									item.setState(SensorStates.Idle );
 								}
-								((MacInterface.VLCmacInterface) this.macEntity).receive(msg1);
+								((MacInterface.VlcMacInterface) this.macEntity).receive(msg1);
 								return;
 							}
 							else
 							{
 								//nije ok, msg1 je interferirana
 								msg1.setInterferedRx(item, true);// .InterferedRx= true;
-								((MacInterface.VLCmacInterface) this.macEntity).notifyInterference(msg1, item);
+								((MacInterface.VlcMacInterface) this.macEntity).notifyInterference(msg1, item);
 							}
 						}
 					}//for msg1
@@ -997,7 +990,7 @@ public final class RadioVLC extends RadioNoise
 		}*/
 		if(isVLC)
 		{
-			((NetMessage.Ip)((MacMessageVLC)msg).getBody()).Times.add(new TimeEntry(2, "radiovlct", null));
+			((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(2, "radiovlct", null));
 		}
 		else
 		{
@@ -1039,7 +1032,7 @@ public final class RadioVLC extends RadioNoise
 						((MacMessage)msg).setDurationTx(tmpSensorTransmit, duration + delay);
 						if(isVLC)
 						{
-							tmpSensorTransmit.Messages.addFirst((MacMessageVLC)msg);
+							tmpSensorTransmit.Messages.addFirst((MacVLCMessage)msg);
 						}
 						else
 						{
@@ -1052,7 +1045,7 @@ public final class RadioVLC extends RadioNoise
 					{
 						if(isVLC)
 						{
-							((MacInterface.VLCmacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxIsBusy);
+							((MacInterface.VlcMacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxIsBusy);
 						}
 						//ako je dobar mac ovo se ne smjelo desiti.
 						//setMode(Constants.RADIO_MODE_TRANSMITTING);
@@ -1068,7 +1061,7 @@ public final class RadioVLC extends RadioNoise
 				{
 					if(isVLC)
 					{
-						((MacInterface.VLCmacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorIsNotTX);
+						((MacInterface.VlcMacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorIsNotTX);
 					}
 					//isto se ne bi smjelo desiti
 					return;
@@ -1076,7 +1069,7 @@ public final class RadioVLC extends RadioNoise
 			}// for all tx sensor defined in message.
 			if(!isAtLeastOneTransmitting)
 			{
-				((MacInterface.VLCmacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxAllBusy);	
+				((MacInterface.VlcMacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxAllBusy);	
 			}
 
 		}
@@ -1109,7 +1102,7 @@ public final class RadioVLC extends RadioNoise
 
 		if(isVLC)
 		{
-			((NetMessage.Ip)((MacMessageVLC)msg).getBody()).Times.add(new TimeEntry(21, "radiovlct", null));
+			((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(21, "radiovlct", null));
 		}
 		else
 		{
@@ -1140,7 +1133,7 @@ public final class RadioVLC extends RadioNoise
 		}
 		if(isVLC)
 		{
-			System.out.println(prefix + " - n: "+NodeID+ "\tm: "+JistAPI.getTime()+"\ts: "+((MacMessageVLC)msg).getSrc()+ "("+aa+") \t\td: "+((MacMessageVLC)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmhs: " + msg.hashCode() + "\tdecoded: "+tryDecodePayload(msg) );
+			System.out.println(prefix + " - n: "+NodeID+ "\tm: "+JistAPI.getTime()+"\ts: "+((MacVLCMessage)msg).getSrc()+ "("+aa+") \t\td: "+((MacVLCMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmhs: " + msg.hashCode() + "\tdecoded: "+tryDecodePayload(msg) );
 		}
 		else
 		{
@@ -1155,7 +1148,7 @@ public final class RadioVLC extends RadioNoise
 			{
 				decoded = new String(
 						((MessageBytes)((TransUdp.UdpMessage)
-								(((NetMessage.Ip)((MacMessageVLC)msg).getBody()).getPayload())
+								(((NetMessage.Ip)((MacVLCMessage)msg).getBody()).getPayload())
 								).getPayload()).getBytes()
 								, "UTF-8");
 			}
@@ -1576,6 +1569,39 @@ public final class RadioVLC extends RadioNoise
 			}//if not me
 		}//for all nodes
 		return returnNodes;
+	}
+	
+	int angcnt= 0;
+	double angsum = 0;
+	public double GetAngleRx(Location srcLocation) 
+	{
+		angcnt =0;
+		angsum = 0;
+		for (VLCsensor item : InstalledSensorsRx) 
+		{
+			if(item.coverageShape.contains(new Point2D.Float(srcLocation.getX(), srcLocation.getY()) ))
+			{
+				angcnt ++;
+				angsum += item.visionAngle;
+			}
+		}
+		if(angcnt == 0) return 0;
+		return (angsum/angcnt);
+	}
+	public double GetAngleTx(Location srcLocation) 
+	{
+		angcnt =0;
+		angsum = 0;
+		for (VLCsensor item : InstalledSensorsTx) 
+		{
+			if(item.coverageShape.contains(new Point2D.Float(srcLocation.getX(), srcLocation.getY()) ))
+			{
+				angcnt ++;
+				angsum += item.visionAngle;
+			}
+		}
+		if(angcnt == 0) return 0;
+		return (angsum/angcnt);
 	}
 
 

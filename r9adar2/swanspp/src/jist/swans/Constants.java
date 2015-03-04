@@ -21,6 +21,8 @@ import jist.swans.radio.TimeEntry;
 
 import org.omg.CORBA.Environment;
 
+import driver.JistExperiment;
+
 /**
  * SWANS constants.
  *
@@ -479,7 +481,7 @@ public final class Constants
 //TOOD: treba popraviti ispis zbog dodanih kolona koje su i kondicionalne.
 			String res = "";
 
-			String filename =System.getProperty("user.home") + "/Desktop/" +"VLCMeasureData.csv";
+			String filename = JistExperiment.getJistExperiment().getResultsPath();// System.getProperty("user.home") + "/Desktop/" +"VLCMeasureData.csv";
 
 			/* 
 			 * timeid:
@@ -671,6 +673,7 @@ public final class Constants
 			"MAC count(T71) = " + t71 + "\n"+
 			"MAC count(T72) = " + t72 + "\n"+
 			"-----VLC data-----" + "\n";
+			
 			
 		}
 	}

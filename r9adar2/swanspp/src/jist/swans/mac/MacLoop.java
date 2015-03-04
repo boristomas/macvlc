@@ -25,7 +25,7 @@ import jist.swans.radio.VLCsensor;
  * @since SWANS1.0
  */
 
-public class MacLoop implements MacInterface.VLCmacInterface
+public class MacLoop implements MacInterface.VlcMacInterface
 {
   //////////////////////////////////////////////////
   // locals

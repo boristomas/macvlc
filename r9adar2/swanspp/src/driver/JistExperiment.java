@@ -178,23 +178,23 @@ public class JistExperiment implements JistAPI.DoNotRewrite
     public String MACProtocol;
     public boolean MeasurementMode;
     
-    public float VLCvisionAngleTx=0;
+    /*public float VLCvisionAngleTx=0;
     public float VLCvisionAngleRx=0;
     public float VLCLOSRx = 0;
-    public float VLCLOSTx = 0;
+    public float VLCLOSTx = 0;*/
     public float VehicleLength=0;
     public float VehicleWidth =0;
     public float VehicleLengthDev =0;
     public float VehicleWidthDev =0;
-    
+   
     // link-layer settings
 	/** mac protocol */
 	public int mac = Constants.MAC_802_11;
 	/** radio frequency */
 	public double frequency = Constants.FREQUENCY_DEFAULT; // 2.4 GHz
 	/** Default radio bandwidth (units: bits/second). */
-	public int bandwidth = Constants.BANDWIDTH_DEFAULT; // 11Mb/s //2000000
-	//todo: bandwidth isto staviti kao parametar u xml
+	public int bandwidth = Constants.BANDWIDTH_DEFAULT; //500Kb/s   11Mb/s //2000000
+
 	/** Default transmission strength (units: dBm). */
 	public double transmit = Constants.TRANSMIT_DEFAULT;
 	/** Default antenna gain (units: dB). */
@@ -449,6 +449,16 @@ public class JistExperiment implements JistAPI.DoNotRewrite
     	this.MeasurementMode = measurementMode;
     }
     
+    public String ResultsPath;
+    public String getResultsPath()
+    {
+    	return ResultsPath;
+    }
+    public void setResultsPath( String resultsPath)
+    {
+    	this.ResultsPath = resultsPath;
+    }
+    
     public String getStaticPlacementOptions()
     {
     	return StaticPlacementOptions;
@@ -464,7 +474,7 @@ public class JistExperiment implements JistAPI.DoNotRewrite
     public void setMACProtocol( String mACProtocol)
     {
     	this.MACProtocol = mACProtocol;
-    }
+    }/*
     public float getVLCLOSRx()
     {
     	return VLCLOSRx;
@@ -499,7 +509,7 @@ public class JistExperiment implements JistAPI.DoNotRewrite
     public void setVLCvisionAngleRx( float vLCvisionAngleRx)
     {
     	this.VLCvisionAngleRx = vLCvisionAngleRx;
-    }
+    }*/
 
     public float getVehicleLength()
     {

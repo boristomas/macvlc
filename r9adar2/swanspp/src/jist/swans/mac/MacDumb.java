@@ -26,7 +26,7 @@ import jist.swans.radio.VLCsensor;
  * @since SWANS1.0
  */
 
-public class MacDumb implements MacInterface.VLCmacInterface
+public class MacDumb implements MacInterface.VlcMacInterface
 {
   //////////////////////////////////////////////////
   // messages

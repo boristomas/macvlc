@@ -73,7 +73,7 @@ public interface MacInterface extends JistAPI.Proxiable
 	void notifyError(int errorCode, String message);
 	void notifyTransmitFail(Message msg, int errorCode);
 	void notifyReceiveFail(Message msg, int errorCode);*/
-  public interface VLCmacInterface extends MacInterface
+  public interface VlcMacInterface extends MacInterface
   {
   	
   	/**

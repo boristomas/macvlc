@@ -62,6 +62,8 @@ public interface PathLoss
 	final class VLCLink implements PathLoss
 	{
 		//ref: Fundamental Analysis for VLC System using LED Lights.pdf
+		//TODO: mali problem je ovdje jer gledam lokacije auta a ne senzora, mislim da ova aproksimacija nece jako utjecati
+		//TODO: također gledam prosjecni kut koji vide sensor loc.
 
 		// PathLoss interface
 		/** {@inheritDoc} */
@@ -69,7 +71,8 @@ public interface PathLoss
 		{			
 			double m= 2;
 			double n= 1.5;
-			double psiC= JistExperiment.getJistExperiment().getVLCvisionAngleRx();
+//			double psiC= JistExperiment.getJistExperiment().getVLCvisionAngleRx();
+			double psiC= ((RadioVLC)dstRadio.getUnique().GetRadio()).GetAngleRx(srcLocation);//  JistExperiment.getJistExperiment().getVLCvisionAngleRx();
 			double txPwr= srcRadio.getShared().getPower();
 			double A = 0.0001;
 			double Dd= srcLocation.distance(dstLocation);

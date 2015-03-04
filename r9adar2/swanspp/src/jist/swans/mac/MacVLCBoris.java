@@ -37,7 +37,7 @@ import driver.JistExperiment;
  * @version 1
  */
 
-public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface.Mac802_11
+public class MacVLCBoris implements MacInterface.VlcMacInterface//  MacInterface.Mac802_11
 {
 
 	/*TODO:
@@ -66,6 +66,7 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 	 *
 	 *
 	 * */
+	//TODO: za MAC ce trebati posebna vrsta poruke koja ce se slati na pocetku transmisije gdje cvor na kratak i ne dvosmislen nacin opisuje svoje fizicke karatkeristike (razmjestaj senzora, bearing, kutevi, snaga!!!???)
 	//TODO: Vidjeti zasto se radi delay tri puta, jednom na transmit a drugi puta na receive na radio objektu kao i u macu na transmit???
 	
 	////////////////////////////////////////////////////
@@ -266,7 +267,7 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 
 	// entity hookup
 	/** Self-referencing mac entity reference. */
-	protected final MacInterface.VLCmacInterface /*MacInterface.Mac802_11*/ self;
+	protected final MacInterface.VlcMacInterface /*MacInterface.Mac802_11*/ self;
 	/** Radio downcall entity reference. */
 	protected RadioInterface radioEntity;
 	/** Network upcall entity interface. */
@@ -370,6 +371,8 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 	 */
 	public MacVLCBoris(MacAddress addr, RadioInfo radioInfo, boolean promisc, RadioVLC vlcradio)
 	{
+		
+	
 		myRadio = vlcradio;
 		SourceNodeID = addr.hashCode();//BT: store node ID;
 		droppedPackets = new HashMap();
@@ -377,7 +380,7 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 		bandwidth = radioInfo.getShared().getBandwidth() / 8;
 
 		// proxy
-		self = (MacInterface.VLCmacInterface)JistAPI.proxy(this, MacInterface.VLCmacInterface.class);
+		self = (MacInterface.VlcMacInterface)JistAPI.proxy(this, MacInterface.VlcMacInterface.class);
 		init(addr, radioInfo, promisc);
 	}
 
@@ -398,7 +401,7 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 		SourceNodeID = addr.hashCode();//BT: store node ID;
 		bandwidth = radioInfo.getShared().getBandwidth() / 8;
 		// proxy
-		self = (VLCmacInterface)JistAPI.proxy(this, VLCmacInterface.class);
+		self = (VlcMacInterface)JistAPI.proxy(this, VlcMacInterface.class);
 		init(addr, radioInfo, true);// Constants.MAC_PROMISCUOUS_DEFAULT);
 	}
 
@@ -574,7 +577,7 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 	}
 
 
-	private java.util.concurrent.ConcurrentLinkedQueue<MacMessageVLC> MessageQueue = new ConcurrentLinkedQueue<MacMessageVLC>();  
+	private java.util.concurrent.ConcurrentLinkedQueue<MacVLCMessage> MessageQueue = new ConcurrentLinkedQueue<MacVLCMessage>();  
 	private VLCsensor tmpSensorTx1;
 	/**
 	 * send messaga
@@ -582,7 +585,7 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 	 * @param destination
 	 * @author BorisTomas
 	 */
-	private void sendMessage(MacMessageVLC msg )
+	private void sendMessage(MacVLCMessage msg )
 	{
 		setMode(MAC_MODE_XBROADCAST);
 		long delay = RX_TX_TURNAROUND;//TODO: pitaj matu jel ima ovoga.
@@ -596,7 +599,7 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 		JistAPI.sleep(delay+duration);
 	}
 
-	private void addToQueue(MacMessageVLC msg)
+	private void addToQueue(MacVLCMessage msg)
 	{
 		MessageQueue.add(msg);
 	}
@@ -604,7 +607,7 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 	private HashSet<Integer> tmpSensorsTx = new HashSet<Integer>();
 	private VLCsensor tmpSensorTx;
 
-	private boolean canSendMessage(MacMessageVLC msg, boolean fixTx)
+	private boolean canSendMessage(MacVLCMessage msg, boolean fixTx)
 	{
 		tmpSensorsTx = new HashSet<Integer>();
 		//	fixTx = false;
@@ -757,7 +760,7 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 			return maxDelay;
 		}
 	}
-	private MacMessageVLC tmpMsg;
+	private MacVLCMessage tmpMsg;
 	private long transmitDelay; 
 	private int transmitDelayMultiplier= 1;
 	private void sendMacMessage(Message msg, MacAddress nextHop)
@@ -766,7 +769,7 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 		{
 			Constants.VLCconstants.broadcasts++;
 		}
-		MacMessageVLC data = new MacMessageVLC(nextHop, localAddr,0, msg);
+		MacVLCMessage data = new MacVLCMessage(nextHop, localAddr,0, msg);
 		if(((NetMessage.Ip)msg).isFresh)
 		{
 			((NetMessage.Ip)msg).Times.add(new TimeEntry(1, "macbt", null));
@@ -835,8 +838,8 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 
 	// MacInterface
 
-	MacMessageVLC tmpmsg1;
-	MacMessageVLC first;
+	MacVLCMessage tmpmsg1;
+	MacVLCMessage first;
 //	private boolean canSendFromQueue = false;
 	public void timeout(int timerId)
 	{
@@ -969,19 +972,19 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 	// MacInterface
 	public void receive(Message msg)
 	{
-		((NetMessage.Ip)(((MacMessageVLC)msg).getBody())).Times.add(new TimeEntry(3, "macbtrec", null));
+		((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(3, "macbtrec", null));
 		
 		//if(localAddr.equals(((NetMessage.Ip)(((MacMessageVLC)msg).getBody())).getDst()) /*|| ((MacMessageVLC)msg).getDst().hashCode() == myRadio.NodeID )//) || NetAddress.LOCAL.equals(ipmsg.getDst()) */)
 //		if(myRadio.NodeID == ((NetMessage.Ip)(((MacMessageVLC)msg).getBody())).getDst().hashCode() || ((MacMessageVLC)msg).getDst().hashCode() == myRadio.NodeID)
 		//if(((MacMessageVLC)msg).getDst().hashCode() == myRadio.NodeID)
 	//	System.out.println("aa n: " + myRadio.NodeID + " dst: "+((MacMessageVLC)msg).getDst() + "  dst hsh: "+((MacMessageVLC)msg).getDst().hashCode() );
-		if(((MacMessageVLC)msg).getDst().hashCode() == myRadio.NodeID)
+		if(((MacVLCMessage)msg).getDst().hashCode() == myRadio.NodeID)
 		{
 		//	System.out.println("bam");
-			((NetMessage.Ip)(((MacMessageVLC)msg).getBody())).Times.add(new TimeEntry(71, "formenetip", null));  
+			((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(71, "formenetip", null));  
 		}
 		receivedMessages.addFirst((MacMessage)msg);
-		netEntity.receive(((MacMessageVLC)msg).getBody(), ((MacMessageVLC)msg).getSrc(), netId, false);
+		netEntity.receive(((MacVLCMessage)msg).getBody(), ((MacVLCMessage)msg).getSrc(), netId, false);
 		
 	}
 
@@ -1182,7 +1185,7 @@ public class MacVLCBoris implements MacInterface.VLCmacInterface//  MacInterface
 
 	public void notifyReceiveFail(Message msg, int errorCode) 
 	{
-		System.out.println("recFail #"+errorCode +" n: "+myRadio.NodeID+ " s: "+((MacMessageVLC)msg).getSrc()+" d: "+((MacMessageVLC)msg).getDst()+" msg hsh: "+msg.hashCode()); 
+		System.out.println("recFail #"+errorCode +" n: "+myRadio.NodeID+ " s: "+((MacVLCMessage)msg).getSrc()+" d: "+((MacVLCMessage)msg).getDst()+" msg hsh: "+msg.hashCode()); 
 	}
 }
 

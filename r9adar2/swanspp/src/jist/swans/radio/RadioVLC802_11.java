@@ -42,7 +42,7 @@ import jist.swans.field.Field;
 import jist.swans.field.Mobility.StaticInfo;
 import jist.swans.mac.MacInterface;
 import jist.swans.mac.MacMessage;
-import jist.swans.mac.MacMessageVLC;
+import jist.swans.mac.MacVLCMessage;
 import jist.swans.misc.Location;
 import jist.swans.misc.Message;
 import jist.swans.misc.Util;
@@ -152,8 +152,8 @@ public final class RadioVLC802_11 extends RadioNoise
 
 		UpdateNodeShape(true);
 
-		float visionTx = JistExperiment.getJistExperiment().getVLCvisionAngleTx();
-		float visionRx = JistExperiment.getJistExperiment().getVLCvisionAngleRx();
+		float visionTx = 70;//JistExperiment.getJistExperiment().getVLCvisionAngleTx();
+		float visionRx = 70;//JistExperiment.getJistExperiment().getVLCvisionAngleRx();
 
 		//right
 		/*T+ODO: kod testiranja 802_11 umjesto null ide this, pa treba fixati konstruktor senzora, idealno i najlakse bi bilo imati istu klasu za radio koja se isto zove pa samo zamijeniti kôd*/
@@ -722,7 +722,7 @@ public final class RadioVLC802_11 extends RadioNoise
 			((MacMessage)msg).setEndRx(tmpSensorReceive, JistAPI.getTime() + duration);
 			((MacMessage)msg).setPowerRx(tmpSensorReceive,  power_mW);
 			((MacMessage)msg).setInterferedRx(tmpSensorReceive, false);// .InterferedRx = false;
-			tmpSensorReceive.Messages.addFirst((MacMessageVLC)msg);
+			tmpSensorReceive.Messages.addFirst((MacVLCMessage)msg);
 			//	tmpSensorReceive.signalsRx ++;
 			setControlSignal(tmpSensorReceive, 1);
 			if(tmpSensorReceive.mode == SensorModes.Receive)
@@ -731,7 +731,7 @@ public final class RadioVLC802_11 extends RadioNoise
 				{
 					if(isVLC)
 					{
-						((MacInterface.VLCmacInterface) this.macEntity).notifyReceiveFail(msg, Constants.MacVlcErrorSensorRxIsBusy);
+						((MacInterface.VlcMacInterface) this.macEntity).notifyReceiveFail(msg, Constants.MacVlcErrorSensorRxIsBusy);
 					}
 					else
 					{//obicni mac
@@ -749,7 +749,7 @@ public final class RadioVLC802_11 extends RadioNoise
 			else
 			{
 				//nikada se ne bi trebalo desiti
-				((MacInterface.VLCmacInterface) this.macEntity).notifyReceiveFail(msg, Constants.MacVlcErrorSensorIsNotRX);
+				((MacInterface.VlcMacInterface) this.macEntity).notifyReceiveFail(msg, Constants.MacVlcErrorSensorIsNotRX);
 				return;
 
 			}
@@ -864,7 +864,7 @@ public final class RadioVLC802_11 extends RadioNoise
 							{
 								//nije ok, msg1 je interferirana
 								msg1.setInterferedRx(item, true);// .InterferedRx= true;
-								((MacInterface.VLCmacInterface) this.macEntity).notifyInterference(msg1, item);
+								((MacInterface.VlcMacInterface) this.macEntity).notifyInterference(msg1, item);
 							}
 						}
 					}//for msg1
@@ -962,7 +962,7 @@ public final class RadioVLC802_11 extends RadioNoise
 					((MacMessage)msg).setEndTx(tmpSensorTransmit, JistAPI.getTime()+duration + delay);
 					((MacMessage)msg).setStartTx(tmpSensorTransmit, JistAPI.getTime());
 					((MacMessage)msg).setDurationTx(tmpSensorTransmit, duration + delay);
-					tmpSensorTransmit.Messages.addFirst((MacMessageVLC)msg);
+					tmpSensorTransmit.Messages.addFirst((MacVLCMessage)msg);
 
 					isAtLeastOneTransmitting = true;
 				}
@@ -970,7 +970,7 @@ public final class RadioVLC802_11 extends RadioNoise
 				{
 					if(isVLC)
 					{
-						((MacInterface.VLCmacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxIsBusy);
+						((MacInterface.VlcMacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxIsBusy);
 					}
 					//ako je dobar mac ovo se ne smjelo desiti.
 					//setMode(Constants.RADIO_MODE_TRANSMITTING);
@@ -986,7 +986,7 @@ public final class RadioVLC802_11 extends RadioNoise
 			{
 				if(isVLC)
 				{
-					((MacInterface.VLCmacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorIsNotTX);
+					((MacInterface.VlcMacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorIsNotTX);
 				}
 				//isto se ne bi smjelo desiti
 				return;
@@ -997,7 +997,7 @@ public final class RadioVLC802_11 extends RadioNoise
 		{
 			if(!isAtLeastOneTransmitting)
 			{
-				((MacInterface.VLCmacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxAllBusy);	
+				((MacInterface.VlcMacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxAllBusy);	
 			}
 
 		}

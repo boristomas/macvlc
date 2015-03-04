@@ -6,7 +6,7 @@
 <int>90</int>
 </void>
 <void property="resolutionTime">
-<int>6000</int>
+<int>60</int>
 </void>
 <void property="startTime">
 <int>60</int>
@@ -105,8 +105,8 @@
 <int>4</int>
 </void>
 <void property="MACProtocol">
-<string>MACVLCprotocolBoris</string>
-<!-- <string>MACprotocol802_11</string>-->
+<!--<string>MACVLCprotocolBoris</string>-->
+<string>MACprotocol802_11</string>
 </void>
 <void property="MeasurementMode">
 <boolean>true</boolean>

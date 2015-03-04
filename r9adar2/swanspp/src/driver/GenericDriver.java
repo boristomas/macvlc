@@ -47,6 +47,7 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.Vector;
 
+import sun.io.Converters;
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.field.Fading;
@@ -84,7 +85,9 @@ import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioNoise;
 import jist.swans.radio.RadioNoiseIndep;
 import jist.swans.radio.RadioVLC;
+import jist.swans.radio.VLCsensor;
 import jist.swans.radio.Vizbt;
+import jist.swans.radio.VLCsensor.SensorModes;
 import jist.swans.route.RouteAodv;
 import jist.swans.route.RouteDsr;
 import jist.swans.route.RouteDsr_Ns2;
@@ -117,7 +120,7 @@ public class GenericDriver {
 	public static String MACVLCprotocolWill ="MACVLCprotocolWill";
 	public static String MACVLCprotocolBoris ="MACVLCprotocolBoris";
 	public static String MACVLCprotocolMate="MACVLCprotocolMate";
-	public static String MACprotocol802_11="MACprotocol802_11";
+	public static String MACprotocol802_11="MAC_802_11";
 	public static float setBearing = 0;
 	/**
 	 * Add node to the field and start it.
@@ -143,11 +146,64 @@ public class GenericDriver {
 			Mobility mobility, VisualizerInterface v) {
 		RadioNoise radio;
 		Location location;
+		float w=0,l=0,dw=0,dl=0, ofx = 0, ofy =0;
+		Random rand = new Random();
 
 		if (nodes != null) {
 			// radio
 			location = place.getNextLocation();//bt
-			radio = new RadioVLC(i, radioInfo, Constants.SNR_THRESHOLD_DEFAULT, location, ((Location.Location2D)location).StaticBearing);
+			String[] data = je.StaticPlacementOptions.split("x|;");
+
+			String[] splitdata;
+
+			splitdata = data[i-1].split("x|,");//i-1 je jer se cvorovi broje od 0
+			w = Float.parseFloat(splitdata[3]);
+			l = Float.parseFloat(splitdata[4]);
+			dw = Float.parseFloat(splitdata[5]);
+			dl = Float.parseFloat(splitdata[6]);
+			
+			int sid =0;
+			float los = 0;
+			float ang = 0;
+			float ox = 0, oy = 0, b = 0;
+			//0   1  2 3 4  5    6 7 		
+			//x , y ,b,w,l, dw, dl,
+			// 0  1 2  3  4  5 6			
+			//sX,ls,an,ox,oy,b,t; 
+			if(!JistExperiment.getJistExperiment().MeasurementMode)
+			{
+				ofx = (float) ((l + (rand.nextFloat()*2*dl)-dl)/2);
+				ofx = (float) ((w + (rand.nextFloat()*2*dw)-dw)/2);
+			}
+			else
+			{
+				ofx = (float) (l/2);
+				ofy = (float) (w/2);
+			}
+			
+			radio = new RadioVLC(i, radioInfo, Constants.SNR_THRESHOLD_DEFAULT, location, ((Location.Location2D)location).StaticBearing,w,l,dw,dl, ofx, ofy);
+			data = data[i-1].split("x|s");
+			for (int j = 1; j < data.length; j++) 
+			{
+				splitdata = data[j].split("x|,");
+				sid = Integer.parseInt(splitdata[0]);
+				los = Float.parseFloat(splitdata[1]);
+				ang = Float.parseFloat(splitdata[2]);
+				ox = Float.parseFloat(splitdata[3]);
+				oy = Float.parseFloat(splitdata[4]);
+				b = Float.parseFloat(splitdata[5]);
+				if(splitdata[6].equalsIgnoreCase("t"))
+				{
+					((RadioVLC)radio).InstalledSensorsTx.add(new VLCsensor(sid, (RadioVLC)radio,los, ang, location, ox*ofx, oy*ofy, b, SensorModes.Transmit));
+				}
+				else
+				{
+					((RadioVLC)radio).InstalledSensorsRx.add(new VLCsensor(sid, (RadioVLC)radio,los, ang, location, ox*ofx, oy*ofy, b, SensorModes.Receive));
+				}
+			
+			}
+			
+
 			//System.out.println("new radio bt "+ setBearing);
 
 			/*bt          switch (je.radioNoiseType) {
@@ -215,7 +271,7 @@ public class GenericDriver {
 		if(je.MACProtocol.equals(MACVLCprotocolWill))
 		{
 			Constants.VLCconstants.MACimplementationUsed = MACVLCprotocolWill;
-		/*	mac = new MacVLCWill(new MacAddress(i), radio.getRadioInfo());
+			/*	mac = new MacVLCWill(new MacAddress(i), radio.getRadioInfo());
 			((MacVLCWill) mac).setRadioEntity(radio.getProxy());
 			macProxy = ((MacVLCWill) mac).getProxy();
 			((MacVLCWill) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);*/
@@ -972,14 +1028,14 @@ public class GenericDriver {
 		long delayInterval = (long) (((double) je.cbrPacketSize / je.cbrRate) * 1 * Constants.SECOND);
 		long iterations = (long) Math.ceil(((double) je.duration * (double) Constants.SECOND) / delayInterval);
 		String poruka = "mac-vlc-intel-ntu-foi";
-		
+
 		byte[] data = null;
 		try {
 			data = java.util.Arrays.copyOf(poruka.getBytes("UTF-8"), je.cbrPacketSize);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}// new byte[je.cbrPacketSize];
-		
+
 		Message payload = new MessageBytes(data);
 
 		long currentTime = je.startTime * Constants.SECOND;
@@ -1066,7 +1122,7 @@ public class GenericDriver {
 										Constants.NET_PRIORITY_NORMAL,
 										(byte) Constants.TTL_DEFAULT);
 				//		cnter++;
-				
+
 				srcRoute.send(msg);
 				//System.out.println("BTc src= "+((NetMessage.Ip )msg).getSrc() + " dest= " + ((NetMessage.Ip )msg).getDst() + " .... " + src + " .... " + dest);
 			} // send message for each transmitter
@@ -1225,6 +1281,7 @@ public class GenericDriver {
 				public void run() {
 					showStats(nodes, je, startTime, freeMemory);
 					System.out.println(Constants.VLCconstants.PrintData());
+					System.err.println("wrap: end1");
 				}
 			}, JistAPI.END);
 		}

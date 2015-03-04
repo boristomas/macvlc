@@ -78,6 +78,7 @@ public class Vizbt {
 	}
 	public void DrawShape(Shape shp, Color clr, float StrokeWidth)
 	{
+		//StrokeWidth = 4;
 		//((Graphics2D)getGraph()).setStroke(new BasicStroke());	
 		((Graphics2D)getGraph()).setStroke(new BasicStroke(StrokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 3, 8 }, 0));
 		((Graphics2D)getGraph()).setColor(clr);
@@ -132,7 +133,7 @@ public class Vizbt {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setLocationRelativeTo(null);
-		frame.getContentPane().setBackground(new Color(127, 255, 212));
+		frame.getContentPane().setBackground(Color.WHITE);
 		
 		//frame.setBounds(100, 100, 450, 300);
 		frame.setExtendedState( frame.getExtendedState()|JFrame.MAXIMIZED_BOTH );
