@@ -580,7 +580,7 @@ public class MacVLCBoris implements MacInterface.VlcMacInterface//  MacInterface
 	private java.util.concurrent.ConcurrentLinkedQueue<MacVLCMessage> MessageQueue = new ConcurrentLinkedQueue<MacVLCMessage>();  
 	private VLCsensor tmpSensorTx1;
 	/**
-	 * send messaga
+	 * send message
 	 * @param msg
 	 * @param destination
 	 * @author BorisTomas
