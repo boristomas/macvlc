@@ -9,6 +9,7 @@
 
 package jist.swans;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -512,9 +513,13 @@ public final class Constants
 			boolean id72set = false;
 			PrintWriter writer;
 			try {
+				//File f = new File(filename);
+				//f.mkdirs();
 				writer = new PrintWriter(filename, "UTF-8");
+				
+		//		System.out.println(f.exists());
+		//		System.out.println(f.mkdirs());
 				//header
-			//	res += "\n";
 				writer.write("msgid,source,destination,0,1,11,12,2,21,250,251,252,3,4,5,6\n");
 				for (NetMessage.Ip item : TimeEntry.AllMessages)
 				{
