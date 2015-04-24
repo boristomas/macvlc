@@ -41,6 +41,11 @@ public abstract class MacMessage implements Message
 	//public HashSet<Integer> SensorIDRx = new HashSet<Integer>();
 	
 	private HashMap<VLCsensor, Long> StartRx = new HashMap<VLCsensor, Long>();
+	
+	/*
+	 * Checks if message is valid for vlc, it is false when mesasge is dropped, set at checkphyconditions at receive side. 
+	 */
+	public boolean isVLCvalid = true;
 	public long getStartRx(VLCsensor sensor)
 	{
 		if(!StartRx.containsKey(sensor))

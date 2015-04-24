@@ -701,11 +701,12 @@ public final class RadioVLC extends RadioNoise
 		{
 			msg = CheckPhyConditions(((MacMessage)msg).getSrc().hashCode(), NodeID, SensorModes.Receive, (MacMessage)msg);
 		}
-
-		if(msg == null)
+		
+		if(msg == null || ((MacMessage)msg).isVLCvalid == false)
 		{
 			return;
 		}
+		
 		if(isVLC)
 		{
 			((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(251, "radiovlct-rec", null));
@@ -1235,6 +1236,7 @@ public final class RadioVLC extends RadioNoise
 	{
 		//System.out.println("hshs : "+ msg.hashCode() );
 		tmpSensorRx = new HashSet<Integer>();
+		msg.isVLCvalid= true;
 		if(DestinationID != -1)//znaci da nije broadcast poruka, teoretski nikada nece sourceid biti -1 odnosno broadcast adresa
 		{
 			//			tmpSensorTx.clear();
@@ -1253,18 +1255,18 @@ public final class RadioVLC extends RadioNoise
 				else
 				{
 					//nisu si ni u trokutu
-					msg= null;
+					msg.isVLCvalid= false;
 				}
 			}
 			else if( mode == SensorModes.Receive)
 			{//znaci source sluša poruke
 				possibleNodes =getRangeAreaNodes(SourceID, SensorModes.Receive,-1);//send mode
 				tmpNodeList = getRangeAreaNodes(DestinationID, SensorModes.Transmit,-1);
-
+//TODO: ovaj tu if dolje provjerava samo postoji li u oba trokuta, treba to razdvojiti i vidjeti ako postoji samo u jednom a ne u drugom
 				if(possibleNodes.contains(DestinationID) && tmpNodeList.contains(SourceID))
 				{
 					possibleNodes.addAll(tmpNodeList);
-					if(/*msg.getSensorIDTx(SourceID).size() != 0 &&*/ msg.getSensorIDRx(DestinationID).size() != 0)
+					if(msg.getSensorIDRx(DestinationID).size() != 0)
 					{
 						//u ovom slucaju su poznate stxid i srxid liste.
 						for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.InstalledSensorsTx)
@@ -1289,7 +1291,7 @@ public final class RadioVLC extends RadioNoise
 
 						if(/*msg.getSensorIDTxSize(SourceID) == 0 ||*/ msg.getSensorIDRxSize(DestinationID) == 0)
 						{
-							msg = null;//dropped
+							msg.isVLCvalid =false;// = null;//dropped
 						}
 					}
 					else
@@ -1306,19 +1308,36 @@ public final class RadioVLC extends RadioNoise
 				}
 				else
 				{
-					msg=  null; //nisu si ni u trokutu.
+					
+					msg.isVLCvalid = false;//=  null; //nisu si ni u trokutu.
+					/*
+ *  81 - //ako je poruka droppana zbog asimetrije (pozicija)
+ *  82 - //ako je poruka droppana zbog asimetrije (orijentacija)
+ *  83 - //ako je poruka droppana zbog asimetrije (parcijanla)
+					 */
+					if(isVLC)
+					{
+						((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(81, "drop-asym1", msg));
+					}
+					else
+					{
+						if(msg instanceof MacMessage.Data)
+						{
+							((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(81, "drop-asym1", msg));
+						}
+					}
 				}
 			}
 			else
 			{
 				//should never happen, use send or receive
-				msg=  null;
+				msg.isVLCvalid = false;
 			}
 		}
 		else//broadcast poruka je
 		{
 			//nikada se nece dogoditi jer bcast filteriram na transmit metodi
-			msg = null;
+			msg.isVLCvalid = false;// = null;
 		}
 		return msg;
 	}

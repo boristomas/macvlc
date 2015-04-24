@@ -118,7 +118,7 @@ public class GenericDriver {
 
 	//	public static String MACprotocol;
 	public static String MACVLCprotocolWill ="MACVLCprotocolWill";
-	public static String MACVLCprotocolBoris ="MACVLCprotocolBoris";
+	public static String MACVLCprotocolBoris ="MAC_VLC_V1";
 	public static String MACVLCprotocolMate="MACVLCprotocolMate";
 	public static String MACprotocol802_11="MAC_802_11";
 	public static float setBearing = 0;
