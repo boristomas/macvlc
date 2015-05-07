@@ -98,7 +98,7 @@ public final class RadioVLC extends RadioNoise
 	float NodeBearing =0;
 	Location NodeLocation;
 	public static boolean isVLC = false;
-	
+
 	//802.11
 	protected int signalsRx;
 	protected int signalsTx;
@@ -128,12 +128,12 @@ public final class RadioVLC extends RadioNoise
 	 */
 	public RadioVLC(int id, RadioInfo.RadioInfoShared sharedInfo, double thresholdSNR, Location location, float staticBearing, float w, float l, float dw, float dl, float ox, float oy)
 	{
-		
+
 		super(id, sharedInfo);
 		this.NodeID = id;
 		setThresholdSNR(thresholdSNR);
-		
-		
+
+
 		nodeInitialBearing = staticBearing;
 		startLocation = location;
 		//offsets are half length from center point to edge of vehicle. example vehicle length is 5m and width is 2m. xoffset is 2.5 and yoffset is 1. 
@@ -141,7 +141,7 @@ public final class RadioVLC extends RadioNoise
 		offsety = oy;
 
 		UpdateNodeShape(true);
-/*
+		/*
 		float visionTx = 60;//JistExperiment.getJistExperiment().getVLCvisionAngleTx();
 		float visionRx = 60;//JistExperiment.getJistExperiment().getVLCvisionAngleRx();
 		float lineOfSightRx = 30;//JistExperiment.getJistExperiment().getVLCLOSRx();
@@ -156,7 +156,7 @@ public final class RadioVLC extends RadioNoise
 
 		InstalledSensorsRx.add(new VLCsensor(5, this, lineOfSightRx, visionRx, location,    offsetx, 0, 0, SensorModes.Receive));//front Rx
 		InstalledSensorsRx.add(new VLCsensor(6, this, lineOfSightRx, visionRx, location, -1*offsetx, 0, 180, SensorModes.Receive));//back Rx
-*/
+		 */
 		if(JistExperiment.getJistExperiment().getMACProtocol().contains("VLC"))
 		{
 			isVLC = true;
@@ -701,12 +701,12 @@ public final class RadioVLC extends RadioNoise
 		{
 			msg = CheckPhyConditions(((MacMessage)msg).getSrc().hashCode(), NodeID, SensorModes.Receive, (MacMessage)msg);
 		}
-		
+
 		if(msg == null || ((MacMessage)msg).isVLCvalid == false)
 		{
 			return;
 		}
-		
+
 		if(isVLC)
 		{
 			((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(251, "radiovlct-rec", null));
@@ -937,34 +937,34 @@ public final class RadioVLC extends RadioNoise
 		}
 	}
 
-	
-	  /**
-	   * Lock onto current packet signal.
-	   *
-	   * @param msg packet currently on the air
-	   * @param power_mW signal power (units: mW)
-	   * @param duration time to EOT (units: simtime)
-	   */
-	  protected void lockSignal(Message msg, double power_mW, long duration)
-	  {
-	      
-	      seqNumber++;
-	    signalBufferRx = msg;
-	    signalPower_mW = power_mW;
-	    signalFinish = JistAPI.getTime() + duration;
-	    this.macEntity.peek(msg);
-	  }
-	  
-	  /**
-	   * Unlock from current packet signal.
-	   */
-	  protected void unlockSignal()
-	  {
-	    signalBufferRx = null;
-	    signalPower_mW = 0;
-	    signalFinish = -1;
-	  }  
-	  
+
+	/**
+	 * Lock onto current packet signal.
+	 *
+	 * @param msg packet currently on the air
+	 * @param power_mW signal power (units: mW)
+	 * @param duration time to EOT (units: simtime)
+	 */
+	protected void lockSignal(Message msg, double power_mW, long duration)
+	{
+
+		seqNumber++;
+		signalBufferRx = msg;
+		signalPower_mW = power_mW;
+		signalFinish = JistAPI.getTime() + duration;
+		this.macEntity.peek(msg);
+	}
+
+	/**
+	 * Unlock from current packet signal.
+	 */
+	protected void unlockSignal()
+	{
+		signalBufferRx = null;
+		signalPower_mW = 0;
+		signalFinish = -1;
+	}  
+
 	//bt
 	public long getSimulationTime()
 	{
@@ -1219,8 +1219,8 @@ public final class RadioVLC extends RadioNoise
 	}
 
 	//bt
-	private HashSet<Integer> possibleNodes;// =  new HashSet<Integer>();
-	private HashSet<Integer> tmpNodeList;
+	private HashSet<Integer> NodesThatSourceCanSee;// =  new HashSet<Integer>();
+	private HashSet<Integer> NodesThatDestinationCanSee;
 	//	private HashSet<Integer> tmpSensorTx = new HashSet<Integer>();
 	private HashSet<Integer> tmpSensorRx;
 
@@ -1245,10 +1245,10 @@ public final class RadioVLC extends RadioNoise
 			{//znaci sourceid šalje
 				//never happens!
 
-				possibleNodes.addAll(getRangeAreaNodes(SourceID, mode,-1));//send mode
-				tmpNodeList = getRangeAreaNodes(DestinationID, SensorModes.Receive,-1);
+				NodesThatSourceCanSee.addAll(getRangeAreaNodes(SourceID, mode,-1));//send mode
+				NodesThatDestinationCanSee = getRangeAreaNodes(DestinationID, SensorModes.Receive,-1);
 
-				if(possibleNodes.contains(DestinationID) && tmpNodeList.contains(SourceID))
+				if(NodesThatSourceCanSee.contains(DestinationID) && NodesThatDestinationCanSee.contains(SourceID))
 				{
 
 				}
@@ -1260,12 +1260,12 @@ public final class RadioVLC extends RadioNoise
 			}
 			else if( mode == SensorModes.Receive)
 			{//znaci source sluša poruke
-				possibleNodes =getRangeAreaNodes(SourceID, SensorModes.Receive,-1);//send mode
-				tmpNodeList = getRangeAreaNodes(DestinationID, SensorModes.Transmit,-1);
-//TODO: ovaj tu if dolje provjerava samo postoji li u oba trokuta, treba to razdvojiti i vidjeti ako postoji samo u jednom a ne u drugom
-				if(possibleNodes.contains(DestinationID) && tmpNodeList.contains(SourceID))
+				NodesThatSourceCanSee =getRangeAreaNodes(SourceID, SensorModes.Transmit,-1);//send mode
+				NodesThatDestinationCanSee = getRangeAreaNodes(DestinationID, SensorModes.Receive,-1);
+				
+				if(NodesThatSourceCanSee.contains(DestinationID) && NodesThatDestinationCanSee.contains(SourceID))
 				{
-					possibleNodes.addAll(tmpNodeList);
+					NodesThatSourceCanSee.addAll(NodesThatDestinationCanSee);
 					if(msg.getSensorIDRx(DestinationID).size() != 0)
 					{
 						//u ovom slucaju su poznate stxid i srxid liste.
@@ -1308,22 +1308,38 @@ public final class RadioVLC extends RadioNoise
 				}
 				else
 				{
-					
 					msg.isVLCvalid = false;//=  null; //nisu si ni u trokutu.
-					/*
- *  81 - //ako je poruka droppana zbog asimetrije (pozicija)
- *  82 - //ako je poruka droppana zbog asimetrije (orijentacija)
- *  83 - //ako je poruka droppana zbog asimetrije (parcijanla)
-					 */
-					if(isVLC)
+					if( (NodesThatSourceCanSee.contains(DestinationID) && !NodesThatDestinationCanSee.contains(SourceID) )|| (!NodesThatSourceCanSee.contains(DestinationID) && NodesThatDestinationCanSee.contains(SourceID)) )
 					{
-						((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(81, "drop-asym1", msg));
+						if(isVLC)
+						{
+							((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(83, "drop-asym3", null));
+						}
+						else
+						{
+							if(msg instanceof MacMessage.Data)
+							{
+								((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(83, "drop-asym3", null));
+							}
+						}
 					}
 					else
-					{
-						if(msg instanceof MacMessage.Data)
+					{						
+						/*
+						 *  NE KORISTI SE: 81 - //ako je poruka droppana zbog asimetrije (pozicija), ne koristi se jer nije relevantno, pozicijska asimetrija nije rezultat konfiguracije tx/rx vec pozicije automobila i LOS prepreka. 
+						 *  82 - //ako je poruka droppana zbog asimetrije (orijentacija)
+						 *  83 - //ako je poruka droppana zbog asimetrije (parcijanla)
+						 */
+						if(isVLC)
 						{
-							((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(81, "drop-asym1", msg));
+							((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(81, "drop-asym1", null));
+						}
+						else
+						{
+							if(msg instanceof MacMessage.Data)
+							{
+								((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(81, "drop-asym1", null));
+							}
 						}
 					}
 				}
@@ -1528,7 +1544,8 @@ public final class RadioVLC extends RadioNoise
 	/**
 	 * Gets the list of nodeIDs that source can see
 	 * @param SourceNodeID
-	 * @param sensorID use sensorID = -1 to check all sensors. setting to specific sensor will check only for that sensor.
+	 * @param sensorID use sensorID = -1 to check all sensors. setting this parameter to a specific sensor will check only for that sensor.
+	 * @param mode
 	 * @return
 	 */
 	private HashSet<Integer> getRangeAreaNodes(int SourceNodeID, SensorModes mode, int sensorID)
@@ -1589,7 +1606,7 @@ public final class RadioVLC extends RadioNoise
 		}//for all nodes
 		return returnNodes;
 	}
-	
+
 	int angcnt= 0;
 	double angsum = 0;
 	public double GetAngleRx(Location srcLocation) 

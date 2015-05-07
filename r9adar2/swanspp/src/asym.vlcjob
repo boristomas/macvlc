@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <java version="1.4.2_05" class="java.beans.XMLDecoder">
   <!--wrap:version=1-->
-  <!--wrap:offsetleft:wrap=-87,495wrap:offsetleft:wrap-->
-  <!--wrap:offsettop:wrap=-89,8486666666667wrap:offsettop:wrap-->
+  <!--wrap:offsetleft:wrap=-98,795wrap:offsetleft:wrap-->
+  <!--wrap:offsettop:wrap=-81,352wrap:offsettop:wrap-->
   <!--wrap:scale:wrap=30wrap:scale:wrap-->
   <!--wrap:id:wrap=992e509f-a710-4807-b984-5015680c945cwrap:id:wrap-->
   <!--wrap:title:wrap=asymwrap:title:wrap-->
@@ -94,7 +94,7 @@
     </void>
     <void property="StaticPlacementOptions">
       <!-- ID,los,ang,loc,offsetx, offsety,bearing,mode -->
-      <string>100.1,100,0,1.7,5,0,0,s1,60.73,50,1.01333,0.00978,0,r,s2,60.87,70,1,-0.00982,0,t;100,103.63,90,1.7,5,0,0,s1,60.73,50,1.01333,0.00978,0,r,s2,60.87,70,1,-0.00982,0,t;</string>
+      <string>100,100.2,0,1.7,5,0,0,s1,60.73,50,1.01333,0.00978,0,r,s2,60.87,70,1,-0.00982,0,t;121.73,100,-180,1.7,5,0,0,s1,60.73,50,1.01333,0.00978,0,r,s2,60.87,70,1,-0.00982,0,t;121.7,102.77,180,1.7,5,0,0,s1,60.73,50,1.01333,0.00978,0,r,s2,60.87,70,1,-0.00982,0,t;</string>
     </void>
     <void property="ResultsPath">
       <string>C:\Users\BorisTomas\Desktop\r992e509f-a710-4807-b984-5015680c945c.csv</string>
@@ -103,7 +103,7 @@
       <int>4096</int>
     </void>
     <void property="nodes">
-      <int>2</int>
+      <int>3</int>
     </void>
     <void property="transmitters">
       <int>2</int>
