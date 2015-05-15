@@ -148,7 +148,7 @@ public class GenericDriver {
 		Location location;
 		float w=0,l=0,dw=0,dl=0, ofx = 0, ofy =0;
 		Random rand = new Random();
-
+		int ind = i;
 		if (nodes != null) {
 			// radio
 			location = place.getNextLocation();//bt
@@ -156,7 +156,11 @@ public class GenericDriver {
 
 			String[] splitdata;
 
-			splitdata = data[i-1].split("x|,");//i-1 je jer se cvorovi broje od 0
+			if(je.placement != Constants.PLACEMENT_GRID)
+			{
+				ind = 1;
+			}
+			splitdata = data[ind-1].split("x|,");//i-1 je jer se cvorovi broje od 0
 			w = Float.parseFloat(splitdata[3]);
 			l = Float.parseFloat(splitdata[4]);
 			dw = Float.parseFloat(splitdata[5]);
@@ -182,7 +186,7 @@ public class GenericDriver {
 			}
 			
 			radio = new RadioVLC(i, radioInfo, Constants.SNR_THRESHOLD_DEFAULT, location, ((Location.Location2D)location).StaticBearing,w,l,dw,dl, ofx, ofy);
-			data = data[i-1].split("x|s");
+			data = data[ind-1].split("x|s");
 			for (int j = 1; j < data.length; j++) 
 			{
 				splitdata = data[j].split("x|,");

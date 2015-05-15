@@ -39,7 +39,7 @@
     </void>
     <!--  mobility options  -->
     <void property="mobility">
-      <int>1</int>
+      <int>6</int>
     </void>
     <void property="max_speed">
       <int>20</int>
@@ -86,9 +86,7 @@
       <double>1.0</double>
     </void>
     <!--  placement options  -->
-    <void property="placement">
-      <int>2</int>
-    </void>
+  
     <void property="spatial_mode">
       <int>2</int>
     </void>
@@ -103,10 +101,10 @@
       <int>4096</int>
     </void>
     <void property="nodes">
-      <int>3</int>
+      <int>300</int>
     </void>
     <void property="transmitters">
-      <int>2</int>
+      <int>300</int>
     </void>
     <void property="MACProtocol">
       <!--<string>MACVLCprotocolBoris</string>-->
@@ -117,7 +115,7 @@
     </void>
     <!--  field options  -->
     <void property="placement">
-      <int>2</int>
+      <int>3</int>
     </void>
     <!-- fieldx i fieldy su granice polja, definiraju velicinu, svi cvorovi trebaju biti unutar pravokutnika definiranog sa fieldx i fieldy -->
     <void property="fieldX">
@@ -129,7 +127,7 @@
 
     <!--  visualization options  -->
     <void property="useVisualizer">
-      <boolean>false</boolean>
+      <boolean>true</boolean>
     </void>
     <!--  other options  -->
     <void property="port">
