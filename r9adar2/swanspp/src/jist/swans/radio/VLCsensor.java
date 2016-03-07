@@ -50,7 +50,7 @@ public class VLCsensor
 	public Location sensorLocation1;//top
 	public Location sensorLocation2;//bottom
 	private float sensorBearingNotRelative;
-	private float stickOut = 0.001F; //1cm
+	private float stickOut = 0.00001F; //1cm
 //	public int signalsRx;
 	public LinkedList<MacVLCMessage> Messages = new LinkedList<MacVLCMessage>();
 //	public long CurrentMessageEnd;
@@ -107,27 +107,17 @@ public class VLCsensor
 		 * http://djw.cs.washington.edu/papers/mimo_for_dummies.pdf
 		 * */
 		this.node = node;
-		//this.signalsRx = 0;
 		this.distanceLimit = distancelimit; 
 		this.visionAngle = visionAngle;
 		this.offsetX = offsetX;
 		this.offsetY = offsetY;
-		if(this.offsetX >0)
-		{
-			this.offsetX += stickOut;
-		}
-		else
-		{
-			this.offsetX -= stickOut;
-		}
-		if(this.offsetY >0)
-		{
-			this.offsetY += stickOut;
-		}
-		else
-		{
-			this.offsetY -= stickOut;
-		}
+		
+	
+		float dAB  = (float) Point.distance(this.offsetX, this.offsetY, 0, 0);
+		
+		this.offsetX = (1* this.offsetX * (this.stickOut + dAB)) / dAB;
+		this.offsetY = (1* this.offsetY * (this.stickOut + dAB)) / dAB;
+		
 		this.Bearing = bearing;
 		this.sensorID = sensorID;
 		this.mode = mode;

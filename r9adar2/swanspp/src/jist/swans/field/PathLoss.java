@@ -71,8 +71,8 @@ public interface PathLoss
 		{			
 			double m= 2;
 			double n= 1.5;
-//			double psiC= JistExperiment.getJistExperiment().getVLCvisionAngleRx();
-			double psiC= ((RadioVLC)dstRadio.getUnique().GetRadio()).GetAngleRx(srcLocation);//  JistExperiment.getJistExperiment().getVLCvisionAngleRx();
+			
+			double psiC= ((RadioVLC)dstRadio.getUnique().GetRadio()).GetAngleRx(srcLocation);
 			double txPwr= srcRadio.getShared().getPower();
 			double A = 0.0001;
 			double Dd= srcLocation.distance(dstLocation);
@@ -81,39 +81,18 @@ public interface PathLoss
 			double H0 = 0;
 			double rxPwr;
 
-			//	((RadioVLC)srcRadio)getClass().g
-
-
-			//arctangens kuta je koeficijent smjera pravca.
 			
 			fiAngle = Math.toDegrees(Math.atan( (srcLocation.getY()-dstLocation.getY())/(srcLocation.getX()-dstLocation.getX())));
-		//	System.out.println(" S fiangle = " +fiAngle);
-			//psiAngle = fiAngle- (fiAngle + ((RadioVLC) dstRadio.getUnique().GetRadio()).GetBearing());  // Field.getRadioData(dstRadio.getUnique().getID()).getMobilityInfo().getBearingAsAngle();
 			psiAngle = ( 180- fiAngle- ((RadioVLC) dstRadio.getUnique().GetRadio()).getBearing() - 180);
-			
-		/*	if(psiAngle != 0)
-			{
-	//			psiAngle = 360%psiAngle;
-			}*/
+
 			fiAngle = fiAngle+ ((RadioVLC) srcRadio.getUnique().GetRadio()).getBearing();
 			
 			psiAngle = Math.abs(psiAngle);
 			fiAngle = Math.abs(fiAngle);
-		/*	if(fiAngle != 0)
-			{
-		//		fiAngle = 360%fiAngle;
-			}*/
-		/*	if(srcRadio.getUnique().getID() != dstRadio.getUnique().getID())
-			{
-				System.out.println(srcRadio.getUnique().getID() +  " --> " +dstRadio.getUnique().getID()+" fiangle = " +fiAngle + " psiangle = "+ psiAngle);
-			}*/
 
 			if (psiAngle>psiC/2)
 			{
 
-				//Za�to je ova provjera tu, nije li to neto�no
-				//ulazni kut je kut izme�u normale i ulazne zrake
-				//psiC je vision angle. pretpostavljam da bi trebalo biti psiangle > psic/2
 				H0 = 0;
 			}
 			else
@@ -121,22 +100,6 @@ public interface PathLoss
 				H0 = (((m+1)*A)/(2*Math.PI*Dd*Dd)) * ( Math.pow(Math.cos(fiAngle),m) * Ts(psiAngle) * g(psiAngle, psiC, n)* Math.cos(psiAngle));
 			}
 			return H0 * txPwr;
-			//double vrijhe =Util.fromDB(-57);
-			//double vrije=H0/(Ts(psiAngle)*g(psiAngle, psiC,n));// rxPwr;
-
-			//	System.out.println("PL: db:" + vrijhe+ " H0: "+ H0 + " fin: "+ vrije);
-			//return vrije;
-			/*
-			double dist = srcLocation.distance(dstLocation);
-
-
-			double pathloss = - srcRadio.getShared().getGain() - dstRadio.getShared().getGain();
-			double valueForLog = 4.0 * Math.PI * dist / srcRadio.getShared().getWaveLength();
-			if (valueForLog > 1.0)
-			{
-				pathloss += Util.log((float)valueForLog) / Constants.log10 * 20.0;
-			}
-			return pathloss;*/
 		}
 		private double Ts(double psiAngle)
 		{

@@ -140,7 +140,7 @@ public class GenericDriver {
 	 */
 	public static Vizbt btviz = null;
 	@SuppressWarnings("unchecked")
-	public static void addNode(JistExperiment je, int i, Vector nodes,				//T-ODO: START HERE
+	public static void addNode(JistExperiment je, int i, Vector nodes,				
 			Field field, Placement place, RadioInfo.RadioInfoShared radioInfo,
 			Mapper protMap, PacketLoss inLoss, PacketLoss outLoss,
 			Mobility mobility, VisualizerInterface v) {

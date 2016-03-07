@@ -35,6 +35,9 @@ import jist.swans.radio.VLCsensor;
 public  class MacVLCMessage extends MacMessage
 {
 	
+	//TODO: vidjeti treba li trackati i start i end time u poruci za pojedine cvorove
+	//Ne treba jer je cvor id vidljiv iz objekta klase senzor.
+	
 	
 	
 	//sensor control

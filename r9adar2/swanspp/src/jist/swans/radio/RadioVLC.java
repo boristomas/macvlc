@@ -1235,12 +1235,13 @@ public final class RadioVLC extends RadioNoise
 	private MacMessage CheckPhyConditions(int SourceID, int DestinationID, SensorModes mode, MacMessage msg)
 	{
 		//System.out.println("hshs : "+ msg.hashCode() );
+	//	NodesThatDestinationCanSee.clear();
+	//	NodesThatSourceCanSee.clear();
+		
 		tmpSensorRx = new HashSet<Integer>();
 		msg.isVLCvalid= true;
 		if(DestinationID != -1)//znaci da nije broadcast poruka, teoretski nikada nece sourceid biti -1 odnosno broadcast adresa
 		{
-			//			tmpSensorTx.clear();
-			//		possibleNodes = new HashSet<Integer>();
 			if(mode == SensorModes.Transmit)
 			{//znaci sourceid šalje
 				//never happens!
@@ -1250,7 +1251,6 @@ public final class RadioVLC extends RadioNoise
 
 				if(NodesThatSourceCanSee.contains(DestinationID) && NodesThatDestinationCanSee.contains(SourceID))
 				{
-
 				}
 				else
 				{
@@ -1260,7 +1260,7 @@ public final class RadioVLC extends RadioNoise
 			}
 			else if( mode == SensorModes.Receive)
 			{//znaci source sluša poruke
-				NodesThatSourceCanSee =getRangeAreaNodes(SourceID, SensorModes.Transmit,-1);//send mode
+				NodesThatSourceCanSee = getRangeAreaNodes(SourceID, SensorModes.Transmit,-1);//send mode
 				NodesThatDestinationCanSee = getRangeAreaNodes(DestinationID, SensorModes.Receive,-1);
 				
 				if(NodesThatSourceCanSee.contains(DestinationID) && NodesThatDestinationCanSee.contains(SourceID))
@@ -1308,18 +1308,20 @@ public final class RadioVLC extends RadioNoise
 				}
 				else
 				{
-					msg.isVLCvalid = false;//=  null; //nisu si ni u trokutu.
+					//nisu si ni u trokutu , nema LOS.
+					
+					msg.isVLCvalid = false;//=  null;
 					if( (NodesThatSourceCanSee.contains(DestinationID) && !NodesThatDestinationCanSee.contains(SourceID) )|| (!NodesThatSourceCanSee.contains(DestinationID) && NodesThatDestinationCanSee.contains(SourceID)) )
 					{
 						if(isVLC)
 						{
-							((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(83, "drop-asym3", null));
+							((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(82, "drop-asym2", null));
 						}
 						else
 						{
 							if(msg instanceof MacMessage.Data)
 							{
-								((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(83, "drop-asym3", null));
+								((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(82, "drop-asym2", null));
 							}
 						}
 					}
@@ -1328,7 +1330,7 @@ public final class RadioVLC extends RadioNoise
 						/*
 						 *  NE KORISTI SE: 81 - //ako je poruka droppana zbog asimetrije (pozicija), ne koristi se jer nije relevantno, pozicijska asimetrija nije rezultat konfiguracije tx/rx vec pozicije automobila i LOS prepreka. 
 						 *  82 - //ako je poruka droppana zbog asimetrije (orijentacija)
-						 *  83 - //ako je poruka droppana zbog asimetrije (parcijanla)
+						 *  83 - //ako je poruka droppana zbog asimetrije (parcijalna)
 						 */
 						if(isVLC)
 						{
@@ -1552,8 +1554,8 @@ public final class RadioVLC extends RadioNoise
 	{
 
 		HashSet<Integer> returnNodes = new HashSet<Integer>();
-		LinkedList<VLCsensor> sourceSensors = new LinkedList<VLCsensor>();
-		LinkedList<VLCsensor> destinationSensors = new LinkedList<VLCsensor>();
+		LinkedList<VLCsensor> sourceSensors = null;// = new LinkedList<VLCsensor>();
+		LinkedList<VLCsensor> destinationSensors =null;// = new LinkedList<VLCsensor>();
 
 		if(mode == SensorModes.Transmit)
 		{
@@ -1571,15 +1573,16 @@ public final class RadioVLC extends RadioNoise
 		}
 		if(sensorID != -1)
 		{
+			sourceSensors = new LinkedList<VLCsensor>();
 			sourceSensors.add(Field.getRadioData(SourceNodeID).vlcdevice.GetSensorByID(sensorID));
 		}
 
-
+		boolean stopSearch = false;
 		for(int i=1;i<=JistExperiment.getJistExperiment().getNodes(); i++) 
 		{	
 			if(SourceNodeID != i)
 			{
-				boolean stopSearch = false;
+				stopSearch = false;
 				if(mode == SensorModes.Transmit)
 				{
 					destinationSensors = Field.getRadioData(i).vlcdevice.InstalledSensorsRx;
