@@ -121,7 +121,8 @@ public class GenericDriver {
 	public static String MACVLCprotocolBoris ="MAC_VLC_V1";
 	public static String MACVLCprotocolMate="MACVLCprotocolMate";
 	public static String MACprotocol802_11="MAC_802_11";
-	public static float setBearing = 0;
+	public static float setBearing = 0;	
+	public static Vizbt btviz = null;
 	/**
 	 * Add node to the field and start it.
 	 *
@@ -138,7 +139,7 @@ public class GenericDriver {
 	 * @param mobility the mobility model to use
 	 * @param v the visualization object
 	 */
-	public static Vizbt btviz = null;
+
 	@SuppressWarnings("unchecked")
 	public static void addNode(JistExperiment je, int i, Vector nodes,				
 			Field field, Placement place, RadioInfo.RadioInfoShared radioInfo,

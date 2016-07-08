@@ -27,8 +27,8 @@ import jist.swans.net.NetMessage;
  *  70 - //ako je poruka na phy sloju za cvor u kojem se i nalazi.
  *  71 - //ako je poruka na net sloju i destination poruke odgovara adresi cvora na net sloju.
  *  81 - //ako je poruka droppana zbog asimetrije (pozicija)
- *  82 - //ako je poruka droppana zbog asimetrije (orijentacija)
- *  83 - //ako je poruka droppana zbog asimetrije (parcijanla)
+ *  82 - //ako je poruka droppana zbog asimetrije (pozicijska)
+ *  83 - //ako je poruka droppana zbog asimetrije (design)
  * @author BorisTomas
  * 
  */

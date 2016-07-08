@@ -59,10 +59,10 @@ import driver.JistExperiment;
 import driver.spatial;
 
 /** 
- * <code>RadioNoiseIndep</code> implements a radio with an independent noise model.
+ * <code>RadioNoiseIndep</code> implements a VLC radio with an independent noise model.
  *
- * @author Rimon Barr &lt;barr+jist@cs.cornell.edu&rt;
- * @version $Id: RadioNoiseIndep.java,v 1.1 2007/04/09 18:49:46 drchoffnes Exp $
+ * @author boris.tomas@gmail.com
+ * @version 0.6
  * @since SWANS1.0
  */
 
@@ -84,11 +84,11 @@ public final class RadioVLC extends RadioNoise
 	/**
 	 * threshold signal-to-noise ratio.
 	 */
+	protected double thresholdSNR;
 	private VLCsensor tmpsensor;
 	public LinkedList<VLCsensor> InstalledSensorsTx = new LinkedList<VLCsensor>();
 	public LinkedList<VLCsensor> InstalledSensorsRx = new LinkedList<VLCsensor>();
-	//public int lineOfSight = 30;
-	protected double thresholdSNR;
+	
 	private float offsetx;
 	private float offsety;
 	private Location startLocation; //start location set on ctor.
@@ -113,17 +113,6 @@ public final class RadioVLC extends RadioNoise
 	 *
 	 * @param id radio identifier
 	 * @param sharedInfo shared radio properties
-	 */
-	/*	public RadioVLC(int id, RadioInfo.RadioInfoShared sharedInfo, Location location)
-	{
-		this(id, sharedInfo, Constants.SNR_THRESHOLD_DEFAULT, location);
-	}*/
-
-	/**
-	 * Create new radio with independent noise model.
-	 *
-	 * @param id radio identifier
-	 * @param sharedInfo shared radio properties
 	 * @param thresholdSNR threshold signal-to-noise ratio
 	 */
 	public RadioVLC(int id, RadioInfo.RadioInfoShared sharedInfo, double thresholdSNR, Location location, float staticBearing, float w, float l, float dw, float dl, float ox, float oy)
@@ -136,7 +125,8 @@ public final class RadioVLC extends RadioNoise
 
 		nodeInitialBearing = staticBearing;
 		startLocation = location;
-		//offsets are half length from center point to edge of vehicle. example vehicle length is 5m and width is 2m. xoffset is 2.5 and yoffset is 1. 
+		//offsets are half length from center point to edge of vehicle. example vehicle length 
+		//is 5m and width is 2m. xoffset is 2.5 and yoffset is 1. 
 		offsetx = ox;
 		offsety = oy;
 
@@ -602,14 +592,6 @@ public final class RadioVLC extends RadioNoise
 		Dx = tmpLoc.getX();
 		Dy = tmpLoc.getY();
 
-
-		/*outlineShape = new Polygon();
-		outlineShape.addPoint((int)Ax, (int)Ay);
-		outlineShape.addPoint((int)Bx, (int)By);
-		outlineShape.addPoint((int)Cx, (int)Cy);
-		outlineShape.addPoint((int)Dx, (int)Dy);
-		 */
-
 		outlineShape = new Path2D.Double();
 		outlineShape.moveTo(Ax, Ay);
 		outlineShape.lineTo(Bx, By);
@@ -624,6 +606,9 @@ public final class RadioVLC extends RadioNoise
 			GenericDriver.btviz.DrawString(NodeID+"", Color.BLUE, NodeLocation.getX(),  NodeLocation.getY());
 		}
 	}
+	/*
+	 * Rotates the point (ptx, pty) around center location (center) by angle (angleDed) in degrees
+	 */
 	protected static Location rotatePoint(float ptx, float pty, Location center, double angleDeg)
 	{
 		double angleRad = (angleDeg/180)*Math.PI;
@@ -638,7 +623,6 @@ public final class RadioVLC extends RadioNoise
 		return new Location.Location2D(ptx, pty);
 	}
 
-	//	public Dictionary<Sensor, Message> messagesOnAir;
 	//////////////////////////////////////////////////
 	// reception
 	//
@@ -666,8 +650,6 @@ public final class RadioVLC extends RadioNoise
 		if(!isVLC && mode == Constants.RADIO_MODE_TRANSMITTING)
 		{
 			//TODO: 802.11 - teoretski ne moze primati i slati u isto vrijeme?? moze, kaze hsin-mu
-
-			//	System.out.println("receiving while transmitting is not allowed.");
 			//radio ne moze primat i slati, ako pocne ista primati a traje slanje jednostavno cu discardati poruku.
 
 			//	return;
@@ -686,8 +668,6 @@ public final class RadioVLC extends RadioNoise
 		{
 			((MacMessage)msg).addSensorIDRx(item.sensorID, NodeID);
 		}//postavio sam sve senzore, u can talk se ce filtrirati samo oni koji mogu vidjeti poruku.
-
-
 
 		//u cantalk prosljeðujem id cvora koji je primio poruku.
 		//provjeravam jesu li si u piti ili ne.
@@ -1265,10 +1245,11 @@ public final class RadioVLC extends RadioNoise
 				
 				if(NodesThatSourceCanSee.contains(DestinationID) && NodesThatDestinationCanSee.contains(SourceID))
 				{
-					NodesThatSourceCanSee.addAll(NodesThatDestinationCanSee);
+			//TODO: vidjeti zasto je ovo postojalo uopce: NodesThatSourceCanSee.addAll(NodesThatDestinationCanSee);
 					if(msg.getSensorIDRx(DestinationID).size() != 0)
 					{
 						//u ovom slucaju su poznate stxid i srxid liste.
+						boolean isVisible = false;
 						for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.InstalledSensorsTx)
 						{
 							if(msg.getSensorIDTx(SourceID).contains(sensorSrc.sensorID))
@@ -1279,10 +1260,28 @@ public final class RadioVLC extends RadioNoise
 									if (IsSensorVisibleToSensor(sensorSrc, sensorDest)) 
 									{
 										//			tmpSensorTx.add(sensorSrc.sensorID);
+										isVisible = true;
 										tmpSensorRx.add(sensorDest.sensorID);
 									}
 								}
 							}
+						}
+						if(!isVisible)
+						{
+							//nije visible onda je problem asimetrije u dizajnu
+							if(isVLC)
+							{
+								((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(84, "drop-asym4", null));
+							}
+							else
+							{
+								if(msg instanceof MacMessage.Data)
+								{
+									((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(84, "drop-asym4", null));
+								}
+							}
+							
+							
 						}
 						//	msg.SensorIDTx.clear();
 						//			msg.setSensorIDTx(tmpSensorTx, SourceID);
@@ -1311,8 +1310,10 @@ public final class RadioVLC extends RadioNoise
 					//nisu si ni u trokutu , nema LOS.
 					
 					msg.isVLCvalid = false;//=  null;
-					if( (NodesThatSourceCanSee.contains(DestinationID) && !NodesThatDestinationCanSee.contains(SourceID) )|| (!NodesThatSourceCanSee.contains(DestinationID) && NodesThatDestinationCanSee.contains(SourceID)) )
+					if( (NodesThatSourceCanSee.contains(DestinationID) && !NodesThatDestinationCanSee.contains(SourceID) )
+							|| (!NodesThatSourceCanSee.contains(DestinationID) && NodesThatDestinationCanSee.contains(SourceID)) )
 					{
+						//design
 						if(isVLC)
 						{
 							((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(82, "drop-asym2", null));
@@ -1327,11 +1328,15 @@ public final class RadioVLC extends RadioNoise
 					}
 					else
 					{						
-						/*
-						 *  NE KORISTI SE: 81 - //ako je poruka droppana zbog asimetrije (pozicija), ne koristi se jer nije relevantno, pozicijska asimetrija nije rezultat konfiguracije tx/rx vec pozicije automobila i LOS prepreka. 
-						 *  82 - //ako je poruka droppana zbog asimetrije (orijentacija)
-						 *  83 - //ako je poruka droppana zbog asimetrije (parcijalna)
-						 */
+						//%time id = 81
+						//textit{Global}: Receiving and transmitting nodes are not in communication range because of their location in the field. This can not be minimized using any design.
+						
+						//%time id = 84
+						//textit{Design}: Receiving coverage does not match transmitting coverage (no overlap) on a single node.
+						
+						//%time id = 82
+						//textit{Complete}: Two nodes can be positioned in a such manner that they are in general communication range but are oriented in such manner that none of transmitting coverage overlaps with receiving coverage of other node. (\ref{fig:csym1}).
+												
 						if(isVLC)
 						{
 							((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(81, "drop-asym1", null));
