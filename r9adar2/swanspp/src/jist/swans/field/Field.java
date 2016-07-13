@@ -259,7 +259,6 @@ public class Field implements FieldInterface
 	 */
 	public void addRadio(RadioInfo info, RadioInterface entity, Location loc, RadioVLC vlc)
 	{
-
 		if(!JistAPI.isEntity(entity)) throw new IllegalArgumentException("entity expected");
 		if(logField.isInfoEnabled())
 		{

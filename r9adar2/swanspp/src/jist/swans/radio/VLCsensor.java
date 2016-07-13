@@ -13,6 +13,7 @@ import java.util.Vector;
 
 
 
+
 import org.python.modules.math;
 
 import jist.swans.Constants;
@@ -27,6 +28,7 @@ import driver.GenericDriver;
 //dužina: 5+-0.5
 //	private float vehicleDevLength =0;// 0.5F ;
 //	private float vehicleLength =50.0F;//5
+import driver.JistExperiment;
 
 //private float vehicleDevWidth =0;//0.3F;
 //	private float vehicleWidth = 50.0F;//1,7
@@ -51,9 +53,9 @@ public class VLCsensor
 	public Location sensorLocation2;//bottom
 	private float sensorBearingNotRelative;
 	private float stickOut = 0.00001F; //1cm
-//	public int signalsRx;
+	//	public int signalsRx;
 	public LinkedList<MacVLCMessage> Messages = new LinkedList<MacVLCMessage>();
-//	public long CurrentMessageEnd;
+	//	public long CurrentMessageEnd;
 	//public long CurrentMessageDuration;
 	public Path2D.Float coverageShape;
 
@@ -111,13 +113,13 @@ public class VLCsensor
 		this.visionAngle = visionAngle;
 		this.offsetX = offsetX;
 		this.offsetY = offsetY;
-		
-	
+
+
 		float dAB  = (float) Point.distance(this.offsetX, this.offsetY, 0, 0);
-		
+
 		this.offsetX = (1* this.offsetX * (this.stickOut + dAB)) / dAB;
 		this.offsetY = (1* this.offsetY * (this.stickOut + dAB)) / dAB;
-		
+
 		this.Bearing = bearing;
 		this.sensorID = sensorID;
 		this.mode = mode;
@@ -133,10 +135,29 @@ public class VLCsensor
 		return state;
 	}
 
-	
+	public float getScaledNumber(float num, int exp)
+	{
+		float res;
+		for (int i = 0; i < 10; i++) {
+
+			res = (float) (num / Math.pow(10, i));
+			if( res < 1 )
+			{
+				res = (float) (res * Math.pow(10, i-exp));
+				return res;
+			}
+		}
+		return num;
+	}
 	public void UpdateShape(Location NodeLocation, float NodeBearing)
 	{
 		//https://www.youtube.com/watch?v=Cd3w8kH9g_c
+		if(NodeLocation.getX() > 1000)
+		{
+			NodeLocation = new Location2D(getScaledNumber(NodeLocation.getX(), 2),
+					getScaledNumber(NodeLocation.getY(), 2));
+
+		}
 		sensorBearingNotRelative = NodeBearing + Bearing;
 
 		sensorLocation = RadioVLC.rotatePoint(NodeLocation.getX()+ offsetX, NodeLocation.getY()+ offsetY, NodeLocation, NodeBearing);
@@ -148,17 +169,17 @@ public class VLCsensor
 		//	if(node.NodeID == nodeidtst)
 
 		coverageShape = new Path2D.Float();// Polygon();
-//TODO: provjeri zasto ne radi bas dobro za 90°
-		
+		//TODO: provjeri zasto ne radi bas dobro za 90°
+
 		double ax = sensorLocation.getX();
 		double ay = sensorLocation.getY();
 		double bx = sensorLocation1.getX();
 		double by = sensorLocation1.getY();
 		double cx = sensorLocation2.getX();
 		double cy = sensorLocation2.getY();
-		
 
-			/*
+
+		/*
 			ax = 1;
 			ay = 3;
 			bx = 4;
@@ -176,8 +197,8 @@ public class VLCsensor
 		cy = 50;
 		distanceLimit =(float)84.85;
 		visionAngle =(float) 28.07;
-		*/
-	/*	ax = 80;
+		 */
+		/*	ax = 80;
 		ay = 60;
 		bx = 130;
 		by = 60;
@@ -185,8 +206,8 @@ public class VLCsensor
 		cy = 30;
 		distanceLimit =(float)76.33;
 		visionAngle =(float) 36.87;
-		*/
-		
+		 */
+
 		double px = (cx+bx)/2;
 		double py = (cy+by)/2;
 		double A =ax;
@@ -197,11 +218,11 @@ public class VLCsensor
 		//http://www.wolframalpha.com/input/?i=%28x-A%29%5E2+%2B+%28y-B%29%5E2+%3D+R%5E2%2C+y-B%3D%28%28D-B%29%2F%28C-A%29%29*%28x-A%29
 		double x1 = (A*A*A+Math.sqrt((R*R*(A-C)*(A-C)*(A*A-2*A*C+B*B-2*B*D+C*C+D*D)))-2*A*A*C+A*B*B-2*A*B*D+A*C*C+A*D*D) / (A*A-2*A*C+B*B-2*B*D+C*C+D*D);
 		double y1 = (A*A*A*B+B*Math.sqrt(R*R*(A-C)*(A-C)* (A*A-2*A*C+B*B-2*B*D+C*C+D*D))-D*Math.sqrt(R*R*(A-C)*(A-C)*(A*A-2*A*C+B*B-2*B*D+C*C+D*D))-3*A*A*B*C+A*B*B*B-2*A*B*B*D+3*A*B*C*C+A*B*D*D-B*B*B*C+2*B*B*C*D-B*C*C*C-B*C*D*D)/((A-C)*(A*A-2*A*C+B*B-2*B*D+C*C+D*D));
-		
+
 		double x2 = (A*A*A-Math.sqrt((R*R*(A-C)*(A-C)*(A*A-2*A*C+B*B-2*B*D+C*C+D*D)))-2*A*A*C+A*B*B-2*A*B*D+A*C*C+A*D*D) / (A*A-2*A*C+B*B-2*B*D+C*C+D*D);
 		double y2 = (A*A*A*B-B*Math.sqrt(R*R*(A-C)*(A-C)*(A*A-2*A*C+B*B-2*B*D+C*C+D*D))+D*Math.sqrt(R*R*(A-C)*(A-C)*(A*A-2*A*C+B*B-2*B*D+C*C+D*D))-3*A*A*B*C+A*B*B*B-2*A*B*B*D+3*A*B*C*C+A*B*D*D-B*B*B*C+2*B*B*C*D-B*C*C*C-B*C*D*D)/((A-C)*(A*A-2*A*C+B*B-2*B*D+C*C+D*D));
-		
-		
+
+
 		double d1 = Math.sqrt(Math.pow(x1 - px, 2) + Math.pow(y1 - py, 2) );
 		double d2 = Math.sqrt(Math.pow(x2 - px, 2) + Math.pow(y2 - py, 2) );
 
@@ -217,8 +238,8 @@ public class VLCsensor
 			dx= x2;
 			dy =y2;
 		}
-		
-		
+
+
 		/*
 		 A^2-2 A C+B^2-2 B D+C^2+D^2!=0,   ,   A-C!=0,   y = (A^3 B+B sqrt(R^2 (A-C)^2 (A^2-2 A C+B^2-2 B D+C^2+D^2))-D sqrt(R^2 (A-C)^2 (A^2-2 A C+B^2-2 B D+C^2+D^2))-3 A^2 B C+A B^3-2 A B^2 D+3 A B C^2+A B D^2-B^3 C+2 B^2 C D-B C^3-B C D^2)/((A-C) (A^2-2 A C+B^2-2 B D+C^2+D^2))
 		 */
@@ -260,7 +281,7 @@ public class VLCsensor
 			dx= x2;
 			dy =y2;
 		}*/
-		
+
 		/*
 			double K1a =(dy-by)/(dx-bx);
 			double K1c = -1*K1a*by +by;
@@ -296,24 +317,29 @@ public class VLCsensor
 		 */
 		coverageShape.moveTo(ax, ay);
 		coverageShape.lineTo(bx, by);
-		
+
 		coverageShape.quadTo(dx, dy, cx,cy);// .curveTo(cx, cy, dx+10, dy, dx+10, dy);
 		coverageShape.closePath();
 		/*
 			poly.addPoint((int)sensorLocation.getX(), (int)sensorLocation.getY());
 			poly.addPoint((int)sensorLocation1.getX(), (int)sensorLocation1.getY());
 			poly.addPoint((int)sensorLocation2.getX(), (int)sensorLocation2.getY());*/
-		if(mode == SensorModes.Receive)
+		if(sensorID == 1)
 		{
-			GenericDriver.btviz.DrawShape(coverageShape, Color.blue,1);
-		}
-		else
-		{
-			GenericDriver.btviz.DrawShape(coverageShape, Color.red,1);
-		}
-				
-		GenericDriver.btviz.DrawString(this.sensorID+"", Color.BLACK, sensorLocation.getX(), sensorLocation.getY() , node.NodeLocation.getX(), node.NodeLocation.getY(), 0.3F, 0.9F);
+			if(JistExperiment.getJistExperiment().placement == Constants.PLACEMENT_GRID)
+			{
+				if(mode == SensorModes.Receive)
+				{
+					GenericDriver.btviz.DrawShape(coverageShape, Color.blue,1);
+				}
+				else
+				{
+					GenericDriver.btviz.DrawShape(coverageShape, Color.red,1);
+				}
 
+				GenericDriver.btviz.DrawString(this.sensorID+"", Color.BLACK, sensorLocation.getX(), sensorLocation.getY() , node.NodeLocation.getX(), node.NodeLocation.getY(), 0.3F, 0.9F);
+			}
+		}
 		//((Graphics2D) GenericDriver.btviz.getGraph()).drawArc(x, y, width, height, startAngle, arcAngle); .drawString("a(" + ax + ","+ay+")",(float)ax,(float)ay);
 
 		//((Graphics2D) GenericDriver.btviz.getGraph()).draw(AffineTransform.getTranslateInstance(-500, -500).createTransformedShape(AffineTransform.getScaleInstance(10, 10).createTransformedShape(poly)));

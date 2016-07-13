@@ -160,10 +160,13 @@ public class Visualizer implements VisualizerInterface
 	public static JistExperiment je;
     
     /** image for cars */
-    static Image carImage[] = new Image[]{java.awt.Toolkit.getDefaultToolkit().getImage(
+   /* static Image carImage[] = new Image[]{java.awt.Toolkit.getDefaultToolkit().getImage(
             "small-bug.jpg"), 
             java.awt.Toolkit.getDefaultToolkit().getImage(
-            "small-bug.jpg")};
+            "small-bug.jpg")};*/
+    static Image carImage[] = new Image[]{};
+    
+    
 	/**
 	 * Layered pane put into content pane.
 	 */
@@ -1113,6 +1116,9 @@ public class Visualizer implements VisualizerInterface
 	public Visualizer()
 	{
 		this.je = JistExperiment.getJistExperiment();
+		carImage = new Image[]{new ImageIcon(this.getClass().getResource("images/small-bug.jpg")).getImage(), 
+				new ImageIcon(this.getClass().getResource("images/small-bug.jpg")).getImage()};
+	    
 		activeInstance = this;
 		if (je.mobility != Constants.MOBILITY_STRAW_OD
 				&& je.mobility != Constants.MOBILITY_STRAW_SIMPLE){

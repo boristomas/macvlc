@@ -599,11 +599,13 @@ public final class RadioVLC extends RadioNoise
 		outlineShape.lineTo(Dx, Dy);
 		outlineShape.closePath();
 
-
 		if(isStartCheck)
 		{
-			GenericDriver.btviz.DrawShape(outlineShape, Color.black);
-			GenericDriver.btviz.DrawString(NodeID+"", Color.BLUE, NodeLocation.getX(),  NodeLocation.getY());
+			if(JistExperiment.getJistExperiment().placement == Constants.PLACEMENT_GRID)
+			{
+				GenericDriver.btviz.DrawShape(outlineShape, Color.black);
+				GenericDriver.btviz.DrawString(NodeID+"", Color.BLUE, NodeLocation.getX(),  NodeLocation.getY());
+			}
 		}
 	}
 	/*

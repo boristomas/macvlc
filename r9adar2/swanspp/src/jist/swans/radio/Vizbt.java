@@ -67,18 +67,21 @@ public class Vizbt {
 	}
 	public JFrame GetFrame()
 	{
+		
 		return this.frame;
 	}
 	
 	public void DrawShape(Shape shp, Color clr)
 	{
+	//	((Graphics2D)getGraph()).clearRect(0, 0, this.frame.getWidth(),  this.frame.getHeight());
+		
 		((Graphics2D)getGraph()).setStroke(oldStroke);
 		((Graphics2D)getGraph()).setColor(clr);
 		((Graphics2D)getGraph()).draw(att.createTransformedShape(ats.createTransformedShape(shp)));
 	}
 	public void DrawShape(Shape shp, Color clr, float StrokeWidth)
 	{
-		
+		//((Graphics2D)getGraph()).clearRect(0, 0, this.frame.getWidth(),  this.frame.getHeight());
 		//StrokeWidth = 4;
 		//((Graphics2D)getGraph()).setStroke(new BasicStroke());	
 		((Graphics2D)getGraph()).setStroke(new BasicStroke(StrokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 3, 8 }, 0));
@@ -117,7 +120,7 @@ public class Vizbt {
 		}
 		return defGraph;
 	}
-
+	
 	/**
 	 * Create the application.
 	 */

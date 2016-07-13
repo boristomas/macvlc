@@ -117,9 +117,8 @@ public class GenericDriver {
 	static int idUdp = 0;
 
 	//	public static String MACprotocol;
-	public static String MACVLCprotocolWill ="MACVLCprotocolWill";
+
 	public static String MACVLCprotocolBoris ="MAC_VLC_V1";
-	public static String MACVLCprotocolMate="MACVLCprotocolMate";
 	public static String MACprotocol802_11="MAC_802_11";
 	public static float setBearing = 0;	
 	public static Vizbt btviz = null;
@@ -159,6 +158,8 @@ public class GenericDriver {
 
 			if(je.placement != Constants.PLACEMENT_GRID)
 			{
+				//kod mobility modela samo prvi StaticPlacementOptions se koristi za dizajn cvora. dok kod placement grid
+				//se ovaj ind svaki put poveca za 1
 				ind = 1;
 			}
 			splitdata = data[ind-1].split("x|,");//i-1 je jer se cvorovi broje od 0
@@ -166,7 +167,7 @@ public class GenericDriver {
 			l = Float.parseFloat(splitdata[4]);
 			dw = Float.parseFloat(splitdata[5]);
 			dl = Float.parseFloat(splitdata[6]);
-			
+
 			int sid =0;
 			float los = 0;
 			float ang = 0;
@@ -185,7 +186,7 @@ public class GenericDriver {
 				ofx = (float) (l/2);
 				ofy = (float) (w/2);
 			}
-			
+
 			radio = new RadioVLC(i, radioInfo, Constants.SNR_THRESHOLD_DEFAULT, location, ((Location.Location2D)location).StaticBearing,w,l,dw,dl, ofx, ofy);
 			data = data[ind-1].split("x|s");
 			for (int j = 1; j < data.length; j++) 
@@ -205,26 +206,11 @@ public class GenericDriver {
 				{
 					((RadioVLC)radio).InstalledSensorsRx.add(new VLCsensor(sid, (RadioVLC)radio,los, ang, location, ox*ofx, oy*ofy, b, SensorModes.Receive));
 				}
-			
+
 			}
-			
 
-			//System.out.println("new radio bt "+ setBearing);
 
-			/*bt          switch (je.radioNoiseType) {
-            case Constants.RADIO_NOISE_INDEP:
-                radio = new RadioNoiseIndep(i, radioInfo);
-                break;
-
-            case Constants.RADIO_NOISE_ADDITIVE:
-                radio = new RadioNoiseAdditive(i, radioInfo);
-
-                break;
-
-            default:
-                throw new RuntimeException("Invalid radio model!");
-            }
-			 */
+		
 			// placement
 
 
@@ -273,15 +259,7 @@ public class GenericDriver {
 		MacInterface macProxy = null;
 		final NetAddress address = new NetAddress(i);
 		NetIp net = new NetIp(address, protMap, inLoss, outLoss /*, ipStats*/);
-		if(je.MACProtocol.equals(MACVLCprotocolWill))
-		{
-			Constants.VLCconstants.MACimplementationUsed = MACVLCprotocolWill;
-			/*	mac = new MacVLCWill(new MacAddress(i), radio.getRadioInfo());
-			((MacVLCWill) mac).setRadioEntity(radio.getProxy());
-			macProxy = ((MacVLCWill) mac).getProxy();
-			((MacVLCWill) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);*/
-		}
-		else if(je.MACProtocol.equals(MACVLCprotocolBoris))
+		if(je.MACProtocol.equals(MACVLCprotocolBoris))
 		{
 			Constants.VLCconstants.MACimplementationUsed = MACVLCprotocolBoris;
 			mac = new MacVLCBoris(new MacAddress(i), radio.getRadioInfo(), (RadioVLC) radio);
@@ -289,14 +267,7 @@ public class GenericDriver {
 			macProxy = ((MacVLCBoris)mac).getProxy();
 			((MacVLCBoris) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);
 		}
-		else if(je.MACProtocol.equals(MACVLCprotocolMate))
-		{
-			Constants.VLCconstants.MACimplementationUsed = MACVLCprotocolMate;
-			/*mac = new MacVLCMate(new MacAddress(i), radio.getRadioInfo());
-			((MacVLCMate) mac).setRadioEntity(radio.getProxy());
-			macProxy = ((MacVLCMate) mac).getProxy();
-			((MacVLCMate) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);*/
-		}
+
 		else if(je.MACProtocol.equals(MACprotocol802_11))
 		{
 			Constants.VLCconstants.MACimplementationUsed = MACprotocol802_11;
