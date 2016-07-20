@@ -56,6 +56,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -460,6 +461,7 @@ public class Visualizer implements VisualizerInterface
 		}
 
 	}
+	
 
 	/**
 	 * The Node class represents the information for drawing
@@ -503,7 +505,9 @@ public class Visualizer implements VisualizerInterface
 		public Color defaultRadiusColor = radiusColor;
 		boolean onVFR = false;
 		JMenuItem textItem;
+		Random rand = new Random();
 
+		public Rotatedicon ikona;
 		public Node(float x, float y, int ip)
 		{
 			super(String.valueOf(ip));
@@ -516,10 +520,15 @@ public class Visualizer implements VisualizerInterface
 			else {
 				this.setText("");
 				
+				ikona = new Rotatedicon(new ImageIcon(carImage[rand.nextInt(2)]), 0, false);
 				
-		//		this.setIcon(ImageIO.read(this.getClass().getResource("images/small-tt.jpg")));
-				this.setIcon(new ImageIcon(carImage[0]));
+		//		this.setIcon(ImageIO.read(this.g/etClass().getResource("images/small-tt.jpg")));
+				this.setIcon(ikona);
+				
+				//this.setIcon();
 			}
+			buttonWidth = 20;
+			buttonHeight = 20;
 			this.x = x;
 			this.y = y;
 			this.ip = ip;
@@ -540,9 +549,9 @@ public class Visualizer implements VisualizerInterface
 			this.setIconTextGap(0);
 			defaultColor = getBackground();
 			this.addActionListener(this);
-			this.setBorderPainted(buttonOptions);
-			this.setContentAreaFilled(buttonOptions);
-
+			this.setOpaque(false);
+			this.setContentAreaFilled(false);
+			this.setBorderPainted(false);
 
 			// handle menu stuff
 			JCheckBoxMenuItem menuItem,menuItem2;
@@ -580,10 +589,14 @@ public class Visualizer implements VisualizerInterface
 
 		public void adjustBearing(Location brg)
 		{
+			
+			
 			float dist = brg.distance(currentBrg);
 			if (dist>0.1){
 				currentBrg = brg;
-				newBrg  = true;
+			//////////////////	newBrg  = true;
+				
+				this.ikona.setDegrees(Field.getRadioData(this.ip).vlcdevice.getBearing());
 			}
 		}
 
@@ -643,7 +656,7 @@ public class Visualizer implements VisualizerInterface
 			Graphics2D g2d = (Graphics2D)g;
 			AffineTransform origXform = g2d.getTransform();
 
-		//	newBrg =false;
+			newBrg =false;//koristim rotatedicon klasu pa sam ovo namjerno stavio u false.
 			if (newBrg){
 
 				if (lje.sm !=null)
@@ -660,7 +673,7 @@ public class Visualizer implements VisualizerInterface
 				}
 				else{
 					
-					tu je gadan problem
+					
 					//center of rotation is center of the button
 					d = new Dimension((int)Math.ceil(Math.abs(buttonWidth*currentBrg.getX())+Math.abs(buttonHeight*currentBrg.getY())+1),
 							(int)Math.ceil(Math.abs(buttonHeight*currentBrg.getX())+Math.abs(buttonWidth*currentBrg.getY()))+1);
@@ -681,14 +694,18 @@ public class Visualizer implements VisualizerInterface
 				//                        Math.sqrt(currentBrg.getX()*currentBrg.getX()+currentBrg.getY()*currentBrg.getY()));
 			}
 
-			if (currentAngle!=0){
+			/*if (currentAngle!=0){
 				g2d.rotate(currentAngle, xRot, yRot);
+			
 				this.setSize(d);
-			}
+			}*/
+		
+		//	ikona.setDegrees(10);
 			//draw image centered in panel
-			//            int x = (getWidth() - carImage.getWidth(this))/2;
-			//            int y = (getHeight() - carImage.getHeight(this))/2;
-			//            g2d.drawImage(carImage, x, y, this);
+			     //       int x = (getWidth() - carImage[0].getWidth(this))/2;
+			///            int y = (getHeight() - carImage[0].getHeight(this))/2;
+		//	            g2d.drawImage(carImage[0], x, y, this);
+			//(
 			super.paintComponent(g);
 
 			g2d.setTransform(origXform);
@@ -1123,8 +1140,8 @@ public class Visualizer implements VisualizerInterface
 	public Visualizer()
 	{
 		this.je = JistExperiment.getJistExperiment();
-		carImage = new Image[]{new ImageIcon(this.getClass().getResource("images/small-bug.jpg")).getImage(), 
-				new ImageIcon(this.getClass().getResource("images/small-bug.jpg")).getImage()};
+		carImage = new Image[]{new ImageIcon(this.getClass().getResource("images/small-bug.png")).getImage(), 
+				new ImageIcon(this.getClass().getResource("images/small-tt.png")).getImage()};
 
 		activeInstance = this;
 		if (je.mobility != Constants.MOBILITY_STRAW_OD
