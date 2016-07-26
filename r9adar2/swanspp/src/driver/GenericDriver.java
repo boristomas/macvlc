@@ -68,7 +68,7 @@ import jist.swans.mac.MacAddress;
 import jist.swans.mac.MacDumb;
 import jist.swans.mac.MacInterface;
 import jist.swans.mac.MacVLC;
-import jist.swans.mac.MacVLCBoris;
+import jist.swans.mac.MacVLCV1;
 //import jist.swans.mac.MacVLCMate;
 //import jist.swans.mac.MacVLCWill;
 import jist.swans.misc.Location;
@@ -118,7 +118,7 @@ public class GenericDriver {
 
 	//	public static String MACprotocol;
 
-	public static String MACVLCprotocolBoris ="MAC_VLC_V1";
+	public static String MAC_VLC_V1 ="MAC_VLC_V1";
 	public static String MACprotocol802_11="MAC_802_11";
 	public static float setBearing = 0;	
 	public static Vizbt btviz = null;
@@ -259,13 +259,13 @@ public class GenericDriver {
 		MacInterface macProxy = null;
 		final NetAddress address = new NetAddress(i);
 		NetIp net = new NetIp(address, protMap, inLoss, outLoss /*, ipStats*/);
-		if(je.MACProtocol.equals(MACVLCprotocolBoris))
+		if(je.MACProtocol.equals(MAC_VLC_V1))
 		{
-			Constants.VLCconstants.MACimplementationUsed = MACVLCprotocolBoris;
-			mac = new MacVLCBoris(new MacAddress(i), radio.getRadioInfo(), (RadioVLC) radio);
-			((MacVLCBoris) mac).setRadioEntity(radio.getProxy());
-			macProxy = ((MacVLCBoris)mac).getProxy();
-			((MacVLCBoris) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);
+			Constants.VLCconstants.MACimplementationUsed = MAC_VLC_V1;
+			mac = new MacVLCV1(new MacAddress(i), radio.getRadioInfo(), (RadioVLC) radio);
+			((MacVLCV1) mac).setRadioEntity(radio.getProxy());
+			macProxy = ((MacVLCV1)mac).getProxy();
+			((MacVLCV1) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);
 		}
 
 		else if(je.MACProtocol.equals(MACprotocol802_11))

@@ -372,26 +372,13 @@ public class NetIp implements NetInterface
 		ipmsg.Times.add(new TimeEntry(4, "netiprec", null));
 
 		if(incomingLoss.shouldDrop(ipmsg)) return;
+		ipmsg.Times.add(new TimeEntry(41, "netiprec2", null));
 		if(log.isInfoEnabled())
 		{
 			log.info("receive t="+JistAPI.getTime()+" from="+lastHop+" on="+macId+" data="+msg);
 		}
 
 		if(routing!=null) routing.peek(ipmsg, lastHop);
-		//   Constants.VLCconstants.NetIPReceived++;
-	/*	if(localAddr.equals(ipmsg.getDst()))//) || NetAddress.LOCAL.equals(ipmsg.getDst()) )
-		{
-			ipmsg.Times.add(new TimeEntry(71, "formenetip", null));  
-		}*/
-		/*else
-		{
-		//	System.out.println("bbbbbb " + macId);
-		}*/
-		//System.out.println("bbbbbb s: " + ipmsg.getSrc() + " d: "+ ipmsg.getDst() +  " hsh : "+ ipmsg.hashCode());
-		/*if(ipmsg.getDst().equals(NetAddress.ANY))
-		{
-			Constants.VLCconstants.broadcasts ++;
-		}*/
 		
 		if(!promisc)
 		{
