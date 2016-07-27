@@ -10,30 +10,30 @@ import jist.swans.misc.Message;
 import jist.swans.net.NetMessage;
 
 /**
- * timeid:
- *	+0  - //kada je poruka kreirana
- *	+1  - //kada je poruka puštena na mac sloj. mac.send
- *  +11 - //kada je poruku moguce poslati, nakon provjera zauzetosti senzora i kontrolnih signala 
- *  +12 - //kada je poruka dodana u red, znaci moguce je samo 11 ili 12 (u ovom slucaju ce kad tad morati biti jednom 11.)
- *	+2  - //kada je mac sloj poslao poruku sloju ispod, radioentity.transmit prije provjera
- *  +21 - //kada je mac sloj poslao poruku sloju ispod, radioentity.transmit nakon provjera.
- *  +250- //kada je radio primio poruku s druge strane, radioentity.receive, programski samo, bez fizicke provjere
- *  +251- //kada je radio primio poruku s druge strane ali fizicki ispravno, prije vremena propagacije.
- *  +252- //kada je radio primio poruku s druge strane nakon propagacije i provjere interferencije, tik prije slanja sloju iznad (mac)
- *	+3  - //kada je drugi mac sloj primio poruku, mac.receive
- *  +31 - //kada je drugi mac sloj primio poruku, mac.receive u poruka je za mene.
- *	+4  - //kada je drugi mac sloj poslao poruku sloju iznad, netentity.receive.
- *	+41 - //na net sloju poruka nije droppana.
- *  +5  - //kada je drugi mac sloj poslao poruku sloju iznad, netentity.receive. i poruka je naslovljena za primatelja.
- *  +6  - //kada je poruka prosla isforme(...) provjeru na net sloju.
- *  +70 - //ako je poruka na phy sloju za cvor u kojem se i nalazi.
- *  +81 - //ako je poruka droppana zbog asimetrije (global position)
- *  +82 - //ako je poruka droppana zbog asimetrije (pozicijska)
- *  +84 - //ako je poruka droppana zbog asimetrije (design)
- *  +90 - //message intereference
- *  +91 - //message error
- *  +92 - //message transmit fail  
- *  +93 - //message receive fail
+ * timeID:
+ *	0  - //when and if message is created
+ *	1  - //when and if message is passed on MAC layer. (mac.send)
+ *  11 - //when and if message can be sent, after check if sensor is idle and control signal states
+ *  12 - //when and if message is added to the queue, if not 11 then 12.
+ *	2  - //when and if message is relayed by mac layer to underlying layer (radioentity.transmit before check)
+ *  21 - //when and if message is relayed by mac layer to underlying layer (radioentity.transmit after check)
+ *  250- //when radio RadioVLC received message on the other side (radioentity.receive no physical checking done)
+ *  251- //when radio RadioVLC received message on the other side and it is physically ok but before propagation time execution.
+ *  252- //when and if radio RadioVLC received message on the other side and after propagation time and interference check, just before relaying to MAC layer.
+ *	3  - //when and if MAC layer received message (mac.receive)
+ *  31 - //when and if MAC layer received message (mac.receive) and message is on desired destination.
+ *	4  - //when and if MAC layer relayed message to upper layer (netentity.receive).
+ *	41 - //if message is not dropped on NET layer.
+ *  5  - //when and if MAC layer relayed received message to upper layer (netentity.receive) and message is on desired destination
+ *  6  - //when and if message has passed ifForMe(...) check on NET layer.
+ *  70 - //when and if message is on PHY (radioVLC) layer and it is on desired destination (evaluated after 251)
+ *  81 - //when and if message is dropped on a PHY layer due to asymmetry (global position)
+ *  82 - //when and if message is dropped on a PHY layer due to asymmetry (positional)
+ *  84 - //when and if message is dropped on a PHY layer due to asymmetry (design)
+ *  90 - //when and if message is dropped because of interference
+ *  92 - //when and if message is dropped because of transmit fail
+ *  93 - //when and if message is dropped because of receive fail
+ *       //90,92,93 are events provided by RadioVLC for MAC layer.
  * @author BorisTomas
  * 
  */

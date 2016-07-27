@@ -239,16 +239,16 @@ public final class Constants
 	/** Simple MAC number. */
 	public static final short MAC_DUMB        = 2;
 
-	
+
 	//////mac vlc constants
 	public static final int MacVlcErrorSensorIsNotTX = 1;
 	public static final int MacVlcErrorSensorTxIsBusy = 2;
 	public static final int MacVlcErrorSensorIsNotRX = 3;
 	public static final int MacVlcErrorSensorRxIsBusy = 4;
 	public static final int MacVlcErrorSensorTxAllBusy = 5;
-	
-	
-	
+
+
+
 	//////////////////////////////////////////////////
 	// Network-related constants
 	//
@@ -464,11 +464,11 @@ public final class Constants
 	public static final long ASSIGN_REASSIGN_TIME = 5*SECOND;
 	public static class VLCconstants
 	{
-		
+
 		/**
 		 * Total number of sent messages
 		 */
-	//	public static int SentDirect= 0;
+		//	public static int SentDirect= 0;
 		/**
 		 * Total number of messages sent to broadcast
 		 */
@@ -479,48 +479,40 @@ public final class Constants
 		public static int broadcasts = 0;
 		public static String PrintData()
 		{
-//TOOD: treba popraviti ispis zbog dodanih kolona koje su i kondicionalne.
 			String res = "";
 
 			String filename = JistExperiment.getJistExperiment().getResultsPath();// System.getProperty("user.home") + "/Desktop/" +"VLCMeasureData.csv";
-
-			/* 
-			 * timeid:
-			 * 0 - // kada je poruka kreirana
-			 * 1 - //kada je poruka puštena na mac sloj. mac.send
-			 * 2 - //kada je mac sloj poslao poruku sloju ispod, radioentity.transmit
-			 * 3 - //kada je drugi mac sloj primio poruku, mac.receive
-			 * 4 - //kada je drugi mac sloj poslao poruku sloju iznad, netentity.receive.
-			 * 5 - //kada je drugi mac sloj poslao poruku sloju iznad, netentity.receive. i poruka je naslovljena za primatelja.*/
+			
 			int t0 = 0;
 			int t1 = 0;
-			int t2 = 0;
 			int t11 = 0;
 			int t12 = 0;
+			int t2 = 0;
 			int t21 = 0;
 			int t250 = 0;
 			int t251 = 0;
 			int t252 = 0;
 			int t3 = 0;
+			int t31 = 0;
 			int t4 = 0;
+			int t41 = 0;
 			int t5 = 0;
 			int t6 = 0;
 			int t70 = 0;
-			int t71 = 0;
-			int t72 = 0;
+			int t81 = 0;
+			int t82 = 0;
+			int t84 = 0;
+			int t90 = 0;
+			int t92 = 0;
+			int t93 = 0;
 			long time1 =0;
 			long sumt5t1 =0;
 			boolean id72set = false;
 			PrintWriter writer;
 			try {
-				//File f = new File(filename);
-				//f.mkdirs();
 				writer = new PrintWriter(filename, "UTF-8");
-				
-		//		System.out.println(f.exists());
-		//		System.out.println(f.mkdirs());
 				//header
-				writer.write("msgid,source,destination,0,1,11,12,2,21,250,251,252,3,4,5,6\n");
+				writer.write("msgid,source,destination,0,1,11,12,2,21,250,251,252,3,31,4,41,5,6,70,81,82,84,90,92,93\n");
 				for (NetMessage.Ip item : TimeEntry.AllMessages)
 				{
 					res = "";
@@ -528,38 +520,16 @@ public final class Constants
 					id72set = false;
 					for (TimeEntry time : item.Times) 
 					{
-						//System.out.println("tid= " + time.TimeID);
 						switch (time.TimeID) {
-						case 70:
-						{
-							t70++;
-							break;
-						}
-						case 71:
-						{
-							t71++;
-							break;
-						}
-						case 72:
-						{
-								t72++;
-							break;
-						}
 						case 0:
 						{
 							t0++;
 							break;
 						}
-
 						case 1:
 						{
 							time1 = time.Time;
 							t1++;
-							break;
-						}
-						case 2:
-						{
-							t2++;
 							break;
 						}
 						case 11:
@@ -570,6 +540,12 @@ public final class Constants
 						case 12:
 						{
 							t12++;
+							break;
+						}
+
+						case 2:
+						{
+							t2++;
 							break;
 						}
 						case 21:
@@ -597,9 +573,19 @@ public final class Constants
 							t3++;
 							break;
 						}
+						case 31:
+						{
+							t31++;
+							break;
+						}
 						case 4:
 						{
 							t4++;
+							break;
+						}
+						case 41:
+						{
+							t41++;
 							break;
 						}
 						case 5:
@@ -612,6 +598,45 @@ public final class Constants
 						{
 							t6++;
 							break;
+						}
+						case 70:
+						{
+							t70++;
+							break;
+						}
+						case 81:
+						{
+							t81++;
+							break;
+						}
+						case 82:
+						{
+							t82++;
+							break;
+						}
+						case 84:
+						{
+							t84++;
+							break;
+						}
+						case 90:
+						{
+							t90++;
+							break;
+						}
+						case 92:
+						{
+							t92++;
+							break;
+						}
+						case 93:
+						{
+							t93++;
+							break;
+						}
+						default:
+						{
+							System.out.println("non monitored TimeEntry id");
 						}
 
 						}
@@ -645,21 +670,21 @@ public final class Constants
 						hastid = true;
 						break;
 					}
-					
+
 				}
 				/*if(!hastid)
 				{
 					System.out.println("tid msh : "+msg.hashCode());
 				}*/
 			}
-			
+
 			System.out.println();
-			
+
 			return "-----VLC data-----" + "\n"+
 			"MAC implementation = "+ MACimplementationUsed + "\n"+
 			"Broadcasts = " + broadcasts + "\n"+
 			"MAC PDR all= " + 100*((float)t5/(float)t1) + "%\n"+
-			"MAC PDR exact= " + 100*((float)t71/(float)t72) + "%\n"+
+			"MAC PDR exact= " + 100*((float)t81/(float)t82) + "%\n"+//////////////////       71/72
 			"MAC avg(t5-t1) = " + (float)sumt5t1/(float)t5 + "\n"+
 			"MAC count(T0) = " + t0 + "\n"+
 			"MAC count(T1) = " + t1 + "\n"+
@@ -671,15 +696,21 @@ public final class Constants
 			"MAC count(T251) = " + t251 + "\n"+
 			"MAC count(T252) = " + t252 + "\n"+
 			"MAC count(T3) = " + t3 + "\n"+
+			"MAC count(T31) = " + t31 + "\n"+
 			"MAC count(T4) = " + t4 + "\n"+
+			"MAC count(T41) = " + t41 + "\n"+
 			"MAC count(T5) = " + t5 + "\n"+
 			"MAC count(T6) = " + t6 + "\n"+
 			"MAC count(T70) = " + t70 + "\n"+
-			"MAC count(T71) = " + t71 + "\n"+
-			"MAC count(T72) = " + t72 + "\n"+
+			"MAC count(T81) = " + t81 + "\n"+
+			"MAC count(T82) = " + t82 + "\n"+
+			"MAC count(T84) = " + t84 + "\n"+
+			"MAC count(T90) = " + t90 + "\n"+
+			"MAC count(T92) = " + t92 + "\n"+
+			"MAC count(T93) = " + t93 + "\n"+
 			"-----VLC data-----" + "\n";
-			
-			
+
+
 		}
 	}
 } // class: Constants

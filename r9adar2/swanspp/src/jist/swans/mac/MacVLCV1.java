@@ -893,7 +893,6 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	public void peek(Message msg)
 	{
 		//	needEifs = true;
-		
 	}
 
 	// MacInterface
@@ -1059,7 +1058,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 
 	public void notifyError(int errorCode, String message) 
 	{
-		((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(91, "macinterference", null));
+	//	((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(91, "macinterference", null));
 		System.out.println("notfiy error #"+errorCode);
 	}
 
