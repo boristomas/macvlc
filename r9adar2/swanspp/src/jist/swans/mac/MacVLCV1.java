@@ -585,14 +585,14 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	 * @param destination
 	 * @author BorisTomas
 	 */
-	private void sendMessage(MacVLCMessage msg )
+	private void sendMessage(MacVLCMessage msg)
 	{
 		setMode(MAC_MODE_XBROADCAST);
 		long delay = RX_TX_TURNAROUND;//TODO: pitaj matu jel ima ovoga.
 		long duration = transmitTime(msg);
 		if(msg.getDst() != MacAddress.ANY && msg.getDst() != MacAddress.LOOP)// || ((NetMessage.Ip)msg).getDst() != NetAddress.ANY)
 		{
-			((NetMessage.Ip)msg.getBody()).Times.add(new TimeEntry(72, "radiovlct-rec", null));
+			((NetMessage.Ip)msg.getBody()).Times.add(new TimeEntry(13, "mac send dest", null));
 		}
 		transmitDelayMultiplier = 1;
 		radioEntity.transmit(msg, delay, duration);
@@ -601,6 +601,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 
 	private void addToQueue(MacVLCMessage msg)
 	{
+		
 		MessageQueue.add(msg);
 	}
 
@@ -778,6 +779,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 			
 			if (!MessageQueue.isEmpty()) 
 			{
+				((NetMessage.Ip)msg).Times.add(new TimeEntry(12, "macbt", null));
 				addToQueue(data);
 				if(!TimerRunning)
 				{
@@ -788,7 +790,9 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 			}
 		}
 		
-		data.setSensorIDTx(GetTransmitSensors(nextHop), myRadio.NodeID);//myRadio.GetSensors(SensorModes.Transmit));//todo: izraditi strategiju odabira senzora
+		data.setSensorIDTx(GetTransmitSensors(nextHop), myRadio.NodeID);
+		//myRadio.GetSensors(SensorModes.Transmit));
+		//todo: izraditi strategiju odabira senzora
 		if(canSendMessage(data, true))
 		{
 			((NetMessage.Ip)msg).Times.add(new TimeEntry(11, "macbt", null));

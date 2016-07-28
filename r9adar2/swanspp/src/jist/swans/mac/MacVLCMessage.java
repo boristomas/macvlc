@@ -464,7 +464,7 @@ public  class MacVLCMessage extends MacMessage
 	/**
 	 * Packet data payload.
 	 */
-	private Message body;
+	public Message body;
 
 
 

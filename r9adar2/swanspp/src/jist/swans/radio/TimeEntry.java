@@ -15,9 +15,10 @@ import jist.swans.net.NetMessage;
  *	1  - //when and if message is passed on MAC layer. (mac.send)
  *  11 - //when and if message can be sent, after check if sensor is idle and control signal states
  *  12 - //when and if message is added to the queue, if not 11 then 12.
+ *  13 - //when and if message is on MAC layer and i has specific destination.
  *	2  - //when and if message is relayed by mac layer to underlying layer (radioentity.transmit before check)
  *  21 - //when and if message is relayed by mac layer to underlying layer (radioentity.transmit after check)
- *  250- //when radio RadioVLC received message on the other side (radioentity.receive no physical checking done)
+ *  250- //when radio RadioVLC received message on the other side (radioentity.receive no physical checking done) - usually all messages are tagged with this one
  *  251- //when radio RadioVLC received message on the other side and it is physically ok but before propagation time execution.
  *  252- //when and if radio RadioVLC received message on the other side and after propagation time and interference check, just before relaying to MAC layer.
  *	3  - //when and if MAC layer received message (mac.receive)
@@ -27,7 +28,7 @@ import jist.swans.net.NetMessage;
  *  5  - //when and if MAC layer relayed received message to upper layer (netentity.receive) and message is on desired destination
  *  6  - //when and if message has passed ifForMe(...) check on NET layer.
  *  70 - //when and if message is on PHY (radioVLC) layer and it is on desired destination (evaluated after 251)
- *  81 - //when and if message is dropped on a PHY layer due to asymmetry (global position)
+ *  81 - //when and if message is dropped on a PHY layer due to asymmetry (global position, usually range)
  *  82 - //when and if message is dropped on a PHY layer due to asymmetry (positional)
  *  84 - //when and if message is dropped on a PHY layer due to asymmetry (design)
  *  90 - //when and if message is dropped because of interference

@@ -1251,8 +1251,6 @@ public class GenericDriver {
 
 			//         final String name = args[0];
 
-
-
 			JistAPI.runAt(new Runnable() {
 				public void run() {
 					showStats(nodes, je, startTime, freeMemory);

@@ -16,7 +16,7 @@
       <int>600</int>
     </void>
     <void property="startTime">
-      <int>60</int>
+      <int>1</int>
     </void>
     <!--  environment  -->
     <void property="exponent">
@@ -101,10 +101,10 @@
       <int>4096</int>
     </void>
     <void property="nodes">
-      <int>20</int>
+      <int>10</int>
     </void>
     <void property="transmitters">
-      <int>20</int>
+      <int>10</int>
     </void>
     <void property="MACProtocol">
       <!--<string>MACVLCprotocolBoris</string>-->

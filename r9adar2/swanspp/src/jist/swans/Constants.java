@@ -487,6 +487,7 @@ public final class Constants
 			int t1 = 0;
 			int t11 = 0;
 			int t12 = 0;
+			int t13 = 0;
 			int t2 = 0;
 			int t21 = 0;
 			int t250 = 0;
@@ -507,17 +508,17 @@ public final class Constants
 			int t93 = 0;
 			long time1 =0;
 			long sumt5t1 =0;
-			boolean id72set = false;
+	
 			PrintWriter writer;
 			try {
 				writer = new PrintWriter(filename, "UTF-8");
 				//header
-				writer.write("msgid,source,destination,0,1,11,12,2,21,250,251,252,3,31,4,41,5,6,70,81,82,84,90,92,93\n");
+				writer.write("msgid;source;destination;0;1;11;12;13;2;21;250;251;252;3;31;4;41;5;6;70;81;82;84;90;92;93\n");
 				for (NetMessage.Ip item : TimeEntry.AllMessages)
 				{
 					res = "";
-					res+= item.getId()+ ","+ item.getSrc() +"," + item.getDst(); 
-					id72set = false;
+					res+= item.getId()+ ";"+ item.getSrc() +";" + item.getDst(); 
+		
 					for (TimeEntry time : item.Times) 
 					{
 						switch (time.TimeID) {
@@ -540,6 +541,11 @@ public final class Constants
 						case 12:
 						{
 							t12++;
+							break;
+						}
+						case 13:
+						{
+							t13++;
 							break;
 						}
 
@@ -639,13 +645,13 @@ public final class Constants
 							System.out.println("non monitored TimeEntry id");
 						}
 
-						}
+						}//switch
 						if(prevtimeid == 11 && time.TimeID != 12)
 						{
-							res += ",0";
+							res += ";0";
 						}
 						prevtimeid =  time.TimeID;
-						res += "," /*+time.TimeID + " - "*/ + time.Time;
+						res += ";" +time.TimeID + " - " + time.Time;
 					}
 					res += "\n";
 					writer.write(res);
@@ -690,6 +696,7 @@ public final class Constants
 			"MAC count(T1) = " + t1 + "\n"+
 			"MAC count(T11) = " + t11 + "\n"+
 			"MAC count(T12) = " + t12 + "\n"+
+			"MAC count(T13) = " + t13 + "\n"+
 			"MAC count(T2) = " + t2 + "\n"+
 			"MAC count(T21) = " + t21 + "\n"+
 			"MAC count(T250) = " + t250 + "\n"+
