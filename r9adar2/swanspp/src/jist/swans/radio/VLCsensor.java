@@ -238,83 +238,7 @@ public class VLCsensor
 			dx= x2;
 			dy =y2;
 		}
-
-
-		/*
-		 A^2-2 A C+B^2-2 B D+C^2+D^2!=0,   ,   A-C!=0,   y = (A^3 B+B sqrt(R^2 (A-C)^2 (A^2-2 A C+B^2-2 B D+C^2+D^2))-D sqrt(R^2 (A-C)^2 (A^2-2 A C+B^2-2 B D+C^2+D^2))-3 A^2 B C+A B^3-2 A B^2 D+3 A B C^2+A B D^2-B^3 C+2 B^2 C D-B C^3-B C D^2)/((A-C) (A^2-2 A C+B^2-2 B D+C^2+D^2))
-		 */
-		/*SKORO VALJA
-		double dl = distanceLimit;
-		double a = Math.sqrt(Math.pow((ax - bx), 2) + Math.pow((ay -by), 2)) ;
-		//dl= dl*1.2;
-		double r = dl;// Math.sqrt(a*a+ dl*dl - 2*a*dl * Math.cos(Math.toRadians(visionAngle/2)));//duljna BD
-
-
-
-		double N = (py-ay)/(px-ax);
-		double L = -1*N*ax + ay;
-
-		double M = ax*ax + ay*ay -r*r;// bx*bx + by*by -r*r;
-		double G = L*L - 2*ay*L +M;
-		double F = 1 + N*N;
-		double J = 2* ax - 2*N*L + 2*ay*N;
-
-
-		double x1= (-1*(-1*J) - Math.sqrt(Math.pow((J),2) - 4* F*G ))/ 2*F;
-		double x2= (-1*(-1*J) + Math.sqrt(Math.pow((J),2) - 4* F*G ))/ 2*F;
-
-		double y1 = N*x1+L;
-		double y2 = N*x2+L;
-
-		double d1 = Math.sqrt(Math.pow(x1 - ax, 2) + Math.pow(y1 - ay, 2) );
-		double d2 = Math.sqrt(Math.pow(x2 - ax, 2) + Math.pow(y2 - ay, 2) );
-
-		double dx,dy;
-
-		if(d1 > d2)
-		{
-			dx= x1;
-			dy= y1;
-		}
-		else
-		{
-			dx= x2;
-			dy =y2;
-		}*/
-
-		/*
-			double K1a =(dy-by)/(dx-bx);
-			double K1c = -1*K1a*by +by;
-			double K1d = (px +(py-K1c)*K1a )/(1 + K1a*K1a);
-
-			double c1x = 2*K1d -px;
-			double c1y = 2*K1d*K1a -py + 2*K1c;
-
-			double K2a =(dy-cy)/(dx-cx);
-			double K2c = -1*K2a*cy +cy;
-			double K2d = (px +(py-K2c)*K2a )/(1 + K2a*K2a);
-
-			double c2x = 2*K2d -px;
-			double c2y = 2*K2d*K2a -py + 2*K2c;
-		 */
-		/*	double r1 = Point.distance(px, py, bx, by) ; //distance P, b
-			double r2 = Point.distance(dx, dy, bx, by) ; //distance b, d
-			r1=r2;/////////
-			double d = Point.distance(px, py, dx, dy);
-			double dissss = Point.distance(ax, ay, bx, by);
-			double dissss2 = Point.distance(ax, ay, cx, cy);
-		    double ai = (r1*r1 - r2*r2 + d*d)/(2*d); // h is a common leg for two right triangles.  
-		    double hi = Math.sqrt(r1*r1 - ai*ai);
-
-		    double P0x = dx + ai*(px - dx)/d;        // locate midpoint between intersections along line of centers
-		    double P0y = dy + ai*(py - dy)/d;
-
-		    double c1x = P0x + (hi*(py - dy))/d;       // extend to intersection 1 from midpoint
-		    double c1y = P0y - (hi*(px - dx))/d;
-
-		    double c2x = P0x - (hi*(py - dy))/d;       // extend to intersection 2 from midpoint
-		    double c2y = P0y + (hi*(px - dx))/d;
-		 */
+		
 		coverageShape.moveTo(ax, ay);
 		coverageShape.lineTo(bx, by);
 
@@ -324,7 +248,7 @@ public class VLCsensor
 			poly.addPoint((int)sensorLocation.getX(), (int)sensorLocation.getY());
 			poly.addPoint((int)sensorLocation1.getX(), (int)sensorLocation1.getY());
 			poly.addPoint((int)sensorLocation2.getX(), (int)sensorLocation2.getY());*/
-		if(sensorID == 1)
+	//	if(sensorID == 1)
 		{
 			if(JistExperiment.getJistExperiment().placement == Constants.PLACEMENT_GRID)
 			{

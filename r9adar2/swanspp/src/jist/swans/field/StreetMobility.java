@@ -1042,7 +1042,7 @@ public abstract class StreetMobility implements Mobility {
                 (loc.getY()-minY)/(float)METERS_PER_DEGREE);
     }
     /**
-     * Returns an array Location.Location2D's descibing 
+     * Returns an array Location.Location2D's describing 
      * the bounds of the region.
      * 
      * [0] - (minX, maxY)

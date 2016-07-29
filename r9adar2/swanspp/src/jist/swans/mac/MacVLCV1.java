@@ -776,7 +776,6 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 			((NetMessage.Ip)msg).Times.add(new TimeEntry(1, "macbt", null));
 			((NetMessage.Ip)msg).isFresh = false;
 			
-			
 			if (!MessageQueue.isEmpty()) 
 			{
 				((NetMessage.Ip)msg).Times.add(new TimeEntry(12, "macbt", null));
@@ -818,7 +817,6 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	// MacInterface interface
 	public void send(Message msg, MacAddress nextHop)
 	{
-		
 		sendMacMessage(msg,nextHop);
 	}
 	//////////////////////////////////////////////////

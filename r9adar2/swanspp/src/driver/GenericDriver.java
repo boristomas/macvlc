@@ -577,7 +577,7 @@ public class GenericDriver {
 				Util.fromDB(je.sensitivity), Util.fromDB(je.threshold),
 				je.temperature, je.temperature_factor, je.ambiant_noise);
 
-		// initialize shared raido information for non participating nodes
+		// initialize shared radio information for non participating nodes
 		RadioInfo.RadioInfoShared noRadio = RadioInfo.createShared(je.frequency,
 				je.bandwidth, 0, 0, Util.fromDB(10000), Util.fromDB(10000),
 				je.temperature, je.temperature_factor, je.ambiant_noise);

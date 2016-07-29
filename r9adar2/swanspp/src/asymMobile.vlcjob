@@ -90,9 +90,8 @@
     <void property="spatial_mode">
       <int>2</int>
     </void>
-    <void property="StaticPlacementOptions">
-      <!-- ID,los,ang,loc,offsetx, offsety,bearing,mode -->
-      <string>100,100.2,0,1.7,5,0,0,s1,60.73,50,1.01333,0.00978,0,r,s2,60.87,70,1,-0.00982,0,t;</string>
+    <void property="StaticPlacementOptions">	<string>100,100,0,1.7,5,0,0,s1,40,60,1,0,0,r,s2,40,50,-1,1,-180,t,s3,40,60,-1,0,180,r,s4,40,50,1,1,0,t,s5,40,50,1,-1,0,t,s6,40,50,-1,-1,180,t;</string>
+      <!--<string>100,100.2,0,1.7,5,0,0,s1,60.73,50,1.01333,0.00978,0,r,s2,60.87,70,1,-0.00982,0,t;</string>-->
     </void>
     <void property="ResultsPath">
       <string>C:\Users\BorisTomas\Desktop\r992e509f-a710-4807-b984-5015680c945c.csv</string>

@@ -680,7 +680,6 @@ public class JistExperiment implements JistAPI.DoNotRewrite
 		if (placement == Constants.PLACEMENT_GRID){
 			int area = fieldX * fieldY;
 			int sum = fieldX + fieldY;
-			
 			int y = (int)Math.ceil(Math.sqrt(nodes) * 2*((double)fieldY/sum));
 			int x = (int)Math.ceil(Math.sqrt(nodes) * 2*((double)fieldX/sum));
 			if (y > x) y++;

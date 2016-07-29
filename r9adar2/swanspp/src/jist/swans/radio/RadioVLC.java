@@ -263,6 +263,12 @@ public final class RadioVLC extends RadioNoise
 		}
 		return returnme;
 	}
+	/**
+	 * Gets opposite type sensor list, if parameter is Tx returned will be Rx,
+	 * "opposition" is matched by installed bearing matching
+	 * @param sensor
+	 * @return
+	 */
 	public LinkedList<VLCsensor> getNearestOpositeSensor (VLCsensor sensor)
 	{
 		LinkedList<VLCsensor> returnme = new LinkedList<VLCsensor>();	
@@ -278,7 +284,7 @@ public final class RadioVLC extends RadioNoise
 
 		for (VLCsensor item : source) 
 		{
-			if(item.Bearing == sensor.Bearing)
+			if(Math.abs( item.Bearing ) == Math.abs( sensor.Bearing))
 			{
 				if(!returnme.contains(item))
 				{
