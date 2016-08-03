@@ -1605,15 +1605,6 @@ public abstract class StreetMobility implements Mobility {
         float dx = distance * (end.getX() - start.getX())/hyp;
         float dy = distance * (end.getY() - start.getY())/hyp;
 
-        //TESTING RADAR CLASS--- GET BEARING OF CURRENT NODE
-   /*     VLC vlcDevice = new VLC(); 
-        vlcDevice.origin = new Location.Location2D(start.getX(), start.getY()); 						//set the location of the radar on the map
-      
-        //may need to use smi.getEndPoint() to get the destination location
-        float bearingAngle = vlcDevice.getBearing(vlcDevice.origin, end); 					//get the bearing between current location and destination
-        vlcDevice.cornerPoint1 = vlcDevice.getVLCCornerPoint(bearingAngle - (vlcDevice.visionAngle/2), vlcDevice.origin, vlcDevice.distanceLimit, vlcDevice.visionAngle);
-        vlcDevice.cornerPoint2 = vlcDevice.getVLCCornerPoint(bearingAngle + (vlcDevice.visionAngle/2), vlcDevice.origin, vlcDevice.distanceLimit, vlcDevice.visionAngle);
-*/
         //get the neighbors of the vehicle within a certain distance radius
         PriorityList openList = new PriorityList();
         Location nextEnd = smi.getCurrentRS().getEndPoint();        
@@ -1624,11 +1615,6 @@ public abstract class StreetMobility implements Mobility {
 		openList.add(startNode); 
         AStarNode node = (AStarNode)openList.removeFirst(); 
 		
-		//List neighbors = node.getNeighbors();													//get the neighboring road segments to the current segment being traveled
-  //      List neighbors = node.getNeighbors(vlcDevice.origin, vlcDevice.distanceLimit);
-		
-		//for all neighbors within a certain radius away..
-		                     
 		SegmentNode neighboringNode = null;		
 		RoadSegment neighboringSegment = null;
 		
@@ -1637,9 +1623,7 @@ public abstract class StreetMobility implements Mobility {
 		ArrayList carsToStart = new ArrayList();
 		ArrayList carsToEnd = new ArrayList();	
 		
-		//Mate: 	get all nodes in the simulation
-		//			Use the fact that nodes get sequential IDs starting at 1.
-		//			Get the location of each of the nodes
+
 		int numNodes = JistExperiment.getJistExperiment().getNodes();		
 		Location[] nodeLocations = new Location[numNodes];
 		boolean[] nodeVisibleToRadar = new boolean[numNodes];

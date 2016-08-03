@@ -1218,7 +1218,7 @@ public final class RadioVLC extends RadioNoise
 								for (VLCsensor sensorDest : Field.getRadioData(DestinationID).vlcdevice.InstalledSensorsRx)
 								{
 									//znaci da listam sve senzore na src i dest koji su zadani u msg sensor listama
-									if (IsSensorVisibleToSensor(sensorSrc, sensorDest)) 
+									if (IsSensorVisibleToSensor(sensorSrc, sensorDest) && IsSensorVisibleToSensor(sensorDest, sensorSrc) ) 
 									{
 										//			tmpSensorTx.add(sensorSrc.sensorID);
 										isVisible = true;
@@ -1271,7 +1271,7 @@ public final class RadioVLC extends RadioNoise
 					if( (NodesThatSourceCanSee.contains(DestinationID) && !NodesThatDestinationCanSee.contains(SourceID) )
 							|| (!NodesThatSourceCanSee.contains(DestinationID) && NodesThatDestinationCanSee.contains(SourceID)) )
 					{
-						//design
+						//position
 						if(isVLC)
 						{
 							((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(82, "drop-asym2", null));
@@ -1436,10 +1436,10 @@ public final class RadioVLC extends RadioNoise
 			{
 				return false;
 			}
-			if(!sensor2.coverageShape.contains(sensor1.sensorLocation.getX(), sensor1.sensorLocation.getY()))
+			/*if(!sensor2.coverageShape.contains(sensor1.sensorLocation.getX(), sensor1.sensorLocation.getY()))
 			{
 				return false;
-			}
+			}*/
 			//provjeravam LOS
 			for(int i=1;i<=JistExperiment.getJistExperiment().getNodes(); i++) 
 			{
@@ -1560,7 +1560,7 @@ public final class RadioVLC extends RadioNoise
 						break;
 					for (VLCsensor sensor2 :destinationSensors)
 					{
-						if(IsSensorVisibleToSensor(sensor2,sensor))// sensor.sensorLocation.getX(), sensor.sensorLocation.getY(), sensor.sensorLocation1.getX(), sensor.sensorLocation1.getY(), sensor.sensorLocation2.getX(), sensor.sensorLocation2.getY()))
+						if(IsSensorVisibleToSensor(sensor,sensor2))// sensor.sensorLocation.getX(), sensor.sensorLocation.getY(), sensor.sensorLocation1.getX(), sensor.sensorLocation1.getY(), sensor.sensorLocation2.getX(), sensor.sensorLocation2.getY()))
 						{
 							stopSearch = true;
 							returnNodes.add(i);
