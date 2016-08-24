@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.4.2_05" class="java.beans.XMLDecoder">
+  <!--wrap:version=1-->
+  <!--wrap:offsetleft:wrap=-88,2307222222222wrap:offsetleft:wrap-->
+  <!--wrap:offsettop:wrap=-91,4826666666666wrap:offsettop:wrap-->
+  <!--wrap:scale:wrap=30wrap:scale:wrap-->
+  <!--wrap:id:wrap=d0db530b-e2cb-4bcb-9bb2-d9b6d81431d0wrap:id:wrap-->
+  <!--wrap:title:wrap=d0db530b-e2cb-4bcb-9bb2-d9b6d81431d0wrap:title:wrap-->
+  
+  <object class="driver.JistExperiment">
+    <!--  timing  -->
+    <void property="duration">
+      <int>180</int>
+    </void>
+    <void property="resolutionTime">
+      <int>600</int>
+    </void>
+    <void property="startTime">
+      <int>60</int>
+    </void>
+    <!--  environment  -->
+    <void property="exponent">
+      <double>2.8</double>
+    </void>
+    <void property="stdDeviation">
+      <double>0.0</double>
+    </void>
+    <void property="bandwidth">
+      <int>500000</int>
+    </void>
+    <void property="loss">
+      <int>0</int>
+    </void>
+    <void property="pathloss">
+      <int>4</int>
+    </void>
+    <void property="transmit">
+      <double>50</double>
+    </void>
+    <!--  mobility options  -->
+    <void property="mobility">
+      <int>1</int>
+    </void>
+    <void property="max_speed">
+      <int>20</int>
+    </void>
+    <void property="min_speed">
+      <int>1</int>
+    </void>
+    <void property="pause_time">
+      <int>5</int>
+    </void>
+    <void property="granularity">
+      <int>5</int>
+    </void>
+    <void property="segmentFile">
+      <string>swanspp/suffolk/segments.dat</string>
+    </void>
+    <void property="streetFile">
+      <string>swanspp/suffolk/names.dat</string>
+    </void>
+    <void property="shapeFile">
+      <string>swanspp/suffolk/chains.dat</string>
+    </void>
+    <void property="degree">
+      <int>4</int>
+    </void>
+    <void property="probability">
+      <double>0.3</double>
+    </void>
+    <void property="minLat">
+      <float>-1000</float>
+    </void>
+    <void property="minLong">
+      <float>-1000</float>
+    </void>
+    <void property="maxLat">
+      <float>1000</float>
+    </void>
+    <void property="maxLong">
+      <float>1000</float>
+    </void>
+    <!--  node options  -->
+
+    <void property="sendRate">
+      <double>1.0</double>
+    </void>
+    <!--  placement options  -->
+    <void property="placement">
+      <int>2</int>
+    </void>
+    <void property="spatial_mode">
+      <int>2</int>
+    </void>
+    <void property="StaticPlacementOptions">
+      <string>100,100,0,1.7,5,0,0,s1,40,30,1,0,0,r,s2,40,50,1,1,0,t,s3,40,50,1,-1,0,t,s4,40,30,-1,0,180,r,s5,40,50,-1,1,180,t,s6,40,50,-1,-1,180,t;</string>
+    </void>
+    <void property="ResultsPath">
+      <string>D:\AeroFS\FOIPosao\Znanstveni rad\!thesis\phd\apps\jistWrap\jistWrapWPF\bin\Debug\results\rd0db530b-e2cb-4bcb-9bb2-d9b6d81431d0.csv</string>
+    </void>
+    <void property="cbrRate">
+      <int>4096</int>
+    </void>
+    <void property="nodes">
+      <int>1</int>
+    </void>
+    <void property="transmitters">
+      <int>2</int>
+    </void>
+    <void property="MACProtocol">
+      <string>MAC_VLC_V1</string>
+    </void>
+    <void property="MeasurementMode">
+      <boolean>true</boolean>
+    </void>
+    <!-- fieldx i fieldy su granice polja, definiraju velicinu, svi cvorovi trebaju biti unutar pravokutnika definiranog sa fieldx i fieldy -->
+    <void property="fieldX">
+      <int>600</int>
+    </void>
+    <void property="fieldY">
+      <int>600</int>
+    </void>
+
+    <!--  visualization options  -->
+    <void property="useVisualizer">
+      <boolean>false</boolean>
+    </void>
+    <!--  other options  -->
+    <void property="port">
+      <int>3001</int>
+    </void>
+    <void property="protocol">
+      <int>123</int>
+    </void>
+    <void property="help">
+      <boolean>false</boolean>
+    </void>
+  </object>
+</java>
