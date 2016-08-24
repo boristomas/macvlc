@@ -32,7 +32,7 @@ import javax.swing.JEditorPane;
 import org.apache.derby.impl.sql.execute.HashScanResultSet;
 import org.omg.CORBA.SystemException;
 
-import com.sun.xml.internal.ws.api.PropertySet.Property;
+//import com.sun.xml.internal.ws.api.PropertySet.Property;
 
 import jist.runtime.Controller;
 import jist.runtime.JistAPI;

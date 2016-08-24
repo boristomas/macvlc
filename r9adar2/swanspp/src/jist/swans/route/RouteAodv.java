@@ -2082,10 +2082,16 @@ public class RouteAodv implements RouteInterface.Aodv
     {
       this.seqNum = rreqMsg.getDestSeqNum();  // update SN
         
+      try{
       //update route-to-self with updated SN
       RouteTableEntry selfRoute = routeTable.lookup(this.netAddr);
       selfRoute.setDestSeqNum(this.seqNum);
       routeTable.printTable();
+      }
+      catch (Exception ex)
+      {
+    	  
+      }
     }
       
     //create Route Reply Message

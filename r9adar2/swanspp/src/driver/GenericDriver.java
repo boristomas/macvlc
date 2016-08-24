@@ -47,7 +47,7 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.Vector;
 
-import sun.io.Converters;
+//import sun.io.Converters;
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.field.Fading;
