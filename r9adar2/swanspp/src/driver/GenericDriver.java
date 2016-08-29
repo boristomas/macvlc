@@ -560,7 +560,9 @@ public class GenericDriver {
 		}
 
 		je.visualizer = v;
-		btviz.BringToFront();
+		if (je.useVisualizer) {
+			btviz.BringToFront();
+		}
 
 		// initialize field
 		Field field = new Field(spatial, new Fading.None(), pl, mobility,
@@ -1240,12 +1242,15 @@ public class GenericDriver {
 			// final RouteZrp.ZrpStats zrpStats = new RouteZrp.ZrpStats();
 
 			final Date startTime = new Date();
-			if(btviz == null)
+			if(je.useVisualizer)
 			{
-				btviz = new Vizbt();
-
-				//	btviz.getGraph().setColor(Color.RED);
-				//			btviz.getGraph().fillRect(150, 10, 100, 100);
+				if(btviz == null)
+				{
+					btviz = new Vizbt();
+	
+					//	btviz.getGraph().setColor(Color.RED);
+					//			btviz.getGraph().fillRect(150, 10, 100, 100);
+				}
 			}
 			buildField(je, nodes);
 

@@ -37,6 +37,7 @@ import org.omg.CORBA.SystemException;
 
 //import com.sun.xml.internal.ws.api.PropertySet.Property;
 
+
 import jist.runtime.Controller;
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
@@ -54,6 +55,7 @@ import jist.swans.net.NetMessage;
 import jist.swans.radio.VLCsensor.SensorModes;
 import jist.swans.radio.VLCsensor.SensorStates;
 import jist.swans.trans.TransUdp;
+import jobs.JobConfigurator;
 import driver.GenericDriver;
 import driver.JistExperiment;
 import driver.spatial;
@@ -567,8 +569,11 @@ public final class RadioVLC extends RadioNoise
 		{
 			if(JistExperiment.getJistExperiment().placement == Constants.PLACEMENT_GRID)
 			{
-				GenericDriver.btviz.DrawShape(outlineShape, Color.black);
-				GenericDriver.btviz.DrawString(NodeID+"", Color.BLUE, NodeLocation.getX(),  NodeLocation.getY());
+				if(JistExperiment.getJistExperiment().useVisualizer)
+				{
+					GenericDriver.btviz.DrawShape(outlineShape, Color.black);
+					GenericDriver.btviz.DrawString(NodeID+"", Color.BLUE, NodeLocation.getX(),  NodeLocation.getY());
+				}
 			}
 		}
 	}
@@ -1063,23 +1068,26 @@ public final class RadioVLC extends RadioNoise
 	}
 	private void printMessageTransmissionData(Message msg, long duration, String prefix)
 	{
-		String aa="";
-		for (int item : ((MacMessage)msg).getSensorIDTx(NodeID))
+		if(JobConfigurator.DoMessageOutput)
 		{
-			aa += item + " ";
-		}
-		String bb="";
-		for (int item : ((MacMessage)msg).getSensorIDRx(NodeID))
-		{
-			bb += item + " ";
-		}
-		if(isVLC)
-		{
-			System.out.println(prefix + " - n: "+NodeID+ "\tm: "+JistAPI.getTime()+"\ts: "+((MacVLCMessage)msg).getSrc()+ "("+aa+") \t\td: "+((MacVLCMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmhs: " + msg.hashCode() + "\tdecoded: "+tryDecodePayload(msg) );
-		}
-		else
-		{
-			System.out.println(prefix + " - n: "+NodeID+ "\tm: "+JistAPI.getTime()+"\ts: "+((MacMessage)msg).getSrc()+ "("+aa+") \t\td: "+((MacMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmhs: " + msg.hashCode()+ "\tdecoded: "+tryDecodePayload(msg));
+			String aa="";
+			for (int item : ((MacMessage)msg).getSensorIDTx(NodeID))
+			{
+				aa += item + " ";
+			}
+			String bb="";
+			for (int item : ((MacMessage)msg).getSensorIDRx(NodeID))
+			{
+				bb += item + " ";
+			}
+			if(isVLC)
+			{
+				System.out.println(prefix + " - n: "+NodeID+ "\tm: "+JistAPI.getTime()+"\ts: "+((MacVLCMessage)msg).getSrc()+ "("+aa+") \t\td: "+((MacVLCMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmhs: " + msg.hashCode() + "\tdecoded: "+tryDecodePayload(msg) );
+			}
+			else
+			{
+				System.out.println(prefix + " - n: "+NodeID+ "\tm: "+JistAPI.getTime()+"\ts: "+((MacMessage)msg).getSrc()+ "("+aa+") \t\td: "+((MacMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmhs: " + msg.hashCode()+ "\tdecoded: "+tryDecodePayload(msg));
+			}
 		}
 	}
 	private String tryDecodePayload(Message msg)

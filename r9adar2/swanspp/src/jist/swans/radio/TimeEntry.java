@@ -44,6 +44,7 @@ public class TimeEntry {
 	public int TimeID;
 	public Object Signature;
 	public NetMessage.Ip message;
+	
 	public TimeEntry(long time, int timeID, Object signature, Message msg )
 	{
 		Time = time;

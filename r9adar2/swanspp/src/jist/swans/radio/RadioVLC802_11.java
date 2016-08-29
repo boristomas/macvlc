@@ -34,6 +34,7 @@ import org.omg.CORBA.SystemException;
 
 //import com.sun.xml.internal.ws.api.PropertySet.Property;
 
+
 import jist.runtime.Controller;
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
@@ -49,6 +50,7 @@ import jist.swans.misc.Util;
 import jist.swans.net.NetMessage;
 import jist.swans.radio.VLCsensor.SensorModes;
 import jist.swans.radio.VLCsensor.SensorStates;
+import jobs.JobConfigurator;
 import driver.GenericDriver;
 import driver.JistExperiment;
 import driver.spatial;
@@ -662,8 +664,6 @@ public final class RadioVLC802_11 extends RadioNoise
 	/** {@inheritDoc} */
 	public void receive(Message msg, Double powerObj_mW, Long durationObj)
 	{ 
-
-
 		((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(250, "radiovlct-rec", null));
 		if(mode==Constants.RADIO_MODE_SLEEP) return;
 
@@ -850,7 +850,10 @@ public final class RadioVLC802_11 extends RadioNoise
 								{
 									bb += item3 + " ";
 								}
-								System.out.println("r - n: "+NodeID+ " tm: "+JistAPI.getTime()+" s: "+(msg1).getSrc()+ "("+aa+") d: "+(msg1).getDst() +"("+bb+") mhs: " + msg1.hashCode());
+								if(JobConfigurator.DoMessageOutput)
+								{
+									System.out.println("r - n: "+NodeID+ " tm: "+JistAPI.getTime()+" s: "+(msg1).getSrc()+ "("+aa+") d: "+(msg1).getDst() +"("+bb+") mhs: " + msg1.hashCode());
+								}
 								if(msgcounter == 0)
 								{
 									//znaci da se dogodila interferencija i da su sve poruke koje su kolidirane dosle.
@@ -1041,7 +1044,10 @@ public final class RadioVLC802_11 extends RadioNoise
 		{
 			bb += item + " ";
 		}
-		System.out.println("t - n: "+NodeID+ " tm: "+JistAPI.getTime()+" s: "+((MacMessage.Data)msg).getSrc()+ "("+aa+") d: "+((MacMessage.Data)msg).getDst() +"("+bb+") end: "+(duration+getTime()) + " mhs: " + msg.hashCode());
+		if(JobConfigurator.DoMessageOutput)
+		{
+			System.out.println("t - n: "+NodeID+ " tm: "+JistAPI.getTime()+" s: "+((MacMessage.Data)msg).getSrc()+ "("+aa+") d: "+((MacMessage.Data)msg).getDst() +"("+bb+") end: "+(duration+getTime()) + " mhs: " + msg.hashCode());
+		}
 		fieldEntity.transmit(radioInfo, msg, duration);
 		// schedule end of transmission
 		JistAPI.sleep(duration);
@@ -1057,8 +1063,6 @@ public final class RadioVLC802_11 extends RadioNoise
 		{
 			if(mode==Constants.RADIO_MODE_SLEEP) return;
 
-
-			//if(mode!=Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio is not transmitting");
 			isStillTransmitting = false;
 			for (VLCsensor item : sensorsTx)
 			{

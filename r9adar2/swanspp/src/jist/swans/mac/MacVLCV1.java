@@ -29,6 +29,7 @@ import jist.swans.radio.RadioVLC;
 import jist.swans.radio.TimeEntry;
 import jist.swans.radio.VLCsensor;
 import jist.swans.radio.VLCsensor.SensorStates;
+import jobs.JobConfigurator;
 import driver.JistExperiment;
 
 /**
@@ -838,8 +839,10 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 //	private boolean canSendFromQueue = false;
 	public void timeout(int timerId)
 	{
-		System.out.println("q - sid = " + myRadio.NodeID + " QSize = " +MessageQueue.size());
-				
+		if(JobConfigurator.DoMessageOutput)
+		{
+			System.out.println("q - sid = " + myRadio.NodeID + " QSize = " +MessageQueue.size());
+		}		
 		if(!MessageQueue.isEmpty())
 		{
 //			canSendFromQueue = false;

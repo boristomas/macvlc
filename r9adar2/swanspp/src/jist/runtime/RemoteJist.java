@@ -25,6 +25,7 @@ import java.util.Vector;
 
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.util.ClassPath;
 
 /** 
  * All the JiST client-server related remote classes.
@@ -538,9 +539,11 @@ public class RemoteJist
     }
 
     /** {@inheritDoc} */
-    public JavaClass loadClass(Class cl) throws ClassNotFoundException
+   // public JavaClass loadClass(Class cl) throws ClassNotFoundException
+    public JavaClass loadClass(Class<?> arg0) throws ClassNotFoundException
     {
-      return loadClass(cl.getName());
+     
+    	return loadClass(arg0.getName());
     }
 
     /** {@inheritDoc} */
@@ -548,6 +551,13 @@ public class RemoteJist
     {
       cache = new HashMap();
     }
+
+	@Override
+	public ClassPath getClassPath() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
   } // class: RemoteRepository
 
