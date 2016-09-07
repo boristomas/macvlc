@@ -13,9 +13,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import org.omg.CORBA.SystemException;
-
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.field.StreetMobility;

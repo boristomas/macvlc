@@ -197,7 +197,7 @@ public final class Constants
 	/** Default radio frequency (units: Hz). */
 	public static final double FREQUENCY_DEFAULT = 2.4e9; // 2.4 GHz
 	/** Default radio bandwidth (units: bits/second). */
-	public static final int BANDWIDTH_DEFAULT = 102400; // 11Mb/s (int)2e6; // 2Mb/s
+	public static final int BANDWIDTH_DEFAULT = 11000000;//102400; // 11Mb/s (int)2e6; // 2Mb/s
 	/** Default transmission strength (units: dBm). */
 	public static final double TRANSMIT_DEFAULT = 15.0;
 	/** Default antenna gain (units: dB). */
