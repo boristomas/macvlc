@@ -296,26 +296,26 @@ public  class MacVLCMessage extends MacMessage
 	//
 
 	/** RTS packet constant: type = 01, subtype = 1011. */
-	public static final byte TYPE_RTS  = 27;
+//	public static final byte TYPE_RTS  = 27;
 
 	/** CTS packet constant: type = 01, subtype = 1100. */
-	public static final byte TYPE_CTS  = 28;
+	//public static final byte TYPE_CTS  = 28;
 
 	/** ACK packet constant: type = 01, subtype = 1101. */
-	public static final byte TYPE_ACK  = 29;
+//	public static final byte TYPE_ACK  = 29;
 
 	/** DATA packet constant: type = 10, subtype = 0000. */
-	public static final byte TYPE_DATA = 32;
+//	public static final byte TYPE_DATA = 32;
 
 	/**
 	 * packet type.
 	 */
-	private byte type;
+//	private byte type;
 
 	/**
 	 * packet retry bit.
 	 */
-	private boolean retry;
+//	private boolean retry;
 
 	//////////////////////////////////////////////////
 	// initialization
@@ -352,17 +352,17 @@ public  class MacVLCMessage extends MacMessage
 	 * @param retry packet retry bit
 	 * @param body packet data payload
 	 */
-	public MacVLCMessage(MacAddress dst, MacAddress src, int duration, short seq, short frag, 
+	/*public MacVLCMessage(MacAddress dst, MacAddress src, int duration, short seq, short frag, 
 			boolean moreFrag, boolean retry, Message body)
 	{
 		super(TYPE_DATA, retry);
 		this.dst = dst;
 		this.src = src;
 		this.duration = duration;
-		this.seq = seq;
-		this.frag = frag;
+	//	this.seq = seq;
+	//	this.frag = frag;
 		this.body = body;
-	}
+	}*/
 
 	/**
 	 * Create 802_11 data packet.
@@ -374,7 +374,14 @@ public  class MacVLCMessage extends MacMessage
 	 */
 	public MacVLCMessage(MacAddress dst, MacAddress src, int duration, Message body)
 	{
-		this(dst, src, duration, (short)-1, (short)-1, false, false, body);
+		//this(dst, src, duration, (short)-1, (short)-1, false, false, body);
+		super(TYPE_DATA, false);
+		this.dst = dst;
+		this.src = src;
+		this.duration = duration;
+	//	this.seq = seq;
+	//	this.frag = frag;
+		this.body = body;
 	}
 
 	//////////////////////////////////////////////////
@@ -386,20 +393,20 @@ public  class MacVLCMessage extends MacMessage
 	 *
 	 * @return packet type
 	 */
-	public byte getType()
+	/*public byte getType()
 	{
 		return type;
-	}
+	}*/
 
 	/**
 	 * Return retry bit.
 	 *
 	 * @return retry bit
 	 */
-	public boolean getRetry()
+	/*public boolean getRetry()
 	{
 		return retry;
-	}
+	}*/
 
 	
 	/**
@@ -410,7 +417,7 @@ public  class MacVLCMessage extends MacMessage
 	/**
 	 * Packet sequence number limit.
 	 */
-	public static final short MAX_SEQ = 4096;
+	//public static final short MAX_SEQ = 4096;
 
 	/**
 	 * Packet destination address.
@@ -449,17 +456,17 @@ public  class MacVLCMessage extends MacMessage
 	/**
 	 * Packet sequence number.
 	 */
-	private short seq;
+	//private short seq;
 
 	/**
 	 * Packet fragment number.
 	 */
-	private short frag;
+	//private short frag;
 
 	/**
 	 * Packet moreFlag bit.
 	 */
-	private boolean moreFrag;
+//	private boolean moreFrag;
 
 	/**
 	 * Packet data payload.
@@ -507,20 +514,20 @@ public  class MacVLCMessage extends MacMessage
 	 *
 	 * @return packet sequence number
 	 */
-	public short getSeq()
+/*	public short getSeq()
 	{
 		return seq;
-	}
+	}*/
 
 	/**
 	 * Return packet fragment number.
 	 *
 	 * @return packet fragment number
 	 */
-	public short getFrag()
+	/*public short getFrag()
 	{
 		return frag;
-	}
+	}*/
 
 	/**
 	 * Return packet data payload.

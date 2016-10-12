@@ -661,17 +661,6 @@ public final class RadioVLC extends RadioNoise
 		if(isVLC)
 		{
 			((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(251, "radiovlct-rec", null));
-		}
-		else
-		{
-			if(msg instanceof MacMessage.Data)
-			{
-				((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(251, "radiovlct-rec", null));
-			}
-		}
-
-		if(isVLC)
-		{
 			if( ((NetMessage.Ip)((MacVLCMessage)msg).getBody()).getDst().hashCode() == NodeID)
 			{
 				((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(70, "radiovlct-rec", null));
@@ -681,15 +670,13 @@ public final class RadioVLC extends RadioNoise
 		{
 			if(msg instanceof MacMessage.Data)
 			{
+				((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(251, "radiovlct-rec", null));
 				if( ((NetMessage.Ip)((MacMessage.Data)msg).getBody()).getDst().hashCode() == NodeID)
 				{
 					((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(70, "radiovlct-rec", null));
 				}
 			}
 		}
-
-
-
 
 		//Constants.VLCconstants.Received++;
 

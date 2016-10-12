@@ -180,6 +180,7 @@ public interface Placement
 		private void init(Location loc, String s)
 		{
 			Location.Location2D l;
+			s= s.trim();
 			String[] data = s.split("x|;");
 			if(data.length != JistExperiment.getJistExperiment().nodes)
 			{

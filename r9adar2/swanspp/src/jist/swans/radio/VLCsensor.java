@@ -248,8 +248,9 @@ public class VLCsensor
 			poly.addPoint((int)sensorLocation.getX(), (int)sensorLocation.getY());
 			poly.addPoint((int)sensorLocation1.getX(), (int)sensorLocation1.getY());
 			poly.addPoint((int)sensorLocation2.getX(), (int)sensorLocation2.getY());*/
-	//	if(sensorID == 1)
+		if(JistExperiment.getJistExperiment().useVisualizer)
 		{
+			
 			if(JistExperiment.getJistExperiment().placement == Constants.PLACEMENT_GRID)
 			{
 				if(mode == SensorModes.Receive)
