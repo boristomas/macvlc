@@ -436,6 +436,48 @@ public final class RadioVLC extends RadioNoise
 		}
 	}
 	/**
+	 * Senses the carrier using single Rx, use id -1 to check all receivers. 
+	 * If only one is not idle method returns false.
+	 * @param sensorID
+	 * @return
+	 */
+	public boolean CarrierSense(int sensorID)
+	{
+		if(sensorID != -1)
+		{
+			tmpsensor = GetSensorByID(sensorID);
+			if(tmpsensor.mode == SensorModes.Receive)
+			{
+				if(tmpsensor.state == SensorStates.Idle)
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else
+			{
+				throw new RuntimeException("sensor mode is not receiving");
+			}
+		}
+		else
+		{
+			for (VLCsensor item : InstalledSensorsRx)
+			{
+				if(item.state != SensorStates.Idle )
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+	
+	
+	/**
 	 * gets sensor control signal
 	 * @param sensorID
 	 * @return
@@ -767,6 +809,7 @@ public final class RadioVLC extends RadioNoise
 		JistAPI.sleep(duration); 
 		self.endReceive(powerObj_mW, new Long(seqNumber));
 	}
+
 
 	private int msgcounter;
 	private double cumpower;
