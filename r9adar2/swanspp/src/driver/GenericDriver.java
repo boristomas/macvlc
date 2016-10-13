@@ -69,7 +69,6 @@ import jist.swans.mac.Mac802_11;
 import jist.swans.mac.MacAddress;
 import jist.swans.mac.MacDumb;
 import jist.swans.mac.MacInterface;
-import jist.swans.mac.MacVLC;
 import jist.swans.mac.MacVLCV1;
 //import jist.swans.mac.MacVLCMate;
 //import jist.swans.mac.MacVLCWill;

@@ -473,7 +473,7 @@ public final class RadioVLC extends RadioNoise
 			}
 			return true;
 		}
-		return false;
+	//	return false;
 	}
 	
 	
