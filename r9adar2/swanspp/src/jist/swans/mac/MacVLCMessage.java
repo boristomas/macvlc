@@ -39,6 +39,39 @@ public  class MacVLCMessage extends MacMessage
 	//Ne treba jer je cvor id vidljiv iz objekta klase senzor.
 	
 	
+	private byte priority;
+	/**
+	 * Sets message priority
+	 * @param pri
+	 */
+	public void SetPriority(byte pri)
+	{
+		//max priority = 15.
+		if(pri > 15)
+		{
+			pri = 15;
+		}
+		this.priority = pri;
+	}
+	/**
+	 * Gets message priority
+	 * @return
+	 */
+	public byte GetPriority()
+	{
+		return this.priority;
+	}
+	/**
+	 * Increments priority by one but not more than 14, 14 and 15 are reserved for emergency services.
+	 * 
+	 */
+	public void IncrementPriority() 
+	{
+		if(this.priority < 13)
+		{
+			this.priority++;
+		}		
+	}	
 	
 	//sensor control
 	private java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>> SensorIDTx = new java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>>();
@@ -371,14 +404,16 @@ public  class MacVLCMessage extends MacMessage
 	 * @param src packet source address
 	 * @param duration packet transmission duration
 	 * @param body packet data payload
+	 * @param prior message priority (0-14
 	 */
-	public MacVLCMessage(MacAddress dst, MacAddress src, int duration, Message body)
+	public MacVLCMessage(MacAddress dst, MacAddress src, int duration, Message body, byte prior)
 	{
 		//this(dst, src, duration, (short)-1, (short)-1, false, false, body);
 		super(TYPE_DATA, false);
 		this.dst = dst;
 		this.src = src;
 		this.duration = duration;
+		this.priority = prior;
 	//	this.seq = seq;
 	//	this.frag = frag;
 		this.body = body;
@@ -412,7 +447,7 @@ public  class MacVLCMessage extends MacMessage
 	/**
 	 * Packet header size.
 	 */
-	public static final short HEADER_SIZE = 34;
+	public static final short HEADER_SIZE = 22;
 
 	/**
 	 * Packet sequence number limit.
@@ -560,7 +595,8 @@ public  class MacVLCMessage extends MacMessage
 	public void getBytes(byte[] msg, int offset)
 	{
 		throw new RuntimeException("todo: not implemented");
-	}	
+	}
+	
 	
 	//////////////////////////////////////////////////
 	// RTS frame: (size = 20)

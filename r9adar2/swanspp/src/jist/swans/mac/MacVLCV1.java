@@ -9,10 +9,14 @@
 
 package jist.swans.mac;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicLong;
+
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.field.StreetMobility;
@@ -37,7 +41,7 @@ import driver.JistExperiment;
 
 public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Mac802_11
 {
-
+	
 	/*TODO:
 	 * # ok - Koristiti kontrolni kanal.
 	 * 
@@ -575,7 +579,8 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	}
 
 
-	private java.util.concurrent.ConcurrentLinkedQueue<MacVLCMessage> MessageQueue = new ConcurrentLinkedQueue<MacVLCMessage>();  
+	private LinkedList<MacVLCMessage> MessageQueue = new LinkedList<MacVLCMessage>();
+	// new ConcurrentLinkedQueue<MacVLCMessage>();  
 	private VLCsensor tmpSensorTx1;
 	/**
 	 * send message
@@ -597,12 +602,24 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 		JistAPI.sleep(delay+duration);
 	}
 
+	private Comparator<MacVLCMessage> comp = new Comparator<MacVLCMessage>() {
+		@Override
+        public int compare(MacVLCMessage m1, MacVLCMessage m2)
+		{
+            return (m1.GetPriority() < m2.GetPriority()? 1 : -1);
+        }
+	};
+    
 	private void addToQueue(MacVLCMessage msg)
 	{
-		
-		MessageQueue.add(msg);
+		for (MacVLCMessage item : MessageQueue)
+		{
+			item.IncrementPriority();
+		}
+		MessageQueue.add(msg);		
+		Collections.sort(MessageQueue, comp);
 	}
-
+	
 	private HashSet<Integer> tmpSensorsTx = new HashSet<Integer>();
 	private VLCsensor tmpSensorTx;
 
@@ -618,6 +635,10 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 				{
 					for (VLCsensor sensor : myRadio.getNearestOpositeSensor(myRadio.GetSensorByID(item))) 
 					{
+						if(sensor.state == SensorStates.Receiving)
+						{
+							return false;
+						}
 						if(!myRadio.queryControlSignal(sensor, 1))
 						{
 							if(msg.getDst().equals(MacAddress.ANY))
@@ -705,6 +726,13 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	private long minDelay;
 	private long maxDelay;
 	private VLCsensor tmpSensor2;
+	/**
+	 * Gets end time of transmission of sensor that is transmitting, can get minimum time = earlies ending or 
+	 * maximum time =  last transmission.
+	 * @param sensors
+	 * @param isMin
+	 * @return
+	 */
 	private long getMessageEndTimeForSensors(LinkedList<VLCsensor> sensors, boolean isMin )
 	{
 		if(sensors.size() == 0)
@@ -768,7 +796,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 		{
 			Constants.VLCconstants.broadcasts++;
 		}
-		MacVLCMessage data = new MacVLCMessage(nextHop, localAddr,0, msg);
+		MacVLCMessage data = new MacVLCMessage(nextHop, localAddr,0, msg, (byte)0);
 		if(((NetMessage.Ip)msg).isFresh)
 		{
 			((NetMessage.Ip)msg).Times.add(new TimeEntry(1, "macbt", null));
