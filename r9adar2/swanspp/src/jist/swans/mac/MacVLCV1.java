@@ -115,7 +115,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	/** PHY synchronization bits. */
 	public static final long SYNCHRONIZATION = PREAMBLE + PLCP_HEADER;
 	/** Receive-Transmit turnaround time. */
-	public static final long RX_TX_TURNAROUND = 5*Constants.MICRO_SECOND;
+	//public static final long RX_TX_TURNAROUND = 5*Constants.MICRO_SECOND;
 
 	/** Air propagation delay. */
 	public static final long PROPAGATION = Constants.MICRO_SECOND;
@@ -151,10 +151,10 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	public static final long DIFS = SIFS + 2*SLOT_TIME;
 
 	/** Transmit start SIFS. */
-	public static final long TX_SIFS = SIFS - RX_TX_TURNAROUND;
+//	public static final long TX_SIFS = SIFS - RX_TX_TURNAROUND;
 
 	/** Transmit start DIFS. */
-	public static final long TX_DIFS = DIFS - RX_TX_TURNAROUND;
+	//public static final long TX_DIFS = DIFS - RX_TX_TURNAROUND;
 
 	/**
 	 * Extended inter frame space. Wait used by stations to gain access to the
@@ -227,6 +227,11 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	public static final byte MAC_MODE_XACK           = 12;
 	private LinkedList<MacMessage> receivedMessages = new LinkedList<MacMessage>();
 	
+	public enum QueueStrategies
+	{
+	    Unreliable, Reliable, Concurrent
+	}
+	private static QueueStrategies QueueStrategy = QueueStrategies.Concurrent;
 	public static String getModeString(byte mode)
 	{
 		switch(mode)
@@ -591,7 +596,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	private void sendMessage(MacVLCMessage msg)
 	{
 		setMode(MAC_MODE_XBROADCAST);
-		long delay = RX_TX_TURNAROUND;//TODO: pitaj matu jel ima ovoga.
+		long delay = 0; //RX_TX_TURNAROUND; not needed because Tx and Rx are independent 
 		long duration = transmitTime(msg);
 		if(msg.getDst() != MacAddress.ANY && msg.getDst() != MacAddress.LOOP)// || ((NetMessage.Ip)msg).getDst() != NetAddress.ANY)
 		{
@@ -653,7 +658,6 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 									return false;
 								}
 							}
-							
 							return true;
 						}
 					}
@@ -663,7 +667,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 		}	
 		else
 		{
-			
+			//fix = true
 
 			for (Integer item : msg.getSensorIDTx(myRadio.NodeID))//.SensorIDTx)
 			{
@@ -676,8 +680,6 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 						if(!myRadio.queryControlSignal(sensor, 1))
 						{
 							tmpSensorsTx.add(tmpSensorTx.sensorID);
-							//	msg.SensorIDTx = tmpSensorsTx;
-							//return false;
 						}
 					}
 				}else
@@ -690,7 +692,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 
 			if(msg.getSensorIDTxSize(myRadio.NodeID) != 0)
 			{
-				if(msg.getDst().equals(MacAddress.ANY))
+				/*if(msg.getDst().equals(MacAddress.ANY))
 				{
 					//ovdje provjeravam jesu li svi senzori slobodni prije slanja broadcasta. request by mate :)
 					if(myRadio.InstalledSensorsTx.size() == msg.getSensorIDTxSize(myRadio.NodeID))
@@ -701,7 +703,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 					{
 						return false;
 					}
-				}
+				}*/
 				//if(msg.SensorIDTx.size() < 3)
 				//		System.out.println("cta: "+((MacMessage)msg).getSensorIDTx().toString() );
 				return true;
@@ -876,7 +878,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 				tmpmsg1 = MessageQueue.poll();
 				tmpmsg1.setSensorIDTx(GetTransmitSensors(tmpmsg1.getDst()), myRadio.NodeID);//myRadio.GetSensors(SensorModes.Transmit));//todo: izraditi strategiju odabira senzora
 				
-				if(canSendMessage(tmpmsg1, false))
+				if(canSendMessage(tmpmsg1, true))
 				{
 		//			canSendFromQueue = true;
 					sendMacMessage(tmpmsg1.getBody(), tmpmsg1.getDst());
@@ -885,6 +887,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 				}
 				else
 				{
+					tmpmsg1.IncrementPriority();
 					addToQueue(tmpmsg1);
 					//MessageQueue.add(tmpmsg1);
 				}
