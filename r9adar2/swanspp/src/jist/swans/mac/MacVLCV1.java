@@ -231,7 +231,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	{
 	    Unreliable, Reliable, Concurrent
 	}
-	private static QueueStrategies QueueStrategy = QueueStrategies.Concurrent;
+	private static QueueStrategies QueueStrategy = QueueStrategies.Unreliable;
 	public static String getModeString(byte mode)
 	{
 		switch(mode)
@@ -586,7 +586,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 
 	private LinkedList<MacVLCMessage> MessageQueue = new LinkedList<MacVLCMessage>();
 	// new ConcurrentLinkedQueue<MacVLCMessage>();  
-	private VLCsensor tmpSensorTx1;
+	//private VLCsensor tmpSensorTx1;
 	/**
 	 * send message
 	 * @param msg
@@ -615,7 +615,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         }
 	};
     
-	private void addToQueue(MacVLCMessage msg)
+	private void QueueInsert(MacVLCMessage msg)
 	{
 		for (MacVLCMessage item : MessageQueue)
 		{
@@ -806,8 +806,9 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 			
 			if (!MessageQueue.isEmpty()) 
 			{
+				//ako je poruka nova, a red nije prazan odmah ju dodajem u red bez provjera mogucnosti slanja, jer inace red ne bi bio pun.
 				((NetMessage.Ip)msg).Times.add(new TimeEntry(12, "macbt", null));
-				addToQueue(data);
+				QueueInsert(data);
 				if(!TimerRunning)
 				{
 					TimerRunning = true;
@@ -817,24 +818,41 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 			}
 		}
 		
-		data.setSensorIDTx(GetTransmitSensors(nextHop), myRadio.NodeID);
-		//myRadio.GetSensors(SensorModes.Transmit));
-		//todo: izraditi strategiju odabira senzora
-		if(canSendMessage(data, true))
+		switch (QueueStrategy)
 		{
-			((NetMessage.Ip)msg).Times.add(new TimeEntry(11, "macbt", null));
-			sendMessage(data);
-		}
-		else
-		{
-			((NetMessage.Ip)msg).Times.add(new TimeEntry(12, "macbt", null));
-			addToQueue(data);
-
-			if(!TimerRunning)
-			{
-				TimerRunning = true;
-				transmitDelay = getMessageEndTimeForSensors(myRadio.InstalledSensorsTx, true);//-JistAPI.getTime();
-				self.startTimer(transmitDelay, (byte)1);
+			case Concurrent :
+			{	
+				//TODO: v2
+				throw new RuntimeException("v2");
+			//	break;
+			}
+			case Reliable :
+			{	
+				//TODO: v2
+				throw new RuntimeException("v2");
+		//		break;
+			}
+			case Unreliable :
+			{	
+				data.setSensorIDTx(GetTransmitSensors(nextHop), myRadio.NodeID);//ako je prazno, fix= true ce popraviti
+				
+				if(canSendMessage(data, true))
+				{
+					((NetMessage.Ip)msg).Times.add(new TimeEntry(11, "macbt", null));
+					sendMessage(data);
+				}
+				else
+				{
+					((NetMessage.Ip)msg).Times.add(new TimeEntry(12, "macbt", null));
+					QueueInsert(data);
+					if(!TimerRunning)
+					{
+						TimerRunning = true;
+						transmitDelay = getMessageEndTimeForSensors(myRadio.InstalledSensorsTx, true);//-JistAPI.getTime();
+						self.startTimer(transmitDelay, (byte)1);
+					}
+				}
+				break;
 			}
 		}
 	}
@@ -888,7 +906,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 				else
 				{
 					tmpmsg1.IncrementPriority();
-					addToQueue(tmpmsg1);
+					QueueInsert(tmpmsg1);
 					//MessageQueue.add(tmpmsg1);
 				}
 			} while(MessageQueue.peek() != first);
@@ -938,11 +956,14 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 			((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(31, "formenetip", null));  
 		}
 		receivedMessages.addFirst((MacMessage)msg);
+		
 		netEntity.receive(((MacVLCMessage)msg).getBody(), ((MacVLCMessage)msg).getSrc(), netId, false);
 	}
 
-	private long receivedMessagesAge = 0; //TODO: odrediti ovo nekako pametnije, ili napraviti analizu pa izracunati neki prosjek ili napraviti programski tako da npr. prosjecnu duzinu trajanja poruke od svih prethodnik komunikacija, ili da uzme najduze trajanje poruke ili tako nesto.
-	private long durationAgeMultiplier = 40;
+	private float receivedMessagesEndTime = 0;
+	private float receivedMessageAge= 0;
+	private long maxReceivedAge = 5000000;//nanoseconds = 5ms
+	private int ageCounter= 0;
 	private LinkedList<VLCsensor> GetTransmitSensors(MacAddress newdest)
 	{
 		if(newdest == MacAddress.ANY)
@@ -951,17 +972,30 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 		}
 		if(receivedMessages.size() !=0)
 		{
-			receivedMessagesAge = 0;
-			for (MacMessage msg : receivedMessages)
+			receivedMessagesEndTime = 0;
+			ageCounter = 0;
+			//poruke se listaju od namlaðih prema najstarijima
+			for (int i = 0; i < receivedMessages.size(); i++) 
 			{
-			/*	if(receivedMessagesAge == 0)
+				if(receivedMessages.get(i).getSrc() == newdest)// && (JistAPI.getTime() - msg.getEndRx(myRadio.GetSensorByID((Integer)msg.getSensorIDRx(myRadio.NodeID).toArray()[0]))) < receivedMessagesAge  )
 				{
-					receivedMessagesAge = msg.getDurationRx((myRadio.GetSensorByID((Integer)msg.getSensorIDRx(myRadio.NodeID).toArray()[0]))) * durationAgeMultiplier;
-				}*/
-				//System.out.println("time: " + (JistAPI.getTime() - msg.getEndRx(myRadio.GetSensorByID((Integer)msg.getSensorIDRx(myRadio.NodeID).toArray()[0]))));
-				if(msg.getSrc() == newdest)// && (JistAPI.getTime() - msg.getEndRx(myRadio.GetSensorByID((Integer)msg.getSensorIDRx(myRadio.NodeID).toArray()[0]))) < receivedMessagesAge  )
-				{
-					return myRadio.getNearestOpositeSensor(msg.getSensorIDRx(myRadio.NodeID));//.SensorIDRx);
+					for (Integer item : receivedMessages.get(i).getSensorIDRx(myRadio.NodeID)) 
+					{
+					//	ageCounter++;0
+						receivedMessagesEndTime = receivedMessages.get(i).getEndRx(myRadio.GetSensorByID(item));
+						break;
+					}
+					//receivedMessagesEndTime = receivedMessagesEndTime/ageCounter;
+					
+					receivedMessageAge = (JistAPI.getTime()  - receivedMessagesEndTime);
+					if( receivedMessageAge < maxReceivedAge  )
+					{
+						return myRadio.getNearestOpositeSensor(receivedMessages.get(i).getSensorIDRx(myRadio.NodeID));//.SensorIDRx);
+					}
+					else
+					{
+						return myRadio.InstalledSensorsTx;
+					}
 				}
 			}
 		}
