@@ -9,6 +9,6 @@ Quick start (debug configuration)
 
 **main class:** jist.runtime.Main
 
-**Program arguments:** driver.GenericDriver *relative path to config xml*
+**Program arguments:** driver.GenericDriver *relative-path-to-config-xml-file*
 
 **VM arguments:** -server -Xmx4096m
