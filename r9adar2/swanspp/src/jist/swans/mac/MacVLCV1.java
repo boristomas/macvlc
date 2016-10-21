@@ -772,7 +772,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 			//TODO: pitati matu jel dobro ovako dinamicno mijenjanje vrijeme cekanja na provjeru kanala opet?, ovo bi trebao biti backoff
 			transmitDelayMultiplier++;
 	//		transmitDelayMultiplier=10;
-			minDelay = Constants.MILLI_SECOND*20*transmitDelayMultiplier;
+			minDelay = Constants.MILLI_SECOND*2*transmitDelayMultiplier;
 		//	System.out.println("delay" + myRadio.NodeID + " -- "+ minDelay);
 		}
 		if(maxDelay == 0)

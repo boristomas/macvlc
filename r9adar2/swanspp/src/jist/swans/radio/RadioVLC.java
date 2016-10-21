@@ -38,6 +38,8 @@ import org.omg.CORBA.SystemException;
 //import com.sun.xml.internal.ws.api.PropertySet.Property;
 
 
+
+
 import jist.runtime.Controller;
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
@@ -867,6 +869,7 @@ public final class RadioVLC extends RadioNoise
 								}
 								((MacInterface.VlcMacInterface) this.macEntity).receive(msg1);
 								return;
+								//continue;
 							}
 							else
 							{
@@ -875,18 +878,16 @@ public final class RadioVLC extends RadioNoise
 								((MacInterface.VlcMacInterface) this.macEntity).notifyInterference(msg1, item);
 							}
 						}
+						
 					}//for msg1
-
-
-
 					if(msgcounter == 0)
 					{
 						//znaci da se dogodila interferencija i da su sve poruke koje su kolidirane dosle.
 						clearControlSignal(item, (byte)1);
 						item.setState(SensorStates.Idle );
 					}
-				}
-			}
+				}//if receiving
+			}//for installed sensors
 		}
 		else
 		{//neki obican mac je.
