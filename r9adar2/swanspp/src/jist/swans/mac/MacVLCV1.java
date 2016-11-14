@@ -861,7 +861,6 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	//////////////////////////////////////////////////
 	// timer routines
 	//
-
 	// MacInterface
 	private boolean TimerRunning = false;
 	public void startTimer(long delay, byte mode)
