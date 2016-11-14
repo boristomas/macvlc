@@ -634,16 +634,21 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 		//	fixTx = false;
 		if(!fixTx)
 		{
+			//ne koristi se.
 			for (Integer item : msg.getSensorIDTx(myRadio.NodeID))//.SensorIDTx) 
 			{
 				if(myRadio.GetSensorByID(item).state == SensorStates.Idle)
 				{
 					for (VLCsensor sensor : myRadio.getNearestOpositeSensor(myRadio.GetSensorByID(item))) 
 					{
-						if(sensor.state == SensorStates.Receiving)
+						if(!myRadio.CarrierSense(sensor))
 						{
 							return false;
 						}
+						/*if(sensor.state == SensorStates.Receiving)
+						{
+							return false;
+						}*/
 						if(!myRadio.queryControlSignal(sensor, 1))
 						{
 							if(msg.getDst().equals(MacAddress.ANY))
@@ -674,17 +679,19 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 				tmpSensorTx =myRadio.GetSensorByID(item);
 				if(tmpSensorTx.state == SensorStates.Idle)
 				{
-
 					for (VLCsensor sensor : myRadio.getNearestOpositeSensor(tmpSensorTx)) 
 					{
-						if(!myRadio.queryControlSignal(sensor, 1))
+						if(myRadio.CarrierSense(sensor))
 						{
-							tmpSensorsTx.add(tmpSensorTx.sensorID);
+							if(!myRadio.queryControlSignal(sensor, 1))
+							{
+								tmpSensorsTx.add(tmpSensorTx.sensorID);
+							}
 						}
 					}
-				}else
+				}
+				else
 				{
-					//		System.out.println("not idle");
 				}
 			}
 			msg.setSensorIDTx(tmpSensorsTx, myRadio.NodeID);
@@ -692,20 +699,6 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 
 			if(msg.getSensorIDTxSize(myRadio.NodeID) != 0)
 			{
-				/*if(msg.getDst().equals(MacAddress.ANY))
-				{
-					//ovdje provjeravam jesu li svi senzori slobodni prije slanja broadcasta. request by mate :)
-					if(myRadio.InstalledSensorsTx.size() == msg.getSensorIDTxSize(myRadio.NodeID))
-					{
-						return true;
-					}
-					else
-					{
-						return false;
-					}
-				}*/
-				//if(msg.SensorIDTx.size() < 3)
-				//		System.out.println("cta: "+((MacMessage)msg).getSensorIDTx().toString() );
 				return true;
 			}
 			else
@@ -834,7 +827,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 			}
 			case Unreliable :
 			{	
-				data.setSensorIDTx(GetTransmitSensors(nextHop), myRadio.NodeID);//ako je prazno, fix= true ce popraviti
+				data.setSensorIDTx(GetTransmitSensors(nextHop), myRadio.NodeID);
 				
 				if(canSendMessage(data, true))
 				{

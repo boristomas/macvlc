@@ -478,6 +478,26 @@ public final class RadioVLC extends RadioNoise
 	//	return false;
 	}
 	
+	public boolean CarrierSense(VLCsensor sensor)
+	{
+			if(sensor.mode == SensorModes.Receive)
+			{
+				if(sensor.state == SensorStates.Idle)
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else
+			{
+				throw new RuntimeException("sensor mode is not receiving");
+			}
+		
+	//	return false;
+	}
 	
 	/**
 	 * gets sensor control signal
