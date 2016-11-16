@@ -226,6 +226,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	/** mac mode: transmitting ACK packet. */
 	public static final byte MAC_MODE_XACK           = 12;
 	private LinkedList<MacMessage> receivedMessages = new LinkedList<MacMessage>();
+	private VLCsensor interferedSensor = null;
 	
 	public enum QueueStrategies
 	{
@@ -585,6 +586,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 
 
 	private LinkedList<MacVLCMessage> MessageQueue = new LinkedList<MacVLCMessage>();
+	//private MacVLCMessage CurrentMessageOnAir = null;
 	// new ConcurrentLinkedQueue<MacVLCMessage>();  
 	//private VLCsensor tmpSensorTx1;
 	/**
@@ -603,6 +605,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 			((NetMessage.Ip)msg.getBody()).Times.add(new TimeEntry(13, "mac send dest", null));
 		}
 		transmitDelayMultiplier = 1;
+		
 		radioEntity.transmit(msg, delay, duration);
 		JistAPI.sleep(delay+duration);
 	}
@@ -617,9 +620,24 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     
 	private void QueueInsert(MacVLCMessage msg)
 	{
-		for (MacVLCMessage item : MessageQueue)
+		if(msg.isRetry)
 		{
-			item.IncrementPriority();
+			for (MacVLCMessage item : MessageQueue)
+			{
+				if(item == msg)
+				{
+					//poruka vec postoji u queue.
+					return;
+				}
+			}
+			msg.DecrementPriority();
+		}
+		if(!msg.isRetry)
+		{
+			for (MacVLCMessage item : MessageQueue)
+			{
+				item.IncrementPriority();
+			}
 		}
 		MessageQueue.add(msg);		
 		Collections.sort(MessageQueue, comp);
@@ -880,10 +898,33 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 		{
 			System.out.println("q - sid = " + myRadio.NodeID + " QSize = " +MessageQueue.size());
 		}		
+		
 		if(!MessageQueue.isEmpty())
 		{
 //			canSendFromQueue = false;
 			first = MessageQueue.peek();
+				
+		/*	if(interferedSensor != null)
+			{
+				first.getSensorIDTx(myRadio.NodeID);
+				for (VLCsensor sensor : myRadio.getNearestOpositeSensor(interferedSensor))
+				{
+					for (Integer sensor2 : first.getSensorIDTx(myRadio.NodeID))
+					{
+						if(sensor.sensorID == sensor2)
+						{
+							tmpmsg1 = MessageQueue.poll();
+							tmpmsg1.isRetry = true;
+							tmpmsg1.DecrementPriority();
+							QueueInsert(tmpmsg1);
+							interferedSensor = null;
+							return;
+						}						
+					}
+				}
+//				interferedSensor = null;
+			}	*/
+			
 			do{
 				tmpmsg1 = MessageQueue.poll();
 				tmpmsg1.setSensorIDTx(GetTransmitSensors(tmpmsg1.getDst()), myRadio.NodeID);//myRadio.GetSensors(SensorModes.Transmit));//todo: izraditi strategiju odabira senzora
@@ -1108,11 +1149,24 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	{
 		return localAddr.toString();
 	}
+	
 
+	MacVLCMessage tmpmsg;
 	public void notifyInterference(MacMessage msg, VLCsensor sensors) 
 	{
 		((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(90, "macinterference", null));		
 		System.out.println("interference on node: " + sensors.node.NodeID +" sensor: " + sensors.sensorID + " msg hsh: "+ msg.hashCode());
+		interferedSensor = sensors;
+		for (VLCsensor sensor : myRadio.getNearestOpositeSensor(sensors)) 
+		{
+			tmpmsg =sensors.Messages.getFirst();
+			if(tmpmsg.getEndTx(sensors) <= JistAPI.getTime()) 
+			{
+				//znaci da se poruka jos salje
+				tmpmsg.isRetry = true;
+				QueueInsert(tmpmsg);
+			}
+		}
 	}
 
 	public void notifyError(int errorCode, String message) 
@@ -1129,6 +1183,9 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 
 	public void notifyReceiveFail(Message msg, int errorCode) 
 	{
+		//receive fail se desi odmah na pocetku primanja dok interfere na kraju, ne mora znaciti da ce svaki receive fail
+		//rezultirati sa interference, jer moze biti da poruka ipak bude primljena ako je rx pwr dovoljno veliki
+		
 		((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(93, "macinterference", null));
 		System.out.println("recFail #"+errorCode +" n: "+myRadio.NodeID+ " s: "+((MacVLCMessage)msg).getSrc()+" d: "+((MacVLCMessage)msg).getDst()+" msg hsh: "+msg.hashCode()); 
 	}

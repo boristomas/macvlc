@@ -72,6 +72,14 @@ public  class MacVLCMessage extends MacMessage
 			this.priority++;
 		}		
 	}	
+
+	public void DecrementPriority() 
+	{
+		if(this.priority >= 1)
+		{
+			this.priority--;
+		}		
+	}
 	
 	//sensor control
 	private java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>> SensorIDTx = new java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>>();
@@ -414,6 +422,7 @@ public  class MacVLCMessage extends MacMessage
 		this.src = src;
 		this.duration = duration;
 		this.priority = prior;
+		this.isRetry = false;
 	//	this.seq = seq;
 	//	this.frag = frag;
 		this.body = body;
@@ -507,6 +516,8 @@ public  class MacVLCMessage extends MacMessage
 	 * Packet data payload.
 	 */
 	public Message body;
+
+	public boolean isRetry;
 
 
 
