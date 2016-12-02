@@ -642,7 +642,7 @@ public final class Constants
 						}
 						default:
 						{
-							System.out.println("non monitored TimeEntry id");
+							System.out.println("non monitored TimeEntry id: " +time.TimeID );
 						}
 
 						}//switch
@@ -665,7 +665,7 @@ public final class Constants
 				e.printStackTrace();
 			}
 
-			boolean hastid;
+		/*	boolean hastid;
 			for (NetMessage.Ip msg : TimeEntry.AllMessages) 
 			{
 				hastid = false;
@@ -681,8 +681,8 @@ public final class Constants
 				/*if(!hastid)
 				{
 					System.out.println("tid msh : "+msg.hashCode());
-				}*/
-			}
+				}* /
+			}*/
 
 			System.out.println();
 
