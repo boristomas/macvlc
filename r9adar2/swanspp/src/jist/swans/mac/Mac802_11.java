@@ -579,14 +579,15 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 	{
 		if(!hasBackoff())
 		{
-			if(!JistExperiment.getJistExperiment().MeasurementMode)
+		//	if(!JistExperiment.getJistExperiment().MeasurementMode)
 			{
 				bo = Constants.random.nextInt(cw) * SLOT_TIME;
 			}
-			else
+		/*	else//maknuo sam ovo iz referentnog jer ne treba njega dirati
+		 * 
 			{
 				bo = (cw/2) * SLOT_TIME;
-			}
+			}*/
 		}
 	}
 

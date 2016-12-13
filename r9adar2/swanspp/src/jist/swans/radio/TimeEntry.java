@@ -12,12 +12,12 @@ import jist.swans.net.NetMessage;
 /**
  * timeID:
  *	0  - //when and if message is created
- *	1  - //when and if message is passed on MAC layer. (mac.send)
+ *	1  - //when and if message is passed to MAC layer. (mac.send)
  *  11 - //when and if message can be sent, after check if sensor is idle and control signal states
  *  12 - //when and if message is added to the queue, if not 11 then 12.
- *  13 - //when and if message is on MAC layer and i has specific destination.
- *	2  - //when and if message is relayed by mac layer to underlying layer (radioentity.transmit before check)
- *  21 - //when and if message is relayed by mac layer to underlying layer (radioentity.transmit after check)
+ *  13 - //when and if message is at MAC layer and it has specific destination.
+ *	2  - //when and if message is relayed by mac layer to the underlying layer (radioentity.transmit before check)
+ *  21 - //when and if message is relayed by mac layer to the underlying layer (radioentity.transmit after check)
  *  250- //when radio RadioVLC received message on the other side (radioentity.receive no physical checking done) - usually all messages are tagged with this one
  *  251- //when radio RadioVLC received message on the other side and it is physically ok but before propagation time execution.
  *  252- //when and if radio RadioVLC received message on the other side and after propagation time and interference check, just before relaying to MAC layer.
@@ -58,7 +58,7 @@ public class TimeEntry {
 		Time = JistAPI.getTime();
 		TimeID = timeID;
 		Signature = signature;
-		message = (NetMessage.Ip)msg;;
+		message = (NetMessage.Ip)msg;
 		addmsg(msg);
 	}
 	private void addmsg(Message msg)

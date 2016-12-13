@@ -1026,7 +1026,7 @@ public class GenericDriver {
 		boolean[] chosen = new boolean[nodes.size()];
 
 		// pick destinations for streams
-		if(!je.MeasurementMode)
+		if(!je.MeasurementMode || je.mobility == 5)
 		{
 			for (int i = 0; i < je.transmitters; i++) {
 				//pick send node

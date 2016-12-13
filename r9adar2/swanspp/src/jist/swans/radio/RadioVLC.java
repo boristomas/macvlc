@@ -518,7 +518,7 @@ public final class RadioVLC extends RadioNoise
 	 * Check if there is control signal in the field (visible to node)
 	 * @param sensorID
 	 * @param channelID
-	 * @return
+	 * @return true if there is signal, else false.
 	 */
 	public boolean queryControlSignal (int sensorID, Integer channelID)
 	{
@@ -1265,7 +1265,6 @@ public final class RadioVLC extends RadioNoise
 
 				if(NodesThatSourceCanSee.contains(DestinationID) && NodesThatDestinationCanSee.contains(SourceID))
 				{
-					//TODO: vidjeti zasto je ovo postojalo uopce: NodesThatSourceCanSee.addAll(NodesThatDestinationCanSee);
 					if(msg.getSensorIDRx(DestinationID).size() != 0)
 					{
 						//u ovom slucaju su poznate stxid i srxid liste.
@@ -1300,8 +1299,6 @@ public final class RadioVLC extends RadioNoise
 									((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(84, "drop-asym4", null));
 								}
 							}
-
-
 						}
 						msg.setSensorIDRx(tmpSensorRx, DestinationID);
 

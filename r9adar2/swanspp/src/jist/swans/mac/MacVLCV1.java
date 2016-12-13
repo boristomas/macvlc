@@ -646,13 +646,12 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	private HashSet<Integer> tmpSensorsTx = new HashSet<Integer>();
 	private VLCsensor tmpSensorTx;
 
-	private boolean canSendMessage(MacVLCMessage msg, boolean fixTx)
+	private boolean canSendMessage(MacVLCMessage msg,boolean fixTx)
 	{
 		tmpSensorsTx = new HashSet<Integer>();
 		//	fixTx = false;
 		if(!fixTx)
 		{
-			//ne koristi se.
 			for (Integer item : msg.getSensorIDTx(myRadio.NodeID))//.SensorIDTx) 
 			{
 				if(myRadio.GetSensorByID(item).state == SensorStates.Idle)
@@ -663,10 +662,10 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 						{
 							return false;
 						}
-						/*if(sensor.state == SensorStates.Receiving)
+						if(myRadio.queryControlSignal(sensor, 1))
 						{
 							return false;
-						}*/
+						}
 						if(!myRadio.queryControlSignal(sensor, 1))
 						{
 							if(msg.getDst().equals(MacAddress.ANY))
@@ -713,8 +712,6 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 				}
 			}
 			msg.setSensorIDTx(tmpSensorsTx, myRadio.NodeID);
-
-
 			if(msg.getSensorIDTxSize(myRadio.NodeID) != 0)
 			{
 				return true;
@@ -725,14 +722,6 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 				return false;
 			}
 		}
-		//provjeravam control signal
-
-
-		//	if(myRadio.rotatePoint(ptx, pty, center, angleDeg))
-		//if(myRadio.tripletOrientation(x1, y1, x2, y2, x3, y3) )
-		//	((RadioVLC)radioEntity).messagesOnAir
-		//	return false;
-
 	}
 
 	private long tmpDelay;
@@ -847,7 +836,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 			{	
 				data.setSensorIDTx(GetTransmitSensors(nextHop), myRadio.NodeID);
 				
-				if(canSendMessage(data, true))
+				if(canSendMessage(data, false))
 				{
 					((NetMessage.Ip)msg).Times.add(new TimeEntry(11, "macbt", null));
 					sendMessage(data);
