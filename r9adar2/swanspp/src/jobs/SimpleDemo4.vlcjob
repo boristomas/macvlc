@@ -15,7 +15,7 @@
 		<!-- environment -->
 		<void property="exponent">
 			<double>2.8</double>
-	</void>
+		</void>
 		<void property="stdDeviation">
 			<double>0.0</double>
 		</void>
@@ -26,7 +26,7 @@
 			<int>0</int>
 		</void>
 		<void property="pathloss">
-			<int>4</int>
+			<int>4</int><!-- 4!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! vlc -->
 		</void>
 		<void property="transmit">
 			<double>50</double>
@@ -87,7 +87,7 @@
 			<int>2</int>
 		</void>
 		<void property="StaticPlacementOptions">
-			<!-- ID,los,ang,loc,offsetx, offsety,bearing,mode -->
+			<!--<string>100,100,0;115,100,15</string> -->
 			<string>
 				100,100,0,1.7,5,0.6,0.8,
 				s1,45,70,1,-1,0,t,
@@ -103,28 +103,36 @@
 				s4,45,70,-1,1,180,t,
 				s5,45,70,-1,-1,180,t,
 				s6,47,80,-1,0,-180,r;
+				215,100,0,1.7,5,0.6,0.8,
+				s1,45,70,1,-1,0,t,
+				s2,45,70,1,1,0,t,
+				s3,47,80,1,0,0,r,
+				s4,45,70,-1,1,180,t,
+				s5,45,70,-1,-1,180,t,
+				s6,47,80,-1,0,-180,r;
 			</string>
-		</void>
-		<void property="ResultsPath">
-			<string>C:\Users\BorisTomas\Desktop\r5444ac73-4ef7-41f6-9f33-e8ff12d0cd93.csv
-			</string>
+
+			<!-- <string>100,100,0;175,175,0;175,90,0</string> -->
+			<!-- <string>100,100,0;155,100,90;</string> -->
+			<!-- <string>100,100;150,150;200,200;200,200;200,200;200,200</string> -->
 		</void>
 		<void property="cbrRate">
 			<int>4096</int>
 		</void>
 		<void property="nodes">
-			<int>2</int>
+			<int>3</int>
 		</void>
 		<void property="transmitters">
-			<int>2</int>
+			<int>3</int>
 		</void>
 		<void property="MACProtocol">
-			<!--<string>MACVLCprotocolBoris</string> -->
+			<!-- <string>MACVLCprotocolBoris</string> -->
 			<string>MAC_VLC_V1</string>
 		</void>
 		<void property="MeasurementMode">
 			<boolean>true</boolean>
 		</void>
+	
 		<!-- field options -->
 		<void property="placement">
 			<int>2</int>
@@ -140,7 +148,7 @@
 
 		<!-- visualization options -->
 		<void property="useVisualizer">
-			<boolean>true</boolean>
+			<boolean>false</boolean>
 		</void>
 		<!-- other options -->
 		<void property="port">

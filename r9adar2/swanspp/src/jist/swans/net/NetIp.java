@@ -380,9 +380,13 @@ public class NetIp implements NetInterface
 
 		if(routing!=null) routing.peek(ipmsg, lastHop);
 		
-		if(!promisc)
+		if(localAddr.equals(ipmsg.getDst()))
 		{
 			ipmsg.Times.add(new TimeEntry(5, "formenetip", null));
+		}
+		if(!promisc)
+		{
+			
 			if(isForMe(ipmsg))
 			{       
 				ipmsg.Times.add(new TimeEntry(6, "formenetip", null));
@@ -416,6 +420,9 @@ public class NetIp implements NetInterface
 	/** {@inheritDoc} */
 	public void send(NetMessage.Ip msg, int interfaceId, MacAddress nextHop) 
 	{
+	
+		
+		
 		if(msg==null) throw new NullPointerException();
 		if(outgoingLoss.shouldDrop(msg)) return;
 		/*
@@ -460,6 +467,7 @@ public class NetIp implements NetInterface
 	 */
 	private void sendIp(NetMessage.Ip msg) 
 	{
+		
 		if (NetAddress.ANY.equals(msg.getDst()))
 		{
 			// broadcast
@@ -473,6 +481,7 @@ public class NetIp implements NetInterface
 		else if (msg.getNextHop()==null || msg.getNextHop().equals(localAddr))
 		{
 			// route and send
+			
 			routing.send(msg);
 		}
 	}
@@ -500,6 +509,11 @@ public class NetIp implements NetInterface
 				log.info("send t="+JistAPI.getTime()+" to="+qmsg.getNextHop()+" data="+ip);
 			}
 			JistAPI.sleep(Constants.NET_DELAY);
+			
+			if(ip.getDst() !=  NetAddress.ANY && ip.getDst() != NetAddress.NULL && ip.getDst() != NetAddress.LOCAL && !localAddr.equals(ip.getDst()) )
+			{
+				ip.Times.add(new TimeEntry(14, "mac send dest", null));
+			}
 			//T-ODO dont understatnd it with javadocs(notifying)
 			ni.mac.send(ip, qmsg.getNextHop());
 		}

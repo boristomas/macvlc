@@ -16,6 +16,7 @@ import jist.swans.net.NetMessage;
  *  11 - //when and if message can be sent, after check if sensor is idle and control signal states
  *  12 - //when and if message is added to the queue, if not 11 then 12.
  *  13 - //when and if message is at MAC layer and it has specific destination.
+ *  14 - //when and if message is at a NET layer and it has specific destination (after net delay).
  *	2  - //when and if message is relayed by mac layer to the underlying layer (radioentity.transmit before check)
  *  21 - //when and if message is relayed by mac layer to the underlying layer (radioentity.transmit after check)
  *  250- //when radio RadioVLC received message on the other side (radioentity.receive no physical checking done) - usually all messages are tagged with this one

@@ -488,6 +488,7 @@ public final class Constants
 			int t11 = 0;
 			int t12 = 0;
 			int t13 = 0;
+			int t14 = 0;
 			int t2 = 0;
 			int t21 = 0;
 			int t250 = 0;
@@ -508,7 +509,7 @@ public final class Constants
 			int t93 = 0;
 			long time1 =0;
 			long sumt5t1 =0;
-			boolean has13 = false;
+			boolean has14 = false;
 	
 			PrintWriter writer;
 			try {
@@ -519,7 +520,7 @@ public final class Constants
 				{
 					res = "";
 					res+= item.getId()+ ";"+ item.getSrc() +";" + item.getDst(); 
-					has13 = false;
+					has14 = false;
 					for (TimeEntry time : item.Times) 
 					{
 						switch (time.TimeID) {
@@ -546,10 +547,15 @@ public final class Constants
 						}
 						case 13:
 						{
-							if(!has13)
-							{
-								has13 = true;
 								t13++;
+							break;
+						}
+						case 14:
+						{
+							if(!has14)
+							{
+								has14 = true;
+								t14++;
 							}
 							break;
 						}
@@ -674,7 +680,7 @@ public final class Constants
 			"MAC implementation = "+ MACimplementationUsed + "\n"+
 			"Broadcasts = " + broadcasts + "\n"+
 			"MAC PDR +broadcast = " + 100*((float)t3/(float)t1) + "%\n"+
-			"MAC PDR -broadcast = " + 100*((float)t70/(float)t13) + "%\n"+
+			"MAC PDR -broadcast = " + 100*((float)t5/(float)t14) + "%\n"+
 			"MAC avg(t5-t1) = " + (float)sumt5t1/(float)t5 + "\n"+
 			"MAC count(T0) = " + t0 + "\n"+
 			"MAC count(T1) = " + t1 + "\n"+

@@ -836,7 +836,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 			{	
 				data.setSensorIDTx(GetTransmitSensors(nextHop), myRadio.NodeID);
 				
-				if(canSendMessage(data, false))
+				if(canSendMessage(data, false))//mora biti false, inace bi se poruka slala na tx koji su slobodni ali nisu u smjeru primatelja.
 				{
 					((NetMessage.Ip)msg).Times.add(new TimeEntry(11, "macbt", null));
 					sendMessage(data);
@@ -999,20 +999,17 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 			//poruke se listaju od namlaðih prema najstarijima
 			for (int i = 0; i < receivedMessages.size(); i++) 
 			{
-				if(receivedMessages.get(i).getSrc() == newdest)// && (JistAPI.getTime() - msg.getEndRx(myRadio.GetSensorByID((Integer)msg.getSensorIDRx(myRadio.NodeID).toArray()[0]))) < receivedMessagesAge  )
+				if(receivedMessages.get(i).getSrc() == newdest)
 				{
 					for (Integer item : receivedMessages.get(i).getSensorIDRx(myRadio.NodeID)) 
 					{
-					//	ageCounter++;0
 						receivedMessagesEndTime = receivedMessages.get(i).getEndRx(myRadio.GetSensorByID(item));
 						break;
-					}
-					//receivedMessagesEndTime = receivedMessagesEndTime/ageCounter;
-					
+					}					
 					receivedMessageAge = (JistAPI.getTime()  - receivedMessagesEndTime);
 					if( receivedMessageAge < maxReceivedAge  )
 					{
-						return myRadio.getNearestOpositeSensor(receivedMessages.get(i).getSensorIDRx(myRadio.NodeID));//.SensorIDRx);
+						return myRadio.getNearestOpositeSensor(receivedMessages.get(i).getSensorIDRx(myRadio.NodeID));
 					}
 					else
 					{
