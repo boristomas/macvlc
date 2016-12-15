@@ -985,12 +985,6 @@ public final class RadioVLC extends RadioNoise
 	/** {@inheritDoc} */
 	public void transmit(Message msg, long delay, long duration)
 	{
-
-		/*	if(msg instanceof MacMessageVLC)
-		{
-			//mjerenje vremena
-
-		}*/
 		if(isVLC)
 		{
 			((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(2, "radiovlct", null));

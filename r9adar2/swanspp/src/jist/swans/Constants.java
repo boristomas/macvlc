@@ -678,10 +678,10 @@ public final class Constants
 
 			return "-----VLC data-----" + "\n"+
 			"MAC implementation = "+ MACimplementationUsed + "\n"+
-			"Broadcasts = " + broadcasts + "\n"+
+		//	"Broadcasts = " + broadcasts + "\n"+
 			"MAC PDR +broadcast = " + 100*((float)t3/(float)t1) + "%\n"+
 			"MAC PDR -broadcast = " + 100*((float)t5/(float)t14) + "%\n"+
-			"MAC avg(t5-t1) = " + (float)sumt5t1/(float)t5 + "\n"+
+			"MAC avg(t5-t1) = " + ((float)sumt5t1/(float)t5)/1000000 + "ms \n"+//ns to ms
 			"MAC count(T0) = " + t0 + "\n"+
 			"MAC count(T1) = " + t1 + "\n"+
 			"MAC count(T11) = " + t11 + "\n"+

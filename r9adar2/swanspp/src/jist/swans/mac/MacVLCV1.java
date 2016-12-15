@@ -17,6 +17,8 @@ import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.sun.corba.se.spi.orbutil.fsm.State;
+
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.field.StreetMobility;
@@ -232,7 +234,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	{
 	    Unreliable, Reliable, Concurrent
 	}
-	private static QueueStrategies QueueStrategy = QueueStrategies.Unreliable;
+	private static QueueStrategies QueueStrategy = QueueStrategies.Reliable;
 	public static String getModeString(byte mode)
 	{
 		switch(mode)
@@ -646,12 +648,23 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	private HashSet<Integer> tmpSensorsTx = new HashSet<Integer>();
 	private VLCsensor tmpSensorTx;
 
-	private boolean canSendMessage(MacVLCMessage msg,boolean fixTx)
+	private boolean canSendMessage(MacVLCMessage msg,boolean fixTx, QueueStrategies strategy)
 	{
 		tmpSensorsTx = new HashSet<Integer>();
 		//	fixTx = false;
 		if(!fixTx)
 		{
+			if(strategy == QueueStrategies.Reliable)
+			{
+				for (Integer item : msg.getSensorIDTx(myRadio.NodeID))//.SensorIDTx) 
+				{
+					if(myRadio.GetSensorByID(item).state == SensorStates.Transmitting)
+					{
+						return false;
+					}
+				}
+				
+			}
 			for (Integer item : msg.getSensorIDTx(myRadio.NodeID))//.SensorIDTx) 
 			{
 				if(myRadio.GetSensorByID(item).state == SensorStates.Idle)
@@ -782,6 +795,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 		}
 		if(isMin)
 		{
+		//	minDelay = Constants.MILLI_SECOND;
 			return minDelay;
 		}
 		else
@@ -826,17 +840,17 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 				throw new RuntimeException("v2");
 			//	break;
 			}
-			case Reliable :
+			case Unreliable :
 			{	
 				//TODO: v2
 				throw new RuntimeException("v2");
 		//		break;
 			}
-			case Unreliable :
+			case Reliable :
 			{	
 				data.setSensorIDTx(GetTransmitSensors(nextHop), myRadio.NodeID);
 				
-				if(canSendMessage(data, false))//mora biti false, inace bi se poruka slala na tx koji su slobodni ali nisu u smjeru primatelja.
+				if(canSendMessage(data, false, QueueStrategy))//mora biti false, inace bi se poruka slala na tx koji su slobodni ali nisu u smjeru primatelja.
 				{
 					((NetMessage.Ip)msg).Times.add(new TimeEntry(11, "macbt", null));
 					sendMessage(data);
@@ -918,7 +932,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 				tmpmsg1 = MessageQueue.poll();
 				tmpmsg1.setSensorIDTx(GetTransmitSensors(tmpmsg1.getDst()), myRadio.NodeID);//myRadio.GetSensors(SensorModes.Transmit));//todo: izraditi strategiju odabira senzora
 				
-				if(canSendMessage(tmpmsg1, true))
+				if(canSendMessage(tmpmsg1, true, QueueStrategy))
 				{
 		//			canSendFromQueue = true;
 					sendMacMessage(tmpmsg1.getBody(), tmpmsg1.getDst());
