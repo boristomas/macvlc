@@ -188,6 +188,11 @@ public class RouteZrpIerp implements RouteInterface.Zrp.Ierp, Timer
    */
   private static class MessageIerp implements RouteInterface.Zrp.MessageIerp
   {
+	  public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	  
     /** fixed ierp packet size. */
     public static final int FIXED_SIZE = 8;
     /** incremental ierp packet size. */

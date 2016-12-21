@@ -94,16 +94,16 @@
     </void>
     <void property="StaticPlacementOptions">
       <string>
+	  60,100,0,1.7,5,0,0,s1,40,60,1,0,0,r,s2,40,50,-1,1,-180,t,s3,40,60,-1,0,180,r,s4,40,50,1,1,0,t,s5,40,50,1,-1,0,t,s6,40,50,-1,-1,180,t;
 	  100,100,0,1.7,5,0,0,s1,40,60,1,0,0,r,s2,40,50,-1,1,-180,t,s3,40,60,-1,0,180,r,s4,40,50,1,1,0,t,s5,40,50,1,-1,0,t,s6,40,50,-1,-1,180,t;
 	  140,100,0,1.7,5,0,0,s1,40,60,1,0,0,r,s2,40,50,-1,1,-180,t,s3,40,60,-1,0,180,r,s4,40,50,1,1,0,t,s5,40,50,1,-1,0,t,s6,40,50,-1,-1,180,t;
-	  180,100,0,1.7,5,0,0,s1,40,60,1,0,0,r,s2,40,50,-1,1,-180,t,s3,40,60,-1,0,180,r,s4,40,50,1,1,0,t,s5,40,50,1,-1,0,t,s6,40,50,-1,-1,180,t;
 	  </string>
     </void>
     <void property="ResultsPath">
-      <string>D:\AeroFS\FOIPosao\Znanstveni rad\!thesis\phd\apps\jistWrap\jistWrapWPF\bin\Debug\results\rd0db530b-e2cb-4bcb-9bb2-d9b6d81431d0.csv</string>
+      <string>C:\Users\BorisTomas\Desktop\rd0db530b-e2cb-4bcb-9bb2-d9b6d81431d0.csv</string>
     </void>
     <void property="cbrRate">
-      <int>4096</int>
+      <int>3</int> <!--  4096  -->
     </void>
     <void property="nodes">
       <int>3</int>

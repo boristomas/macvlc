@@ -602,10 +602,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 		setMode(MAC_MODE_XBROADCAST);
 		long delay = 0; //RX_TX_TURNAROUND; not needed because Tx and Rx are independent 
 		long duration = transmitTime(msg);
-		if(msg.getDst() != MacAddress.ANY && msg.getDst() != MacAddress.LOOP)// || ((NetMessage.Ip)msg).getDst() != NetAddress.ANY)
-		{
-			((NetMessage.Ip)msg.getBody()).Times.add(new TimeEntry(13, "mac send dest", null));
-		}
+		
 		transmitDelayMultiplier = 1;
 		
 		radioEntity.transmit(msg, delay, duration);
@@ -619,9 +616,14 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
             return (m1.GetPriority() < m2.GetPriority()? 1 : -1);
         }
 	};
-    
-	private void QueueInsert(MacVLCMessage msg)
+    private void QueueSort()
+    {
+    	Collections.sort(MessageQueue, comp);
+    }
+	private void QueueInsert(MacVLCMessage msg, boolean skipSort)
 	{
+		
+		myRadio.printMessageTransmissionData(msg, 0, "q");
 		if(msg.isRetry)
 		{
 			for (MacVLCMessage item : MessageQueue)
@@ -642,7 +644,10 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 			}
 		}
 		MessageQueue.add(msg);		
-		Collections.sort(MessageQueue, comp);
+		if(!skipSort)
+		{
+			QueueSort();
+		}
 	}
 	
 	private HashSet<Integer> tmpSensorsTx = new HashSet<Integer>();
@@ -651,19 +656,17 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	private boolean canSendMessage(MacVLCMessage msg,boolean fixTx, QueueStrategies strategy)
 	{
 		tmpSensorsTx = new HashSet<Integer>();
-		//	fixTx = false;
 		if(!fixTx)
 		{
 			if(strategy == QueueStrategies.Reliable)
 			{
-				for (Integer item : msg.getSensorIDTx(myRadio.NodeID))//.SensorIDTx) 
+				for (Integer item : msg.getSensorIDTx(myRadio.NodeID)) 
 				{
 					if(myRadio.GetSensorByID(item).state == SensorStates.Transmitting)
 					{
 						return false;
 					}
 				}
-				
 			}
 			for (Integer item : msg.getSensorIDTx(myRadio.NodeID))//.SensorIDTx) 
 			{
@@ -671,10 +674,10 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 				{
 					for (VLCsensor sensor : myRadio.getNearestOpositeSensor(myRadio.GetSensorByID(item))) 
 					{
-						if(!myRadio.CarrierSense(sensor))
+				/*		if(!myRadio.CarrierSense(sensor))
 						{
 							return false;
-						}
+						}*/
 						if(myRadio.queryControlSignal(sensor, 1))
 						{
 							return false;
@@ -784,7 +787,6 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 		{
 			//TODO: pitati matu jel dobro ovako dinamicno mijenjanje vrijeme cekanja na provjeru kanala opet?, ovo bi trebao biti backoff
 			transmitDelayMultiplier++;
-	//		transmitDelayMultiplier=10;
 			minDelay = Constants.MILLI_SECOND*2*transmitDelayMultiplier;
 		//	System.out.println("delay" + myRadio.NodeID + " -- "+ minDelay);
 		}
@@ -806,13 +808,31 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	private MacVLCMessage tmpMsg;
 	private long transmitDelay; 
 	private int transmitDelayMultiplier= 1;
-	private void sendMacMessage(Message msg, MacAddress nextHop)
+	/*
+	 * message is null if message is passed from upper layer, it has specific value when it is restored
+	 * from timeout. msg is message.getbody().
+	 * */
+	private void sendMacMessage(Message msg, MacAddress nextHop, MacVLCMessage message)
 	{
 		if(nextHop == MacAddress.ANY)
 		{
 			Constants.VLCconstants.broadcasts++;
 		}
-		MacVLCMessage data = new MacVLCMessage(nextHop, localAddr,0, msg, (byte)0);
+		MacVLCMessage data = null;
+		if(message == null)
+		{
+		 data = new MacVLCMessage(nextHop, localAddr,0, msg, (byte)0);
+		//if(msg.getDst() != MacAddress.ANY && msg.getDst() != MacAddress.LOOP)// || ((NetMessage.Ip)msg).getDst() != NetAddress.ANY)
+			if(nextHop != MacAddress.ANY &&nextHop != MacAddress.LOOP)
+			{
+				((NetMessage.Ip)data.getBody()).Times.add(new TimeEntry(13, "mac send dest", null));
+			}
+		}
+		else
+		{
+			//doslo je iz timeouta
+			data = message;
+		}
 		if(((NetMessage.Ip)msg).isFresh)
 		{
 			((NetMessage.Ip)msg).Times.add(new TimeEntry(1, "macbt", null));
@@ -822,7 +842,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 			{
 				//ako je poruka nova, a red nije prazan odmah ju dodajem u red bez provjera mogucnosti slanja, jer inace red ne bi bio pun.
 				((NetMessage.Ip)msg).Times.add(new TimeEntry(12, "macbt", null));
-				QueueInsert(data);
+				QueueInsert(data, false);
 				if(!TimerRunning)
 				{
 					TimerRunning = true;
@@ -858,7 +878,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 				else
 				{
 					((NetMessage.Ip)msg).Times.add(new TimeEntry(12, "macbt", null));
-					QueueInsert(data);
+					QueueInsert(data, false);
 					if(!TimerRunning)
 					{
 						TimerRunning = true;
@@ -877,7 +897,8 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	// MacInterface interface
 	public void send(Message msg, MacAddress nextHop)
 	{
-		sendMacMessage(msg,nextHop);
+		
+		sendMacMessage(msg,nextHop, null);
 	}
 	//////////////////////////////////////////////////
 	// timer routines
@@ -895,58 +916,32 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	MacVLCMessage tmpmsg1;
 	MacVLCMessage first;
 //	private boolean canSendFromQueue = false;
+	int queueSize = 0;
 	public void timeout(int timerId)
 	{
-		if(JobConfigurator.DoMessageOutput)
-		{
-			System.out.println("q - sid = " + myRadio.NodeID + " QSize = " +MessageQueue.size());
-		}		
+		queueSize = MessageQueue.size();
 		
 		if(!MessageQueue.isEmpty())
-		{
-//			canSendFromQueue = false;
+		{			
 			first = MessageQueue.peek();
-				
-		/*	if(interferedSensor != null)
-			{
-				first.getSensorIDTx(myRadio.NodeID);
-				for (VLCsensor sensor : myRadio.getNearestOpositeSensor(interferedSensor))
-				{
-					for (Integer sensor2 : first.getSensorIDTx(myRadio.NodeID))
-					{
-						if(sensor.sensorID == sensor2)
-						{
-							tmpmsg1 = MessageQueue.poll();
-							tmpmsg1.isRetry = true;
-							tmpmsg1.DecrementPriority();
-							QueueInsert(tmpmsg1);
-							interferedSensor = null;
-							return;
-						}						
-					}
-				}
-//				interferedSensor = null;
-			}	*/
-			
+		
 			do{
 				tmpmsg1 = MessageQueue.poll();
-				tmpmsg1.setSensorIDTx(GetTransmitSensors(tmpmsg1.getDst()), myRadio.NodeID);//myRadio.GetSensors(SensorModes.Transmit));//todo: izraditi strategiju odabira senzora
+				tmpmsg1.setSensorIDTx(GetTransmitSensors(tmpmsg1.getDst()), myRadio.NodeID);
+				
 				
 				if(canSendMessage(tmpmsg1, true, QueueStrategy))
 				{
-		//			canSendFromQueue = true;
-					sendMacMessage(tmpmsg1.getBody(), tmpmsg1.getDst());
-					//self.send(tmpmsg1.getBody(), tmpmsg1.getDst());
+					sendMacMessage(tmpmsg1.getBody(), tmpmsg1.getDst(), tmpmsg1);
 					break;
 				}
 				else
 				{
 					tmpmsg1.IncrementPriority();
-					QueueInsert(tmpmsg1);
-					//MessageQueue.add(tmpmsg1);
+					QueueInsert(tmpmsg1, true);
 				}
 			} while(MessageQueue.peek() != first);
-
+			QueueSort();
 
 			if(!MessageQueue.isEmpty())
 			{
@@ -963,10 +958,6 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 			//red je prazan.
 			TimerRunning = false;
 		}
-
-
-		//throw new RuntimeException("unexpected mode: "+mode);
-		//	System.err.println("unexpected mode: "+getModeString(mode));
 	}
 
 	
@@ -987,7 +978,10 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	{
 		((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(3, "macbtrec", null));
 		
-		if(((MacVLCMessage)msg).getDst().hashCode() == myRadio.NodeID)
+		if(((MacVLCMessage)msg).getDst().hashCode() == myRadio.NodeID 
+				&& ((MacVLCMessage)msg).getDst() != MacAddress.ANY 
+				&& ((MacVLCMessage)msg).getDst() != MacAddress.LOOP 
+				&& ((MacVLCMessage)msg).getDst() != MacAddress.NULL)
 		{
 			((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(31, "formenetip", null));  
 		}
@@ -1164,7 +1158,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 			{
 				//znaci da se poruka jos salje
 				tmpmsg.isRetry = true;
-				QueueInsert(tmpmsg);
+				QueueInsert(tmpmsg, false);
 			}
 		}
 	}

@@ -22,6 +22,11 @@ import jist.swans.Constants;
 
 public class MessageNest implements Message
 {
+	public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	
   /**
    * Nested message header.
    */

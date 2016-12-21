@@ -55,6 +55,11 @@ public class RouteZrpBrpFlood implements RouteInterface.Zrp.Brp, Timer
    */
   private static class MessageBrpFlood implements RouteInterface.Zrp.MessageBrp
   {
+	  public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	  
     /** encapsulated query. */
     private RouteInterface.Zrp.MessageIerp encapsulated;
 

@@ -87,6 +87,11 @@ public class RouteAodv implements RouteInterface.Aodv
    */
   private static class RouteRequestMessage implements Message
   {
+	  public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	  
     /** RREQ message size in bytes. */
     private static final int MESSAGE_SIZE = 24;
 
@@ -282,6 +287,11 @@ public class RouteAodv implements RouteInterface.Aodv
    */
   private static class RouteReplyMessage implements Message
   {
+	  public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	  
     /** RREP Message size in bytes. */
     private static final int MESSAGE_SIZE = 20;
 
@@ -379,6 +389,11 @@ public class RouteAodv implements RouteInterface.Aodv
    */
   private static class RouteErrorMessage implements Message
   {
+	  public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	  
     /** RERR Message size in bytes. */
     private static final int MESSAGE_SIZE = 20;
     
@@ -445,6 +460,11 @@ public class RouteAodv implements RouteInterface.Aodv
    */
   private static class HelloMessage implements Message
   {
+	  public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	  
     /** Size of HELLO Message in bytes. */
     private static final int MESSAGE_SIZE = 20;
     

@@ -20,7 +20,10 @@ package jist.swans.misc;
 
 public class MessageBytes implements Message
 {
-	
+	public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
 
   /** empty byte array. */
   public static final byte[] EMPTY = new byte[0];

@@ -76,6 +76,11 @@ public class RouteZrpNdp implements RouteInterface.Zrp.Ndp, Timer
    */
   private static class MessageNdp implements RouteInterface.Zrp.MessageNdp
   {
+	  public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	  
     /** {@inheritDoc} */
     public int getSize()
     {

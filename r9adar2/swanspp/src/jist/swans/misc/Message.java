@@ -22,6 +22,8 @@ public interface Message extends jist.runtime.JistAPI.Timeless
 //	int getSource();
 	//int getDestination();
 
+
+	String getMessageID();//String ID ="";
   /** A null/empty message. */
   Message NULL = new MessageBytes(MessageBytes.EMPTY);
 

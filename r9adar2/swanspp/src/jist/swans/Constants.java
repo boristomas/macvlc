@@ -515,11 +515,11 @@ public final class Constants
 			try {
 				writer = new PrintWriter(filename, "UTF-8");
 				//header
-				writer.write("msgid;source;destination;0;1;11;12;13;2;21;250;251;252;3;31;4;41;5;6;70;81;82;84;90;92;93\n");
+				writer.write("num;msgid;source;destination;0;1;11;12;13;2;21;250;251;252;3;31;4;41;5;6;70;81;82;84;90;92;93\n");
 				for (NetMessage.Ip item : TimeEntry.AllMessages)
 				{
 					res = "";
-					res+= item.getId()+ ";"+ item.getSrc() +";" + item.getDst(); 
+					res+= item.getId()+";"+item.getMessageID() + ";"+ item.getSrc() +";" + item.getDst(); 
 					has14 = false;
 					for (TimeEntry time : item.Times) 
 					{
@@ -593,6 +593,7 @@ public final class Constants
 						case 31:
 						{
 							t31++;
+							sumt5t1 += (time.Time-time1);
 							break;
 						}
 						case 4:
@@ -608,7 +609,7 @@ public final class Constants
 						case 5:
 						{
 							t5++;
-							sumt5t1 += (time.Time-time1);
+						
 							break;
 						}
 						case 6:
@@ -680,13 +681,14 @@ public final class Constants
 			"MAC implementation = "+ MACimplementationUsed + "\n"+
 		//	"Broadcasts = " + broadcasts + "\n"+
 			"MAC PDR +broadcast = " + 100*((float)t3/(float)t1) + "%\n"+
-			"MAC PDR -broadcast = " + 100*((float)t5/(float)t14) + "%\n"+
-			"MAC avg(t5-t1) = " + ((float)sumt5t1/(float)t5)/1000000 + "ms \n"+//ns to ms
+			"MAC PDR -broadcast = " + 100*((float)t31/(float)t13) + "%\n"+
+			"MAC avg(t5-t1) = " + ((float)sumt5t1/(float)t31)/1000000 + "ms \n"+//ns to ms
 			"MAC count(T0) = " + t0 + "\n"+
 			"MAC count(T1) = " + t1 + "\n"+
 			"MAC count(T11) = " + t11 + "\n"+
 			"MAC count(T12) = " + t12 + "\n"+
 			"MAC count(T13) = " + t13 + "\n"+
+			"MAC count(T14) = " + t14 + "\n"+
 			"MAC count(T2) = " + t2 + "\n"+
 			"MAC count(T21) = " + t21 + "\n"+
 			"MAC count(T250) = " + t250 + "\n"+
@@ -711,4 +713,3 @@ public final class Constants
 		}
 	}
 } // class: Constants
-

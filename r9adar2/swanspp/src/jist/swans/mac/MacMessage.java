@@ -395,6 +395,11 @@ public abstract class MacMessage implements Message
 
 	public static class Rts extends MacMessage
 	{
+		public String getMessageID()
+		  {
+			  return "not implemented";
+		  }
+		
 		/**
 		 * RTS packet size.
 		 */
@@ -521,6 +526,10 @@ public abstract class MacMessage implements Message
 		 */
 		private int duration;
 
+		public String getMessageID()
+		  {
+			  return "not implemented";
+		  }
 		//////////////////////////////////////////////////
 		// initialization
 		//
@@ -604,7 +613,11 @@ public abstract class MacMessage implements Message
 
 	public static class Ack extends MacMessage
 	{
-
+		public String getMessageID()
+		  {
+			  return "not implemented";
+		  }
+		
 		/**
 		 * ACK packet size.
 		 */
@@ -710,6 +723,11 @@ public abstract class MacMessage implements Message
 
 	public static class Data extends MacMessage
 	{
+		public String getMessageID()
+		  {
+			  return "not implemented";
+		  }
+		
 		/**
 		 * Packet header size.
 		 */

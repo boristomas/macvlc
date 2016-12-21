@@ -221,6 +221,10 @@ public class RouteZrpBrp implements RouteInterface.Zrp.Brp, Timer
    */
   private static class MessageBrp implements RouteInterface.Zrp.MessageBrp
   {
+	  public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
     /** fixed ierp packet size. */
     public static final int FIXED_SIZE = 5;
 

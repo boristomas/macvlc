@@ -26,7 +26,7 @@ import jist.swans.net.NetMessage;
  *  31 - //when and if MAC layer received message (mac.receive) and message is on desired destination.
  *	4  - //when and if MAC layer relayed message to upper layer (netentity.receive).
  *	41 - //if message is not dropped on NET layer.
- *  5  - //when and if MAC layer relayed received message to upper layer (netentity.receive) and message is on desired destination
+ *  5  - //when and if MAC layer relayed received message to upper layer (netentity.receive) and message is on desired network destination
  *  6  - //when and if message has passed ifForMe(...) check on NET layer.
  *  70 - //when and if message is on PHY (radioVLC) layer and it is on desired destination (evaluated after 251)
  *  81 - //when and if message is dropped on a PHY layer due to asymmetry (global position, usually range)

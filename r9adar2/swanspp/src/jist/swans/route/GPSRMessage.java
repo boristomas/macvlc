@@ -38,7 +38,10 @@ public class GPSRMessage implements Message {
      */
     public float speed;
     public Location bearing;
-    
+    public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
     public GPSRMessage(Message payload, short protocol, NetAddress dst, 
     		NetAddress src) {
         this(src);

@@ -420,9 +420,6 @@ public class NetIp implements NetInterface
 	/** {@inheritDoc} */
 	public void send(NetMessage.Ip msg, int interfaceId, MacAddress nextHop) 
 	{
-	
-		
-		
 		if(msg==null) throw new NullPointerException();
 		if(outgoingLoss.shouldDrop(msg)) return;
 		/*
@@ -510,7 +507,7 @@ public class NetIp implements NetInterface
 			}
 			JistAPI.sleep(Constants.NET_DELAY);
 			
-			if(ip.getDst() !=  NetAddress.ANY && ip.getDst() != NetAddress.NULL && ip.getDst() != NetAddress.LOCAL && !localAddr.equals(ip.getDst()) )
+			if(qmsg.getNextHop() !=  MacAddress.ANY && qmsg.getNextHop() != MacAddress.NULL && qmsg.getNextHop() != MacAddress.LOOP &&  !localAddr.equals(ip.getDst()) )
 			{
 				ip.Times.add(new TimeEntry(14, "mac send dest", null));
 			}

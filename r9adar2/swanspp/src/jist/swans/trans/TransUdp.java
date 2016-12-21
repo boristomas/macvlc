@@ -50,6 +50,10 @@ public class TransUdp implements TransInterface.TransUdpInterface
    */
   public static class UdpMessage extends TransMessage
   {
+	  public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
     //////////////////////////////////////////////////
     // constants
     //

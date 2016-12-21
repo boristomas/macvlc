@@ -12,6 +12,7 @@ package jist.swans.net;
 import java.awt.List;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.UUID;
 
 import driver.JistExperiment;
 import jist.runtime.JistAPI;
@@ -64,7 +65,12 @@ public abstract class NetMessage implements Message, Cloneable
    */
   public static class Ip extends NetMessage
   {
-
+	  String ID ="";
+	  public String getMessageID()
+	  {
+		  return "net"+ID;
+	  }
+	  
     /** Fixed IP packet size. */
     public static final int BASE_SIZE = 20;
 
@@ -140,6 +146,7 @@ public abstract class NetMessage implements Message, Cloneable
       this.ttl = ttl;
       this.id = id;
       this.fragOffset = fragOffset;
+      this.ID = UUID.randomUUID().toString().replaceAll("-", "");
     }
 
     /**
@@ -152,8 +159,7 @@ public abstract class NetMessage implements Message, Cloneable
      * @param priority packet priority
      * @param ttl packet time-to-live
      */
-    public Ip(Message payload, NetAddress src, NetAddress dst,
-        short protocol, byte priority, int ttl)
+    public Ip(Message payload, NetAddress src, NetAddress dst, short protocol, byte priority, int ttl)
     {
       this(payload, src, dst, protocol, priority, ttl, nextId++, (short)0);
     }
@@ -507,6 +513,11 @@ public abstract class NetMessage implements Message, Cloneable
    */
   public static class IpOptionSourceRoute extends IpOption
   {
+	  public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	  
     /** option type constant: source route. */
     public static final byte TYPE = (byte)137;
 
@@ -588,6 +599,10 @@ public abstract class NetMessage implements Message, Cloneable
    */
   public static class IpOptionNextHop extends IpOption
   {
+	  public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
     /** option type constant: source route. */
     public static final byte TYPE = (byte)138; // T-ODO find a real number for this
 
@@ -656,6 +671,11 @@ public abstract class NetMessage implements Message, Cloneable
    */
   public static class IpOptionLocation extends IpOption
   {
+	  public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	  
     /** option type constant: location. */
     public static final byte TYPE = (byte)139; // T-ODO find a real number for this
 

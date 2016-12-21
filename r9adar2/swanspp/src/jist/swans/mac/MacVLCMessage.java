@@ -14,6 +14,7 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.UUID;
 
 import com.puppycrawl.tools.checkstyle.api.Utils;
 
@@ -38,6 +39,10 @@ public  class MacVLCMessage extends MacMessage
 	//TODO: vidjeti treba li trackati i start i end time u poruci za pojedine cvorove
 	//Ne treba jer je cvor id vidljiv iz objekta klase senzor.
 	
+	public String getMessageID()
+	  {
+		  return ID;
+	  }
 	
 	private byte priority;
 	/**
@@ -426,7 +431,10 @@ public  class MacVLCMessage extends MacMessage
 	//	this.seq = seq;
 	//	this.frag = frag;
 		this.body = body;
+		
+		this.ID = UUID.randomUUID().toString().replaceAll("-", "");
 	}
+	String ID= "";
 
 	//////////////////////////////////////////////////
 	// accessors

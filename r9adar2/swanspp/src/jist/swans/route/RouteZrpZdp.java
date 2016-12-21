@@ -200,6 +200,11 @@ public class RouteZrpZdp implements RouteInterface.Zrp.Iarp
    */
   public static class MessageZdp implements RouteInterface.Zrp.MessageIarp
   {
+	  public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	  
     /** number of links in packet. */
     private int num;
     /** link source-destination pairs. */

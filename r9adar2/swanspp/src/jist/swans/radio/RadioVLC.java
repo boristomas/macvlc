@@ -1111,7 +1111,7 @@ public final class RadioVLC extends RadioNoise
 		JistAPI.sleep(duration);
 		self.endTransmit();
 	}
-	private void printMessageTransmissionData(Message msg, long duration, String prefix)
+	public void printMessageTransmissionData(Message msg, long duration, String prefix)
 	{
 		if(JobConfigurator.DoMessageOutput)
 		{
@@ -1127,11 +1127,11 @@ public final class RadioVLC extends RadioNoise
 			}
 			if(isVLC)
 			{
-				System.out.println(prefix + " - n: "+NodeID+ "\tm: "+JistAPI.getTime()+"\ts: "+((MacVLCMessage)msg).getSrc()+ "("+aa+") \t\td: "+((MacVLCMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmhs: " + msg.hashCode() + "\tdecoded: "+tryDecodePayload(msg) );
+				System.out.println(prefix + " - n: "+NodeID+ "\tm: "+JistAPI.getTime()+"\ts: "+((MacVLCMessage)msg).getSrc()+ "("+aa+") \t\td: "+((MacVLCMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmid: " + msg.getMessageID() + "\tdecoded: "+tryDecodePayload(msg) );
 			}
 			else
 			{
-				System.out.println(prefix + " - n: "+NodeID+ "\tm: "+JistAPI.getTime()+"\ts: "+((MacMessage)msg).getSrc()+ "("+aa+") \t\td: "+((MacMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmhs: " + msg.hashCode()+ "\tdecoded: "+tryDecodePayload(msg));
+				System.out.println(prefix + " - n: "+NodeID+ "\tm: "+JistAPI.getTime()+"\ts: "+((MacMessage)msg).getSrc()+ "("+aa+") \t\td: "+((MacMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmid: " + msg.getMessageID() + "\tdecoded: "+tryDecodePayload(msg));
 			}
 		}
 	}
@@ -1161,7 +1161,7 @@ public final class RadioVLC extends RadioNoise
 
 		} catch (Exception e) 
 		{
-			//	e.printStackTrace();
+		//		e.printStackTrace();
 		}
 		return decoded.replace(' ', '\0').trim();
 	}
@@ -1279,7 +1279,7 @@ public final class RadioVLC extends RadioNoise
 								}
 							}
 						}
-						if(!isVisible)
+						if(false && !isVisible)//Asymmetry evaluation is commented because it is no longer relevant, it is left here for future reference.
 						{
 							//nije visible onda je problem asimetrije u dizajnu
 							if(isVLC)
@@ -1317,43 +1317,37 @@ public final class RadioVLC extends RadioNoise
 				{
 					//nisu si ni u trokutu , nema LOS.
 
-					msg.isVLCvalid = false;//=  null;
-					if( (NodesThatSourceCanSee.contains(DestinationID) && !NodesThatDestinationCanSee.contains(SourceID) )
-							|| (!NodesThatSourceCanSee.contains(DestinationID) && NodesThatDestinationCanSee.contains(SourceID)) )
+					msg.isVLCvalid = false;
+					if(false)//Asymmetry evaluation is commented because it is no longer relevant, it is left here for future reference.
 					{
-						//position
-						if(isVLC)
+						if( (NodesThatSourceCanSee.contains(DestinationID) && !NodesThatDestinationCanSee.contains(SourceID) )
+								|| (!NodesThatSourceCanSee.contains(DestinationID) && NodesThatDestinationCanSee.contains(SourceID)) )
 						{
-							((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(82, "drop-asym2", null));
-						}
-						else
-						{
-							if(msg instanceof MacMessage.Data)
+							//position
+							if(isVLC)
 							{
-								((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(82, "drop-asym2", null));
+								((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(82, "drop-asym2", null));
+							}
+							else
+							{
+								if(msg instanceof MacMessage.Data)
+								{
+									((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(82, "drop-asym2", null));
+								}
 							}
 						}
-					}
-					else
-					{						
-						//%time id = 81
-						//textit{Global}: Receiving and transmitting nodes are not in communication range because of their location in the field. This can not be minimized using any design.
-
-						//%time id = 84
-						//textit{Design}: Receiving coverage does not match transmitting coverage (no overlap) on a single node.
-
-						//%time id = 82
-						//textit{Complete}: Two nodes can be positioned in a such manner that they are in general communication range but are oriented in such manner that none of transmitting coverage overlaps with receiving coverage of other node. (\ref{fig:csym1}).
-
-						if(isVLC)
-						{
-							((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(81, "drop-asym1", null));
-						}
 						else
-						{
-							if(msg instanceof MacMessage.Data)
+						{						
+							if(isVLC)
 							{
-								((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(81, "drop-asym1", null));
+								((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(81, "drop-asym1", null));
+							}
+							else
+							{
+								if(msg instanceof MacMessage.Data)
+								{
+									((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(81, "drop-asym1", null));
+								}
 							}
 						}
 					}

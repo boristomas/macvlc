@@ -54,6 +54,10 @@ public class MacDumb implements MacInterface.VlcMacInterface
     /** mac message payload. */
     private Message body;
 
+    public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
     /**
      * Create new mac packet.
      *

@@ -22,7 +22,11 @@ import jist.swans.misc.Message;
 
 public class QueuedMessage implements Message
 {
-
+	public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	
   //////////////////////////////////////////////////
   // locals
   //

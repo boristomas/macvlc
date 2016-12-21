@@ -29,6 +29,11 @@ import jist.swans.net.NetAddress;
  */
 public class RouteDsrMsg implements Message, Cloneable
 {
+	public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	
   //////////////////////////////////////////////////
   // constants
   //

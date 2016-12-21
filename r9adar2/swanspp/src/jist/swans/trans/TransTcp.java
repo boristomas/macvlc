@@ -42,6 +42,11 @@ public class TransTcp implements TransInterface.TransTcpInterface
    */
   public static class TcpOptions extends TransInterface.TransMessage
   {
+	  public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	  
     /** Constructor. */
     public TcpOptions ()
     {
@@ -87,6 +92,11 @@ public class TransTcp implements TransInterface.TransTcpInterface
    */
   public static class TcpMessage extends TransInterface.TransMessage
   {
+	  public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	  
 
     /**
      * Minimum size of TCP message.

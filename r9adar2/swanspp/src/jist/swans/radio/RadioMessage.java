@@ -14,6 +14,11 @@ import jist.swans.misc.Message;
 public class RadioMessage implements Message
 {
 
+	public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	
   //////////////////////////////////////////////////
   // channel info
   //

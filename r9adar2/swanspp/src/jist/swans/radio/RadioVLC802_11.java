@@ -1033,19 +1033,18 @@ public final class RadioVLC802_11 extends RadioNoise
 		((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(21, "radiovlct", null));
 		// schedule message propagation delay
 		JistAPI.sleep(delay);
-		String aa="";
-		for (int item : ((MacMessage)msg).getSensorIDTx(NodeID))
-		{
-
-			aa += item + " ";
-		}
-		String bb="";
-		for (int item : ((MacMessage)msg).getSensorIDRx(NodeID))
-		{
-			bb += item + " ";
-		}
 		if(JobConfigurator.DoMessageOutput)
 		{
+			String aa="";
+			for (int item : ((MacMessage)msg).getSensorIDTx(NodeID))
+			{
+				aa += item + " ";
+			}
+			String bb="";
+			for (int item : ((MacMessage)msg).getSensorIDRx(NodeID))
+			{
+				bb += item + " ";
+			}
 			System.out.println("t - n: "+NodeID+ " tm: "+JistAPI.getTime()+" s: "+((MacMessage.Data)msg).getSrc()+ "("+aa+") d: "+((MacMessage.Data)msg).getDst() +"("+bb+") end: "+(duration+getTime()) + " mhs: " + msg.hashCode());
 		}
 		fieldEntity.transmit(radioInfo, msg, duration);

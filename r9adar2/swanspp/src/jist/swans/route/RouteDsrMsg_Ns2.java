@@ -47,6 +47,11 @@ import jist.swans.trans.TransUdp;
  */
 public class RouteDsrMsg_Ns2 implements Message, Pickle.Serializable {
     
+	public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	
 	public final String[] fieldNames = {"valid_", "salvaged_", "num_addrs_", "cur_addr_", "addrs_", "sr_request_",
 			"sr_reply_", "sr_error_", "sr_flow_", "sr_ftime_", "sr_funk_", "sr_fdef_unk", "payload", "nextHeaderType"};
 	
@@ -80,6 +85,11 @@ public class RouteDsrMsg_Ns2 implements Message, Pickle.Serializable {
     
     public static class SRPacket implements Message, Pickle.Serializable {
         
+    	public String getMessageID()
+  	  {
+  		  return "not implemented";
+  	  }
+    	
     	public final String[] fieldNames = {"dest", "src", "pkt", "route", "iph"};
     	
         ID dest;

@@ -7,6 +7,11 @@ import jist.swans.misc.Message;
  * simple message class
  * */
 public class SimpleMessage implements Message {
+	public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
+	
 	private byte[] arr = null;
 	
 	public SimpleMessage(byte[] arr) {

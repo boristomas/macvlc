@@ -65,6 +65,10 @@ public class AppHeartbeat implements AppInterface, NetInterface.NetHandler
    */
   private static class MessageHeartbeat implements Message
   {
+	  public String getMessageID()
+	  {
+		  return "not implemented";
+	  }
     /** {@inheritDoc} */
     public int getSize() 
     { 
