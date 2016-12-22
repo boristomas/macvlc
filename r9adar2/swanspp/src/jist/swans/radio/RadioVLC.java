@@ -1362,11 +1362,22 @@ public final class RadioVLC extends RadioNoise
 		else//broadcast poruka je
 		{
 			//nikada se nece dogoditi jer bcast filteriram na transmit metodi
-			msg.isVLCvalid = false;// = null;
+			msg.isVLCvalid = false;
+		}
+		if(JobConfigurator.DoRandomDrops)
+		{
+		//	if(DestinationID != -1)
+			{
+				//0-1
+				if(rnd.nextDouble() <= JobConfigurator.RandomDropRate)
+				{
+					msg.isVLCvalid = false;
+				}
+			}
 		}
 		return msg;
 	}
-
+	Random rnd = new Random();
 	public static boolean intersects(Path2D.Double path, Line2D line) {
 		double x1 = -1 ,y1 = -1 , x2= -1, y2 = -1,sx=-1,sy=-1;
 		/*	Color boja1 = Color.black;

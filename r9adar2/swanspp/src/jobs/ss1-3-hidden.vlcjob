@@ -103,7 +103,7 @@
       <string>C:\Users\BorisTomas\Desktop\rd0db530b-e2cb-4bcb-9bb2-d9b6d81431d0.csv</string>
     </void>
     <void property="cbrRate">
-      <int>3</int> <!--  4096  -->
+      <int>4096</int> <!--  4096  -->
     </void>
     <void property="nodes">
       <int>3</int>
