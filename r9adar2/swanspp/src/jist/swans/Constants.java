@@ -26,22 +26,21 @@ import driver.JistExperiment;
 
 /**
  * SWANS constants.
- *
+ * 
  * @author Rimon Barr &lt;barr+jist@cs.cornell.edu&rt;
  * @version $Id: Constants.java,v 1.1 2007/04/09 18:49:32 drchoffnes Exp $
  * @since SWANS1.0
  */
-public final class Constants
-{
+public final class Constants {
 
-	//////////////////////////////////////////////////
+	// ////////////////////////////////////////////////
 	// Randomness
 	//
 
 	/** Global random number generator. */
 	public static Random random = new Random(0);
 
-	//////////////////////////////////////////////////
+	// ////////////////////////////////////////////////
 	// Time
 	//
 
@@ -50,21 +49,21 @@ public final class Constants
 	/** smallest possible delay. */
 	public static final int EPSILON_DELAY = 1;
 	/** one nano-second in simulation time units. */
-	public static final long NANO_SECOND  = 1;
+	public static final long NANO_SECOND = 1;
 	/** one micro-second in simulation time units. */
 	public static final long MICRO_SECOND = 1000 * NANO_SECOND;
 	/** one milli-second in simulation time units. */
 	public static final long MILLI_SECOND = 1000 * MICRO_SECOND;
 	/** one second in simulation time units. */
-	public static final long SECOND       = 1000 * MILLI_SECOND;
+	public static final long SECOND = 1000 * MILLI_SECOND;
 	/** one minute in simulation time units. */
-	public static final long MINUTE       = 60 * SECOND;
+	public static final long MINUTE = 60 * SECOND;
 	/** one hour in simulation time units. */
-	public static final long HOUR         = 60 * MINUTE;
+	public static final long HOUR = 60 * MINUTE;
 	/** one day in simulation time units. */
-	public static final long DAY          = 24 * HOUR;
+	public static final long DAY = 24 * HOUR;
 
-	//////////////////////////////////////////////////
+	// ////////////////////////////////////////////////
 	// Nature
 	//
 
@@ -79,22 +78,23 @@ public final class Constants
 	public static final int PATHLOSS_FREE_SPACE = 1;
 	public static final int PATHLOSS_SHADOWING = 2;
 	public static final int PATHLOSS_TWO_RAY = 3;
-	public static final int PATHLOSS_VLC =4;
-	//////////////////////////////////////////////////
+	public static final int PATHLOSS_VLC = 4;
+	// ////////////////////////////////////////////////
 	// Field-related constants
 	//
 
 	// constants
 
 	/** Default field boundary (units: sim distance, usually meters). */
-	public static final float FIELD_BOUND_X = (float)200.0, FIELD_BOUND_Y = (float)200.0;
+	public static final float FIELD_BOUND_X = (float) 200.0,
+			FIELD_BOUND_Y = (float) 200.0;
 
 	/** node placement choice constant. */
 	public static final int PLACEMENT_INVALID = -1;
 	/** node placement choice constant. */
-	public static final int PLACEMENT_RANDOM  = 1;
+	public static final int PLACEMENT_RANDOM = 1;
 	/** node placement choice constant. */
-	public static final int PLACEMENT_GRID    = 2;
+	public static final int PLACEMENT_GRID = 2;
 	/** node placement choice constant. */
 	public static final int PLACEMENT_STREET_RANDOM = 3;
 	/** node placement choice constant. */
@@ -102,24 +102,24 @@ public final class Constants
 	/** node placement choice constant. */
 	public static final int PLACEMENT_DEFAULT = PLACEMENT_RANDOM;
 	/** node placement choice constant. */
-	public static final int PLACEMENT_MAX     = 4;
+	public static final int PLACEMENT_MAX = 4;
 
 	/** node mobility choice constant. */
-	public static final int MOBILITY_INVALID  = -1;
+	public static final int MOBILITY_INVALID = -1;
 	/** node mobility choice constant. */
-	public static final int MOBILITY_STATIC   = 1;
+	public static final int MOBILITY_STATIC = 1;
 	/** node mobility choice constant. */
 	public static final int MOBILITY_WAYPOINT = 2;
 	/** node mobility choice constant. */
 	public static final int MOBILITY_TELEPORT = 3;
 	/** node mobility choice constant. */
-	public static final int MOBILITY_WALK     = 4;
+	public static final int MOBILITY_WALK = 4;
 	/** node mobility choice constant. */
-	public static final int MOBILITY_STRAW_SIMPLE    = 5;
+	public static final int MOBILITY_STRAW_SIMPLE = 5;
 	/** node mobility choice constant. */
-	public static final int MOBILITY_STRAW_OD   = 6;  
+	public static final int MOBILITY_STRAW_OD = 6;
 	/** node mobility choice constant. */
-	public static final int MOBILITY_DEFAULT  = MOBILITY_STATIC;
+	public static final int MOBILITY_DEFAULT = MOBILITY_STATIC;
 
 	/** street mobility configuration constant. */
 	public static final int MOBILITY_STREET_RANDOM = 1;
@@ -145,35 +145,35 @@ public final class Constants
 	/** spatial data structure choice constant. */
 	public static final int SPATIAL_INVALID = -1;
 	/** spatial data structure choice constant. */
-	public static final int SPATIAL_LINEAR  = 0;
+	public static final int SPATIAL_LINEAR = 0;
 	/** spatial data structure choice constant. */
-	public static final int SPATIAL_GRID    = 1;
+	public static final int SPATIAL_GRID = 1;
 	/** spatial data structure choice constant. */
-	public static final int SPATIAL_HIER    = 2;
+	public static final int SPATIAL_HIER = 2;
 	/** spatial data structure choice constant. */
-	public static final int SPATIAL_WRAP    = 16;
+	public static final int SPATIAL_WRAP = 16;
 
-	//////////////////////////////////////////////////
+	// ////////////////////////////////////////////////
 	// packet constants
 	//
 
 	/** packet with zero wire size. */
 	public static final int ZERO_WIRE_SIZE = Integer.MIN_VALUE;
 
-	//////////////////////////////////////////////////
+	// ////////////////////////////////////////////////
 	// Radio-related constants
 	//
 
 	// radio modes
 
 	/** Radio mode: sleeping. */
-	public static final byte RADIO_MODE_SLEEP        = -1;
+	public static final byte RADIO_MODE_SLEEP = -1;
 	/** Radio mode: idle, no signals. */
-	public static final byte RADIO_MODE_IDLE         = 0;
+	public static final byte RADIO_MODE_IDLE = 0;
 	/** Radio mode: some signals above sensitivity. */
-	public static final byte RADIO_MODE_SENSING      = 1;
+	public static final byte RADIO_MODE_SENSING = 1;
 	/** Radio mode: signal locked and receiving packet. */
-	public static final byte RADIO_MODE_RECEIVING    = 2;
+	public static final byte RADIO_MODE_RECEIVING = 2;
 	/** Radio mode: transmitting packet. */
 	public static final byte RADIO_MODE_TRANSMITTING = 3;
 
@@ -197,7 +197,9 @@ public final class Constants
 	/** Default radio frequency (units: Hz). */
 	public static final double FREQUENCY_DEFAULT = 2.4e9; // 2.4 GHz
 	/** Default radio bandwidth (units: bits/second). */
-	public static final int BANDWIDTH_DEFAULT = 11000000;//102400; // 11Mb/s (int)2e6; // 2Mb/s
+	public static final int BANDWIDTH_DEFAULT = 11000000;// 102400; // 11Mb/s
+															// (int)2e6; //
+															// 2Mb/s
 	/** Default transmission strength (units: dBm). */
 	public static final double TRANSMIT_DEFAULT = 15.0;
 	/** Default antenna gain (units: dB). */
@@ -213,16 +215,15 @@ public final class Constants
 	/** Default ambient noise (units: mW). */
 	public static final double AMBIENT_NOISE_DEFAULT = 0.0;
 	/** Default minimum propagated signal (units: dBm). */
-	//public static final double PROPAGATION_LIMIT_DEFAULT = -111.0;
-	public static final double PROPAGATION_LIMIT_DEFAULT = SENSITIVITY_DEFAULT; 
+	// public static final double PROPAGATION_LIMIT_DEFAULT = -111.0;
+	public static final double PROPAGATION_LIMIT_DEFAULT = SENSITIVITY_DEFAULT;
 	/** Default radio height (units: sim distance units, usually meters). */
 	public static final double HEIGHT_DEFAULT = 1.5;
 
-	/** Default threshold signal-to-noise ratio. was 10.0*/
+	/** Default threshold signal-to-noise ratio. was 10.0 */
 	public static final double SNR_THRESHOLD_DEFAULT = 10.0;
 
-
-	//////////////////////////////////////////////////
+	// ////////////////////////////////////////////////
 	// Mac-related constants
 	//
 
@@ -233,46 +234,42 @@ public final class Constants
 	/** link layer delay. */
 	public static final long LINK_DELAY = MICRO_SECOND;
 	/** Invalid MAC number. */
-	public static final short MAC_INVALID        = -1;
+	public static final short MAC_INVALID = -1;
 	/** 802.11 MAC number. */
-	public static final short MAC_802_11        = 1;
+	public static final short MAC_802_11 = 1;
 	/** Simple MAC number. */
-	public static final short MAC_DUMB        = 2;
+	public static final short MAC_DUMB = 2;
 
-
-	//////mac vlc constants
+	// ////mac vlc constants
 	public static final int MacVlcErrorSensorIsNotTX = 1;
 	public static final int MacVlcErrorSensorTxIsBusy = 2;
 	public static final int MacVlcErrorSensorIsNotRX = 3;
 	public static final int MacVlcErrorSensorRxIsBusy = 4;
 	public static final int MacVlcErrorSensorTxAllBusy = 5;
 
-
-
-	//////////////////////////////////////////////////
+	// ////////////////////////////////////////////////
 	// Network-related constants
 	//
 
 	/** network layer loss model choice constant. */
-	public static final int NET_LOSS_INVALID       = -1;
+	public static final int NET_LOSS_INVALID = -1;
 	/** network layer loss model choice constant. */
-	public static final int NET_LOSS_NONE          = 0;
+	public static final int NET_LOSS_NONE = 0;
 	/** network layer loss model choice constant. */
-	public static final int NET_LOSS_UNIFORM       = 1;
+	public static final int NET_LOSS_UNIFORM = 1;
 	/** network layer loss model choice constant. */
-	public static final int NET_LOSS_DEFAULT       = NET_LOSS_NONE;
+	public static final int NET_LOSS_DEFAULT = NET_LOSS_NONE;
 
 	/** network packet priority level. */
-	public static final byte NET_PRIORITY_CONTROL  = 0;
+	public static final byte NET_PRIORITY_CONTROL = 0;
 	/** network packet priority level. */
 	public static final byte NET_PRIORITY_REALTIME = 1;
 	/** network packet priority level. */
-	public static final byte NET_PRIORITY_NORMAL   = 2;
+	public static final byte NET_PRIORITY_NORMAL = 2;
 	/** network packet priority level. */
-	public static final byte NET_PRIORITY_NUM      = 3;
+	public static final byte NET_PRIORITY_NUM = 3;
 	/** network packet priority level. */
-	public static final byte NET_PRIORITY_INVALID  = -1;
-
+	public static final byte NET_PRIORITY_INVALID = -1;
 
 	/** network interface constant. */
 	public static final int NET_INTERFACE_INVALID = -1;
@@ -287,68 +284,68 @@ public final class Constants
 	public static final byte TTL_DEFAULT = 64;
 
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_INVALID        = -1;
+	public static final short NET_PROTOCOL_INVALID = -1;
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_TCP            = 6;
+	public static final short NET_PROTOCOL_TCP = 6;
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_UDP            = 17;
+	public static final short NET_PROTOCOL_UDP = 17;
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_OSPF           = 87;
+	public static final short NET_PROTOCOL_OSPF = 87;
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_BELLMANFORD    = 520;
+	public static final short NET_PROTOCOL_BELLMANFORD = 520;
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_FISHEYE        = 530;
+	public static final short NET_PROTOCOL_FISHEYE = 530;
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_AODV           = 123;
+	public static final short NET_PROTOCOL_AODV = 123;
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_DSR            = 135;
+	public static final short NET_PROTOCOL_DSR = 135;
 	/** protocol number for alternate DSR impl */
-	public static final short NET_PROTOCOL_DSR_NS2            = 136;
+	public static final short NET_PROTOCOL_DSR_NS2 = 136;
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_ODMRP          = 145;
+	public static final short NET_PROTOCOL_ODMRP = 145;
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_LAR1           = 110;
+	public static final short NET_PROTOCOL_LAR1 = 110;
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_ZRP            = 133;
+	public static final short NET_PROTOCOL_ZRP = 133;
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_GPSR           = 888; // T-ODO non-standard
+	public static final short NET_PROTOCOL_GPSR = 888; // T-ODO non-standard
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_GLS_GPSR		= 887;	// T-ODO non-standard
+	public static final short NET_PROTOCOL_GLS_GPSR = 887; // T-ODO non-standard
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_GLS_GPSR_old	= 886;	// T-ODO non-standard
+	public static final short NET_PROTOCOL_GLS_GPSR_old = 886; // T-ODO
+																// non-standard
 
 	public static final short NET_PROTOCOL_GM = 777; // T-ODO non-standard
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_TAGR			= 885;
+	public static final short NET_PROTOCOL_TAGR = 885;
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_NHOP			= 884;
+	public static final short NET_PROTOCOL_NHOP = 884;
 	/** zrp-subprotocol number. */
-	public static final short NET_PROTOCOL_ZRP_NDP_DEFAULT  = 1;
+	public static final short NET_PROTOCOL_ZRP_NDP_DEFAULT = 1;
 	/** zrp-subprotocol number. */
 	public static final short NET_PROTOCOL_ZRP_IARP_DEFAULT = 2;
 	/** zrp-subprotocol number. */
-	public static final short NET_PROTOCOL_ZRP_BRP_DEFAULT  = 3;
+	public static final short NET_PROTOCOL_ZRP_BRP_DEFAULT = 3;
 	/** zrp-subprotocol number. */
 	public static final short NET_PROTOCOL_ZRP_IERP_DEFAULT = 4;
 	/** zrp-subprotocol number. */
-	public static final short NET_PROTOCOL_ZRP_IARP_ZDP     = 5;
+	public static final short NET_PROTOCOL_ZRP_IARP_ZDP = 5;
 	/** zrp-subprotocol number. */
-	public static final short NET_PROTOCOL_ZRP_BRP_FLOOD    = 6;
+	public static final short NET_PROTOCOL_ZRP_BRP_FLOOD = 6;
 
 	/** network level (IP) protocol number. */
 	public static final short NET_PROTOCOL_NO_NEXT_HEADER = 59;
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_HEARTBEAT      = 500; // rimtodo: non-standard
+	public static final short NET_PROTOCOL_HEARTBEAT = 500; // rimtodo:
+															// non-standard
 	/** network protocol number for network table traffic */
 	public static final short NET_PROTOCOL_NT = 502;
 	/** network protocol number for VFN traffic */
 	public static final short NET_PROTOCOL_VFN = 998;
 	/** network level (IP) protocol number. */
-	public static final short NET_PROTOCOL_MAX            = 999;
+	public static final short NET_PROTOCOL_MAX = 999;
 
-
-
-	//////////////////////////////////////////////////
+	// ////////////////////////////////////////////////
 	// Routing-related constants
 	//
 
@@ -356,7 +353,7 @@ public final class Constants
 	public static final int GPSR_LOCATIONDB_IDEAL = 0;
 	public static final int GPSR_LOCATIONDB_GLS = 1;
 
-	//////////////////////////////////////////////////
+	// ////////////////////////////////////////////////
 	// Transport-related constants
 	//
 
@@ -368,27 +365,23 @@ public final class Constants
 	/** transport level (tcp/udp) protocol number. */
 	public static final short TRANS_PROTOCOL_INVALID = -1;
 	/** transport level (tcp/udp) protocol number. */
-	public static final short TCP_PROTOCOL_ECHO      =  7;
+	public static final short TCP_PROTOCOL_ECHO = 7;
 	/** transport level (tcp/udp) protocol number. */
-	public static final short TCP_PROTOCOL_FTP       = 21;
+	public static final short TCP_PROTOCOL_FTP = 21;
 	/** transport level (tcp/udp) protocol number. */
-	public static final short TCP_PROTOCOL_TELNET    = 23;
+	public static final short TCP_PROTOCOL_TELNET = 23;
 	/** transport level (tcp/udp) protocol number. */
-	public static final short TCP_PROTOCOL_SMTP      = 25;
+	public static final short TCP_PROTOCOL_SMTP = 25;
 	/** transport level (tcp/udp) protocol number. */
-	public static final short TCP_PROTOCOL_TIME      = 37;
+	public static final short TCP_PROTOCOL_TIME = 37;
 	/** transport level (tcp/udp) protocol number. */
-	public static final short TCP_PROTOCOL_HTTP      = 80;
+	public static final short TCP_PROTOCOL_HTTP = 80;
 
 	/** max size for UDP packet sent by driver... does not include the header */
 	public static final int UDP_MAX_SIZE = 1000;
 
-
-
-
 	/** TCP States. */
-	public final class TCPSTATES
-	{
+	public final class TCPSTATES {
 		/**
 		 * TCP state: LISTEN - represents waiting for a connection request from
 		 * any remote TCP and port.
@@ -401,13 +394,13 @@ public final class Constants
 		public static final int SYN_SENT = 801;
 		/**
 		 * TCP state: SYN-RECEIVED - represents waiting for a confirming
-		 * connection request acknowledgment after having both received and sent a
-		 * connection request.
+		 * connection request acknowledgment after having both received and sent
+		 * a connection request.
 		 */
 		public static final int SYN_RECEIVED = 802;
 		/**
 		 * TCP state: ESTABLISHED - represents an open connection, data received
-		 * can be delivered to the user.  The normal state for the data transfer
+		 * can be delivered to the user. The normal state for the data transfer
 		 * phase of the connection.
 		 */
 		public static final int ESTABLISHED = 803;
@@ -423,8 +416,8 @@ public final class Constants
 		 */
 		public static final int FIN_WAIT_2 = 805;
 		/**
-		 * TCP state: CLOSE-WAIT - represents waiting for a connection termination
-		 * request from the local user.
+		 * TCP state: CLOSE-WAIT - represents waiting for a connection
+		 * termination request from the local user.
 		 */
 		public static final int CLOSE_WAIT = 806;
 		/**
@@ -434,13 +427,14 @@ public final class Constants
 		public static final int CLOSING = 807;
 		/**
 		 * TCP state: LAST-ACK - represents waiting for an acknowledgment of the
-		 * connection termination request previously sent to the remote TCP (which
-		 * includes an acknowledgment of its connection termination request).
+		 * connection termination request previously sent to the remote TCP
+		 * (which includes an acknowledgment of its connection termination
+		 * request).
 		 */
 		public static final int LAST_ACK = 808;
 		/**
-		 * TCP state: TIME-WAIT - represents waiting for enough time to pass to be
-		 * sure the remote TCP received the acknowledgment of its connection
+		 * TCP state: TIME-WAIT - represents waiting for enough time to pass to
+		 * be sure the remote TCP received the acknowledgment of its connection
 		 * termination request.
 		 */
 		public static final int TIME_WAIT = 809;
@@ -451,8 +445,8 @@ public final class Constants
 
 	} // class: TCPSTATES
 
-	//////////////////////////////////////////////////
-	//MultiChannel
+	// ////////////////////////////////////////////////
+	// MultiChannel
 	//
 	public static final byte DEFAULT_CHANNEL = 1;
 	public static final int NUMBER_OF_CHANNELS = 6;
@@ -461,28 +455,30 @@ public final class Constants
 	public static final byte ASSIGN_LINEAR = 1;
 	public static final byte ASSIGN_RANDOM_UNIFORM = 2;
 	public static final byte ASSIGN_RANDOM_PERIODIC = 3;
-	public static final long ASSIGN_REASSIGN_TIME = 5*SECOND;
-	public static class VLCconstants
-	{
+	public static final long ASSIGN_REASSIGN_TIME = 5 * SECOND;
+
+	public static class VLCconstants {
 
 		/**
 		 * Total number of sent messages
 		 */
-		//	public static int SentDirect= 0;
+		// public static int SentDirect= 0;
 		/**
 		 * Total number of messages sent to broadcast
 		 */
 		public static int Received = 0;
 		public static String MACimplementationUsed;
-		public static long CBRmessages= 0;
+		public static long CBRmessages = 0;
 		private static int prevtimeid;
 		public static int broadcasts = 0;
-		public static String PrintData()
-		{
+
+		public static String PrintData() {
 			String res = "";
 
-			String filename = JistExperiment.getJistExperiment().getResultsPath();// System.getProperty("user.home") + "/Desktop/" +"VLCMeasureData.csv";
-			
+			String filename = JistExperiment.getJistExperiment()
+					.getResultsPath();// System.getProperty("user.home") +
+										// "/Desktop/" +"VLCMeasureData.csv";
+
 			int t0 = 0;
 			int t1 = 0;
 			int t11 = 0;
@@ -507,164 +503,149 @@ public final class Constants
 			int t90 = 0;
 			int t92 = 0;
 			int t93 = 0;
-			long time1 =0;
-			long sumt5t1 =0;
+			long time1 = 0;
+			long sumt5t1 = 0;
+			long lastTime = 0;
+			
 			boolean has14 = false;
-	
+			boolean has31 = false;
+			boolean has3 = false;
+
 			PrintWriter writer;
 			try {
 				writer = new PrintWriter(filename, "UTF-8");
-				//header
+				// header
 				writer.write("num;msgid;source;destination;0;1;11;12;13;2;21;250;251;252;3;31;4;41;5;6;70;81;82;84;90;92;93\n");
-				for (NetMessage.Ip item : TimeEntry.AllMessages)
-				{
+				for (NetMessage.Ip item : TimeEntry.AllMessages) {
 					res = "";
-					res+= item.getId()+";"+item.getMessageID() + ";"+ item.getSrc() +";" + item.getDst(); 
+					res += item.getId() + ";" + item.getMessageID() + ";"
+							+ item.getSrc() + ";" + item.getDst();
 					has14 = false;
-					for (TimeEntry time : item.Times) 
-					{
+					has31 = false;
+					for (TimeEntry time : item.Times) {
 						switch (time.TimeID) {
-						case 0:
-						{
+						case 0: {
 							t0++;
 							break;
 						}
-						case 1:
-						{
+						case 1: {
 							time1 = time.Time;
 							t1++;
 							break;
 						}
-						case 11:
-						{
+						case 11: {
 							t11++;
 							break;
 						}
-						case 12:
-						{
+						case 12: {
 							t12++;
 							break;
 						}
-						case 13:
-						{
-								t13++;
+						case 13: {
+							t13++;
 							break;
 						}
-						case 14:
-						{
-							if(!has14)
-							{
+						case 14: {
+							if (!has14) {
 								has14 = true;
 								t14++;
 							}
 							break;
 						}
 
-						case 2:
-						{
+						case 2: {
 							t2++;
 							break;
 						}
-						case 21:
-						{
+						case 21: {
 							t21++;
 							break;
 						}
-						case 250:
-						{
+						case 250: {
 							t250++;
 							break;
 						}
-						case 251:
-						{
+						case 251: {
 							t251++;
 							break;
 						}
-						case 252:
-						{
+						case 252: {
 							t252++;
 							break;
 						}
-						case 3:
-						{
-							t3++;
+						case 3: {
+							if (!has3) {
+								has3 = true;
+								t3++;
+							}
 							break;
 						}
-						case 31:
-						{
-							t31++;
-							sumt5t1 += (time.Time-time1);
+						case 31: {
+							if (!has31) {
+								has31 = true;
+								t31++;
+								lastTime = time.Time;
+							}
 							break;
 						}
-						case 4:
-						{
+						case 4: {
 							t4++;
 							break;
 						}
-						case 41:
-						{
+						case 41: {
 							t41++;
 							break;
 						}
-						case 5:
-						{
+						case 5: {
 							t5++;
-						
+
 							break;
 						}
-						case 6:
-						{
+						case 6: {
 							t6++;
 							break;
 						}
-						case 70:
-						{
+						case 70: {
 							t70++;
 							break;
 						}
-						case 81:
-						{
+						case 81: {
 							t81++;
 							break;
 						}
-						case 82:
-						{
+						case 82: {
 							t82++;
 							break;
 						}
-						case 84:
-						{
+						case 84: {
 							t84++;
 							break;
 						}
-						case 90:
-						{
+						case 90: {
 							t90++;
 							break;
 						}
-						case 92:
-						{
+						case 92: {
 							t92++;
 							break;
 						}
-						case 93:
-						{
+						case 93: {
 							t93++;
 							break;
 						}
-						default:
-						{
-							System.out.println("non monitored TimeEntry id: " +time.TimeID );
+						default: {
+							System.out.println("non monitored TimeEntry id: "
+									+ time.TimeID);
 						}
 
-						}//switch
-						if(prevtimeid == 11 && time.TimeID != 12)
-						{
+						}// switch
+						if (prevtimeid == 11 && time.TimeID != 12) {
 							res += ";0";
 						}
-						prevtimeid =  time.TimeID;
-						res += ";" +time.TimeID + " - " + time.Time;
-					}
+						prevtimeid = time.TimeID;
+						res += ";" + time.TimeID + " - " + time.Time;
+					}//for
+					sumt5t1 += (lastTime - time1);
 					res += "\n";
 					writer.write(res);
 				}
@@ -677,38 +658,38 @@ public final class Constants
 
 			System.out.println();
 
-			return "-----VLC data-----" + "\n"+
-			"MAC implementation = "+ MACimplementationUsed + "\n"+
-		//	"Broadcasts = " + broadcasts + "\n"+
-			"MAC PDR +broadcast = " + 100*((float)t3/(float)t1) + "%\n"+
-			"MAC PDR -broadcast = " + 100*((float)t31/(float)t13) + "%\n"+
-			"MAC avg(t5-t1) = " + ((float)sumt5t1/(float)t31)/1000000 + "ms \n"+//ns to ms
-			"MAC count(T0) = " + t0 + "\n"+
-			"MAC count(T1) = " + t1 + "\n"+
-			"MAC count(T11) = " + t11 + "\n"+
-			"MAC count(T12) = " + t12 + "\n"+
-			"MAC count(T13) = " + t13 + "\n"+
-			"MAC count(T14) = " + t14 + "\n"+
-			"MAC count(T2) = " + t2 + "\n"+
-			"MAC count(T21) = " + t21 + "\n"+
-			"MAC count(T250) = " + t250 + "\n"+
-			"MAC count(T251) = " + t251 + "\n"+
-			"MAC count(T252) = " + t252 + "\n"+
-			"MAC count(T3) = " + t3 + "\n"+
-			"MAC count(T31) = " + t31 + "\n"+
-			"MAC count(T4) = " + t4 + "\n"+
-			"MAC count(T41) = " + t41 + "\n"+
-			"MAC count(T5) = " + t5 + "\n"+
-			"MAC count(T6) = " + t6 + "\n"+
-			"MAC count(T70) = " + t70 + "\n"+
-			"MAC count(T81) = " + t81 + "\n"+
-			"MAC count(T82) = " + t82 + "\n"+
-			"MAC count(T84) = " + t84 + "\n"+
-			"MAC count(T90) = " + t90 + "\n"+
-			"MAC count(T92) = " + t92 + "\n"+
-			"MAC count(T93) = " + t93 + "\n"+
-			"-----VLC data-----" + "\n";
-
+			return "-----VLC data-----" + "\n" + "MAC implementation = "
+					+ MACimplementationUsed
+					+ "\n"
+					+
+					// "Broadcasts = " + broadcasts + "\n"+
+					"MAC PDR +broadcast = "
+					+ 100 * ((float) t3 / (float) t1)
+					+ "%\n"
+					+ "MAC PDR -broadcast = "
+					+ 100 * ((float) t31 / (float) t13)
+					+ "%\n"
+					+ "MAC avg(t5-t1) = "
+					+ ((float) sumt5t1 / (float) t31) / 1000000
+					+ "ms \n"
+					+ // ns to ms
+					"MAC count(T0) = " + t0 + "\n" + "MAC count(T1) = " + t1
+					+ "\n" + "MAC count(T11) = " + t11 + "\n"
+					+ "MAC count(T12) = " + t12 + "\n" + "MAC count(T13) = "
+					+ t13 + "\n" + "MAC count(T14) = " + t14 + "\n"
+					+ "MAC count(T2) = " + t2 + "\n" + "MAC count(T21) = "
+					+ t21 + "\n" + "MAC count(T250) = " + t250 + "\n"
+					+ "MAC count(T251) = " + t251 + "\n" + "MAC count(T252) = "
+					+ t252 + "\n" + "MAC count(T3) = " + t3 + "\n"
+					+ "MAC count(T31) = " + t31 + "\n" + "MAC count(T4) = "
+					+ t4 + "\n" + "MAC count(T41) = " + t41 + "\n"
+					+ "MAC count(T5) = " + t5 + "\n" + "MAC count(T6) = " + t6
+					+ "\n" + "MAC count(T70) = " + t70 + "\n"
+					+ "MAC count(T81) = " + t81 + "\n" + "MAC count(T82) = "
+					+ t82 + "\n" + "MAC count(T84) = " + t84 + "\n"
+					+ "MAC count(T90) = " + t90 + "\n" + "MAC count(T92) = "
+					+ t92 + "\n" + "MAC count(T93) = " + t93 + "\n"
+					+ "-----VLC data-----" + "\n";
 
 		}
 	}

@@ -55,7 +55,7 @@ public class memory
     // radio
     RadioNoise radio = new RadioNoiseIndep(i, radioInfoShared);
     // mac
-    Mac802_11 mac = new Mac802_11(new MacAddress(i), radio.getRadioInfo());
+    Mac802_11 mac =null;//bt  new Mac802_11(new MacAddress(i), radio.getRadioInfo());
     // net
     NetIp net = new NetIp(new NetAddress(i), protMap, plIn, plOut);
     // trans

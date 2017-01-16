@@ -957,6 +957,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 		{
 			//red je prazan.
 			TimerRunning = false;
+			netEntity.pump(netId);//dodao naknadno, testirati
 		}
 	}
 
@@ -978,7 +979,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	{
 		((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(3, "macbtrec", null));
 		
-		if(((MacVLCMessage)msg).getDst().hashCode() == myRadio.NodeID 
+		if(((MacVLCMessage)msg).getDst().addr== myRadio.NodeID 
 				&& ((MacVLCMessage)msg).getDst() != MacAddress.ANY 
 				&& ((MacVLCMessage)msg).getDst() != MacAddress.LOOP 
 				&& ((MacVLCMessage)msg).getDst() != MacAddress.NULL)

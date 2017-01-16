@@ -1045,7 +1045,7 @@ public final class RadioVLC802_11 extends RadioNoise
 			{
 				bb += item + " ";
 			}
-			System.out.println("t - n: "+NodeID+ " tm: "+JistAPI.getTime()+" s: "+((MacMessage.Data)msg).getSrc()+ "("+aa+") d: "+((MacMessage.Data)msg).getDst() +"("+bb+") end: "+(duration+getTime()) + " mhs: " + msg.hashCode());
+			System.out.println("t - n: "+NodeID+ " tm: "+JistAPI.getTime()+" s: "+((MacMessage.Data)msg).getSrc()+ "("+aa+") d: "+((MacMessage.Data)msg).getDst() +"("+bb+") end: "+(duration+getTime()) + " mhs: " + msg.getMessageID());
 		}
 		fieldEntity.transmit(radioInfo, msg, duration);
 		// schedule end of transmission

@@ -9,6 +9,8 @@
 
 package jist.swans.field;
 
+import java.util.Random;
+
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
 import jist.swans.misc.Location;
@@ -17,6 +19,7 @@ import jist.swans.misc.Util;
 import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioInterface;
 import jist.swans.radio.RadioVLC;
+import jobs.JobConfigurator;
 
 import org.apache.log4j.Logger;
 
@@ -437,11 +440,23 @@ public class Field implements FieldInterface
 			dstEntity.receive(msg, new Double(dstPower_mW), durationObj);
 		}
 	};
-
+	Random rnd = new Random();
 	// FieldInterface interface
 	/** {@inheritDoc} */
 	public void transmit(RadioInfo srcInfo, Message msg, long duration)
 	{
+		if(JobConfigurator.DoRandomDrops)
+		{
+		//	if(DestinationID != -1)
+			{
+				//0-1
+				if(rnd.nextDouble() <= JobConfigurator.RandomDropRate)
+				{
+					return;
+				}
+			}
+		}
+		
 		RadioData srcData = getRadioData(srcInfo.getUnique().getID());
 		spatial.visitTransmit(transmitVisitor, srcData.info, srcData.loc, msg, new Long(duration), limit);
 	}

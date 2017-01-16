@@ -367,6 +367,8 @@ public class NetIp implements NetInterface
 	/** {@inheritDoc} */
 	public void receive(Message msg, MacAddress lastHop, byte macId, boolean promisc)
 	{
+		Rec++;
+		System.out.println("rec= "+Rec);
 		if(msg==null) throw new NullPointerException();
 		NetMessage.Ip ipmsg = (NetMessage.Ip)msg;
 		ipmsg.Times.add(new TimeEntry(4, "netiprec", null));
@@ -512,10 +514,13 @@ public class NetIp implements NetInterface
 				ip.Times.add(new TimeEntry(14, "mac send dest", null));
 			}
 			//T-ODO dont understatnd it with javadocs(notifying)
+			Snd++;
+			System.out.println("Snd= "+Snd);
 			ni.mac.send(ip, qmsg.getNextHop());
 		}
 	}
-
+	public static int Snd = 0;
+	public static int Rec = 0;
 	//////////////////////////////////////////////////
 	// display
 	//
@@ -540,8 +545,6 @@ public class NetIp implements NetInterface
 	 * @see jist.swans.net.NetInterface#packetDropped(jist.swans.misc.Message, jist.swans.mac.MacAddress)
 	 */
 	public void packetDropped(Message packet, MacAddress packetNextHop) {
-		// anything to do here?
-		//Constants.VLCconstants.NetIPDropped++;
 		routing.packetDropped(packet, packetNextHop);    
 	}
 

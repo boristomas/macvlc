@@ -22,6 +22,7 @@ import jist.swans.net.NetInterface;
 import jist.swans.net.NetMessage;
 import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioInterface;
+import jist.swans.radio.RadioVLC;
 import jist.swans.radio.TimeEntry;
 import jist.swans.radio.VLCsensor;
 import jist.swans.trans.TransUdp;
@@ -232,6 +233,7 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 	protected byte netId;
 
 	// properties
+	public RadioVLC myRadio = null;
 
 	/** link bandwidth (units: bytes/second). */
 	protected final int bandwidth;
@@ -327,8 +329,9 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 	 * @param newstats mac stats object
 	 */
 	public Mac802_11(MacAddress addr, RadioInfo radioInfo, 
-			boolean promisc)
+			boolean promisc, RadioVLC vlcradio)
 	{
+		myRadio = vlcradio;
 		//    stats = newStats;
 		droppedPackets = new HashMap();
 		// properties
@@ -345,8 +348,9 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 	 * @param addr local mac address
 	 * @param radioInfo radio properties
 	 */
-	public Mac802_11(MacAddress addr, RadioInfo radioInfo)
+	public Mac802_11(MacAddress addr, RadioInfo radioInfo, RadioVLC vlcradio)
 	{
+		myRadio = vlcradio;
 		bandwidth = radioInfo.getShared().getBandwidth() / 8;
 		// proxy
 		self = (MacInterface.Mac802_11)JistAPI.proxy(this, MacInterface.Mac802_11.class);
@@ -520,8 +524,8 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 	 */
 	private boolean shouldRTS()
 	{
-		return false; //bt: some error workaround
-		//return packet.getSize()>THRESHOLD_RTS && !isBroadcast();
+		//return false; //bt: some error workaround
+		return packet.getSize()>THRESHOLD_RTS && !isBroadcast();
 	}
 
 	/**
@@ -579,12 +583,12 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 	{
 		if(!hasBackoff())
 		{
-		//	if(!JistExperiment.getJistExperiment().MeasurementMode)
+			//	if(!JistExperiment.getJistExperiment().MeasurementMode)
 			{
 				bo = Constants.random.nextInt(cw) * SLOT_TIME;
 			}
-		/*	else//maknuo sam ovo iz referentnog jer ne treba njega dirati
-		 * 
+			/*	else//maknuo sam ovo iz referentnog jer ne treba njega dirati
+			 * 
 			{
 				bo = (cw/2) * SLOT_TIME;
 			}*/
@@ -761,6 +765,7 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 		}
 	}
 
+	
 	//////////////////////////////////////////////////
 	// send-related functions
 	//
@@ -768,7 +773,16 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 	// MacInterface interface
 	public void send(Message msg, MacAddress nextHop)
 	{
+
+		
 		((NetMessage.Ip)msg).Times.add(new TimeEntry(1,"mac80211",null));//meEntry = JistAPI.getTime();
+		System.out.println("send!"+ ((NetMessage.Ip)msg).getMessageID());
+
+		if(nextHop != MacAddress.ANY)// && nextHop != MacAddress.LOOP)
+		{
+			((NetMessage.Ip)msg).Times.add(new TimeEntry(13, "mac send dest", null));
+		}
+
 		if(Main.ASSERT) Util.assertion(!hasPacket());
 		if(Main.ASSERT) Util.assertion(nextHop!=null);
 		packet = msg;
@@ -896,17 +910,17 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 		MacMessage.Data data = new MacMessage.Data(
 				packetNextHop, localAddr, 
 				0, packet);
-//		((NetMessage)packet).TimeCreated = ((MacMessage)packet).TimeCreated;//.TimeEntry = JistAPI.getTime();
+		//		((NetMessage)packet).TimeCreated = ((MacMessage)packet).TimeCreated;//.TimeEntry = JistAPI.getTime();
 		//((NetMessage)packet).TimeEntry = ((MacMessage)packet).TimeEntry;
-//		((NetMessage)packet).TimeSent =JistAPI.getTime();
+		//		((NetMessage)packet).TimeSent =JistAPI.getTime();
 		// set mode and transmit
 		setMode(MAC_MODE_XBROADCAST);
 		long delay = RX_TX_TURNAROUND, duration = transmitTime(data);
-		
-		if(data.getDst() != MacAddress.ANY && data.getDst() != MacAddress.LOOP)// || ((NetMessage.Ip)msg).getDst() != NetAddress.ANY)
+
+		/*	if(data.getDst() != MacAddress.ANY && data.getDst() != MacAddress.LOOP)// || ((NetMessage.Ip)msg).getDst() != NetAddress.ANY)
 		{
 			((NetMessage.Ip)data.getBody()).Times.add(new TimeEntry(72, "radiovlct-rec", null));
-		}
+		}*/
 		radioEntity.transmit(data, delay, duration);
 		// wait for EOT, check for outgoing packet
 		JistAPI.sleep(delay+duration);
@@ -924,17 +938,17 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 						incSeq(), (byte)0, false, 
 						(shouldRTS() ? longRetry : shortRetry) > 0,
 						packet);
-	//	data.TimeCreated = ((MacMessage)packet).TimeCreated;//.TimeEntry = JistAPI.getTime();
-	//	data.TimeEntry = ((MacMessage)packet).TimeEntry;
-	//	data.TimeSent =JistAPI.getTime();
-		
+		//	data.TimeCreated = ((MacMessage)packet).TimeCreated;//.TimeEntry = JistAPI.getTime();
+		//	data.TimeEntry = ((MacMessage)packet).TimeEntry;
+		//	data.TimeSent =JistAPI.getTime();
+
 		// set mode and transmit
 		setMode(MAC_MODE_XUNICAST);
 		long delay = afterCts ? SIFS : RX_TX_TURNAROUND, duration = transmitTime(data);
-		if(data.getDst() != MacAddress.ANY && data.getDst() != MacAddress.LOOP)// || ((NetMessage.Ip)msg).getDst() != NetAddress.ANY)
+		/*	if(data.getDst() != MacAddress.ANY && data.getDst() != MacAddress.LOOP)// || ((NetMessage.Ip)msg).getDst() != NetAddress.ANY)
 		{
 			((NetMessage.Ip)data.getBody()).Times.add(new TimeEntry(72, "radiovlct-rec", null));
-		}
+		}*/
 		radioEntity.transmit(data, delay, duration);
 
 		//    if (stats.DISTANCE_TRACKING)
@@ -1068,12 +1082,11 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 	// MacInterface
 	public void receive(Message msg)
 	{
+		//System.out.println("class rec = " + msg.getClass().getCanonicalName());
+		//((NetMessage.Ip)msg.getBody()).Times.add(new TimeEntry(3, "mac80211", null));
 		if(msg instanceof MacMessage.Data)
 		{
-			if(((MacMessage)msg).getDst().hashCode() == localAddr.hashCode())
-			{
-				((NetMessage.Ip)(((MacMessage.Data)msg).getBody())).Times.add(new TimeEntry(71, "formenetip", null));  
-			}
+			System.out.println("receive!"+ ((NetMessage.Ip)(( MacMessage.Data)msg).getBody()).getMessageID());
 		}
 		receivePacket((MacMessage)msg);
 	}
@@ -1160,9 +1173,11 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 		// shortRetry = 0;
 		if(mode==MAC_MODE_SWFDATA || !isAwaitingResponse())
 		{
+			((NetMessage.Ip)msg.getBody()).Times.add(new TimeEntry(3, "mac80211", null));
+			
 			if(MacAddress.ANY.equals(msg.getDst()))
 			{
-				((NetMessage.Ip)msg.getBody()).Times.add(new TimeEntry(3, "macbtrec", null));
+		
 				netEntity.receive(msg.getBody(), msg.getSrc(), netId, false);
 				cfDone(false, false);
 			}
@@ -1174,6 +1189,19 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 				if(!(msg.getRetry() && getSeqEntry(msg.getSrc())==msg.getSeq()))
 				{
 					updateSeqEntry(msg.getSrc(), msg.getSeq());
+
+					if(msg.getDst().addr == myRadio.NodeID
+							&& msg.getDst() != MacAddress.ANY 
+							&& msg.getDst() != MacAddress.LOOP
+							&& msg.getDst() != MacAddress.NULL)
+					{
+					
+						((NetMessage.Ip)msg.getBody()).Times.add(new TimeEntry(31, "mac80211-1", null));
+					}
+					else
+					{
+						System.out.println("neva555");
+					}
 					netEntity.receive(msg.getBody(), msg.getSrc(), netId, false);
 				}
 			}
@@ -1416,25 +1444,25 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 	@Override
 	public void notifyInterference(MacMessage msg, VLCsensor sensors) {
 		// T-ODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void notifyError(int errorCode, String message) {
 		// T-ODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void notifyTransmitFail(Message msg, int errorCode) {
 		// T-ODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void notifyReceiveFail(Message msg, int errorCode) {
 		// T-ODO Auto-generated method stub
-		
+
 	}
 }
 

@@ -116,8 +116,8 @@ public class dsrtest
       RadioNoise radio1 = new RadioNoiseIndep(i, radioInfoShared);
       RadioNoise radio2 = new RadioNoiseIndep(i+1, radioInfoShared);
       // mac
-      Mac802_11 mac1 = new Mac802_11(new MacAddress(i), radio1.getRadioInfo());
-      Mac802_11 mac2 = new Mac802_11(new MacAddress(i+1), radio2.getRadioInfo());
+      Mac802_11 mac1 = null;//bt new Mac802_11(new MacAddress(i), radio1.getRadioInfo());
+      Mac802_11 mac2 = null;//bt new Mac802_11(new MacAddress(i+1), radio2.getRadioInfo());
       // net
       NetIp net1 = new NetIp(new NetAddress(SERVER_IP), protMap, pl, pl);
       NetIp net2 = new NetIp(new NetAddress(i), protMap, pl, pl);
@@ -203,9 +203,9 @@ public class dsrtest
       RadioNoise radio2 = new RadioNoiseIndep(i+1, radioInfoShared);
       RadioNoise radio3 = new RadioNoiseIndep(i+2, radioInfoShared);
       // mac
-      Mac802_11 mac1 = new Mac802_11(new MacAddress(i), radio1.getRadioInfo());
-      Mac802_11 mac2 = new Mac802_11(new MacAddress(i+1), radio2.getRadioInfo());
-      Mac802_11 mac3 = new Mac802_11(new MacAddress(i+2), radio2.getRadioInfo());
+      Mac802_11 mac1 = null;//bt new Mac802_11(new MacAddress(i), radio1.getRadioInfo());
+      Mac802_11 mac2 = null;//bt new Mac802_11(new MacAddress(i+1), radio2.getRadioInfo());
+      Mac802_11 mac3 = null;//bt new Mac802_11(new MacAddress(i+2), radio2.getRadioInfo());
       // net
       NetIp net1 = new NetIp(new NetAddress(SERVER_IP), protMap, pl, pl);
       NetIp net2 = new NetIp(new NetAddress(i), protMap, pl, pl);

@@ -14,6 +14,7 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.UUID;
 
 import com.puppycrawl.tools.checkstyle.api.Utils;
 
@@ -725,7 +726,7 @@ public abstract class MacMessage implements Message
 	{
 		public String getMessageID()
 		  {
-			  return "not implemented";
+			  return ID;
 		  }
 		
 		/**
@@ -741,12 +742,12 @@ public abstract class MacMessage implements Message
 		/**
 		 * Packet destination address.
 		 */
-		private MacAddress dst;
+		public MacAddress dst;
 
 		/**
 		 * Packet source address.
 		 */
-		private MacAddress src;
+		public MacAddress src;
 
 	//	private MacAddress nextHop;
 		/**
@@ -818,7 +819,9 @@ public abstract class MacMessage implements Message
 			this.seq = seq;
 			this.frag = frag;
 			this.body = body;
+			this.ID = UUID.randomUUID().toString().replaceAll("-", "");
 		}
+		String ID= "";
 
 		/**
 		 * Create 802_11 data packet.

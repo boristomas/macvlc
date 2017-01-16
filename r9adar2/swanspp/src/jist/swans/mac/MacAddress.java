@@ -45,7 +45,7 @@ public class MacAddress implements Comparable
   /**
    * address data.
    */
-  private int addr;
+  public int addr;
 
   /**
    * Create a new Mac address object.

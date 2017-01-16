@@ -1364,7 +1364,7 @@ public final class RadioVLC extends RadioNoise
 			//nikada se nece dogoditi jer bcast filteriram na transmit metodi
 			msg.isVLCvalid = false;
 		}
-		if(JobConfigurator.DoRandomDrops)
+	/*	if(JobConfigurator.DoRandomDrops)
 		{
 		//	if(DestinationID != -1)
 			{
@@ -1374,10 +1374,10 @@ public final class RadioVLC extends RadioNoise
 					msg.isVLCvalid = false;
 				}
 			}
-		}
+		}*/
 		return msg;
 	}
-	Random rnd = new Random();
+//	Random rnd = new Random();
 	public static boolean intersects(Path2D.Double path, Line2D line) {
 		double x1 = -1 ,y1 = -1 , x2= -1, y2 = -1,sx=-1,sy=-1;
 		/*	Color boja1 = Color.black;

@@ -272,7 +272,7 @@ public class GenericDriver {
 		else if(je.MACProtocol.equals(MACprotocol802_11))
 		{
 			Constants.VLCconstants.MACimplementationUsed = MACprotocol802_11;
-			mac = new Mac802_11(new MacAddress(i), radio.getRadioInfo());
+			mac = new Mac802_11(new MacAddress(i), radio.getRadioInfo(), (RadioVLC) radio);
 			((Mac802_11) mac).setRadioEntity(radio.getProxy());
 			macProxy = ((Mac802_11) mac).getProxy();
 			((Mac802_11) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);
@@ -280,7 +280,7 @@ public class GenericDriver {
 		else
 		{
 			Constants.VLCconstants.MACimplementationUsed = MACprotocol802_11;
-			mac = new Mac802_11(new MacAddress(i), radio.getRadioInfo());
+			mac = new Mac802_11(new MacAddress(i), radio.getRadioInfo(), (RadioVLC) radio);
 			((Mac802_11) mac).setRadioEntity(radio.getProxy());
 			macProxy = ((Mac802_11) mac).getProxy();
 			((Mac802_11) mac).setNetEntity(net.getProxy(),(byte) Constants.NET_INTERFACE_DEFAULT);
