@@ -776,7 +776,7 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 
 		
 		((NetMessage.Ip)msg).Times.add(new TimeEntry(1,"mac80211",null));//meEntry = JistAPI.getTime();
-		System.out.println("send!"+ ((NetMessage.Ip)msg).getMessageID());
+		//System.out.println("send!"+ ((NetMessage.Ip)msg).getMessageID());
 
 		if(nextHop != MacAddress.ANY)// && nextHop != MacAddress.LOOP)
 		{
@@ -1084,10 +1084,10 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 	{
 		//System.out.println("class rec = " + msg.getClass().getCanonicalName());
 		//((NetMessage.Ip)msg.getBody()).Times.add(new TimeEntry(3, "mac80211", null));
-		if(msg instanceof MacMessage.Data)
+	/*	if(msg instanceof MacMessage.Data)
 		{
 			System.out.println("receive!"+ ((NetMessage.Ip)(( MacMessage.Data)msg).getBody()).getMessageID());
-		}
+		}*/
 		receivePacket((MacMessage)msg);
 	}
 

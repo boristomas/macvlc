@@ -101,7 +101,7 @@
       <string>D:\AeroFS\FOIPosao\Znanstveni rad\!thesis\phd\apps\jistWrap\jistWrapWPF\bin\Debug\results\rd0db530b-e2cb-4bcb-9bb2-d9b6d81431d0.csv</string>
     </void>
     <void property="cbrRate">
-      <int>1</int>
+      <int>2048</int>
     </void>
     <void property="nodes">
       <int>2</int>
