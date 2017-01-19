@@ -10,6 +10,7 @@
 package jist.swans.mac;
 
 import java.util.HashMap;
+import java.util.Random;
 
 import sun.management.Sensor;
 import jist.runtime.JistAPI;
@@ -26,6 +27,7 @@ import jist.swans.radio.RadioVLC;
 import jist.swans.radio.TimeEntry;
 import jist.swans.radio.VLCsensor;
 import jist.swans.trans.TransUdp;
+import jobs.JobConfigurator;
 import driver.JistExperiment;
 
 /**
@@ -525,7 +527,15 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 	private boolean shouldRTS()
 	{
 		//return false; //bt: some error workaround
-		return packet.getSize()>THRESHOLD_RTS && !isBroadcast();
+		if(packet != null)
+		{
+			return packet.getSize()>THRESHOLD_RTS && !isBroadcast();
+		}
+		else
+		{
+			packetNextHop = null;
+			return !isBroadcast();
+		}
 	}
 
 	/**
@@ -765,16 +775,17 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 		}
 	}
 
+	Random rnd = new Random();
 	
 	//////////////////////////////////////////////////
 	// send-related functions
 	//
-
 	// MacInterface interface
 	public void send(Message msg, MacAddress nextHop)
 	{
-
 		
+		
+	
 		((NetMessage.Ip)msg).Times.add(new TimeEntry(1,"mac80211",null));//meEntry = JistAPI.getTime();
 		//System.out.println("send!"+ ((NetMessage.Ip)msg).getMessageID());
 

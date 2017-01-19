@@ -13,9 +13,11 @@ import java.util.Random;
 
 import jist.runtime.JistAPI;
 import jist.swans.Constants;
+import jist.swans.mac.MacAddress;
 import jist.swans.misc.Location;
 import jist.swans.misc.Message;
 import jist.swans.misc.Util;
+import jist.swans.net.NetMessage;
 import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioInterface;
 import jist.swans.radio.RadioVLC;
@@ -440,14 +442,16 @@ public class Field implements FieldInterface
 			dstEntity.receive(msg, new Double(dstPower_mW), durationObj);
 		}
 	};
+	
 	Random rnd = new Random();
 	// FieldInterface interface
 	/** {@inheritDoc} */
 	public void transmit(RadioInfo srcInfo, Message msg, long duration)
 	{
+		
 		if(JobConfigurator.DoRandomDrops)
 		{
-		//	if(DestinationID != -1)
+			//if(nextHop != MacAddress.ANY)
 			{
 				//0-1
 				if(rnd.nextDouble() <= JobConfigurator.RandomDropRate)
@@ -456,7 +460,6 @@ public class Field implements FieldInterface
 				}
 			}
 		}
-		
 		RadioData srcData = getRadioData(srcInfo.getUnique().getID());
 		spatial.visitTransmit(transmitVisitor, srcData.info, srcData.loc, msg, new Long(duration), limit);
 	}

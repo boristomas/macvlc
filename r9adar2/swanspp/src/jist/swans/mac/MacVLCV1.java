@@ -234,7 +234,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	{
 	    Unreliable, Reliable, Concurrent
 	}
-	private static QueueStrategies QueueStrategy = QueueStrategies.Reliable;
+	private static QueueStrategies QueueStrategy = QueueStrategies.Concurrent;
 	public static String getModeString(byte mode)
 	{
 		switch(mode)
@@ -854,7 +854,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 		
 		switch (QueueStrategy)
 		{
-			case Concurrent :
+			case Reliable :
 			{	
 				//TODO: v2
 				throw new RuntimeException("v2");
@@ -866,7 +866,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 				throw new RuntimeException("v2");
 		//		break;
 			}
-			case Reliable :
+			case Concurrent  :
 			{	
 				data.setSensorIDTx(GetTransmitSensors(nextHop), myRadio.NodeID);
 				
@@ -897,7 +897,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 	// MacInterface interface
 	public void send(Message msg, MacAddress nextHop)
 	{
-		
+		packetNextHop = nextHop;
 		sendMacMessage(msg,nextHop, null);
 	}
 	//////////////////////////////////////////////////
@@ -1172,6 +1172,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
 
 	public void notifyTransmitFail(Message msg, int errorCode) 
 	{
+		netEntity.packetDropped(msg, packetNextHop);
 		((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(92, "macinterference", null));
 		System.out.println("transmit fail error #"+errorCode);
 	}

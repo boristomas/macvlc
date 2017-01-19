@@ -124,7 +124,7 @@
 
     <!--  visualization options  -->
     <void property="useVisualizer">
-      <boolean>true</boolean>
+      <boolean>false</boolean>
     </void>
     <!--  other options  -->
     <void property="port">
