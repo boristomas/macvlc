@@ -10,6 +10,7 @@
 package jist.swans.net;
 
 import java.awt.List;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.UUID;
@@ -65,7 +66,8 @@ public abstract class NetMessage implements Message, Cloneable
    */
   public static class Ip extends NetMessage
   {
-	  String ID ="";
+
+	String ID ="";
 	  public String getMessageID()
 	  {
 		  return "net"+ID;

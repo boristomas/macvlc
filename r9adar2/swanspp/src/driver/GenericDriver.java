@@ -70,8 +70,6 @@ import jist.swans.mac.MacAddress;
 import jist.swans.mac.MacDumb;
 import jist.swans.mac.MacInterface;
 import jist.swans.mac.MacVLCV1;
-//import jist.swans.mac.MacVLCMate;
-//import jist.swans.mac.MacVLCWill;
 import jist.swans.misc.Location;
 import jist.swans.misc.Mapper;
 import jist.swans.misc.Message;
@@ -209,12 +207,7 @@ public class GenericDriver {
 				}
 
 			}
-
-
-		
 			// placement
-
-
 			if (location == null) {
 				return;
 			}
@@ -293,12 +286,6 @@ public class GenericDriver {
 		}
 
 		// network
-
-
-		//   if (je.mac == Constants.MAC_802_11) {
-
-		// }
-
 		// transport
 		TransUdp udp = new TransUdp();
 
@@ -996,7 +983,7 @@ public class GenericDriver {
 	}
 
 	/**
-	 * Genereates constant bitrate (CBR) traffic.
+	 * Generates constant bitrate (CBR) traffic.
 	 * @param je the configuration object
 	 * @param sources sources for traffic
 	 * @param nodes set of all nodes
@@ -1017,7 +1004,7 @@ public class GenericDriver {
 
 		Message payload = new MessageBytes(data);
 
-		long currentTime = je.startTime * Constants.SECOND;
+		//long currentTime = je.startTime * Constants.SECOND;
 
 		Constants.VLCconstants.CBRmessages = iterations * je.transmitters;
 		System.out.println("Messages to send: " + (iterations * je.transmitters));
@@ -1114,8 +1101,9 @@ public class GenericDriver {
 			{
 				JistAPI.sleep(delayInterval + (long) (SEND_JITTER * Constants.MICRO_SECOND * 0.5));
 			}
-			currentTime += delayInterval;
-		}
+		//	currentTime += delayInterval;
+		}//for
+		
 		//		System.out.println("BTc src= " + cnter);
 	}
 

@@ -26,7 +26,7 @@
       <double>0.0</double>
     </void>
     <void property="bandwidth">
-      <int>500000</int>
+      <int>11000000</int>
     </void>
     <void property="loss">
       <int>0</int>
@@ -101,7 +101,10 @@
       <string>D:\AeroFS\FOIPosao\Znanstveni rad\!thesis\phd\apps\jistWrap\jistWrapWPF\bin\Debug\results\rd0db530b-e2cb-4bcb-9bb2-d9b6d81431d0.csv</string>
     </void>
     <void property="cbrRate">
-      <int>2048</int>
+      <int>125000</int>
+    </void>
+	 <void property="cbrPacketSize">
+      <int>75</int>
     </void>
     <void property="nodes">
       <int>2</int>

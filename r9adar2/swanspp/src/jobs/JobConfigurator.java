@@ -8,4 +8,5 @@ public class JobConfigurator
 	public static boolean DoMessageOutput = true;
 	public static boolean DoRandomDrops = false;
 	public static double RandomDropRate = 0.0;
+	public static boolean UseEncryption =  true;
 }
