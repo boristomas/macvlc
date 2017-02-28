@@ -832,7 +832,10 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
                 try {
  
                     data.encryptedContent = Encryptor.encrypt(msg);
-                    data.body = null;
+                    if(data.encryptedContent != null)
+                    {
+                    	data.body = null;
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -1009,8 +1012,11 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         {
             try
             {
-                ((MacVLCMessage)msg).body = 
-                        Encryptor.decrypt(((MacVLCMessage)msg).encryptedContent);
+            	
+            	if (((MacVLCMessage)msg).encryptedContent != null)
+            	{
+            		((MacVLCMessage)msg).body = Encryptor.decrypt(((MacVLCMessage)msg).encryptedContent);
+            	}       
             } 
             catch (Exception e)
             {
