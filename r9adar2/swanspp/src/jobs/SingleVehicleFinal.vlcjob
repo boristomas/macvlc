@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <java version="1.4.2_05" class="java.beans.XMLDecoder">
   <!--wrap:version=1-->
-  <!--wrap:offsetleft:wrap=-88,2307222222222wrap:offsetleft:wrap-->
-  <!--wrap:offsettop:wrap=-91,4493333333333wrap:offsettop:wrap-->
+  <!--wrap:offsetleft:wrap=-88,8051111111111wrap:offsetleft:wrap-->
+  <!--wrap:offsettop:wrap=-87,0493333333333wrap:offsettop:wrap-->
   <!--wrap:scale:wrap=30wrap:scale:wrap-->
-  <!--wrap:id:wrap=d0db530b-e2cb-4bcb-9bb2-d9b6d81431d0wrap:id:wrap-->
-  <!--wrap:title:wrap=d0db530b-e2cb-4bcb-9bb2-d9b6d81431d0wrap:title:wrap-->
+  <!--wrap:id:wrap=57a3e7e1-0f79-45ba-82b0-9f01aa4fc73ewrap:id:wrap-->
+  <!--wrap:title:wrap=57a3e7e1-0f79-45ba-82b0-9f01aa4fc73ewrap:title:wrap-->
   
   <object class="driver.JistExperiment">
     <!--  timing  -->
@@ -93,22 +93,29 @@
       <int>2</int>
     </void>
     <void property="StaticPlacementOptions">
-    <string>100,100,0,1.7,5,0,0,s1,40,60,1,0,0,r,s2,40,50,1,1,0,t,s3,40,50,1,-1,0,t,s4,40,60,-1,0,180,r,s5,40,50,-1,1,180,t,s6,40,50,-1,-1,180,t;118,100.23,0,1.7,5,0,0,s1,40,60,1,0,0,r,s2,40,50,1,1,0,t,s3,40,50,1,-1,0,t,s4,40,60,-1,0,180,r,s5,40,50,-1,1,180,t,s6,40,50,-1,-1,180,t;</string>
+      <string>100,100,0,1.7,5,0.6,0.8,
+	  s1,45,70,1,-1,0,t,
+	  s2,45,70,1,1,0,t,
+	  s3,47,80,1,0,0,r,
+	  s4,45,70,-1,1,180,t,
+	  s5,45,70,-1,-1,180,t,
+	  s6,47,80,-1,0,-180,r;
+	  </string>
     </void>
     <void property="ResultsPath">
-      <string>D:\AeroFS\FOIPosao\Znanstveni rad\!thesis\phd\apps\jistWrap\jistWrapWPF\bin\Debug\results\rd0db530b-e2cb-4bcb-9bb2-d9b6d81431d0.csv</string>
+      <string>D:\AeroFS\FOIPosao\Znanstveni rad\!thesis\phd\apps\jistWrap\jistWrapWPF\bin\Debug\results\r57a3e7e1-0f79-45ba-82b0-9f01aa4fc73e.csv</string>
     </void>
     <void property="cbrRate">
       <int>4096</int>
     </void>
     <void property="nodes">
-      <int>2</int>
+      <int>1</int>
     </void>
     <void property="transmitters">
       <int>2</int>
     </void>
     <void property="MACProtocol">
-      <string>MAC_VLC_V1</string>
+      <string>MAC_802_11</string>
     </void>
     <void property="MeasurementMode">
       <boolean>true</boolean>

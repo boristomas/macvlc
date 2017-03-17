@@ -10,13 +10,13 @@
   <object class="driver.JistExperiment">
     <!--  timing  -->
     <void property="duration">
-      <int>180</int>
+      <int>1000</int>
     </void>
     <void property="resolutionTime">
       <int>600</int>
     </void>
     <void property="startTime">
-      <int>60</int>
+      <int>1</int>
     </void>
     <!--  environment  -->
     <void property="exponent">
@@ -39,7 +39,7 @@
     </void>
     <!--  mobility options  -->
     <void property="mobility">
-      <int>1</int>
+      <int>5</int>
     </void>
     <void property="max_speed">
       <int>20</int>
@@ -87,7 +87,7 @@
     </void>
     <!--  placement options  -->
     <void property="placement">
-      <int>2</int>
+      <int>3</int>
     </void>
     <void property="spatial_mode">
       <int>2</int>
@@ -107,10 +107,10 @@
       <int>1024</int>
     </void>
     <void property="nodes">
-      <int>2</int>
+      <int>50</int>
     </void>
     <void property="transmitters">
-      <int>2</int>
+      <int>50</int>
     </void>
     <void property="MACProtocol">
       <string>MAC_802_11</string>

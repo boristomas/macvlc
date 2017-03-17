@@ -167,7 +167,7 @@ public class JistExperiment implements JistAPI.DoNotRewrite
     /** locations for flows */
     public Location startLocs[];
     public Location endLocs[];
-    /** file contianing flow description for vehicles */
+    /** file containing flow description for vehicles */
     public String flowFile;
     /** seconds between vehicles flowing into map */
     public Integer flowRates[];
