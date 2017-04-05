@@ -533,7 +533,7 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 		}
 		else
 		{
-			packetNextHop = null;
+		//	packetNextHop = null;
 			return !isBroadcast();
 		}
 	}
@@ -783,9 +783,6 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 	// MacInterface interface
 	public void send(Message msg, MacAddress nextHop)
 	{
-		
-		
-	
 		((NetMessage.Ip)msg).Times.add(new TimeEntry(1,"mac80211",null));//meEntry = JistAPI.getTime();
 		//System.out.println("send!"+ ((NetMessage.Ip)msg).getMessageID());
 
@@ -1048,7 +1045,11 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 			stats.droppedCtsPackets++;
 			break;
 		case MAC_MODE_SWFACK:
-			if (!packetNextHop.equals(MacAddress.ANY))
+			if(packetNextHop == null)
+			{
+			//	netEntity.packetDropped(packet, packetNextHop);
+			}
+			else if (!packetNextHop.equals(MacAddress.ANY))
 				netEntity.packetDropped(packet, packetNextHop);
 			if (stats.TRACK_ACKS)
 			{
