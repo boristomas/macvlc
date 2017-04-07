@@ -626,7 +626,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     }
     private void QueueInsert(MacVLCMessage msg, boolean skipSort)
     {
- 
+    	
         myRadio.printMessageTransmissionData(msg, 0, "q");
         if(msg.isRetry)
         {
@@ -664,6 +664,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         {
             if(strategy == QueueStrategies.Reliable)
             {
+            	//čekaj da svi budu slobodni za slanje.
                 for (Integer item : msg.getSensorIDTx(myRadio.NodeID)) 
                 {
                     if(myRadio.GetSensorByID(item).state == SensorStates.Transmitting)
@@ -686,11 +687,12 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
                         {
                             return false;
                         }
-                        if(!myRadio.queryControlSignal(sensor, 1))
+                        else //if(!myRadio.queryControlSignal(sensor, 1))
                         {
                             if(msg.getDst().equals(MacAddress.ANY))
                             {
-                                //ovdje provjeravam jesu li svi senzori slobodni prije slanja broadcasta. request by mate :)
+                                //ovdje provjeravam jesu li svi senzori slobodni prije slanja broadcasta.
+                            	//request by mate :)
                                 if(myRadio.InstalledSensorsTx.size() == msg.getSensorIDTxSize(myRadio.NodeID))
                                 {
                                     return true;
@@ -858,6 +860,11 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         {
             ((NetMessage.Ip)msg).Times.add(new TimeEntry(1, "macbt", null));
             ((NetMessage.Ip)msg).isFresh = false;
+         //   dodao sam ovo jer 13 koristim za racunjanje broadcastova a ovdje pretpostavljam da se nikada ne napise 13.
+            if(nextHop != MacAddress.ANY &&nextHop != MacAddress.LOOP)
+            {
+                ((NetMessage.Ip)msg).Times.add(new TimeEntry(13, "mac send dest", null));
+            }
  
             if (!MessageQueue.isEmpty()) 
             {
