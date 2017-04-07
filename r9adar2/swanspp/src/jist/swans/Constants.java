@@ -13,12 +13,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.util.Random;
 
+import jist.runtime.JistAPI;
+import jist.swans.gui.SwansGui;
+import jist.swans.misc.MessageBytes;
 import jist.swans.misc.MessageNest;
 import jist.swans.net.NetIp;
 import jist.swans.net.NetMessage;
 import jist.swans.radio.TimeEntry;
+import jist.swans.trans.TransUdp.UdpMessage;
 
 import org.omg.CORBA.Environment;
 
@@ -198,8 +203,8 @@ public final class Constants {
 	public static final double FREQUENCY_DEFAULT = 2.4e9; // 2.4 GHz
 	/** Default radio bandwidth (units: bits/second). */
 	public static final int BANDWIDTH_DEFAULT = 11000000;// 102400; // 11Mb/s
-															// (int)2e6; //
-															// 2Mb/s
+	// (int)2e6; //
+	// 2Mb/s
 	/** Default transmission strength (units: dBm). */
 	public static final double TRANSMIT_DEFAULT = 15.0;
 	/** Default antenna gain (units: dB). */
@@ -313,7 +318,7 @@ public final class Constants {
 	public static final short NET_PROTOCOL_GLS_GPSR = 887; // T-ODO non-standard
 	/** network level (IP) protocol number. */
 	public static final short NET_PROTOCOL_GLS_GPSR_old = 886; // T-ODO
-																// non-standard
+	// non-standard
 
 	public static final short NET_PROTOCOL_GM = 777; // T-ODO non-standard
 	/** network level (IP) protocol number. */
@@ -337,7 +342,7 @@ public final class Constants {
 	public static final short NET_PROTOCOL_NO_NEXT_HEADER = 59;
 	/** network level (IP) protocol number. */
 	public static final short NET_PROTOCOL_HEARTBEAT = 500; // rimtodo:
-															// non-standard
+	// non-standard
 	/** network protocol number for network table traffic */
 	public static final short NET_PROTOCOL_NT = 502;
 	/** network protocol number for VFN traffic */
@@ -477,7 +482,7 @@ public final class Constants {
 
 			String filename = JistExperiment.getJistExperiment()
 					.getResultsPath();// System.getProperty("user.home") +
-										// "/Desktop/" +"VLCMeasureData.csv";
+			// "/Desktop/" +"VLCMeasureData.csv";
 
 			int t0 = 0;
 			int t1 = 0;
@@ -503,15 +508,25 @@ public final class Constants {
 			int t90 = 0;
 			int t92 = 0;
 			int t93 = 0;
-			long time1 = 0;
-			long sumt5t1 = 0;
-			long lastTime = 0;
-			
+			float time1 = 0;
+			float sumt5t1 = 0;
+			float lastTime = 0;
+
 			boolean has14 = false;
 			boolean has31 = false;
 			boolean has3 = false;
 
+
+			String mydata = null;
+			String poruka = "mac-vlc-intel-ntu-foi";
+			//		try {
+
+			/*	mydata = java.util.Arrays.copyOf(poruka.getBytes("UTF-8"), JistExperiment.getJistExperiment().cbrPacketSize);
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}*/
 			PrintWriter writer;
+			//BigInteger ss;
 			try {
 				writer = new PrintWriter(filename, "UTF-8");
 				// header
@@ -529,8 +544,16 @@ public final class Constants {
 							break;
 						}
 						case 1: {
-							time1 = time.Time;
-							t1++;
+							if(item.getPayload() instanceof UdpMessage && (((UdpMessage) item.getPayload()).getPayload()) instanceof MessageBytes)
+							{
+								mydata = new String(((MessageBytes)((UdpMessage) item.getPayload()).getPayload()).getBytes(),"UTF-8");
+								mydata =mydata.trim();
+								if(mydata.equals(poruka))
+								{
+									time1 = time.Time;
+									t1++;
+								}
+							}
 							break;
 						}
 						case 11: {
@@ -542,7 +565,15 @@ public final class Constants {
 							break;
 						}
 						case 13: {
-							t13++;
+							if(item.getPayload() instanceof UdpMessage && (((UdpMessage) item.getPayload()).getPayload()) instanceof MessageBytes)
+							{
+								mydata = new String(((MessageBytes)((UdpMessage) item.getPayload()).getPayload()).getBytes(),"UTF-8");
+								mydata =mydata.trim();
+								if(mydata.equals(poruka))
+								{
+									t13++;
+								}
+							}
 							break;
 						}
 						case 14: {
@@ -581,10 +612,19 @@ public final class Constants {
 							break;
 						}
 						case 31: {
-							if (!has31) {
-								has31 = true;
-								t31++;
-								lastTime = time.Time;
+							if(item.getPayload() instanceof UdpMessage && (((UdpMessage) item.getPayload()).getPayload()) instanceof MessageBytes)
+							{
+								mydata = new String(((MessageBytes)((UdpMessage) item.getPayload()).getPayload()).getBytes(),"UTF-8");
+
+								mydata =mydata.trim();
+								if(mydata.equals(poruka))
+								{
+									if (!has31) {
+										has31 = true;
+										t31++;
+										lastTime = time.Time;
+									}
+								}
 							}
 							break;
 						}
@@ -597,8 +637,13 @@ public final class Constants {
 							break;
 						}
 						case 5: {
+							//	if(item.getPayload() instanceof UdpMessage && (((UdpMessage) item.getPayload()).getPayload()) instanceof MessageBytes)
+							//	{
+							//		if(((MessageBytes)((UdpMessage) item.getPayload()).getPayload()).getBytes() == mydata)
+							//			{
 							t5++;
-
+							//			}
+							//			}
 							break;
 						}
 						case 6: {
@@ -645,52 +690,64 @@ public final class Constants {
 						prevtimeid = time.TimeID;
 						res += ";" + time.TimeID + " - " + time.Time;
 					}//for
-					sumt5t1 += (lastTime - time1);
+					if(item.getPayload() instanceof UdpMessage && (((UdpMessage) item.getPayload()).getPayload()) instanceof MessageBytes)
+					{
+						mydata = new String(((MessageBytes)((UdpMessage) item.getPayload()).getPayload()).getBytes(),"UTF-8");
+
+						mydata =mydata.trim();
+						if(mydata.equals(poruka))
+						{
+							sumt5t1 += (lastTime - time1)/1000;
+						}
+					}
 					res += "\n";
 					writer.write(res);
-				}
+				}//for
 				writer.close();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
+			finally
+			{
+
+			}
 
 			System.out.println();
 
 			return "-----VLC data-----" + "\n" + "MAC implementation = "
-					+ MACimplementationUsed
-					+ "\n"
-					+
-					// "Broadcasts = " + broadcasts + "\n"+
-					"MAC PDR +broadcast = "
-					+ 100 * ((float) t3 / (float) t1)
-					+ "%\n"
-					+ "MAC PDR -broadcast = "
-					+ 100 * ((float) t31 / (float) t13)
-					+ "%\n"
-					+ "MAC avg(t5-t1) = "
-					+ ((float) sumt5t1 / (float) t31) / 1000000
-					+ "ms \n"
-					+ // ns to ms
-					"MAC count(T0) = " + t0 + "\n" + "MAC count(T1) = " + t1
-					+ "\n" + "MAC count(T11) = " + t11 + "\n"
-					+ "MAC count(T12) = " + t12 + "\n" + "MAC count(T13) = "
-					+ t13 + "\n" + "MAC count(T14) = " + t14 + "\n"
-					+ "MAC count(T2) = " + t2 + "\n" + "MAC count(T21) = "
-					+ t21 + "\n" + "MAC count(T250) = " + t250 + "\n"
-					+ "MAC count(T251) = " + t251 + "\n" + "MAC count(T252) = "
-					+ t252 + "\n" + "MAC count(T3) = " + t3 + "\n"
-					+ "MAC count(T31) = " + t31 + "\n" + "MAC count(T4) = "
-					+ t4 + "\n" + "MAC count(T41) = " + t41 + "\n"
-					+ "MAC count(T5) = " + t5 + "\n" + "MAC count(T6) = " + t6
-					+ "\n" + "MAC count(T70) = " + t70 + "\n"
-					+ "MAC count(T81) = " + t81 + "\n" + "MAC count(T82) = "
-					+ t82 + "\n" + "MAC count(T84) = " + t84 + "\n"
-					+ "MAC count(T90) = " + t90 + "\n" + "MAC count(T92) = "
-					+ t92 + "\n" + "MAC count(T93) = " + t93 + "\n"
-					+ "-----VLC data-----" + "\n";
-
-		}
-	}
-} // class: Constants
+			+ MACimplementationUsed
+			+ "\n"
+			+
+			// "Broadcasts = " + broadcasts + "\n"+
+			"MAC PDR +broadcast = "
+			+ 100 * ((float) t3 / (float) t1)
+			+ "%\n"
+			+ "MAC PDR -broadcast = "
+			+ 100 * ((float) t31 / (float) t13)
+			+ "%\n"
+			+ "MAC avg delay = "
+			+ ((float) sumt5t1 / (float) t31) / 1000
+			+ "ms \n"
+			+ // ns to ms
+			"MAC count(T0) = " + t0 + "\n" + "MAC count(T1) = " + t1
+			+ "\n" + "MAC count(T11) = " + t11 + "\n"
+			+ "MAC count(T12) = " + t12 + "\n" + "MAC count(T13) = "
+			+ t13 + "\n" + "MAC count(T14) = " + t14 + "\n"
+			+ "MAC count(T2) = " + t2 + "\n" + "MAC count(T21) = "
+			+ t21 + "\n" + "MAC count(T250) = " + t250 + "\n"
+			+ "MAC count(T251) = " + t251 + "\n" + "MAC count(T252) = "
+			+ t252 + "\n" + "MAC count(T3) = " + t3 + "\n"
+			+ "MAC count(T31) = " + t31 + "\n" + "MAC count(T4) = "
+			+ t4 + "\n" + "MAC count(T41) = " + t41 + "\n"
+			+ "MAC count(T5) = " + t5 + "\n" + "MAC count(T6) = " + t6
+			+ "\n" + "MAC count(T70) = " + t70 + "\n"
+			+ "MAC count(T81) = " + t81 + "\n" + "MAC count(T82) = "
+			+ t82 + "\n" + "MAC count(T84) = " + t84 + "\n"
+			+ "MAC count(T90) = " + t90 + "\n" + "MAC count(T92) = "
+			+ t92 + "\n" + "MAC count(T93) = " + t93 + "\n"
+			+ "-----VLC data-----" + "\n";
+		}//print data
+	} // class: vlc Constants
+}//constants

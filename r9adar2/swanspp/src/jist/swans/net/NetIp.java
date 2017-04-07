@@ -127,7 +127,7 @@ public class NetIp implements NetInterface
 	/**
 	 * Packet fragmentation threshold.
 	 */
-	public static final int THRESHOLD_FRAGMENT = 2048;
+	public static final int THRESHOLD_FRAGMENT = 222048;//default je 2048
 
 	/**
 	 * Maximum packet queue length.

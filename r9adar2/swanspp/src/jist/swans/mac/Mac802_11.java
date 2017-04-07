@@ -145,7 +145,7 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 	 * Threshold packet size for fragmentation. Default=2346. Broadcast packets
 	 * are not fragmented.
 	 */
-	public static final int THRESHOLD_FRAGMENT = 2346;
+	public static final int THRESHOLD_FRAGMENT = 2222346;
 
 	/** Retransmissions attempted for short packets (those without RTS). */
 	public static final byte RETRY_LIMIT_SHORT = 7;
@@ -1453,28 +1453,34 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 		return localAddr.toString();
 	}
 
-	@Override
-	public void notifyInterference(MacMessage msg, VLCsensor sensors) {
-		// T-ODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void notifyError(int errorCode, String message) {
-		// T-ODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void notifyTransmitFail(Message msg, int errorCode) {
-		// T-ODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void notifyReceiveFail(Message msg, int errorCode) {
-		// T-ODO Auto-generated method stub
-
-	}
+	 MacVLCMessage tmpmsg;
+	    public void notifyInterference(MacMessage msg, VLCsensor sensors) 
+	    {
+	        ((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(90, "macinterference", null));        
+	        System.out.println("interference on node: " + sensors.node.NodeID +" sensor: " + sensors.sensorID + " msg hsh: "+ msg.hashCode());
+	      
+	    }
+	 
+	    public void notifyError(int errorCode, String message) 
+	    {
+	        //  ((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(91, "macinterference", null));
+	        System.out.println("notfiy error #"+errorCode);
+	    }
+	 
+	    public void notifyTransmitFail(Message msg, int errorCode) 
+	    {
+	        netEntity.packetDropped(msg, packetNextHop);
+	        ((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(92, "macinterference", null));
+	        System.out.println("transmit fail error #"+errorCode);
+	    }
+	 
+	    public void notifyReceiveFail(Message msg, int errorCode) 
+	    {
+	        //receive fail se desi odmah na pocetku primanja dok interfere na kraju, ne mora znaciti da ce svaki receive fail
+	        //rezultirati sa interference, jer moze biti da poruka ipak bude primljena ako je rx pwr dovoljno veliki
+	 
+	        ((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(93, "macinterference", null));
+	        System.out.println("recFail #"+errorCode +" n: "+myRadio.NodeID+ " s: "+((MacVLCMessage)msg).getSrc()+" d: "+((MacVLCMessage)msg).getDst()+" msg hsh: "+msg.hashCode()); 
+	    }
 }
 
