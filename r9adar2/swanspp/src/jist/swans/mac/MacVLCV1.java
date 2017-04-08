@@ -660,8 +660,10 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     private boolean canSendMessage(MacVLCMessage msg,boolean fixTx, QueueStrategies strategy)
     {
         tmpSensorsTx = new HashSet<Integer>();
+        boolean returnMe = true;
         if(!fixTx)
         {
+        	//no fix
             if(strategy == QueueStrategies.Reliable)
             {
             	//čekaj da svi budu slobodni za slanje.
@@ -673,6 +675,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
                     }
                 }
             }
+            returnMe = true;
             for (Integer item : msg.getSensorIDTx(myRadio.NodeID))//.SensorIDTx) 
             {
                 if(myRadio.GetSensorByID(item).state == SensorStates.Idle)
@@ -695,24 +698,26 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
                             	//request by mate :)
                                 if(myRadio.InstalledSensorsTx.size() == msg.getSensorIDTxSize(myRadio.NodeID))
                                 {
-                                    return true;
+                                  //  return true;
                                 }
                                 else
                                 {
+                               // 	msg.DecrementPriority();
                                     return false;
                                 }
                             }
-                            return true;
+                        //    return true;
                         }
                     }
                 }
             }
-            return false;
+            return returnMe;
+            //return false;
         }   
         else
         {
             //fix = true
- 
+        	returnMe = true;
             for (Integer item : msg.getSensorIDTx(myRadio.NodeID))//.SensorIDTx)
             {
                 tmpSensorTx =myRadio.GetSensorByID(item);
@@ -736,14 +741,15 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
             msg.setSensorIDTx(tmpSensorsTx, myRadio.NodeID);
             if(msg.getSensorIDTxSize(myRadio.NodeID) != 0)
             {
-                return true;
+             //   return true;
             }
             else
             {
                 //System.out.println("neva3 "+ msg.hashCode());
-                return false;
+                returnMe = false;
             }
         }
+        return returnMe;
     }
  
     private long tmpDelay;
@@ -860,12 +866,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         {
             ((NetMessage.Ip)msg).Times.add(new TimeEntry(1, "macbt", null));
             ((NetMessage.Ip)msg).isFresh = false;
-         //   dodao sam ovo jer 13 koristim za racunjanje broadcastova a ovdje pretpostavljam da se nikada ne napise 13.
-            if(nextHop != MacAddress.ANY &&nextHop != MacAddress.LOOP)
-            {
-                ((NetMessage.Ip)msg).Times.add(new TimeEntry(13, "mac send dest", null));
-            }
- 
+
             if (!MessageQueue.isEmpty()) 
             {
                 //ako je poruka nova, a red nije prazan odmah ju dodajem u red bez provjera mogucnosti slanja, jer inace red ne bi bio pun.
@@ -874,6 +875,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
                 if(!TimerRunning)
                 {
                     TimerRunning = true;
+                    transmitDelay = getMessageEndTimeForSensors(myRadio.InstalledSensorsTx, true);//-JistAPI.getTime();
                     self.startTimer(transmitDelay, (byte)1);
                 }
                 return;

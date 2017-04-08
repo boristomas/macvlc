@@ -1081,14 +1081,18 @@ public final class RadioVLC extends RadioNoise
 			if(mode == Constants.RADIO_MODE_RECEIVING) 
 			{
 				//System.out.println("radio receiving, can't transmit at the same time");
-				//		return;//dodao jer mislim da radio ne bi trebao slati poruku ako ju vec prima, ali samo za ne vlc mac
+				//		return;
+				//dodao jer mislim da radio ne bi trebao slati poruku ako ju vec prima, ali samo za ne vlc mac
 			}
 			signalBufferTx = null;
 		}
 		UpdateNodeShape(false);
 		
 		// use default delay, if necessary
-		if(delay==Constants.RADIO_NOUSER_DELAY) delay = Constants.RADIO_PHY_DELAY;
+		if(delay==Constants.RADIO_NOUSER_DELAY)
+			{
+			delay = Constants.RADIO_PHY_DELAY;
+			}
 		// set mode to transmitting
 		setMode(Constants.RADIO_MODE_TRANSMITTING);
 
