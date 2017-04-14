@@ -83,7 +83,7 @@
     <!--  node options  -->
 
     <void property="sendRate">
-      <double>0.01</double>
+      <double>1.0</double>
     </void>
     <!--  placement options  -->
     <void property="placement">

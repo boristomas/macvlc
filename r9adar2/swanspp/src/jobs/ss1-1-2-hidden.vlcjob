@@ -115,7 +115,7 @@
       <int>3</int>
     </void>
     <void property="MACProtocol">
-      <string>MAC_802_11</string>
+      <string>MAC_VLC_V1</string>
     </void>
     <void property="MeasurementMode">
       <boolean>true</boolean>
