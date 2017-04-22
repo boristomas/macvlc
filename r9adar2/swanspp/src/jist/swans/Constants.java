@@ -515,7 +515,7 @@ public final class Constants {
 			boolean has14 = false;
 			boolean has31 = false;
 			boolean has3 = false;
-
+			boolean has1 = false;
 
 			String mydata = null;
 			String poruka = "mac-vlc-intel-ntu-foi";
@@ -537,6 +537,7 @@ public final class Constants {
 							+ item.getSrc() + ";" + item.getDst();
 					has14 = false;
 					has31 = false;
+					has1 = false;
 					for (TimeEntry time : item.Times) {
 						switch (time.TimeID) {
 						case 0: {
@@ -550,8 +551,12 @@ public final class Constants {
 								mydata =mydata.trim();
 								if(mydata.equals(poruka))
 								{
-									time1 = time.Time;
-									t1++;
+									if(!has1)
+									{
+										has1= true;
+										time1 = time.Time;
+										t1++;
+									}
 								}
 							}
 							break;

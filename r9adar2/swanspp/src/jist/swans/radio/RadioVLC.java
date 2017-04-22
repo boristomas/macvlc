@@ -879,7 +879,7 @@ public final class RadioVLC extends RadioNoise
 							{
 								//ok je poruka se moze primiti
 								((NetMessage.Ip)(((MacVLCMessage)msg1).getBody())).Times.add(new TimeEntry(252, "macbtrec", null));
-								printMessageTransmissionData(msg1, 0, "r");
+								printMessageTransmissionData(msg1, 0, "r","");
 
 								if(msgcounter == 0)
 								{
@@ -918,7 +918,7 @@ public final class RadioVLC extends RadioNoise
 			{
 				if(signalBufferRx!=null && JistAPI.getTime()==signalFinish)
 				{
-					printMessageTransmissionData(signalBufferRx, 0, "r");
+					printMessageTransmissionData(signalBufferRx, 0, "r","");
 					((MacInterface.Mac802_11)this.macEntity).receive(signalBufferRx);
 					unlockSignal();
 				}
@@ -1109,13 +1109,13 @@ public final class RadioVLC extends RadioNoise
 		}
 		// schedule message propagation delay
 		JistAPI.sleep(delay);
-		printMessageTransmissionData(msg,duration, "t");
+		printMessageTransmissionData(msg,duration, "t","");
 		fieldEntity.transmit(radioInfo, msg, duration);
 		// schedule end of transmission
 		JistAPI.sleep(duration);
 		self.endTransmit();
 	}
-	public void printMessageTransmissionData(Message msg, long duration, String prefix)
+	public void printMessageTransmissionData(Message msg, long duration, String prefix, String extraData)
 	{
 		if(JobConfigurator.DoMessageOutput)
 		{
@@ -1131,11 +1131,11 @@ public final class RadioVLC extends RadioNoise
 			}
 			if(isVLC)
 			{
-				System.out.println(prefix + " - n: "+NodeID+ "\tm: "+JistAPI.getTime()+"\ts: "+((MacVLCMessage)msg).getSrc()+ "("+aa+") \t\td: "+((MacVLCMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmid: " + msg.getMessageID() + "\tdecoded: "+tryDecodePayload(msg) );
+				System.out.println(prefix + " - n: "+NodeID+ "\tex:" + extraData + "\tm: "+JistAPI.getTime()+"\ts: "+((MacVLCMessage)msg).getSrc()+ "("+aa+") \t\td: "+((MacVLCMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmid: " + msg.getMessageID() + "\tdecoded: "+tryDecodePayload(msg) );
 			}
 			else
 			{
-				System.out.println(prefix + " - n: "+NodeID+ "\tm: "+JistAPI.getTime()+"\ts: "+((MacMessage)msg).getSrc()+ "("+aa+") \t\td: "+((MacMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmid: " + msg.getMessageID() + "\tdecoded: "+tryDecodePayload(msg));
+				System.out.println(prefix + " - n: "+NodeID+ "\tex: "+ extraData + "\tm:" +JistAPI.getTime()+"\ts: "+((MacMessage)msg).getSrc()+ "("+aa+") \t\td: "+((MacMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmid: " + msg.getMessageID() + "\tdecoded: "+tryDecodePayload(msg));
 			}
 		}
 	}

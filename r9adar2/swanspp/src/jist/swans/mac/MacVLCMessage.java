@@ -43,6 +43,16 @@ public  class MacVLCMessage extends MacMessage
     {
         return ID;
     }
+    private boolean wasInQueue = false;
+    
+    public void SetWasInQueue(boolean value)
+    {
+    	wasInQueue = value;
+    }
+    public boolean GetWasInQueue()
+    {
+    	return wasInQueue;
+    }
  
     private byte priority;
     /**
@@ -85,6 +95,7 @@ public  class MacVLCMessage extends MacMessage
             this.priority--;
         }       
     }
+    
  
     //sensor control
     private java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>> SensorIDTx = new java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>>();
