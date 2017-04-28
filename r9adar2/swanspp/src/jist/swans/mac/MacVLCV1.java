@@ -262,7 +262,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         }
     }
     // MacInterface.Mac802_11 interface
-    public void cfDone(boolean backoff, boolean delPacket)
+  /*  public void cfDone(boolean backoff, boolean delPacket)
     {
         if(backoff)
         {
@@ -275,7 +275,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
             packetNextHop = null;
             netEntity.pump(netId);
         }
-    }
+    }*/
  
     //////////////////////////////////////////////////
     // locals
@@ -698,10 +698,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
                 {
                     for (VLCsensor sensor : myRadio.getNearestOpositeSensor(myRadio.GetSensorByID(item))) 
                     {
-                        /*      if(!myRadio.CarrierSense(sensor))
-                        {
-                            return false;
-                        }*/
+                             
                         if(myRadio.queryControlSignal(sensor, 1))
                         {
                             return false;
@@ -830,12 +827,12 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         }
         if(isMin)
         {
-            //  minDelay = Constants.MILLI_SECOND;
-            return minDelay;
+            //  minDelay = Constants.MICRO_SECOND*1;
+            return minDelay;// - (Constants.MILLI_SECOND*1);
         }
         else
         {       
-            return maxDelay;
+            return maxDelay;//- (Constants.MILLI_SECOND*1);
         }
     }
     private MacVLCMessage tmpMsg;
@@ -925,6 +922,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
             {
                 ((NetMessage.Ip)msg).Times.add(new TimeEntry(11, "macbt", null));
                 sendMessage(data);
+                
             }
             else
             {
@@ -981,8 +979,9 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
                 tmpmsg1.setSensorIDTx(GetTransmitSensors(tmpmsg1.getDst()), myRadio.NodeID);
  
  
-                if(canSendMessage(tmpmsg1, true, QueueStrategy))
+                if(canSendMessage(tmpmsg1, true, QueueStrategy))//true
                 {
+                	//provjeravam can send prije 
                     sendMacMessage(tmpmsg1.getBody(), tmpmsg1.getDst(), tmpmsg1);
                     break;
                 }

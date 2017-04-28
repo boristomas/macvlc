@@ -508,9 +508,9 @@ public final class Constants {
 			int t90 = 0;
 			int t92 = 0;
 			int t93 = 0;
-			float time1 = 0;
-			float sumt5t1 = 0;
-			float lastTime = 0;
+			double time1 = 0;
+			double sumt5t1 = 0;
+			double lastTime = 0;
 
 			boolean has14 = false;
 			boolean has31 = false;
@@ -694,15 +694,18 @@ public final class Constants {
 						}
 						prevtimeid = time.TimeID;
 						res += ";" + time.TimeID + " - " + time.Time;
-					}//for
-					if(item.getPayload() instanceof UdpMessage && (((UdpMessage) item.getPayload()).getPayload()) instanceof MessageBytes)
+					}//for time entry per message
+					if(has1 && has31)
 					{
-						mydata = new String(((MessageBytes)((UdpMessage) item.getPayload()).getPayload()).getBytes(),"UTF-8");
-
-						mydata =mydata.trim();
-						if(mydata.equals(poruka))
+						if(item.getPayload() instanceof UdpMessage && (((UdpMessage) item.getPayload()).getPayload()) instanceof MessageBytes)
 						{
-							sumt5t1 += (lastTime - time1)/1000;
+							mydata = new String(((MessageBytes)((UdpMessage) item.getPayload()).getPayload()).getBytes(),"UTF-8");
+	
+							mydata =mydata.trim();
+							if(mydata.equals(poruka))
+							{
+								sumt5t1 += (lastTime - time1)/1000;
+							}
 						}
 					}
 					res += "\n";
@@ -733,7 +736,7 @@ public final class Constants {
 			+ 100 * ((float) t31 / (float) t13)
 			+ "%\n"
 			+ "MAC avg delay = "
-			+ ((float) sumt5t1 / (float) t31) / 1000
+			+ ((double) sumt5t1 / (double) t31) / 1000
 			+ "ms \n"
 			+ // ns to ms
 			"MAC count(T0) = " + t0 + "\n" + "MAC count(T1) = " + t1

@@ -10,7 +10,7 @@
   <object class="driver.JistExperiment">
     <!--  timing  -->
     <void property="duration">
-      <int>180</int>
+      <int>18</int>
     </void>
     <void property="resolutionTime">
       <int>600</int>
