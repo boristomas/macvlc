@@ -607,7 +607,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     {
         setMode(MAC_MODE_XBROADCAST);
      
-        long delay =10+ Util.randomTime(10*Constants.MICRO_SECOND); //RX_TX_TURNAROUND;// not needed because Tx and Rx are independent
+        long delay =0;//10+ Util.randomTime(10*Constants.MICRO_SECOND); //RX_TX_TURNAROUND;// not needed because Tx and Rx are independent
       //  long delay2 =Util.randomTime(50*Constants.MILLI_SECOND); //RX_TX_TURNAROUND;// not needed because Tx and Rx are independent
         long duration = transmitTime(msg);
  
@@ -844,6 +844,8 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
      * */
     private void sendMacMessage(Message msg, MacAddress nextHop, MacVLCMessage message)
     {
+    	JistAPI.sleep(Util.randomTime(Constants.MICRO_SECOND*20));//TU sam stao
+    	
         if(nextHop == MacAddress.ANY)
         {
             Constants.VLCconstants.broadcasts++;
