@@ -135,6 +135,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         if(DSSS) SLOT_TIME = 20*Constants.MICRO_SECOND;
         if(FHSS) SLOT_TIME = 50*Constants.MICRO_SECOND;
     }
+    
  
     /**
      * Short interframe space. Minimum wait time between two frames in the same
@@ -365,6 +366,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
  
     private double airTime;
     public RadioVLC myRadio = null;
+    public int successfulSend = 0;
  
     // stats
     /** collects network stats */
@@ -611,7 +613,8 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
       //  long delay2 =Util.randomTime(50*Constants.MILLI_SECOND); //RX_TX_TURNAROUND;// not needed because Tx and Rx are independent
         long duration = transmitTime(msg);
  
-        transmitDelayMultiplier = 1;
+        transmitMinDelayMultiplier = 1;
+        transmitMaxDelayMultiplier = 1;
  
         radioEntity.transmit(msg, delay, duration);
         JistAPI.sleep(delay+duration);
@@ -657,7 +660,6 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         if(msg.GetWasInQueue())
         {
         	msg.IncrementPriority();
-        	msg.IncrementPriority();
         }
         else
         {
@@ -679,6 +681,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         boolean returnMe = true;
         if(!fixTx)
         {
+        	treba vidjeti zasto mac salje na tx ako je vec transmitting.
         	//no fix
             if(strategy == QueueStrategies.Reliable)
             {
@@ -795,6 +798,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
             if(tmpSensor2.state == SensorStates.Transmitting)
             {
                 tmpDelay = tmpSensor2.Messages.getFirst().getDurationTx(tmpSensor2);//.DurationTx;
+         //       tmpDelay = tmpSensor2.Messages.getLast().getDurationTx(tmpSensor2);//.DurationTx;
  
                 if(isMin)
                 {
@@ -816,14 +820,16 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         if(minDelay == Constants.DAY)
         {
             //TODO: pitati matu jel dobro ovako dinamicno mijenjanje vrijeme cekanja na provjeru kanala opet?, ovo bi trebao biti backoff
-            transmitDelayMultiplier++;
-            minDelay = Constants.MILLI_SECOND*2*transmitDelayMultiplier;
+        	//transmitDelayMultiplier++;
+        	transmitMinDelayMultiplier++;
+           
+            minDelay = Constants.MICRO_SECOND*50*transmitMinDelayMultiplier;
             //  System.out.println("delay" + myRadio.NodeID + " -- "+ minDelay);
         }
         if(maxDelay == 0)
         {
-            transmitDelayMultiplier++;
-            maxDelay = Constants.MILLI_SECOND*20*transmitDelayMultiplier;
+            transmitMaxDelayMultiplier++;
+            maxDelay = Constants.MILLI_SECOND*20*transmitMaxDelayMultiplier;
         }
         if(isMin)
         {
@@ -837,15 +843,18 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     }
     private MacVLCMessage tmpMsg;
     private long transmitDelay; 
-    private int transmitDelayMultiplier= 1;
+    private int transmitMinDelayMultiplier= 1;
+    private int transmitMaxDelayMultiplier= 1;
     /*
      * message is null if message is passed from upper layer, it has specific value when it is restored
      * from timeout. msg is message.getbody().
      * */
     private void sendMacMessage(Message msg, MacAddress nextHop, MacVLCMessage message)
     {
-    	JistAPI.sleep(Util.randomTime(Constants.MICRO_SECOND*20));//TU sam stao
-    	
+    	if(successfulSend > 0 )
+    	{
+    		JistAPI.sleep(Util.randomTime(Constants.MICRO_SECOND*2000));
+    	}
         if(nextHop == MacAddress.ANY)
         {
             Constants.VLCconstants.broadcasts++;
@@ -887,8 +896,9 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
             ((NetMessage.Ip)msg).Times.add(new TimeEntry(1, "macbt", null));
             ((NetMessage.Ip)msg).isFresh = false;
 
-            if (!MessageQueue.isEmpty()) 
+            if (!MessageQueue.isEmpty())
             {
+            	successfulSend = 0;
                 //ako je poruka nova, a red nije prazan odmah ju dodajem u red bez provjera mogucnosti slanja, jer inace red ne bi bio pun.
                 ((NetMessage.Ip)msg).Times.add(new TimeEntry(12, "macbt", null));
                 QueueInsert(data, false);
@@ -923,12 +933,14 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
             if(canSendMessage(data, false, QueueStrategy))//mora biti false, inace bi se poruka slala na tx koji su slobodni ali nisu u smjeru primatelja.
             {
                 ((NetMessage.Ip)msg).Times.add(new TimeEntry(11, "macbt", null));
+                successfulSend++;
                 sendMessage(data);
                 
             }
             else
             {
                 ((NetMessage.Ip)msg).Times.add(new TimeEntry(12, "macbt", null));
+                successfulSend=0;
                 QueueInsert(data, false);
                 if(!TimerRunning)
                 {
