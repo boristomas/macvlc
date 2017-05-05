@@ -10,13 +10,13 @@
   <object class="driver.JistExperiment">
     <!--  timing  -->
     <void property="duration">
-      <int>180</int>
+      <int>18</int>
     </void>
     <void property="resolutionTime">
       <int>600</int>
     </void>
     <void property="startTime">
-      <int>60</int>
+      <int>1</int>
     </void>
     <!--  environment  -->
     <void property="exponent">
@@ -104,7 +104,7 @@
       <string>D:\AeroFS\FOIPosao\Znanstveni rad\!thesis\phd\apps\jistWrap\jistWrapWPF\bin\Debug\results\r57a3e7e1-0f79-45ba-82b0-9f01aa4fc73e.csv</string>
     </void>
     <void property="cbrRate">
-      <int>125000</int>
+      <int>2048</int>
     </void>
     	 <void property="cbrPacketSize">
       <int>1024</int>
@@ -113,10 +113,10 @@
       <int>4</int>
     </void>
     <void property="transmitters">
-      <int>1</int>
+      <int>4</int>
     </void>
     <void property="MACProtocol">
-      <string>MAC_802_11</string>
+      <string>MAC_VLC_V1</string>
     </void>
     <void property="MeasurementMode">
       <boolean>true</boolean>
