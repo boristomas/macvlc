@@ -626,6 +626,10 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         @Override
         public int compare(MacVLCMessage m1, MacVLCMessage m2)
         {
+        	if(m1.GetPriority() == m2.GetPriority()  )
+        	{
+        		return (m1.CreateTime > m2.CreateTime)? 1: -1;
+        	}
             return (m1.GetPriority() < m2.GetPriority()? 1 : -1);
         }
     };
@@ -647,22 +651,23 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
                     return;
                 }
             }
-            msg.DecrementPriority();
+    //        msg.DecrementPriority();
         }
         
         if(!msg.isRetry)
         {
             for (MacVLCMessage item : MessageQueue)
             {
-                item.IncrementPriority();
+              //  item.IncrementPriority();
             }
         }
         if(msg.GetWasInQueue())
         {
-        	msg.IncrementPriority();
+        	
         }
         else
         {
+        	msg.IncrementPriority();
         	msg.SetWasInQueue(true);
         }
         MessageQueue.add(msg);      
@@ -1014,7 +1019,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
                 }
                 else
                 {
-                    tmpmsg1.IncrementPriority();
+                  //  tmpmsg1.IncrementPriority();
                     QueueInsert(tmpmsg1, true);
                 }
             } while(MessageQueue.peek() != first);

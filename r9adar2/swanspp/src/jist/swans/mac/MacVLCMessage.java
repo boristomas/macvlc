@@ -39,6 +39,7 @@ public  class MacVLCMessage extends MacMessage
     //TODO: vidjeti treba li trackati i start i end time u poruci za pojedine cvorove
     //Ne treba jer je cvor id vidljiv iz objekta klase senzor.
  
+	public long CreateTime = 0;
     public String getMessageID()
     {
         return ID;
@@ -440,6 +441,7 @@ public  class MacVLCMessage extends MacMessage
         this.priority = prior;
         this.isRetry = false;
         this.isEncrypted = isencrypted;
+        this.CreateTime = JistAPI.getTime();
          
         this.body = body;
         this.ID = UUID.randomUUID().toString().replaceAll("-", "");
