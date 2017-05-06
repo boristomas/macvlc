@@ -639,7 +639,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     }
     private void QueueInsert(MacVLCMessage msg, boolean skipSort)
     {
-        myRadio.printMessageTransmissionData(msg, 0, "q", String.valueOf( MessageQueue.size()));
+  //////////      myRadio.printMessageTransmissionData(msg, 0, "q", String.valueOf( MessageQueue.size()));
         
         if(msg.isRetry)
         {
@@ -1249,7 +1249,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     public void notifyInterference(MacMessage msg, VLCsensor sensors) 
     {
         ((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(90, "macinterference", null));        
-        System.out.println("interference on node: " + sensors.node.NodeID +" sensor: " + sensors.sensorID + " msg hsh: "+ msg.hashCode());
+        System.out.println("interference on node: " + sensors.node.NodeID +" sensor: " + sensors.sensorID + " msg id: "+ ((MacVLCMessage) msg).ID);
         interferedSensor = sensors;
         for (VLCsensor sensor : myRadio.getNearestOpositeSensor(sensors)) 
         {
@@ -1273,7 +1273,8 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     {
         netEntity.packetDropped(msg, packetNextHop);
         ((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(92, "macinterference", null));
-        System.out.println("transmit fail error #"+errorCode);
+        System.out.println("transmit fail on node: " + myRadio.NodeID + "#error code "+ errorCode+ " msg id: "+ ((MacVLCMessage) msg).ID);
+        
     }
  
     public void notifyReceiveFail(Message msg, int errorCode) 
@@ -1282,6 +1283,6 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         //rezultirati sa interference, jer moze biti da poruka ipak bude primljena ako je rx pwr dovoljno veliki
  
         ((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(93, "macinterference", null));
-        System.out.println("recFail #"+errorCode +" n: "+myRadio.NodeID+ " s: "+((MacVLCMessage)msg).getSrc()+" d: "+((MacVLCMessage)msg).getDst()+" msg hsh: "+msg.hashCode()); 
+        System.out.println("recFail #"+errorCode +" n: "+myRadio.NodeID+ " s: "+((MacVLCMessage)msg).getSrc()+" d: "+((MacVLCMessage)msg).getDst()+" msg id: "+ ((MacVLCMessage) msg).ID); 
     }
 }

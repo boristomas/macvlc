@@ -1131,11 +1131,11 @@ public final class RadioVLC extends RadioNoise
 			}
 			if(isVLC)
 			{
-				System.out.println(prefix + " - n: "+NodeID+ "\tex:" + extraData + "\tm: "+JistAPI.getTime()+"\ts: "+((MacVLCMessage)msg).getSrc()+ "("+aa+") \t\td: "+((MacVLCMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmid: " + msg.getMessageID() + "\tdecoded: "+tryDecodePayload(msg) );
+				System.out.println(prefix + " - n: "+NodeID+ "\tex:" + extraData + "\tt: "+JistAPI.getTime()+"\ts: "+((MacVLCMessage)msg).getSrc()+ "("+aa+") \t\td: "+((MacVLCMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmid: " + msg.getMessageID() + "\tdecoded: "+tryDecodePayload(msg) );
 			}
 			else
 			{
-				System.out.println(prefix + " - n: "+NodeID+ "\tex: "+ extraData + "\tm:" +JistAPI.getTime()+"\ts: "+((MacMessage)msg).getSrc()+ "("+aa+") \t\td: "+((MacMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmid: " + msg.getMessageID() + "\tdecoded: "+tryDecodePayload(msg));
+				System.out.println(prefix + " - n: "+NodeID+ "\tex: "+ extraData + "\tt:" +JistAPI.getTime()+"\ts: "+((MacMessage)msg).getSrc()+ "("+aa+") \t\td: "+((MacMessage)msg).getDst() +"("+bb+") end: "+(duration+getSimulationTime()) + "\tmid: " + msg.getMessageID() + "\tdecoded: "+tryDecodePayload(msg));
 			}
 		}
 	}
