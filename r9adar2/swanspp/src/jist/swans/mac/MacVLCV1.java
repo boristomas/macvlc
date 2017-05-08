@@ -615,7 +615,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
  
         transmitMinDelayMultiplier = 1;
         transmitMaxDelayMultiplier = 1;
- 
+      
         radioEntity.transmit(msg, delay, duration);
         JistAPI.sleep(delay+duration);
        // JistAPI.sleep(delay2);

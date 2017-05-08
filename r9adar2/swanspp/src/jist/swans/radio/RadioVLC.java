@@ -1139,7 +1139,7 @@ public final class RadioVLC extends RadioNoise
 			}
 		}
 	}
-	private String tryDecodePayload(Message msg)
+	  String tryDecodePayload(Message msg)
 	{
 		String decoded = "empty";
 		try {
