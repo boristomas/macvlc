@@ -21,6 +21,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.python.modules.operator;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import com.sun.corba.se.spi.orbutil.fsm.State;
 
 import jist.runtime.JistAPI;
@@ -37,6 +39,7 @@ import jist.swans.radio.RadioInterface;
 import jist.swans.radio.RadioVLC;
 import jist.swans.radio.TimeEntry;
 import jist.swans.radio.VLCsensor;
+import jist.swans.radio.VLCsensor.SensorModes;
 import jist.swans.radio.VLCsensor.SensorStates;
 import jobs.JobConfigurator;
 import driver.JistExperiment;
@@ -608,6 +611,28 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     private void sendMessage(MacVLCMessage msg)
     {
         setMode(MAC_MODE_XBROADCAST);
+        VLCsensor tmpsens;
+        for (Integer item : msg.getSensorIDTx(myRadio.NodeID))
+        {
+        	tmpsens = myRadio.GetSensorByID(item);
+        	
+        	if(tmpsens.mode == SensorModes.Transmit )
+        	{
+        		if(tmpsens.state == SensorStates.Idle )
+        		{
+        			tmpsens.setState(SensorStates.Transmitting);
+        		}
+        		else
+        		{
+        			throw new NotImplementedException();
+        		}
+        	}
+        	else
+        	{
+        		throw new NotImplementedException();
+        	}
+        	
+		}	
      
         long delay =0;//10+ Util.randomTime(10*Constants.MICRO_SECOND); //RX_TX_TURNAROUND;// not needed because Tx and Rx are independent
       //  long delay2 =Util.randomTime(50*Constants.MILLI_SECOND); //RX_TX_TURNAROUND;// not needed because Tx and Rx are independent

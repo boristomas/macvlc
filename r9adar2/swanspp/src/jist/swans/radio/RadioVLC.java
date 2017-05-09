@@ -1018,7 +1018,8 @@ public final class RadioVLC extends RadioNoise
 				if(tmpSensorTransmit.mode == SensorModes.Transmit)
 				{
 					//ok
-					if(tmpSensorTransmit.state == SensorStates.Idle )//na MAC sloju stavljam vec u transmitting
+					if(tmpSensorTransmit.state == SensorStates.Transmitting)
+					//if(tmpSensorTransmit.state  == SensorStates.Idle )//na MAC sloju stavljam vec u transmitting
 					{
 						//ok
 						tmpSensorTransmit.setState(SensorStates.Transmitting );
