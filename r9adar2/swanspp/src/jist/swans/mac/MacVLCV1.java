@@ -1004,8 +1004,15 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     public void send(Message msg, MacAddress nextHop)
     {
         packetNextHop = nextHop;
+        if((previousID == 1 && myRadio.NodeID == 2)
+        	||(previousID == 3 && myRadio.NodeID == 4))
+        {
+        	System.out.println("tu");
+        }
+        previousID = myRadio.NodeID;
         sendMacMessage(msg,nextHop, null);
     }
+    public static int previousID = -1;
     //////////////////////////////////////////////////
     // timer routines
     //

@@ -207,7 +207,7 @@ public final class RadioVLC extends RadioNoise
 		setControlSignal(GetSensorByID(sensorID), channelID);
 	}
 	/**
-	 * sets control signal, if set for receiving sensor this method will find neared same bearing transmitting sensors and set control signal on them.
+	 * sets control signal, if set for receiving sensor this method will find nearest same bearing transmitting sensors and set control signal on them.
 	 * @param sensor
 	 * @param channelID
 	 */
@@ -665,6 +665,8 @@ public final class RadioVLC extends RadioNoise
 	/** {@inheritDoc} */
 	public void receive(Message msg, Double powerObj_mW, Long durationObj)
 	{ 
+		System.out.println("rx- " + JistAPI.getTime() + " mid- "+msg.getMessageID() + " n: "+NodeID+ " -> " +((MacVLCMessage)msg).getSrc() + " -> "+((MacVLCMessage)msg).getDst());
+		
 		if(isVLC)
 		{
 			((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(250, "radiovlct-rec", null));
@@ -985,6 +987,7 @@ public final class RadioVLC extends RadioNoise
 	/** {@inheritDoc} */
 	public void transmit(Message msg, long delay, long duration)
 	{
+		System.out.println("tx- " + JistAPI.getTime() + " mid- "+msg.getMessageID() + " n: "+NodeID+ " -> " +((MacVLCMessage)msg).getSrc() + " -> "+((MacVLCMessage)msg).getDst());
 		if(isVLC)
 		{
 			((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(2, "radiovlct", null));
@@ -1015,6 +1018,16 @@ public final class RadioVLC extends RadioNoise
 			for (int item : ((MacMessage)msg).getSensorIDTx(NodeID))
 			{
 				tmpSensorTransmit= this.GetSensorByID(item);
+				for (VLCsensor ss : getNearestOpositeSensor(tmpSensorTransmit)) 
+				{
+					if( queryControlSignal(ss, 1))
+					{
+						System.out.println("tu2");
+		//				return;
+					}
+					
+				}
+				
 				if(tmpSensorTransmit.mode == SensorModes.Transmit)
 				{
 					//ok
