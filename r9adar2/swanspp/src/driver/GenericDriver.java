@@ -1093,14 +1093,14 @@ public class GenericDriver {
 				//System.out.println("BTc src= "+((NetMessage.Ip )msg).getSrc() + " dest= " + ((NetMessage.Ip )msg).getDst() + " .... " + src + " .... " + dest);
 			} // send message for each transmitter
 
-			if(!je.MeasurementMode)
+			/*if(!je.MeasurementMode)
 			{
 				JistAPI.sleep(delayInterval + (long) (SEND_JITTER * Constants.MICRO_SECOND * Constants.random.nextDouble()));
 			}
 			else
-			{
+			{*/
 				JistAPI.sleep(delayInterval + (long) (SEND_JITTER * Constants.MICRO_SECOND * 0.5));
-			}
+			//}
 		//	currentTime += delayInterval;
 		}//for
 		

@@ -220,11 +220,13 @@ public final class RadioVLC extends RadioNoise
 				for (VLCsensor item : getNearestOpositeSensor(sensor)) 
 				{
 					item.controlSignal.add(channelID);
+					System.out.println("cset: " + item.node.NodeID + " - " + item.sensorID);
 				}
 			}
 			else
 			{
 				sensor.controlSignal.add(channelID);
+				System.out.println("cset: " + sensor.node.NodeID + " - " + sensor.sensorID);
 			}
 		}
 	}
@@ -427,12 +429,14 @@ public final class RadioVLC extends RadioNoise
 			if(sensor.mode == SensorModes.Transmit)
 			{
 				sensor.controlSignal.remove(channelID);
+				System.out.println("ccle: " + sensor.node.NodeID + " - " + sensor.sensorID);
 			}
 			else
 			{
 				for (VLCsensor item : getNearestOpositeSensor(sensor)) 
 				{
 					item.controlSignal.remove(channelID);
+					System.out.println("ccle: " + item.node.NodeID + " - " + item.sensorID);
 				}
 			}
 		}
@@ -665,7 +669,7 @@ public final class RadioVLC extends RadioNoise
 	/** {@inheritDoc} */
 	public void receive(Message msg, Double powerObj_mW, Long durationObj)
 	{ 
-		System.out.println("rx- " + JistAPI.getTime() + " mid- "+msg.getMessageID() + " n: "+NodeID+ " -> " +((MacVLCMessage)msg).getSrc() + " -> "+((MacVLCMessage)msg).getDst());
+		
 		
 		if(isVLC)
 		{
@@ -723,7 +727,7 @@ public final class RadioVLC extends RadioNoise
 		{
 			return;
 		}
-
+		System.out.println("rx- " + JistAPI.getTime() + " mid- "+msg.getMessageID() + " n: "+NodeID+ " -> " +((MacVLCMessage)msg).getSrc() + " -> "+((MacVLCMessage)msg).getDst());
 		if(isVLC)
 		{
 			((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(251, "radiovlct-rec", null));
@@ -763,7 +767,8 @@ public final class RadioVLC extends RadioNoise
 
 			}
 			//	tmpSensorReceive.signalsRx ++;
-			setControlSignal(tmpSensorReceive, 1);
+	//
+		//	setControlSignal(tmpSensorReceive, 1);
 			if(tmpSensorReceive.mode == SensorModes.Receive)
 			{//ok
 				if(tmpSensorReceive.state != SensorStates.Idle)
@@ -1014,6 +1019,7 @@ public final class RadioVLC extends RadioNoise
 		}
 		if(isVLC)
 		{
+			
 			isAtLeastOneTransmitting = false;
 			for (int item : ((MacMessage)msg).getSensorIDTx(NodeID))
 			{
@@ -1081,7 +1087,24 @@ public final class RadioVLC extends RadioNoise
 			{
 				((MacInterface.VlcMacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxAllBusy);	
 			}
-
+			/*
+		tu sam stao, treba u ovaj checkphy dodati i provjeru ako je -1, a to znaci da treba povuci sve vidljive, 
+		to je problem jer radim set control na transmit levelu kod ostalih cvorova.
+			*/
+			CheckPhyConditions( NodeID, -2, SensorModes.Receive, (MacMessage)msg);
+				
+			/*if(res == null || ((MacMessage)res).isVLCvalid == false)
+			{
+				return;
+			}
+			else
+			{													//ne ide NodeID nego id od receving node.
+				for (int item : ((MacMessage)res).getSensorIDRx(NodeID))//.SensorIDRx)
+				{
+						tmpSensorReceive = GetSensorByID(item);
+						setControlSignal(tmpSensorReceive, 1);
+				}
+			}*/
 		}
 		else
 		{// obicni neki mac je.
@@ -1252,7 +1275,7 @@ public final class RadioVLC extends RadioNoise
 
 		tmpSensorRx = new HashSet<Integer>();
 		msg.isVLCvalid= true;
-		if(DestinationID != -1)//znaci da nije broadcast poruka, teoretski nikada nece sourceid biti -1 odnosno broadcast adresa
+		if(DestinationID != -1 && DestinationID != -2)//znaci da nije broadcast poruka, teoretski nikada nece sourceid biti -1 odnosno broadcast adresa
 		{
 			if(mode == SensorModes.Transmit)
 			{//znaci sourceid šalje
@@ -1371,10 +1394,37 @@ public final class RadioVLC extends RadioNoise
 					}
 				}
 			}
+		
 			else
 			{
 				//should never happen, use send or receive
 				msg.isVLCvalid = false;
+			}
+		}
+		else if (DestinationID == -2)
+		{
+			//mode u kojem svim receiving cvorovima stavim control signal.
+			NodesThatSourceCanSee = getRangeAreaNodes(SourceID, SensorModes.Transmit, -1);//send mode
+			//NodesThatDestinationCanSee = getRangeAreaNodes(DestinationID, SensorModes.Receive,-1);
+
+			for (Integer visibleNode : NodesThatSourceCanSee) 
+			{
+				for (VLCsensor sensorSrc : Field.getRadioData(SourceID).vlcdevice.InstalledSensorsTx)
+				{
+					if(msg.getSensorIDTx(SourceID).contains(sensorSrc.sensorID))
+					{//ako je mac zadao da se šalje sa odreðenog senzora.
+						for (VLCsensor sensorDest : Field.getRadioData(visibleNode).vlcdevice.InstalledSensorsRx)
+						{
+							if (IsSensorVisibleToSensor(sensorSrc, sensorDest) && IsSensorVisibleToSensor(sensorDest, sensorSrc) ) 
+							{
+								//			tmpSensorTx.add(sensorSrc.sensorID);
+								Field.getRadioData(visibleNode).vlcdevice.setControlSignal(sensorDest, 1);
+							}
+						}
+					
+					}
+					
+				}
 			}
 		}
 		else//broadcast poruka je
