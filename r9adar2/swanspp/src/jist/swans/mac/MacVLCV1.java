@@ -611,6 +611,10 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     private void sendMessage(MacVLCMessage msg)
     {
         setMode(MAC_MODE_XBROADCAST);
+        long delay =0;//10+ Util.randomTime(10*Constants.MICRO_SECOND); //RX_TX_TURNAROUND;// not needed because Tx and Rx are independent
+      //  long delay2 =Util.randomTime(50*Constants.MILLI_SECOND); //RX_TX_TURNAROUND;// not needed because Tx and Rx are independent
+        long duration = transmitTime(msg);
+        
         VLCsensor tmpsens;
         for (Integer item : msg.getSensorIDTx(myRadio.NodeID))
         {
@@ -621,6 +625,14 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         		if(tmpsens.state == SensorStates.Idle )
         		{
         			tmpsens.setState(SensorStates.Transmitting);
+        		//	tmpSensorTransmit.setState(SensorStates.Transmitting );
+
+					((MacMessage)msg).setEndTx(tmpsens, JistAPI.getTime() + duration + delay);
+					((MacMessage)msg).setStartTx(tmpsens, JistAPI.getTime());
+					((MacMessage)msg).setDurationTx(tmpsens, duration + delay);
+					
+						tmpsens.Messages.addFirst((MacVLCMessage)msg);
+					
         		}
         		else
         		{
@@ -634,9 +646,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         	
 		}	
      
-        long delay =0;//10+ Util.randomTime(10*Constants.MICRO_SECOND); //RX_TX_TURNAROUND;// not needed because Tx and Rx are independent
-      //  long delay2 =Util.randomTime(50*Constants.MILLI_SECOND); //RX_TX_TURNAROUND;// not needed because Tx and Rx are independent
-        long duration = transmitTime(msg);
+
  
         transmitMinDelayMultiplier = 1;
         transmitMaxDelayMultiplier = 1;
@@ -664,7 +674,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     }
     private void QueueInsert(MacVLCMessage msg, boolean skipSort)
     {
-  //////////      myRadio.printMessageTransmissionData(msg, 0, "q", String.valueOf( MessageQueue.size()));
+  ///////////     myRadio.printMessageTransmissionData(msg, 0, "q", String.valueOf( MessageQueue.size()));
         
         if(msg.isRetry)
         {
@@ -733,6 +743,10 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
                     {
                              
                         if(myRadio.queryControlSignal(sensor, 1))
+                        {
+                            return false;
+                        }
+                        else if(myRadio.queryControlSignal(sensor, 2))
                         {
                             return false;
                         }
@@ -827,6 +841,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
             tmpSensor2 = sensor;//myRadio.getSensorByID(sensor);
             if(tmpSensor2.state == SensorStates.Transmitting)
             {
+            //	if(tmp)
                 tmpDelay = tmpSensor2.Messages.getFirst().getDurationTx(tmpSensor2);//.DurationTx;
          //       tmpDelay = tmpSensor2.Messages.getLast().getDurationTx(tmpSensor2);//.DurationTx;
  
@@ -854,8 +869,8 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         	
         	transmitMinDelayMultiplier++;
            
-            minDelay =(Constants.MICRO_SECOND*10) +  Util.randomTime(Constants.MICRO_SECOND*100);
-          //  minDelay =(Constants.MILLI_SECOND*10);
+           minDelay =(Constants.MICRO_SECOND*10) +  Util.randomTime(Constants.MICRO_SECOND*100);
+           // minDelay =(Constants.MILLI_SECOND*100);
            
         }
         if(maxDelay == 0)
@@ -885,11 +900,13 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     {
     	if(successfulSend > 0 )
     	{
-    		JistAPI.sleep((Constants.MICRO_SECOND*1000) +  Util.randomTime(Constants.MICRO_SECOND*1000));//bilo je 0-2000
+    		//JistAPI.sleep((Constants.MICRO_SECOND*1000) +  Util.randomTime(Constants.MICRO_SECOND*1000));//bilo je 0-2000
+    		JistAPI.sleep((Constants.MICRO_SECOND*10) +  Util.randomTime(Constants.MICRO_SECOND*1000));//bilo je 0-2000
     	}
     	else
     	{
-    		JistAPI.sleep((Constants.MICRO_SECOND*100) +  Util.randomTime(Constants.MICRO_SECOND*100));
+    		//JistAPI.sleep((Constants.MICRO_SECOND*100) +  Util.randomTime(Constants.MICRO_SECOND*100));
+    		JistAPI.sleep((Constants.MICRO_SECOND*5) +  Util.randomTime(Constants.MICRO_SECOND*100));
     		//bilo je 0
     	}
         if(nextHop == MacAddress.ANY)
