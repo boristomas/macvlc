@@ -10,7 +10,7 @@
   <object class="driver.JistExperiment">
     <!--  timing  -->
     <void property="duration">
-      <int>18</int>
+      <int>180</int>
     </void>
     <void property="resolutionTime">
       <int>600</int>
@@ -115,7 +115,7 @@
       <int>3</int>
     </void>
     <void property="MACProtocol">
-      <string>MAC_VLC_V1</string>
+      <string>MAC_802_11</string>
     </void>
     <void property="MeasurementMode">
       <boolean>true</boolean>

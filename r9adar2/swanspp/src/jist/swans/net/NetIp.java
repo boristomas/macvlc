@@ -373,8 +373,12 @@ public class NetIp implements NetInterface
 		NetMessage.Ip ipmsg = (NetMessage.Ip)msg;
 		ipmsg.Times.add(new TimeEntry(4, "netiprec", null));
 
+		
 		if(incomingLoss.shouldDrop(ipmsg)) return;
-		ipmsg.Times.add(new TimeEntry(41, "netiprec2", null));
+		if(!ipmsg.getDst().equals(NetAddress.ANY))
+		{
+			ipmsg.Times.add(new TimeEntry(41, "netiprec2", null));
+		}
 		if(log.isInfoEnabled())
 		{
 			log.info("receive t="+JistAPI.getTime()+" from="+lastHop+" on="+macId+" data="+msg);
@@ -451,7 +455,14 @@ public class NetIp implements NetInterface
 		ni.q.insert(new QueuedMessage(msg, nextHop), msg.getPriority());
 
 		if(!ni.busy)
+		{
+		///	System.out.println("ssssa1");
 			pump(interfaceId);
+		}
+		else
+		{
+	///		System.out.println("ssssa2");
+		}
 	}
 
 	//////////////////////////////////////////////////
@@ -477,11 +488,17 @@ public class NetIp implements NetInterface
 			// loopback
 			send(msg, Constants.NET_INTERFACE_LOOPBACK, MacAddress.LOOP);
 		}
-		else if (msg.getNextHop()==null || msg.getNextHop().equals(localAddr))
+		else if (msg.getNextHop() == null || msg.getNextHop().equals(localAddr))
 		{
+		//	return;
 			// route and send
-			
+	//		ovdje iz nekog razloga u slucaju mac vlc uðe jako puno puta a na mac802.11 niti jednom
+		//	System.out.println("jaooooo");
 			routing.send(msg);
+		}
+		else
+		{
+		//	System.out.println("jaooooo22");
 		}
 	}
 
@@ -516,6 +533,7 @@ public class NetIp implements NetInterface
 			//T-ODO dont understatnd it with javadocs(notifying)
 	//	Snd++;
 		//	System.out.println("Snd= "+Snd);
+	//		System.out.println("pump!"+ ((NetMessage.Ip)ip).getMessageID());
 			ni.mac.send(ip, qmsg.getNextHop());
 		}
 	}

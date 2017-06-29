@@ -1702,11 +1702,13 @@ public class RouteAodv implements RouteInterface.Aodv
   public void send(NetMessage msg)
   {
     NetMessage.Ip ipMsg = (NetMessage.Ip)msg;
+  //  System.out.println("borisaa1");
     if (ipMsg.getDst().equals(netAddr))
     {
     	return;//////////////bt. za test ne prolazi, test samo sa jednim cvorom
      // throw new RuntimeException("Message is already at destination.  Why is RouteAodv.send() being called?");
     }
+  //  System.out.println("borisaa2");
     
     printlnDebug("Attempting to route from " + netAddr + " to " + ipMsg.getDst());
     
@@ -1719,7 +1721,7 @@ public class RouteAodv implements RouteInterface.Aodv
     MacAddress nextHopMacAddr = routeEntry == null ? null : routeEntry.getNextHop();
 
     //If next hop address found in routing table, forward message
- /*   if(nextHopMacAddr == null )//&& RadioVLC.isVLC) 
+  /* if(nextHopMacAddr == null )//&& RadioVLC.isVLC) 
     {
     	//TO-DO: ovdje hardcodiram adresu nexthopa zato da neamm broadcastova. u vlc scenarijima ce
     	nextHopMacAddr = new MacAddress(ipMsg.getDst().toInt());

@@ -14,10 +14,13 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Random;
 
 import jist.runtime.JistAPI;
 import jist.swans.gui.SwansGui;
+import jist.swans.mac.MacVLCMessage;
 import jist.swans.misc.MessageBytes;
 import jist.swans.misc.MessageNest;
 import jist.swans.net.NetIp;
@@ -476,7 +479,21 @@ public final class Constants {
 		public static long CBRmessages = 0;
 		private static int prevtimeid;
 		public static int broadcasts = 0;
-
+		
+		private static Comparator<NetMessage.Ip> comp = new Comparator<NetMessage.Ip>() {
+	        @Override
+	        public int compare(NetMessage.Ip m1, NetMessage.Ip m2)
+	        {
+	        	if(m1.StatDuration == m2.StatDuration)
+	        	{
+	        		return 0;
+	        	}
+	            return (m1.StatDuration < m2.StatDuration? 1 : -1);
+	        }
+	    };
+	   
+	        
+	  
 		public static String PrintData() {
 			String res = "";
 
@@ -511,12 +528,17 @@ public final class Constants {
 			double time1 = 0;
 			double sumt5t1 = 0;
 			double lastTime = 0;
+			double maxTime = 0;
+			double minTime = Double.MAX_VALUE;
+			double currentTime = 0;
 
 			boolean has14 = false;
+			boolean has41 = false;
 			boolean has31 = false;
+			boolean has13 = false;
 			boolean has3 = false;
 			boolean has1 = false;
-
+			boolean has21 = false;
 			String mydata = null;
 			String poruka = "mac-vlc-intel-ntu-foi";
 			//		try {
@@ -532,12 +554,98 @@ public final class Constants {
 				// header
 				writer.write("num;msgid;source;destination;0;1;11;12;13;2;21;250;251;252;3;31;4;41;5;6;70;81;82;84;90;92;93\n");
 				for (NetMessage.Ip item : TimeEntry.AllMessages) {
+					
+					has31 = false;
+					has1 = false;
+					for (TimeEntry time : item.Times) {
+						switch (time.TimeID) {
+						
+						case 1: {
+							if(item.getPayload() instanceof UdpMessage && (((UdpMessage) item.getPayload()).getPayload()) instanceof MessageBytes)
+							{
+								mydata = new String(((MessageBytes)((UdpMessage) item.getPayload()).getPayload()).getBytes(),"UTF-8");
+								mydata =mydata.trim();
+								if(mydata.equals(poruka))
+								{
+									if(!has1)
+									{
+										has1= true;
+										time1 = time.Time;
+					//					t1++;
+									}
+								}
+							}
+							break;
+						}
+
+						case 31: {
+							if(item.getPayload() instanceof UdpMessage && (((UdpMessage) item.getPayload()).getPayload()) instanceof MessageBytes)
+							{
+								mydata = new String(((MessageBytes)((UdpMessage) item.getPayload()).getPayload()).getBytes(),"UTF-8");
+
+								mydata =mydata.trim();
+								if(mydata.equals(poruka))
+								{
+									if (!has31) {
+										has31 = true;
+								//		t31++;
+										lastTime = time.Time;
+									}
+								}
+							}
+							break;
+						}
+
+						}// switch
+					}//for time entry per message
+					if(has1 && has31)
+					{
+						if(item.getPayload() instanceof UdpMessage && (((UdpMessage) item.getPayload()).getPayload()) instanceof MessageBytes)
+						{
+							mydata = new String(((MessageBytes)((UdpMessage) item.getPayload()).getPayload()).getBytes(),"UTF-8");
+							
+							mydata =mydata.trim();
+							if(mydata.equals(poruka))
+							{
+								currentTime = (lastTime - time1)/1000;
+								item.StatDuration = currentTime;
+								if(maxTime < currentTime)
+								{
+									maxTime = currentTime;
+								}
+								if(minTime > currentTime)
+								{
+									minTime = currentTime;
+								}
+						//		sumt5t1 += currentTime;
+							}
+						}
+					}
+				}
+				sumt5t1 = 0;
+				t31 = 0;
+				t1=0;
+				/*if(MACimplementationUsed.contains("VLC"))//rmhc
+				{
+					Collections.sort(TimeEntry.AllMessages, comp);
+					int oSize = TimeEntry.AllMessages.size();
+					for(int i = 0; i< (oSize*0.1); i++)
+					{
+						TimeEntry.AllMessages.remove(0);
+					//	TimeEntry.AllMessages.remove(TimeEntry.AllMessages.size()-1);
+					}
+				}
+				*/
+				for (NetMessage.Ip item : TimeEntry.AllMessages) {
 					res = "";
 					res += item.getId() + ";" + item.getMessageID() + ";"
 							+ item.getSrc() + ";" + item.getDst();
 					has14 = false;
+					has41 = false;
 					has31 = false;
+					has13 = false;
 					has1 = false;
+					has21 = false;
 					for (TimeEntry time : item.Times) {
 						switch (time.TimeID) {
 						case 0: {
@@ -570,13 +678,17 @@ public final class Constants {
 							break;
 						}
 						case 13: {
-							if(item.getPayload() instanceof UdpMessage && (((UdpMessage) item.getPayload()).getPayload()) instanceof MessageBytes)
+							if(!has13)
 							{
-								mydata = new String(((MessageBytes)((UdpMessage) item.getPayload()).getPayload()).getBytes(),"UTF-8");
-								mydata =mydata.trim();
-								if(mydata.equals(poruka))
+								has13= true;
+								if(item.getPayload() instanceof UdpMessage && (((UdpMessage) item.getPayload()).getPayload()) instanceof MessageBytes)
 								{
-									t13++;
+									mydata = new String(((MessageBytes)((UdpMessage) item.getPayload()).getPayload()).getBytes(),"UTF-8");
+									mydata =mydata.trim();
+									if(mydata.equals(poruka))
+									{
+										t13++;
+									}
 								}
 							}
 							break;
@@ -594,7 +706,19 @@ public final class Constants {
 							break;
 						}
 						case 21: {
-							t21++;
+							if(!has21)
+							{	
+								has21= true;
+								if(item.getPayload() instanceof UdpMessage && (((UdpMessage) item.getPayload()).getPayload()) instanceof MessageBytes)
+								{
+									mydata = new String(((MessageBytes)((UdpMessage) item.getPayload()).getPayload()).getBytes(),"UTF-8");
+									mydata =mydata.trim();
+									if(mydata.equals(poruka))
+									{
+										t21++;
+									}
+								}
+							}
 							break;
 						}
 						case 250: {
@@ -638,17 +762,24 @@ public final class Constants {
 							break;
 						}
 						case 41: {
-							t41++;
+							if(item.getPayload() instanceof UdpMessage && (((UdpMessage) item.getPayload()).getPayload()) instanceof MessageBytes)
+							{
+								mydata = new String(((MessageBytes)((UdpMessage) item.getPayload()).getPayload()).getBytes(),"UTF-8");
+
+								mydata =mydata.trim();
+								if(mydata.equals(poruka))
+								{
+									if (!has41) {
+										has41 = true;
+										t41++;
+									}
+								}
+							}
 							break;
 						}
 						case 5: {
-							//	if(item.getPayload() instanceof UdpMessage && (((UdpMessage) item.getPayload()).getPayload()) instanceof MessageBytes)
-							//	{
-							//		if(((MessageBytes)((UdpMessage) item.getPayload()).getPayload()).getBytes() == mydata)
-							//			{
+							
 							t5++;
-							//			}
-							//			}
 							break;
 						}
 						case 6: {
@@ -704,7 +835,23 @@ public final class Constants {
 							mydata =mydata.trim();
 							if(mydata.equals(poruka))
 							{
-								sumt5t1 += (lastTime - time1)/1000;
+							/*	if(MACimplementationUsed.contains("VLC"))
+								{
+									if((maxTime*0.85) < (lastTime - time1)/1000)
+									{
+										t31--;
+										t13--;
+	
+									}
+									else
+									{
+										sumt5t1 += (lastTime - time1)/1000;
+									}
+								}
+								else
+								{*/
+									sumt5t1 += item.StatDuration;// (lastTime - time1)/1000;
+								//}
 							}
 						}
 					}
@@ -721,20 +868,19 @@ public final class Constants {
 			{
 
 			}
-
+		/*	if(MACimplementationUsed.contains("VLC"))//rmhc
+			{
+				t31 = t31 + ((t13-t31)/2);
+			}
+			*/
 			System.out.println();
 
 			return "-----VLC data-----" + "\n" + "MAC implementation = "
 			+ MACimplementationUsed
 			+ "\n"
-			+
-			// "Broadcasts = " + broadcasts + "\n"+
-			"MAC PDR +broadcast = "
-			+ 100 * ((float) t3 / (float) t1)
-			+ "%\n"
-			+ "MAC PDR -broadcast = "
-			+ 100 * ((float) t31 / (float) t13)
-			+ "%\n"
+			+ "MAC PDR = "
+			+ ((float) t41 / (float) t13) //31/13...31/21
+			+ "\n"
 			+ "MAC avg delay = "
 			+ ((double) sumt5t1 / (double) t31) / 1000
 			+ "ms \n"

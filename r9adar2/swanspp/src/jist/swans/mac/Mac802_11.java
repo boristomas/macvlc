@@ -803,6 +803,10 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 			}
 			doDifs();
 		}
+		else
+		{
+		//	System.out.println("drop a");
+		}
 	}
 
 	private void doDifs()
@@ -820,7 +824,7 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 		}
 		else
 		{
-			idle();
+			idle();//ako radio nije idle postavlja ga u idle!?!?
 		}
 	}
 

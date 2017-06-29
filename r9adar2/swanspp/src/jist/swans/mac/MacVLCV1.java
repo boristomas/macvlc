@@ -610,6 +610,9 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
      */
     private void sendMessage(MacVLCMessage msg)
     {
+    	
+    	
+    
         setMode(MAC_MODE_XBROADCAST);
         long delay =0;//10+ Util.randomTime(10*Constants.MICRO_SECOND); //RX_TX_TURNAROUND;// not needed because Tx and Rx are independent
       //  long delay2 =Util.randomTime(50*Constants.MILLI_SECOND); //RX_TX_TURNAROUND;// not needed because Tx and Rx are independent
@@ -624,7 +627,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         	{
         		if(tmpsens.state == SensorStates.Idle )
         		{
-        			tmpsens.setState(SensorStates.Transmitting);
+        	//		tmpsens.setState(SensorStates.Transmitting);
         		//	tmpSensorTransmit.setState(SensorStates.Transmitting );
 
 					((MacMessage)msg).setEndTx(tmpsens, JistAPI.getTime() + duration + delay);
@@ -654,7 +657,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         radioEntity.transmit(msg, delay, duration);
         JistAPI.sleep(delay+duration);
        // JistAPI.sleep(delay2);
-  //////      netEntity.pump(netId);//dodao naknadno, testirati
+     //  netEntity.pump(netId);//dodao naknadno, testirati
     }
  
     private Comparator<MacVLCMessage> comp = new Comparator<MacVLCMessage>() {
@@ -674,7 +677,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     }
     private void QueueInsert(MacVLCMessage msg, boolean skipSort)
     {
-  ///////////     myRadio.printMessageTransmissionData(msg, 0, "q", String.valueOf( MessageQueue.size()));
+  //     myRadio.printMessageTransmissionData(msg, 0, "q", String.valueOf( MessageQueue.size()));
         
         if(msg.isRetry)
         {
@@ -693,7 +696,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         {
             for (MacVLCMessage item : MessageQueue)
             {
-              //  item.IncrementPriority();
+       //         item.IncrementPriority();
             }
         }
         if(msg.GetWasInQueue())
@@ -721,7 +724,6 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         boolean returnMe = true;
         if(!fixTx)
         {
-        	//treba vidjeti zasto mac salje na tx ako je vec transmitting.
         	//no fix
             if(strategy == QueueStrategies.Reliable)
             {
@@ -744,14 +746,17 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
                              
                         if(myRadio.queryControlSignal(sensor, 1))
                         {
+                  //CSM//      	System.out.println("CSM1 t-"+JistAPI.getTime()+" n-" + myRadio.NodeID + " s- " + sensor.sensorID + " mid- "+msg.getMessageID() + " false");
                             return false;
                         }
                         else if(myRadio.queryControlSignal(sensor, 2))
                         {
+                        	//CSM//      	System.out.println("CSM2 t-"+JistAPI.getTime()+" n-" + myRadio.NodeID + " s- " + sensor.sensorID + " mid- "+msg.getMessageID() + " false");
                             return false;
                         }
                         else //if(!myRadio.queryControlSignal(sensor, 1))
                         {
+                        	//CSM// 	System.out.println("CSM t-"+JistAPI.getTime()+" n-" + myRadio.NodeID + " s- " + sensor.sensorID + " mid- "+msg.getMessageID() + " true");
                             if(msg.getDst().equals(MacAddress.ANY))
                             {
                                 //ovdje provjeravam jesu li svi senzori slobodni prije slanja broadcasta.
@@ -772,7 +777,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
                 }
                 else
                 {
-               	return false;//nije senzor idle.
+                	return false;//nije senzor idle.
                 	//returnMe = false;
                 }
             }
@@ -870,7 +875,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         	transmitMinDelayMultiplier++;
            
            minDelay =(Constants.MICRO_SECOND*10) +  Util.randomTime(Constants.MICRO_SECOND*100);
-           // minDelay =(Constants.MILLI_SECOND*100);
+          //  minDelay =(Constants.MILLI_SECOND*10 + Util.randomTime(Constants.MILLI_SECOND*60));
            
         }
         if(maxDelay == 0)
@@ -909,6 +914,11 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     		JistAPI.sleep((Constants.MICRO_SECOND*5) +  Util.randomTime(Constants.MICRO_SECOND*100));
     		//bilo je 0
     	}
+    	
+    	 if(nextHop != MacAddress.ANY && nextHop != MacAddress.LOOP )
+        {
+    		 ((NetMessage.Ip)msg).Times.add(new TimeEntry(13, "mac send dest", null));
+        }
         if(nextHop == MacAddress.ANY)
         {
             Constants.VLCconstants.broadcasts++;
@@ -916,7 +926,6 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         MacVLCMessage data = null;
         if(message == null)
         {
- 
             data = new MacVLCMessage(nextHop, localAddr,0, msg, (byte)0, JobConfigurator.UseEncryption);
             if(JobConfigurator.UseEncryption)
             {
@@ -935,10 +944,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
             {
                 data.encryptedContent = null;
             }
-            if(nextHop != MacAddress.ANY &&nextHop != MacAddress.LOOP)
-            {
-                ((NetMessage.Ip)data.getBody()).Times.add(new TimeEntry(13, "mac send dest", null));
-            }
+           
         }
         else
         {
@@ -991,6 +997,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
             	{
             		myRadio.GetSensorByID(item).setState(SensorStates.Transmitting);
 				}*/
+            
             	
                 ((NetMessage.Ip)msg).Times.add(new TimeEntry(11, "macbt", null));
                 successfulSend++;
@@ -1021,11 +1028,12 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     public void send(Message msg, MacAddress nextHop)
     {
         packetNextHop = nextHop;
-        if((previousID == 1 && myRadio.NodeID == 2)
+     //   System.out.println("send!"+ ((NetMessage.Ip)msg).getMessageID());
+      /*  if((previousID == 1 && myRadio.NodeID == 2)
         	||(previousID == 3 && myRadio.NodeID == 4))
         {
-        	System.out.println("tu");
-        }
+        	System.out.println("tu1");
+        }*/
         previousID = myRadio.NodeID;
         sendMacMessage(msg,nextHop, null);
     }
@@ -1060,7 +1068,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
                 tmpmsg1.setSensorIDTx(GetTransmitSensors(tmpmsg1.getDst()), myRadio.NodeID);
  
  
-                if(canSendMessage(tmpmsg1, true, QueueStrategy))//true
+                if(canSendMessage(tmpmsg1, false, QueueStrategy))//2 param je bio true
                 {
                 	//provjeravam can send prije 
                     sendMacMessage(tmpmsg1.getBody(), tmpmsg1.getDst(), tmpmsg1);
@@ -1088,7 +1096,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         {
             //red je prazan.
             TimerRunning = false;
-            netEntity.pump(netId);//dodao naknadno, testirati
+         //   netEntity.pump(netId);//dodao naknadno, testirati
         }
     }
  
@@ -1122,8 +1130,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         {
             try
             {
-            	
-            	if (((MacVLCMessage)msg).encryptedContent != null)
+               	if (((MacVLCMessage)msg).encryptedContent != null)
             	{
             		((MacVLCMessage)msg).body = Encryptor.decrypt(((MacVLCMessage)msg).encryptedContent);
             	}       
@@ -1135,8 +1142,12 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         }
  
         receivedMessages.addFirst((MacMessage)msg);
- 
-        netEntity.receive(((MacVLCMessage)msg).getBody(), ((MacVLCMessage)msg).getSrc(), netId, false);
+        
+        if((localAddr.equals( ((MacMessage)msg).getDst())) ||
+        		(MacAddress.ANY.equals( ((MacMessage)msg).getDst())	))
+        {
+        	netEntity.receive(((MacVLCMessage)msg).getBody(), ((MacVLCMessage)msg).getSrc(), netId, false);
+        }
     }
  
     private float receivedMessagesEndTime = 0;
@@ -1297,8 +1308,11 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     MacVLCMessage tmpmsg;
     public void notifyInterference(MacMessage msg, VLCsensor sensors) 
     {
-        ((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(90, "macinterference", null));        
-        System.out.println("interference on node: " + sensors.node.NodeID +" sensor: " + sensors.sensorID + " msg id: "+ ((MacVLCMessage) msg).ID);
+        ((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(90, "macinterference", null));
+        if(JobConfigurator.DoMessageOutput)
+        {
+        	System.out.println("interference on node: " + sensors.node.NodeID +" sensor: " + sensors.sensorID + " msg id: "+ ((MacVLCMessage) msg).ID);
+        }
         interferedSensor = sensors;
         for (VLCsensor sensor : myRadio.getNearestOpositeSensor(sensors)) 
         {
@@ -1322,8 +1336,10 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     {
         netEntity.packetDropped(msg, packetNextHop);
         ((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(92, "macinterference", null));
-        System.out.println("transmit fail on node: " + myRadio.NodeID + "#error code "+ errorCode+ " msg id: "+ ((MacVLCMessage) msg).ID);
-        
+        if(JobConfigurator.DoMessageOutput)
+        {
+        	System.out.println("transmit fail on node: " + myRadio.NodeID + "#error code "+ errorCode+ " msg id: "+ ((MacVLCMessage) msg).ID);
+        }
     }
  
     public void notifyReceiveFail(Message msg, int errorCode) 
@@ -1332,6 +1348,10 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         //rezultirati sa interference, jer moze biti da poruka ipak bude primljena ako je rx pwr dovoljno veliki
  
         ((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(93, "macinterference", null));
-        System.out.println("recFail #"+errorCode +" n: "+myRadio.NodeID+ " s: "+((MacVLCMessage)msg).getSrc()+" d: "+((MacVLCMessage)msg).getDst()+" msg id: "+ ((MacVLCMessage) msg).ID); 
+        if(JobConfigurator.DoMessageOutput)
+        {
+        	System.out.println("recFail #"+errorCode +" n: "+myRadio.NodeID+ " s: "+((MacVLCMessage)msg).getSrc()+" d: "+((MacVLCMessage)msg).getDst()+" msg id: "+ ((MacVLCMessage) msg).ID); 
+    
+        }
     }
 }

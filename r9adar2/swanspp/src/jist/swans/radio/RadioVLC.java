@@ -220,13 +220,13 @@ public final class RadioVLC extends RadioNoise
 				for (VLCsensor item : getNearestOpositeSensor(sensor)) 
 				{
 					item.controlSignal.add(channelID);
-					System.out.println("cset: " + item.node.NodeID + " - " + item.sensorID);
+					//CS/		System.out.println("cset: time: "+JistAPI.getTime() +" "+ item.node.NodeID + " - " + item.sensorID+ " c = " + channelID);
 				}
 			}
 			else
 			{
 				sensor.controlSignal.add(channelID);
-				System.out.println("cset: " + sensor.node.NodeID + " - " + sensor.sensorID);
+				//CS/		System.out.println("cset: time: "+JistAPI.getTime() +" "+  sensor.node.NodeID + " - " + sensor.sensorID+ " c = " + channelID);
 			}
 		}
 	}
@@ -429,14 +429,14 @@ public final class RadioVLC extends RadioNoise
 			if(sensor.mode == SensorModes.Transmit)
 			{
 				sensor.controlSignal.remove(channelID);
-				System.out.println("ccle: " + sensor.node.NodeID + " - " + sensor.sensorID);
+	//CS/			System.out.println("ccle: time: " + JistAPI.getTime() + " " + sensor.node.NodeID + " - " + sensor.sensorID + " c = " + channelID);
 			}
 			else
 			{
 				for (VLCsensor item : getNearestOpositeSensor(sensor)) 
 				{
 					item.controlSignal.remove(channelID);
-					System.out.println("ccle: " + item.node.NodeID + " - " + item.sensorID);
+					//CS/		System.out.println("ccle: time: " + JistAPI.getTime() + " " + item.node.NodeID + " - " + item.sensorID + " c = " + channelID);
 				}
 			}
 		}
@@ -745,7 +745,7 @@ public final class RadioVLC extends RadioNoise
 		
 		if(isVLC)
 		{
-			System.out.println("rx- " + JistAPI.getTime() + " mid- "+msg.getMessageID() + " n: "+NodeID+ " -> " +((MacVLCMessage)msg).getSrc() + " -> "+((MacVLCMessage)msg).getDst());
+			//CSM//		System.out.println("rx- " + JistAPI.getTime() + " mid- "+msg.getMessageID() + " n: "+NodeID+ " -> " +((MacVLCMessage)msg).getSrc() + " -> "+((MacVLCMessage)msg).getDst());
 			((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(251, "radiovlct-rec", null));
 			if( ((NetMessage.Ip)((MacVLCMessage)msg).getBody()).getDst().hashCode() == NodeID)
 			{
@@ -868,6 +868,8 @@ public final class RadioVLC extends RadioNoise
 
 		if(isVLC)
 		{
+			
+			
 			for (VLCsensor item : InstalledSensorsRx)
 			{
 				if(item.state == SensorStates.Receiving)
@@ -883,6 +885,8 @@ public final class RadioVLC extends RadioNoise
 						}
 						if(msg1.getEndRx(item) == JistAPI.getTime())
 						{
+							//CSM//				System.out.println("rxe- " + JistAPI.getTime() + " mid- "+msg1.getMessageID() + " n: "+NodeID+ " -> " +((MacVLCMessage)msg1).getSrc() + " -> "+((MacVLCMessage)msg1).getDst());
+							
 							cumpower = 0;
 							//dohvatiti trenutne u zraku.
 							for (MacMessage msg2 : item.Messages) 
@@ -1014,7 +1018,7 @@ public final class RadioVLC extends RadioNoise
 		
 		if(isVLC)
 		{
-			System.out.println("tx- " + JistAPI.getTime() + " mid- "+msg.getMessageID() + " n: "+NodeID+ " -> " +((MacVLCMessage)msg).getSrc() + " -> "+((MacVLCMessage)msg).getDst());
+//CSM//			System.out.println("tx- " + JistAPI.getTime() + " mid- "+msg.getMessageID() + " n: "+NodeID+ " -> " +((MacVLCMessage)msg).getSrc() + " -> "+((MacVLCMessage)msg).getDst());
 			((NetMessage.Ip)((MacVLCMessage)msg).getBody()).Times.add(new TimeEntry(2, "radiovlct", null));
 		}
 		else
@@ -1023,10 +1027,11 @@ public final class RadioVLC extends RadioNoise
 			{
 				((NetMessage.Ip)((MacMessage.Data)msg).getBody()).Times.add(new TimeEntry(2, "radiovlct", null));
 			}
-		}
 
-		// radio in sleep mode
-		if(mode == Constants.RADIO_MODE_SLEEP) return;
+			// radio in sleep mode
+			if(mode == Constants.RADIO_MODE_SLEEP) return;
+
+		}
 
 		///ako poruka nema postavljene senzore postavljam u sve.
 		//if sensors are not set, set all of them -> add them to the list of sending sensorids of message.
@@ -1048,8 +1053,10 @@ public final class RadioVLC extends RadioNoise
 				{
 					if( queryControlSignal(ss, 1))
 					{
-						System.out.println("tu2");
-		//				return;
+		//				System.out.println("tu2");
+						TimeEntry.AllMessages.remove(msg);
+						
+						return;
 					}
 					
 				}
@@ -1057,8 +1064,8 @@ public final class RadioVLC extends RadioNoise
 				if(tmpSensorTransmit.mode == SensorModes.Transmit)
 				{
 					//ok
-					if(tmpSensorTransmit.state == SensorStates.Transmitting)
-			//		if(tmpSensorTransmit.state  == SensorStates.Idle )//na MAC sloju stavljam vec u transmitting
+				//	if(tmpSensorTransmit.state == SensorStates.Transmitting)
+					if(tmpSensorTransmit.state  == SensorStates.Idle )//na MAC sloju stavljam vec u transmitting
 					{
 						//ok
 					
@@ -1096,7 +1103,7 @@ public final class RadioVLC extends RadioNoise
 				((MacInterface.VlcMacInterface) this.macEntity).notifyTransmitFail(msg, Constants.MacVlcErrorSensorTxAllBusy);	
 			}
 			
-			CheckPhyConditions( NodeID, -2, SensorModes.Receive, (MacMessage)msg);
+		//	CheckPhyConditions( NodeID, -2, SensorModes.Receive, (MacMessage)msg);
 				
 			/*if(res == null || ((MacMessage)res).isVLCvalid == false)
 			{
@@ -1119,7 +1126,11 @@ public final class RadioVLC extends RadioNoise
 				//nema tko poslati poruku jer su svi zauzeti.
 				return;
 			}*/
-			if(mode == Constants.RADIO_MODE_TRANSMITTING) throw new RuntimeException("radio already transmitting");
+			if(mode == Constants.RADIO_MODE_TRANSMITTING) 
+				{
+					return;
+					//throw new RuntimeException("radio already transmitting");
+				}
 			if(mode == Constants.RADIO_MODE_RECEIVING) 
 			{
 				//System.out.println("radio receiving, can't transmit at the same time");
@@ -1230,6 +1241,8 @@ public final class RadioVLC extends RadioNoise
 				{
 					if (item.Messages.getFirst().getEndTx(item) == JistAPI.getTime()) 
 					{
+						MacMessage msg = item.Messages.getFirst();
+						//CSM//			System.out.println("txe- " + JistAPI.getTime() + " mid- "+msg.getMessageID() + " n: "+NodeID+ " -> " +((MacVLCMessage)msg).getSrc() + " -> "+((MacVLCMessage)msg).getDst());
 						item.state = SensorStates.Idle;
 					}
 					else

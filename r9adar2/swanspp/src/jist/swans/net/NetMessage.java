@@ -66,7 +66,7 @@ public abstract class NetMessage implements Message, Cloneable
    */
   public static class Ip extends NetMessage
   {
-
+	  public double StatDuration = -1;
 	String ID ="";
 	  public String getMessageID()
 	  {
