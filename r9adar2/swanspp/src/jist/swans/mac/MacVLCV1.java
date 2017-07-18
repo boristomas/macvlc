@@ -38,9 +38,9 @@ import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioInterface;
 import jist.swans.radio.RadioVLC;
 import jist.swans.radio.TimeEntry;
-import jist.swans.radio.VLCsensor;
-import jist.swans.radio.VLCsensor.SensorModes;
-import jist.swans.radio.VLCsensor.SensorStates;
+import jist.swans.radio.VLCelement;
+import jist.swans.radio.VLCelement.ElementModes;
+import jist.swans.radio.VLCelement.ElementStates;
 import jobs.JobConfigurator;
 import driver.JistExperiment;
  
@@ -61,7 +61,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
      * # ok - Napraviti varijantu sa redom i sa slanjem poruke samo na onaj senzor na koji je primljena nekada bila poruka.
      *   treba napraviti katalog u koji cu zapisivati adresu odredista, na koji senzor je primljena poruka i kada je primljena poruka na tom senzoru.
      * 
-     * # ok - Napraviti tablicu sensora koji primaju i salju, i ako ja saljem jednom mac sloju i on primi poruku na senzor 5 onda ce na njegovoj strani znaciti da treba poslati poruku
+     * # ok - Napraviti tablicu elemenata koji primaju i salju, i ako ja saljem jednom mac sloju i on primi poruku na senzor 5 onda ce na njegovoj strani znaciti da treba poslati poruku
      *   na senzore 1 i 3, naravno, prvi puta, dok se ne dobije odgovor se salje na sve senzore. obzirom da ce rezultat odabira senzora biti lista onda se salje na prvi koji je slobodan.
      * 
      * # ok - u v3. koristim staticni layout senzora, npr ako ja znam da mi je poruka dosla na senzor 6 od posiljatelja A onda cu posiljatelju A slati sa senzora 2 i 4.
@@ -79,9 +79,9 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
      *
      *
      * */
-    //TODO: za MAC ce trebati posebna vrsta poruke koja ce se slati na pocetku transmisije gdje cvor na kratak i ne dvosmislen nacin opisuje svoje fizicke karatkeristike (razmjestaj senzora, bearing, kutevi, snaga!!!???)
-    //TODO: Vidjeti zasto se radi delay tri puta, jednom na transmit a drugi puta na receive na radio objektu kao i u macu na transmit???
- 
+    //TODO: za MAC ce trebati posebna vrsta poruke koja ce se slati na pocetku transmisije gdje cvor na kratak i ne dvosmislen nacin opisuje svoje fizicke karatkeristike (razmjestaj elemenata, bearing, kutevi, snaga!!!???)
+   
+	
     ////////////////////////////////////////////////////
     // short 802.11 lexicon:
     //   slot - minimum time to sense medium
@@ -238,7 +238,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     /** mac mode: transmitting ACK packet. */
     public static final byte MAC_MODE_XACK           = 12;
     private LinkedList<MacMessage> receivedMessages = new LinkedList<MacMessage>();
-    private VLCsensor interferedSensor = null;
+    private VLCelement interferedElement = null;
  
     public enum QueueStrategies
     {
@@ -599,9 +599,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
  
  
     private LinkedList<MacVLCMessage> MessageQueue = new LinkedList<MacVLCMessage>();
-    //private MacVLCMessage CurrentMessageOnAir = null;
-    // new ConcurrentLinkedQueue<MacVLCMessage>();  
-    //private VLCsensor tmpSensorTx1;
+
     /**
      * send message
      * @param msg
@@ -618,18 +616,15 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
       //  long delay2 =Util.randomTime(50*Constants.MILLI_SECOND); //RX_TX_TURNAROUND;// not needed because Tx and Rx are independent
         long duration = transmitTime(msg);
         
-        VLCsensor tmpsens;
-        for (Integer item : msg.getSensorIDTx(myRadio.NodeID))
+        VLCelement tmpsens;
+        for (Integer item : msg.getElementIDTx(myRadio.NodeID))
         {
-        	tmpsens = myRadio.GetSensorByID(item);
+        	tmpsens = myRadio.GetElementByID(item);
         	
-        	if(tmpsens.mode == SensorModes.Transmit )
+        	if(tmpsens.mode == ElementModes.Transmit )
         	{
-        		if(tmpsens.state == SensorStates.Idle )
+        		if(tmpsens.state == ElementStates.Idle )
         		{
-        	//		tmpsens.setState(SensorStates.Transmitting);
-        		//	tmpSensorTransmit.setState(SensorStates.Transmitting );
-
 					((MacMessage)msg).setEndTx(tmpsens, JistAPI.getTime() + duration + delay);
 					((MacMessage)msg).setStartTx(tmpsens, JistAPI.getTime());
 					((MacMessage)msg).setDurationTx(tmpsens, duration + delay);
@@ -715,12 +710,12 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         }
     }
  
-    private HashSet<Integer> tmpSensorsTx = new HashSet<Integer>();
-    private VLCsensor tmpSensorTx;
+    private HashSet<Integer> tmpElementsTx = new HashSet<Integer>();
+    private VLCelement tmpElementTx;
  
     private boolean canSendMessage(MacVLCMessage msg,boolean fixTx, QueueStrategies strategy)
     {
-        tmpSensorsTx = new HashSet<Integer>();
+        tmpElementsTx = new HashSet<Integer>();
         boolean returnMe = true;
         if(!fixTx)
         {
@@ -728,28 +723,28 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
             if(strategy == QueueStrategies.Reliable)
             {
             	//čekaj da svi budu slobodni za slanje.
-                for (Integer item : msg.getSensorIDTx(myRadio.NodeID)) 
+                for (Integer item : msg.getElementIDTx(myRadio.NodeID)) 
                 {
-                    if(myRadio.GetSensorByID(item).state == SensorStates.Transmitting)
+                    if(myRadio.GetElementByID(item).state == ElementStates.Transmitting)
                     {
                         return false;
                     }
                 }
             }
             returnMe = true;
-            for (Integer item : msg.getSensorIDTx(myRadio.NodeID))//.SensorIDTx) 
+            for (Integer item : msg.getElementIDTx(myRadio.NodeID))
             {
-                if(myRadio.GetSensorByID(item).state == SensorStates.Idle)
+                if(myRadio.GetElementByID(item).state == ElementStates.Idle)
                 {
-                    for (VLCsensor sensor : myRadio.getNearestOpositeSensor(myRadio.GetSensorByID(item))) 
+                    for (VLCelement element : myRadio.getNearestOpositeElement(myRadio.GetElementByID(item))) 
                     {
                              
-                        if(myRadio.queryControlSignal(sensor, 1))
+                        if(myRadio.queryControlSignal(element, 1))
                         {
                   //CSM//      	System.out.println("CSM1 t-"+JistAPI.getTime()+" n-" + myRadio.NodeID + " s- " + sensor.sensorID + " mid- "+msg.getMessageID() + " false");
                             return false;
                         }
-                        else if(myRadio.queryControlSignal(sensor, 2))
+                        else if(myRadio.queryControlSignal(element, 2))
                         {
                         	//CSM//      	System.out.println("CSM2 t-"+JistAPI.getTime()+" n-" + myRadio.NodeID + " s- " + sensor.sensorID + " mid- "+msg.getMessageID() + " false");
                             return false;
@@ -761,7 +756,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
                             {
                                 //ovdje provjeravam jesu li svi senzori slobodni prije slanja broadcasta.
                             	//request by mate :)
-                                if(myRadio.InstalledSensorsTx.size() == msg.getSensorIDTxSize(myRadio.NodeID))
+                                if(myRadio.InstalledElementsTx.size() == msg.getElementIDTxSize(myRadio.NodeID))
                                 {
                                   //  return true;
                                 }
@@ -788,18 +783,18 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         {
             //fix = true
         	returnMe = true;
-            for (Integer item : msg.getSensorIDTx(myRadio.NodeID))//.SensorIDTx)
+            for (Integer item : msg.getElementIDTx(myRadio.NodeID))
             {
-                tmpSensorTx =myRadio.GetSensorByID(item);
-                if(tmpSensorTx.state == SensorStates.Idle)
+                tmpElementTx =myRadio.GetElementByID(item);
+                if(tmpElementTx.state == ElementStates.Idle)
                 {
-                    for (VLCsensor sensor : myRadio.getNearestOpositeSensor(tmpSensorTx)) 
+                    for (VLCelement element : myRadio.getNearestOpositeElement(tmpElementTx)) 
                     {
-                        if(myRadio.CarrierSense(sensor))
+                        if(myRadio.CarrierSense(element))
                         {
-                            if(!myRadio.queryControlSignal(sensor, 1))
+                            if(!myRadio.queryControlSignal(element, 1))
                             {
-                                tmpSensorsTx.add(tmpSensorTx.sensorID);
+                                tmpElementsTx.add(tmpElementTx.elementID);
                             }
                         }
                     }
@@ -808,8 +803,8 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
                 {
                 }
             }
-            msg.setSensorIDTx(tmpSensorsTx, myRadio.NodeID);
-            if(msg.getSensorIDTxSize(myRadio.NodeID) != 0)
+            msg.setElementIDTx(tmpElementsTx, myRadio.NodeID);
+            if(msg.getElementIDTxSize(myRadio.NodeID) != 0)
             {
              //   return true;
             }
@@ -825,30 +820,29 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     private long tmpDelay;
     private long minDelay;
     private long maxDelay;
-    private VLCsensor tmpSensor2;
+    private VLCelement tmpElement2;
     /**
-     * Gets end time of transmission of sensor that is transmitting, can get minimum time = earlies ending or 
+     * Gets end time of transmission of element that is transmitting, can get minimum time = earlies ending or 
      * maximum time =  last transmission.
-     * @param sensors
+     * @param elements
      * @param isMin
      * @return
      */
-    private long getMessageEndTimeForSensors(LinkedList<VLCsensor> sensors, boolean isMin )
+    private long getMessageEndTimeForElements(LinkedList<VLCelement> elements, boolean isMin )
     {
-        if(sensors.size() == 0)
+        if(elements.size() == 0)
         {
             return Constants.MICRO_SECOND;//nikada se ne bi trebalo desiti.
         }
         minDelay = Constants.DAY;//jako veliki broj
         maxDelay = 0;
-        for (VLCsensor sensor : sensors)
+        for (VLCelement element : elements)
         {
-            tmpSensor2 = sensor;//myRadio.getSensorByID(sensor);
-            if(tmpSensor2.state == SensorStates.Transmitting)
+            tmpElement2 = element;
+            if(tmpElement2.state == ElementStates.Transmitting)
             {
             //	if(tmp)
-                tmpDelay = tmpSensor2.Messages.getFirst().getDurationTx(tmpSensor2);//.DurationTx;
-         //       tmpDelay = tmpSensor2.Messages.getLast().getDurationTx(tmpSensor2);//.DurationTx;
+                tmpDelay = tmpElement2.Messages.getFirst().getDurationTx(tmpElement2);//.DurationTx;
  
                 if(isMin)
                 {
@@ -965,7 +959,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
                 if(!TimerRunning)
                 {
                     TimerRunning = true;
-                    transmitDelay = getMessageEndTimeForSensors(myRadio.InstalledSensorsTx, true);//-JistAPI.getTime();
+                    transmitDelay = getMessageEndTimeForElements(myRadio.InstalledElementsTx, true);//-JistAPI.getTime();
                     self.startTimer(transmitDelay, (byte)1);
                 }
                 return;
@@ -988,14 +982,14 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
         }
         case Concurrent  :
         {   
-            data.setSensorIDTx(GetTransmitSensors(nextHop), myRadio.NodeID);
+            data.setElementIDTx(getTransmitElements(nextHop), myRadio.NodeID);
  
             if(canSendMessage(data, false, QueueStrategy))//mora biti false, inace bi se poruka slala na tx koji su slobodni ali nisu u smjeru primatelja.
             {
             	//postavljam senzore u transmitting prije slanja.
-            /*	for (Integer item : data.getSensorIDTx(myRadio.NodeID))
+            /*	for (Integer item : data.getElementIDTx(myRadio.NodeID))
             	{
-            		myRadio.GetSensorByID(item).setState(SensorStates.Transmitting);
+            		myRadio.GetElementByID(item).setState(ElementStates.Transmitting);
 				}*/
             
             	
@@ -1012,7 +1006,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
                 if(!TimerRunning)
                 {
                     TimerRunning = true;
-                    transmitDelay = getMessageEndTimeForSensors(myRadio.InstalledSensorsTx, true);//-JistAPI.getTime();
+                    transmitDelay = getMessageEndTimeForElements(myRadio.InstalledElementsTx, true);//-JistAPI.getTime();
                     self.startTimer(transmitDelay, (byte)1);
                 }
             }
@@ -1065,7 +1059,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
  
             do{
                 tmpmsg1 = MessageQueue.poll();
-                tmpmsg1.setSensorIDTx(GetTransmitSensors(tmpmsg1.getDst()), myRadio.NodeID);
+                tmpmsg1.setElementIDTx(getTransmitElements(tmpmsg1.getDst()), myRadio.NodeID);
  
  
                 if(canSendMessage(tmpmsg1, false, QueueStrategy))//2 param je bio true
@@ -1084,7 +1078,7 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
  
             if(!MessageQueue.isEmpty())
             {
-                transmitDelay = getMessageEndTimeForSensors(myRadio.InstalledSensorsTx, true);//-JistAPI.getTime();
+                transmitDelay = getMessageEndTimeForElements(myRadio.InstalledElementsTx, true);//-JistAPI.getTime();
                 self.startTimer(transmitDelay, (byte)1);
             }
             else
@@ -1154,11 +1148,11 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
     private float receivedMessageAge= 0;
     private long maxReceivedAge = 5000000;//nanoseconds = 5ms
     private int ageCounter= 0;
-    private LinkedList<VLCsensor> GetTransmitSensors(MacAddress newdest)
+    private LinkedList<VLCelement> getTransmitElements(MacAddress newdest)
     {
         if(newdest == MacAddress.ANY)
         {
-            return myRadio.InstalledSensorsTx;
+            return myRadio.InstalledElementsTx;
         }
         if(receivedMessages.size() !=0)
         {
@@ -1169,25 +1163,25 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
             {
                 if(receivedMessages.get(i).getSrc() == newdest)
                 {
-                    for (Integer item : receivedMessages.get(i).getSensorIDRx(myRadio.NodeID)) 
+                    for (Integer item : receivedMessages.get(i).getElementIDRx(myRadio.NodeID)) 
                     {
-                        receivedMessagesEndTime = receivedMessages.get(i).getEndRx(myRadio.GetSensorByID(item));
+                        receivedMessagesEndTime = receivedMessages.get(i).getEndRx(myRadio.GetElementByID(item));
                         break;
                     }                   
                     receivedMessageAge = (JistAPI.getTime()  - receivedMessagesEndTime);
                     if( receivedMessageAge < maxReceivedAge  )
                     {
-                        return myRadio.getNearestOpositeSensor(receivedMessages.get(i).getSensorIDRx(myRadio.NodeID));
+                        return myRadio.getNearestOpositeElement(receivedMessages.get(i).getElementIDRx(myRadio.NodeID));
                     }
                     else
                     {
-                        return myRadio.InstalledSensorsTx;
+                        return myRadio.InstalledElementsTx;
                     }
                 }
             }
         }
  
-        return myRadio.InstalledSensorsTx;
+        return myRadio.InstalledElementsTx;
     }
  
  
@@ -1306,18 +1300,18 @@ public class MacVLCV1 implements MacInterface.VlcMacInterface//  MacInterface.Ma
  
  
     MacVLCMessage tmpmsg;
-    public void notifyInterference(MacMessage msg, VLCsensor sensors) 
+    public void notifyInterference(MacMessage msg, VLCelement elements) 
     {
         ((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(90, "macinterference", null));
         if(JobConfigurator.DoMessageOutput)
         {
-        	System.out.println("interference on node: " + sensors.node.NodeID +" sensor: " + sensors.sensorID + " msg id: "+ ((MacVLCMessage) msg).ID);
+        	System.out.println("interference on node: " + elements.node.NodeID +" element: " + elements.elementID + " msg id: "+ ((MacVLCMessage) msg).ID);
         }
-        interferedSensor = sensors;
-        for (VLCsensor sensor : myRadio.getNearestOpositeSensor(sensors)) 
+        interferedElement = elements;
+        for (VLCelement element : myRadio.getNearestOpositeElement(elements)) 
         {
-            tmpmsg =sensors.Messages.getFirst();
-            if(tmpmsg.getEndTx(sensors) <= JistAPI.getTime()) 
+            tmpmsg =elements.Messages.getFirst();
+            if(tmpmsg.getEndTx(elements) <= JistAPI.getTime()) 
             {
                 //znaci da se poruka jos salje
                 tmpmsg.isRetry = true;

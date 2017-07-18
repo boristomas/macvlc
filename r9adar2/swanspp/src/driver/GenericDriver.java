@@ -85,9 +85,9 @@ import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioNoise;
 import jist.swans.radio.RadioNoiseIndep;
 import jist.swans.radio.RadioVLC;
-import jist.swans.radio.VLCsensor;
+import jist.swans.radio.VLCelement;
 import jist.swans.radio.Vizbt;
-import jist.swans.radio.VLCsensor.SensorModes;
+import jist.swans.radio.VLCelement.ElementModes;
 import jist.swans.route.RouteAodv;
 import jist.swans.route.RouteDsr;
 import jist.swans.route.RouteDsr_Ns2;
@@ -200,11 +200,11 @@ public class GenericDriver {
 				b = Float.parseFloat(splitdata[5]);
 				if(splitdata[6].equalsIgnoreCase("t"))
 				{
-					((RadioVLC)radio).InstalledSensorsTx.add(new VLCsensor(sid, (RadioVLC)radio,los, ang, location, ox*ofx, oy*ofy, b, SensorModes.Transmit));
+					((RadioVLC)radio).InstalledElementsTx.add(new VLCelement(sid, (RadioVLC)radio,los, ang, location, ox*ofx, oy*ofy, b, ElementModes.Transmit));
 				}
 				else
 				{
-					((RadioVLC)radio).InstalledSensorsRx.add(new VLCsensor(sid, (RadioVLC)radio,los, ang, location, ox*ofx, oy*ofy, b, SensorModes.Receive));
+					((RadioVLC)radio).InstalledElementsRx.add(new VLCelement(sid, (RadioVLC)radio,los, ang, location, ox*ofx, oy*ofy, b, ElementModes.Receive));
 				}
 
 			}

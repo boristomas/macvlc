@@ -15,7 +15,7 @@ import jist.swans.Constants;
 import jist.swans.misc.Message;
 import jist.swans.net.NetInterface;
 import jist.swans.radio.RadioInterface;
-import jist.swans.radio.VLCsensor;
+import jist.swans.radio.VLCelement;
 
 /**
  * A loopback mac implementation.
@@ -129,7 +129,7 @@ public void setRadioEntity(RadioInterface radioEntity) {
 }
 
 @Override
-public void notifyInterference(MacMessage msg, VLCsensor sensors) {
+public void notifyInterference(MacMessage msg, VLCelement sensors) {
 	// T-ODO Auto-generated method stub
 	
 }

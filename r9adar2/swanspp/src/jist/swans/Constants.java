@@ -249,11 +249,11 @@ public final class Constants {
 	public static final short MAC_DUMB = 2;
 
 	// ////mac vlc constants
-	public static final int MacVlcErrorSensorIsNotTX = 1;
-	public static final int MacVlcErrorSensorTxIsBusy = 2;
-	public static final int MacVlcErrorSensorIsNotRX = 3;
-	public static final int MacVlcErrorSensorRxIsBusy = 4;
-	public static final int MacVlcErrorSensorTxAllBusy = 5;
+	public static final int MacVlcErrorElementIsNotTX = 1;
+	public static final int MacVlcErrorElementTxIsBusy = 2;
+	public static final int MacVlcErrorElementIsNotRX = 3;
+	public static final int MacVlcErrorElementRxIsBusy = 4;
+	public static final int MacVlcErrorElementTxAllBusy = 5;
 
 	// ////////////////////////////////////////////////
 	// Network-related constants

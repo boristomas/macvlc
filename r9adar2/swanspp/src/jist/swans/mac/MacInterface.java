@@ -14,7 +14,7 @@ import jist.runtime.JistAPI;
 import jist.swans.misc.Message;
 import jist.swans.net.NetInterface;
 import jist.swans.radio.RadioInterface;
-import jist.swans.radio.VLCsensor;
+import jist.swans.radio.VLCelement;
 
 /**
  * Defines the interface of all Link layer entity implementations.
@@ -85,7 +85,7 @@ public interface MacInterface extends JistAPI.Proxiable
   	void notifyTransmitFail(Message msg, int errorCode);
   	void notifyReceiveFail(Message msg, int errorCode);*/
   	
-  	void notifyInterference(MacMessage msg, VLCsensor sensors);
+  	void notifyInterference(MacMessage msg, VLCelement sensors);
   	void notifyError(int errorCode, String message);
   	void notifyTransmitFail(Message msg, int errorCode);
   	void notifyReceiveFail(Message msg, int errorCode);

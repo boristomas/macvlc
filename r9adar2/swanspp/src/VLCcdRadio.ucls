@@ -10,8 +10,8 @@
       <operations public="false" package="false" protected="false" private="false" static="true"/>    
     </display>  
   </class>  
-  <class id="2" language="java" name="jist.swans.radio.VLCsensor" project="r9adar2" 
-    file="/r9adar2/swanspp/src/jist/swans/radio/VLCsensor.java" binary="false" corner="BOTTOM_RIGHT">    
+  <class id="2" language="java" name="jist.swans.radio.VLCelement" project="r9adar2" 
+    file="/r9adar2/swanspp/src/jist/swans/radio/VLCelement.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="499" y="168"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
@@ -28,8 +28,8 @@
       <operations public="false" package="false" protected="false" private="false" static="true"/>    
     </display>  
   </interface>  
-  <enumeration id="4" language="java" name="jist.swans.radio.VLCsensor.SensorModes" project="r9adar2" 
-    file="/r9adar2/swanspp/src/jist/swans/radio/VLCsensor.java" binary="false" corner="BOTTOM_RIGHT">    
+  <enumeration id="4" language="java" name="jist.swans.radio.VLCelement.ElementModes" project="r9adar2" 
+    file="/r9adar2/swanspp/src/jist/swans/radio/VLCelement.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="509" y="293"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
@@ -37,8 +37,8 @@
       <operations public="false" package="false" protected="false" private="false" static="true"/>    
     </display>  
   </enumeration>  
-  <enumeration id="5" language="java" name="jist.swans.radio.VLCsensor.SensorStates" project="r9adar2" 
-    file="/r9adar2/swanspp/src/jist/swans/radio/VLCsensor.java" binary="false" corner="BOTTOM_RIGHT">    
+  <enumeration id="5" language="java" name="jist.swans.radio.VLCelement.ElementStates" project="r9adar2" 
+    file="/r9adar2/swanspp/src/jist/swans/radio/VLCelement.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="677" y="158"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
@@ -91,29 +91,29 @@
       <operations public="false" package="false" protected="false" private="false" static="true"/>    
     </display>  
   </class>  
-  <dependency id="11">    
+  <realization id="11">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="6"/>  
+  </realization>  
+  <dependency id="12">    
     <end type="SOURCE" refId="8"/>    
     <end type="TARGET" refId="1"/>  
   </dependency>  
-  <dependency id="12">    
+  <realization id="13">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="9"/>  
+  </realization>  
+  <dependency id="14">    
     <end type="SOURCE" refId="2"/>    
-    <end type="TARGET" refId="10"/>  
+    <end type="TARGET" refId="5"/>  
   </dependency>  
-  <dependency id="13">    
-    <bendpoint x="323" y="7"/>    
-    <end type="SOURCE" refId="9"/>    
-    <end type="TARGET" refId="7"/>  
-  </dependency>  
-  <realization id="14">    
+  <realization id="15">    
     <end type="SOURCE" refId="1"/>    
     <end type="TARGET" refId="3"/>  
   </realization>  
-  <dependency id="15">    
-    <end type="SOURCE" refId="8"/>    
-    <end type="TARGET" refId="7"/>  
-  </dependency>  
   <dependency id="16">    
-    <end type="SOURCE" refId="2"/>    
+    <bendpoint x="323" y="7"/>    
+    <end type="SOURCE" refId="9"/>    
     <end type="TARGET" refId="7"/>  
   </dependency>  
   <dependency id="17">    
@@ -125,25 +125,21 @@
     <end type="TARGET" refId="4"/>  
   </dependency>  
   <dependency id="19">    
-    <end type="SOURCE" refId="3"/>    
-    <end type="TARGET" refId="6"/>  
-  </dependency>  
-  <realization id="20">    
-    <end type="SOURCE" refId="10"/>    
-    <end type="TARGET" refId="6"/>  
-  </realization>  
-  <dependency id="21">    
-    <end type="SOURCE" refId="2"/>    
-    <end type="TARGET" refId="5"/>  
-  </dependency>  
-  <dependency id="22">    
     <end type="SOURCE" refId="10"/>    
     <end type="TARGET" refId="2"/>  
   </dependency>  
-  <realization id="23">    
+  <dependency id="20">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="7"/>  
+  </dependency>  
+  <dependency id="21">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="6"/>  
+  </dependency>  
+  <dependency id="22">    
     <end type="SOURCE" refId="8"/>    
-    <end type="TARGET" refId="9"/>  
-  </realization>  
+    <end type="TARGET" refId="7"/>  
+  </dependency>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
     accessors="true" visibility="true">    
     <attributes public="false" package="false" protected="false" private="false" static="true"/>    

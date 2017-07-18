@@ -154,7 +154,7 @@ public abstract class StreetMobility implements Mobility {
     /* debugging constants */
     /** main debug switch */
 
-    final static boolean DEBUG = true;					//DEBUG ORIGINALLY SET TO FALSE
+    final static boolean DEBUG = false;					//DEBUG ORIGINALLY SET TO FALSE
 
     /** Records paths if true. */
     private static final boolean RECORD_STREETS = false;

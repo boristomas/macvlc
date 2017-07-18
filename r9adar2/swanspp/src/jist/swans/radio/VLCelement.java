@@ -36,7 +36,7 @@ import driver.JistExperiment;
 
 
 
-public class VLCsensor
+public class VLCelement
 {
 
 	public double distanceLimit = 250;
@@ -44,14 +44,14 @@ public class VLCsensor
 	public float offsetX =10;
 	public float offsetY = 10;
 	public float Bearing = 0;
-	public int sensorID = 0;
-	public SensorModes mode;
-	public SensorStates state;
+	public int elementID = 0;
+	public ElementModes mode;
+	public ElementStates state;
 	public RadioVLC node;
-	public Location sensorLocation;
-	public Location sensorLocation1;//top
-	public Location sensorLocation2;//bottom
-	private float sensorBearingNotRelative;
+	public Location elementLocation;
+	public Location elementLocation1;//top
+	public Location elementLocation2;//bottom
+	private float elementBearingNotRelative;
 	private float stickOut = 0.00001F; //1cm
 	//	public int signalsRx;
 	public LinkedList<MacVLCMessage> Messages = new LinkedList<MacVLCMessage>();
@@ -62,7 +62,7 @@ public class VLCsensor
 	public HashSet<Integer> controlSignal = new HashSet<Integer>();
 
 
-	public enum SensorModes
+	public enum ElementModes
 	{
 		Receive(0),
 		Transmit(1),
@@ -70,7 +70,7 @@ public class VLCsensor
 		Unknown(3);
 		private int code;
 
-		private SensorModes(int c) {
+		private ElementModes(int c) {
 			code = c;
 		}
 
@@ -78,14 +78,14 @@ public class VLCsensor
 			return code;
 		}
 	};
-	public enum SensorStates
+	public enum ElementStates
 	{	
 		Receiving(0),
 		Transmitting(1),
 		Idle(2);
 		private int code;
 
-		private SensorStates(int c) {
+		private ElementStates(int c) {
 			code = c;
 		}
 
@@ -94,7 +94,7 @@ public class VLCsensor
 		}
 	}
 
-	public VLCsensor(int sensorID, RadioVLC node, float distancelimit, float visionAngle,Location originalLoc, float offsetX, float offsetY, float bearing, SensorModes mode) 
+	public VLCelement(int elementID, RadioVLC node, float distancelimit, float visionAngle,Location originalLoc, float offsetX, float offsetY, float bearing, ElementModes mode) 
 	{
 		/*notes:
 		 * kod 802.11 vlc radio treba slati i primati sa svih senzora i na taj nacin simulirati omni.
@@ -121,16 +121,16 @@ public class VLCsensor
 		this.offsetY = (1* this.offsetY * (this.stickOut + dAB)) / dAB;
 
 		this.Bearing = bearing;
-		this.sensorID = sensorID;
+		this.elementID = elementID;
 		this.mode = mode;
-		this.state = SensorStates.Idle;
+		this.state = ElementStates.Idle;
 		UpdateShape(originalLoc, node.NodeBearing);
 	}
-	public void setState( SensorStates newState)
+	public void setState( ElementStates newState)
 	{
 		state = newState;
 	}
-	public SensorStates getState()
+	public ElementStates getState()
 	{
 		return state;
 	}
@@ -158,25 +158,25 @@ public class VLCsensor
 					getScaledNumber(NodeLocation.getY(), 2));
 
 		}
-		sensorBearingNotRelative = NodeBearing + Bearing;
+		elementBearingNotRelative = NodeBearing + Bearing;
 
-		sensorLocation = RadioVLC.rotatePoint(NodeLocation.getX()+ offsetX, NodeLocation.getY()+ offsetY, NodeLocation, NodeBearing);
+		elementLocation = RadioVLC.rotatePoint(NodeLocation.getX()+ offsetX, NodeLocation.getY()+ offsetY, NodeLocation, NodeBearing);
 		//	sensorLocation = new Location.Location2D(10,5);		
 		//distanceLimit = 6;
 
-		sensorLocation1 = getVLCCornerPoint(sensorBearingNotRelative - (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
-		sensorLocation2 = getVLCCornerPoint(sensorBearingNotRelative + (visionAngle/2), sensorLocation, distanceLimit, visionAngle);
+		elementLocation1 = getVLCCornerPoint(elementBearingNotRelative - (visionAngle/2), elementLocation, distanceLimit, visionAngle);
+		elementLocation2 = getVLCCornerPoint(elementBearingNotRelative + (visionAngle/2), elementLocation, distanceLimit, visionAngle);
 		//	if(node.NodeID == nodeidtst)
 
 		coverageShape = new Path2D.Float();// Polygon();
 		//TODO: provjeri zasto ne radi bas dobro za 90°
 
-		double ax = sensorLocation.getX();
-		double ay = sensorLocation.getY();
-		double bx = sensorLocation1.getX();
-		double by = sensorLocation1.getY();
-		double cx = sensorLocation2.getX();
-		double cy = sensorLocation2.getY();
+		double ax = elementLocation.getX();
+		double ay = elementLocation.getY();
+		double bx = elementLocation1.getX();
+		double by = elementLocation1.getY();
+		double cx = elementLocation2.getX();
+		double cy = elementLocation2.getY();
 
 
 		/*
@@ -253,7 +253,7 @@ public class VLCsensor
 			
 			if(JistExperiment.getJistExperiment().placement == Constants.PLACEMENT_GRID)
 			{
-				if(mode == SensorModes.Receive)
+				if(mode == ElementModes.Receive)
 				{
 					GenericDriver.btviz.DrawShape(coverageShape, Color.blue,1);
 				}
@@ -262,7 +262,7 @@ public class VLCsensor
 					GenericDriver.btviz.DrawShape(coverageShape, Color.red,1);
 				}
 
-				GenericDriver.btviz.DrawString(this.sensorID+"", Color.BLACK, sensorLocation.getX(), sensorLocation.getY() , node.NodeLocation.getX(), node.NodeLocation.getY(), 0.3F, 0.9F);
+				GenericDriver.btviz.DrawString(this.elementID+"", Color.BLACK, elementLocation.getX(), elementLocation.getY() , node.NodeLocation.getX(), node.NodeLocation.getY(), 0.3F, 0.9F);
 			}
 		}
 		//((Graphics2D) GenericDriver.btviz.getGraph()).drawArc(x, y, width, height, startAngle, arcAngle); .drawString("a(" + ax + ","+ay+")",(float)ax,(float)ay);
@@ -324,4 +324,4 @@ public class VLCsensor
 
 			}*/
 
-}//VLCsensor
+}//VLCelement

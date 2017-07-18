@@ -63,7 +63,7 @@ public interface PathLoss
 	{
 		//ref: Fundamental Analysis for VLC System using LED Lights.pdf
 		//TODO: mali problem je ovdje jer gledam lokacije auta a ne senzora, mislim da ova aproksimacija nece jako utjecati
-		//TODO: također gledam prosjecni kut koji vide sensor loc.
+		//TODO: također gledam prosjecni kut koji vide element loc.
 
 		// PathLoss interface
 		/** {@inheritDoc} */

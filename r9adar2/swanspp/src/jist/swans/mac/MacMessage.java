@@ -23,7 +23,7 @@ import jist.runtime.JistAPI;
 import jist.runtime.Util;
 import jist.swans.Constants;
 import jist.swans.misc.Message;
-import jist.swans.radio.VLCsensor;
+import jist.swans.radio.VLCelement;
 
 /**
  * Defines the various message used by the Mac entity.
@@ -41,13 +41,13 @@ public abstract class MacMessage implements Message
 	private HashMap<Integer, HashSet<Integer>> SensorIDRx = new HashMap<Integer, HashSet<Integer>>();
 	//public HashSet<Integer> SensorIDRx = new HashSet<Integer>();
 	
-	private HashMap<VLCsensor, Long> StartRx = new HashMap<VLCsensor, Long>();
+	private HashMap<VLCelement, Long> StartRx = new HashMap<VLCelement, Long>();
 	
 	/*
 	 * Checks if message is valid for vlc, it is false when mesasge is dropped, set at checkphyconditions at receive side. 
 	 */
 	public boolean isVLCvalid = true;
-	public long getStartRx(VLCsensor sensor)
+	public long getStartRx(VLCelement sensor)
 	{
 		if(!StartRx.containsKey(sensor))
 		{
@@ -55,13 +55,13 @@ public abstract class MacMessage implements Message
 		}
 		return StartRx.get(sensor);
 	}
-	public void setStartRx(VLCsensor sensor, long value)
+	public void setStartRx(VLCelement sensor, long value)
 	{
 		StartRx.put(sensor, value);
 	}
 	
-	private HashMap<VLCsensor, Long> EndRx = new HashMap<VLCsensor, Long>();
-	public long getEndRx(VLCsensor sensor)
+	private HashMap<VLCelement, Long> EndRx = new HashMap<VLCelement, Long>();
+	public long getEndRx(VLCelement sensor)
 	{
 		if(!EndRx.containsKey(sensor))
 		{
@@ -69,12 +69,12 @@ public abstract class MacMessage implements Message
 		}
 		return EndRx.get(sensor);
 	}
-	public void setEndRx(VLCsensor sensor, long value)
+	public void setEndRx(VLCelement sensor, long value)
 	{
 		EndRx.put(sensor, value);
 	}
-	private HashMap<VLCsensor, Long> DurationRx = new HashMap<VLCsensor, Long>();
-	public long getDurationRx(VLCsensor sensor)
+	private HashMap<VLCelement, Long> DurationRx = new HashMap<VLCelement, Long>();
+	public long getDurationRx(VLCelement sensor)
 	{
 		if(!DurationRx.containsKey(sensor))
 		{
@@ -82,13 +82,13 @@ public abstract class MacMessage implements Message
 		}
 		return DurationRx.get(sensor);
 	}
-	public void setDurationRx(VLCsensor sensor, long value)
+	public void setDurationRx(VLCelement sensor, long value)
 	{
 		DurationRx.put(sensor, value);
 	}
 	
-	private HashMap<VLCsensor, Double> PowerRx = new HashMap<VLCsensor, Double>();
-	public double getPowerRx(VLCsensor sensor)
+	private HashMap<VLCelement, Double> PowerRx = new HashMap<VLCelement, Double>();
+	public double getPowerRx(VLCelement sensor)
 	{
 		if(!PowerRx.containsKey(sensor))
 		{
@@ -96,13 +96,13 @@ public abstract class MacMessage implements Message
 		}
 		return PowerRx.get(sensor);
 	}
-	public void setPowerRx(VLCsensor sensor, double value)
+	public void setPowerRx(VLCelement sensor, double value)
 	{
 		PowerRx.put(sensor, value);
 	}
 	
-	private HashMap<VLCsensor, Boolean> InterferedRx = new HashMap<VLCsensor, Boolean>();
-	public boolean getInterferedRx(VLCsensor sensor)
+	private HashMap<VLCelement, Boolean> InterferedRx = new HashMap<VLCelement, Boolean>();
+	public boolean getInterferedRx(VLCelement sensor)
 	{
 		if(!InterferedRx.containsKey(sensor))
 		{
@@ -110,13 +110,13 @@ public abstract class MacMessage implements Message
 		}
 		return InterferedRx.get(sensor);
 	}
-	public void setInterferedRx(VLCsensor sensor, boolean value)
+	public void setInterferedRx(VLCelement sensor, boolean value)
 	{
 		InterferedRx.put(sensor, value);
 	}
 	
-	private HashMap<VLCsensor, Long> StartTx = new HashMap<VLCsensor, Long>();
-	public long getStartTx(VLCsensor sensor)
+	private HashMap<VLCelement, Long> StartTx = new HashMap<VLCelement, Long>();
+	public long getStartTx(VLCelement sensor)
 	{
 		if(!StartTx.containsKey(sensor))
 		{
@@ -124,13 +124,13 @@ public abstract class MacMessage implements Message
 		}
 		return StartTx.get(sensor);
 	}
-	public void setStartTx(VLCsensor sensor, long value)
+	public void setStartTx(VLCelement sensor, long value)
 	{
 		StartTx.put(sensor, value);
 	}
 	
-	private HashMap<VLCsensor, Long> EndTx = new HashMap<VLCsensor, Long>();
-	public long getEndTx(VLCsensor sensor)
+	private HashMap<VLCelement, Long> EndTx = new HashMap<VLCelement, Long>();
+	public long getEndTx(VLCelement sensor)
 	{
 		if(!EndTx.containsKey(sensor))
 		{
@@ -138,13 +138,13 @@ public abstract class MacMessage implements Message
 		}
 		return EndTx.get(sensor);
 	}
-	public void setEndTx(VLCsensor sensor, long value)
+	public void setEndTx(VLCelement sensor, long value)
 	{
 		EndTx.put(sensor, value);
 	}
 	
-	private HashMap<VLCsensor, Long> DurationTx = new HashMap<VLCsensor, Long>();
-	public long getDurationTx(VLCsensor sensor)
+	private HashMap<VLCelement, Long> DurationTx = new HashMap<VLCelement, Long>();
+	public long getDurationTx(VLCelement sensor)
 	{
 		if(!DurationTx.containsKey(sensor))
 		{
@@ -152,12 +152,12 @@ public abstract class MacMessage implements Message
 		}
 		return DurationTx.get(sensor);
 	}
-	public void setDurationTx(VLCsensor sensor, long value)
+	public void setDurationTx(VLCelement sensor, long value)
 	{
 		DurationTx.put(sensor, value);
 	}
-	private HashMap<VLCsensor, Double> PowerTx = new HashMap<VLCsensor,Double>();
-	public double getPowerTx(VLCsensor sensor)
+	private HashMap<VLCelement, Double> PowerTx = new HashMap<VLCelement,Double>();
+	public double getPowerTx(VLCelement sensor)
 	{
 		if(!PowerTx.containsKey(sensor))
 		{
@@ -165,13 +165,13 @@ public abstract class MacMessage implements Message
 		}
 		return PowerTx.get(sensor);
 	}
-	public void setPowerTx(VLCsensor sensor, double value)
+	public void setPowerTx(VLCelement sensor, double value)
 	{
 		PowerTx.put(sensor, value);
 	}
 	
-	private HashMap<VLCsensor, Boolean> InterferedTx = new HashMap<VLCsensor, Boolean>();
-	public boolean getInterferedTx(VLCsensor sensor)
+	private HashMap<VLCelement, Boolean> InterferedTx = new HashMap<VLCelement, Boolean>();
+	public boolean getInterferedTx(VLCelement sensor)
 	{
 		if(!InterferedTx.containsKey(sensor))
 		{
@@ -179,7 +179,7 @@ public abstract class MacMessage implements Message
 		}
 		return InterferedTx.get(sensor);
 	}
-	public void setInterferedTx(VLCsensor sensor, boolean value)
+	public void setInterferedTx(VLCelement sensor, boolean value)
 	{
 		InterferedTx.put(sensor, value);
 	}
@@ -200,19 +200,19 @@ public abstract class MacMessage implements Message
 	
 	
 	
-	public int getSensorIDTxSize(int nodeID)
+	public int getElementIDTxSize(int nodeID)
 	{
-		return getSensorIDTx(nodeID).size();
+		return getElementIDTx(nodeID).size();
 	}
-	public int getSensorIDRxSize(int nodeID)
+	public int getElementIDRxSize(int nodeID)
 	{
-		return getSensorIDRx(nodeID).size();
+		return getElementIDRx(nodeID).size();
 	}
-	public void setSensorIDTx(HashSet<Integer> value, Integer nodeID)
+	public void setElementIDTx(HashSet<Integer> value, Integer nodeID)
 	{
 		SensorIDTx.put(nodeID, value);
 	}
-	public void setSensorIDRx(HashSet<Integer> value, Integer nodeID)
+	public void setElementIDRx(HashSet<Integer> value, Integer nodeID)
 	{
 		for (Integer sensor : value)
 		{
@@ -220,21 +220,21 @@ public abstract class MacMessage implements Message
 		}
 		SensorIDRx.put(nodeID, value);
 	}	
-	public void setSensorIDTx(LinkedList<VLCsensor> value, Integer nodeID)
+	public void setElementIDTx(LinkedList<VLCelement> value, Integer nodeID)
 	{
 		HashSet<Integer> hs = new HashSet<Integer>();
-		for (VLCsensor sensor : value)
+		for (VLCelement sensor : value)
 		{
-			hs.add(sensor.sensorID);
+			hs.add(sensor.elementID);
 		}
 		SensorIDTx.put(nodeID, hs);
 	}
-	public void setSensorIDRx(LinkedList<VLCsensor> value, Integer nodeID)
+	public void setElementIDRx(LinkedList<VLCelement> value, Integer nodeID)
 	{
 		HashSet<Integer> hs = new HashSet<Integer>();
-		for (VLCsensor sensor : value)
+		for (VLCelement sensor : value)
 		{
-			hs.add(sensor.sensorID);
+			hs.add(sensor.elementID);
 			//System.out.println("set1: "+sensor.sensorID+ " " + nodeID + " hsh: " + hashCode());
 		}
 		
@@ -244,7 +244,7 @@ public abstract class MacMessage implements Message
 	 * Gets sensor ID this message is assigned to for Tx
 	 * @return
 	 */
-	public HashSet<Integer> getSensorIDTx(Integer nodeID)
+	public HashSet<Integer> getElementIDTx(Integer nodeID)
 	{
 		if(!SensorIDTx.containsKey(nodeID))
 		{
@@ -256,7 +256,7 @@ public abstract class MacMessage implements Message
 	 * Gets sensor ID this message is assigned to for Rx
 	 * @return
 	 */
-	public HashSet<Integer> getSensorIDRx(Integer nodeID)
+	public HashSet<Integer> getElementIDRx(Integer nodeID)
 	{
 		if(!SensorIDRx.containsKey(nodeID))
 		{
@@ -268,28 +268,28 @@ public abstract class MacMessage implements Message
 	 * Add Tx sensor ID for this message
 	 * @return
 	 */
-	public void addSensorIDTx(int sensorID, int nodeID)
+	public void addElementIDTx(int sensorID, int nodeID)
 	{
-		getSensorIDTx(nodeID).add(sensorID);
+		getElementIDTx(nodeID).add(sensorID);
 	}
 	
-	public void removeSensorIDTx(int sensorID, int nodeID)
+	public void removeElementIDTx(int sensorID, int nodeID)
 	{
-		getSensorIDTx(nodeID).remove(sensorID);
+		getElementIDTx(nodeID).remove(sensorID);
 	}
 	/**
 	 * Add Rx sensor ID for this message
 	 * @return
 	 */
-	public void addSensorIDRx(int sensorID, int nodeID)
+	public void addElementIDRx(int sensorID, int nodeID)
 	{
 		//System.out.println("add: "+sensorID+ " " + nodeID + " hsh: " + hashCode());
-		getSensorIDRx(nodeID).add(sensorID);
+		getElementIDRx(nodeID).add(sensorID);
 	}
 	
-	public void removeSensorIDRx(int sensorID, int nodeID)
+	public void removeElementIDRx(int sensorID, int nodeID)
 	{
-		getSensorIDRx(nodeID).remove(sensorID);
+		getElementIDRx(nodeID).remove(sensorID);
 	}
 	//////////////////////////////////////////////////
 	// frame control

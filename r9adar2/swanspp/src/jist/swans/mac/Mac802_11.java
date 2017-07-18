@@ -25,7 +25,7 @@ import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioInterface;
 import jist.swans.radio.RadioVLC;
 import jist.swans.radio.TimeEntry;
-import jist.swans.radio.VLCsensor;
+import jist.swans.radio.VLCelement;
 import jist.swans.trans.TransUdp;
 import jobs.JobConfigurator;
 import driver.JistExperiment;
@@ -1457,12 +1457,11 @@ public class Mac802_11 implements MacInterface.Mac802_11, MacInterface.VlcMacInt
 		return localAddr.toString();
 	}
 
-	 MacVLCMessage tmpmsg;
-	    public void notifyInterference(MacMessage msg, VLCsensor sensors) 
+	 	MacVLCMessage tmpmsg;
+	    public void notifyInterference(MacMessage msg, VLCelement elements) 
 	    {
 	        ((NetMessage.Ip)(((MacVLCMessage)msg).getBody())).Times.add(new TimeEntry(90, "macinterference", null));        
-	        System.out.println("interference on node: " + sensors.node.NodeID +" sensor: " + sensors.sensorID + " msg hsh: "+ msg.hashCode());
-	      
+	        System.out.println("interference on node: " + elements.node.NodeID +" element: " + elements.elementID + " msg hsh: "+ msg.hashCode());
 	    }
 	 
 	    public void notifyError(int errorCode, String message) 

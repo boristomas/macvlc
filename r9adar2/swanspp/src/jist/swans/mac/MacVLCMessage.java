@@ -23,7 +23,7 @@ import jist.runtime.JistAPI;
 import jist.runtime.Util;
 import jist.swans.Constants;
 import jist.swans.misc.Message;
-import jist.swans.radio.VLCsensor;
+import jist.swans.radio.VLCelement;
  
 /**
  * Defines the various message used by the Mac entity.
@@ -98,148 +98,148 @@ public  class MacVLCMessage extends MacMessage
     }
     
  
-    //sensor control
-    private java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>> SensorIDTx = new java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>>();
+    //element control
+    private java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>> ElementIDTx = new java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>>();
  
-    private java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>> SensorIDRx = new java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>>();
+    private java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>> ElementIDRx = new java.util.concurrent.ConcurrentHashMap<Integer, HashSet<Integer>>();
     //public HashSet<Integer> SensorIDRx = new HashSet<Integer>();
  
-    private HashMap<VLCsensor, Long> StartRx = new HashMap<VLCsensor, Long>();
-    public long getStartRx(VLCsensor sensor)
+    private HashMap<VLCelement, Long> StartRx = new HashMap<VLCelement, Long>();
+    public long getStartRx(VLCelement element)
     {
-        if(!StartRx.containsKey(sensor))
+        if(!StartRx.containsKey(element))
         {
-            StartRx.put(sensor, (long)0);
+            StartRx.put(element, (long)0);
         }
-        return StartRx.get(sensor);
+        return StartRx.get(element);
     }
-    public void setStartRx(VLCsensor sensor, long value)
+    public void setStartRx(VLCelement element, long value)
     {
-        StartRx.put(sensor, value);
+        StartRx.put(element, value);
     }
  
-    private HashMap<VLCsensor, Long> EndRx = new HashMap<VLCsensor, Long>();
-    public long getEndRx(VLCsensor sensor)
+    private HashMap<VLCelement, Long> EndRx = new HashMap<VLCelement, Long>();
+    public long getEndRx(VLCelement element)
     {
-        if(!EndRx.containsKey(sensor))
+        if(!EndRx.containsKey(element))
         {
-            EndRx.put(sensor, (long)0);
+            EndRx.put(element, (long)0);
         }
-        return EndRx.get(sensor);
+        return EndRx.get(element);
     }
-    public void setEndRx(VLCsensor sensor, long value)
+    public void setEndRx(VLCelement element, long value)
     {
-        EndRx.put(sensor, value);
+        EndRx.put(element, value);
     }
-    private HashMap<VLCsensor, Long> DurationRx = new HashMap<VLCsensor, Long>();
-    public long getDurationRx(VLCsensor sensor)
+    private HashMap<VLCelement, Long> DurationRx = new HashMap<VLCelement, Long>();
+    public long getDurationRx(VLCelement element)
     {
-        if(!DurationRx.containsKey(sensor))
+        if(!DurationRx.containsKey(element))
         {
-            DurationRx.put(sensor, (long)0);
+            DurationRx.put(element, (long)0);
         }
-        return DurationRx.get(sensor);
+        return DurationRx.get(element);
     }
-    public void setDurationRx(VLCsensor sensor, long value)
+    public void setDurationRx(VLCelement element, long value)
     {
-        DurationRx.put(sensor, value);
+        DurationRx.put(element, value);
     }
  
-    private HashMap<VLCsensor, Double> PowerRx = new HashMap<VLCsensor, Double>();
-    public double getPowerRx(VLCsensor sensor)
+    private HashMap<VLCelement, Double> PowerRx = new HashMap<VLCelement, Double>();
+    public double getPowerRx(VLCelement element)
     {
-        if(!PowerRx.containsKey(sensor))
+        if(!PowerRx.containsKey(element))
         {
-            PowerRx.put(sensor, (double)0);
+            PowerRx.put(element, (double)0);
         }
-        return PowerRx.get(sensor);
+        return PowerRx.get(element);
     }
-    public void setPowerRx(VLCsensor sensor, double value)
+    public void setPowerRx(VLCelement element, double value)
     {
-        PowerRx.put(sensor, value);
+        PowerRx.put(element, value);
     }
  
-    private HashMap<VLCsensor, Boolean> InterferedRx = new HashMap<VLCsensor, Boolean>();
-    public boolean getInterferedRx(VLCsensor sensor)
+    private HashMap<VLCelement, Boolean> InterferedRx = new HashMap<VLCelement, Boolean>();
+    public boolean getInterferedRx(VLCelement element)
     {
-        if(!InterferedRx.containsKey(sensor))
+        if(!InterferedRx.containsKey(element))
         {
-            InterferedRx.put(sensor, false);
+            InterferedRx.put(element, false);
         }
-        return InterferedRx.get(sensor);
+        return InterferedRx.get(element);
     }
-    public void setInterferedRx(VLCsensor sensor, boolean value)
+    public void setInterferedRx(VLCelement element, boolean value)
     {
-        InterferedRx.put(sensor, value);
+        InterferedRx.put(element, value);
     }
  
-    private HashMap<VLCsensor, Long> StartTx = new HashMap<VLCsensor, Long>();
-    public long getStartTx(VLCsensor sensor)
+    private HashMap<VLCelement, Long> StartTx = new HashMap<VLCelement, Long>();
+    public long getStartTx(VLCelement element)
     {
-        if(!StartTx.containsKey(sensor))
+        if(!StartTx.containsKey(element))
         {
-            StartTx.put(sensor, (long)0);
+            StartTx.put(element, (long)0);
         }
-        return StartTx.get(sensor);
+        return StartTx.get(element);
     }
-    public void setStartTx(VLCsensor sensor, long value)
+    public void setStartTx(VLCelement element, long value)
     {
-        StartTx.put(sensor, value);
+        StartTx.put(element, value);
     }
  
-    private HashMap<VLCsensor, Long> EndTx = new HashMap<VLCsensor, Long>();
-    public long getEndTx(VLCsensor sensor)
+    private HashMap<VLCelement, Long> EndTx = new HashMap<VLCelement, Long>();
+    public long getEndTx(VLCelement element)
     {
-        if(!EndTx.containsKey(sensor))
+        if(!EndTx.containsKey(element))
         {
-            EndTx.put(sensor, (long)0);
+            EndTx.put(element, (long)0);
         }
-        return EndTx.get(sensor);
+        return EndTx.get(element);
     }
-    public void setEndTx(VLCsensor sensor, long value)
+    public void setEndTx(VLCelement element, long value)
     {
-        EndTx.put(sensor, value);
+        EndTx.put(element, value);
     }
  
-    private HashMap<VLCsensor, Long> DurationTx = new HashMap<VLCsensor, Long>();
-    public long getDurationTx(VLCsensor sensor)
+    private HashMap<VLCelement, Long> DurationTx = new HashMap<VLCelement, Long>();
+    public long getDurationTx(VLCelement element)
     {
-        if(!DurationTx.containsKey(sensor))
+        if(!DurationTx.containsKey(element))
         {
-            DurationTx.put(sensor, (long)0);
+            DurationTx.put(element, (long)0);
         }
-        return DurationTx.get(sensor);
+        return DurationTx.get(element);
     }
-    public void setDurationTx(VLCsensor sensor, long value)
+    public void setDurationTx(VLCelement element, long value)
     {
-        DurationTx.put(sensor, value);
+        DurationTx.put(element, value);
     }
-    private HashMap<VLCsensor, Double> PowerTx = new HashMap<VLCsensor,Double>();
-    public double getPowerTx(VLCsensor sensor)
+    private HashMap<VLCelement, Double> PowerTx = new HashMap<VLCelement,Double>();
+    public double getPowerTx(VLCelement element)
     {
-        if(!PowerTx.containsKey(sensor))
+        if(!PowerTx.containsKey(element))
         {
-            PowerTx.put(sensor, (double)0);
+            PowerTx.put(element, (double)0);
         }
-        return PowerTx.get(sensor);
+        return PowerTx.get(element);
     }
-    public void setPowerTx(VLCsensor sensor, double value)
+    public void setPowerTx(VLCelement element, double value)
     {
-        PowerTx.put(sensor, value);
+        PowerTx.put(element, value);
     }
  
-    private HashMap<VLCsensor, Boolean> InterferedTx = new HashMap<VLCsensor, Boolean>();
-    public boolean getInterferedTx(VLCsensor sensor)
+    private HashMap<VLCelement, Boolean> InterferedTx = new HashMap<VLCelement, Boolean>();
+    public boolean getInterferedTx(VLCelement element)
     {
-        if(!InterferedTx.containsKey(sensor))
+        if(!InterferedTx.containsKey(element))
         {
-            InterferedTx.put(sensor, false);
+            InterferedTx.put(element, false);
         }
-        return InterferedTx.get(sensor);
+        return InterferedTx.get(element);
     }
-    public void setInterferedTx(VLCsensor sensor, boolean value)
+    public void setInterferedTx(VLCelement element, boolean value)
     {
-        InterferedTx.put(sensor, value);
+        InterferedTx.put(element, value);
     }
  
     /*public long StartRx1;
@@ -258,96 +258,92 @@ public  class MacVLCMessage extends MacMessage
  
  
  
-    public int getSensorIDTxSize(int nodeID)
+    public int getElementIDTxSize(int nodeID)
     {
-        return getSensorIDTx(nodeID).size();
+        return getElementIDTx(nodeID).size();
     }
-    public int getSensorIDRxSize(int nodeID)
+    public int getElementIDRxSize(int nodeID)
     {
-        return getSensorIDRx(nodeID).size();
+        return getElementIDRx(nodeID).size();
     }
-    public void setSensorIDTx(HashSet<Integer> value, Integer nodeID)
+    public void setElementIDTx(HashSet<Integer> value, Integer nodeID)
     {
-        SensorIDTx.put(nodeID, value);
+        ElementIDTx.put(nodeID, value);
     }
-    public void setSensorIDRx(HashSet<Integer> value, Integer nodeID)
+    public void setElementIDRx(HashSet<Integer> value, Integer nodeID)
     {
-        /*for (Integer sensor : value)
-        {
-            System.out.println("s2: "+nodeID+ " " + sensor + " hsh: " + hashCode());
-        }*/
-        this.SensorIDRx.put(nodeID, value);
+       
+        this.ElementIDRx.put(nodeID, value);
     }   
-    public void setSensorIDTx(LinkedList<VLCsensor> value, Integer nodeID)
+    public void setElementIDTx(LinkedList<VLCelement> value, Integer nodeID)
     {
         HashSet<Integer> hs = new HashSet<Integer>();
-        for (VLCsensor sensor : value)
+        for (VLCelement element : value)
         {
-            hs.add(sensor.sensorID);
+            hs.add(element.elementID);
         }
-        this.SensorIDTx.put(nodeID, hs);
+        this.ElementIDTx.put(nodeID, hs);
     }
-    public void setSensorIDRx(LinkedList<VLCsensor> value, Integer nodeID)
+    public void setElementIDRx(LinkedList<VLCelement> value, Integer nodeID)
     {
         HashSet<Integer> hs = new HashSet<Integer>();
-        for (VLCsensor sensor : value)
+        for (VLCelement element : value)
         {
-            hs.add(sensor.sensorID);
-            //      System.out.println("set1: "+sensor.sensorID+ " " + nodeID + " hsh: " + hashCode());
+            hs.add(element.elementID);
+            
         }
  
-        this.SensorIDRx.put(nodeID, hs);
+        this.ElementIDRx.put(nodeID, hs);
     }
     /**
-     * Gets sensor ID this message is assigned to for Tx
+     * Gets element ID this message is assigned to for Tx
      * @return
      */
-    public HashSet<Integer> getSensorIDTx(Integer nodeID)
+    public HashSet<Integer> getElementIDTx(Integer nodeID)
     {
-        if(!SensorIDTx.containsKey(nodeID))
+        if(!ElementIDTx.containsKey(nodeID))
         {
-            SensorIDTx.put(nodeID, new HashSet<Integer>());
+            ElementIDTx.put(nodeID, new HashSet<Integer>());
         }
-        return SensorIDTx.get(nodeID);
+        return ElementIDTx.get(nodeID);
     }
     /**
-     * Gets sensor ID this message is assigned to for Rx
+     * Gets element ID this message is assigned to for Rx
      * @return
      */
-    public HashSet<Integer> getSensorIDRx(Integer nodeID)
+    public HashSet<Integer> getElementIDRx(Integer nodeID)
     {
-        if(!SensorIDRx.containsKey(nodeID))
+        if(!ElementIDRx.containsKey(nodeID))
         {
-            SensorIDRx.put(nodeID, new HashSet<Integer>());
+            ElementIDRx.put(nodeID, new HashSet<Integer>());
         }
-        return SensorIDRx.get(nodeID);
+        return ElementIDRx.get(nodeID);
     }
     /**
-     * Add Tx sensor ID for this message
+     * Add Tx element ID for this message
      * @return
      */
-    public void addSensorIDTx(int sensorID, int nodeID)
+    public void addElementIDTx(int elementID, int nodeID)
     {
-        getSensorIDTx(nodeID).add(sensorID);
+        getElementIDTx(nodeID).add(elementID);
     }
  
-    public void removeSensorIDTx(int sensorID, int nodeID)
+    public void removeElementIDTx(int elementID, int nodeID)
     {
-        getSensorIDTx(nodeID).remove(sensorID);
+        getElementIDTx(nodeID).remove(elementID);
     }
     /**
-     * Add Rx sensor ID for this message
+     * Add Rx element ID for this message
      * @return
      */
-    public void addSensorIDRx(int sensorID, int nodeID)
+    public void addElementIDRx(int elementID, int nodeID)
     {
-        //  System.out.println("add: "+sensorID+ " " + nodeID + " hsh: " + hashCode());
-        getSensorIDRx(nodeID).add(sensorID);
+        getElementIDRx(nodeID).add(elementID);
     }
  
-    public void removeSensorIDRx(int sensorID, int nodeID)
+    public void removeElementIDRx(int elementID, int nodeID)
     {
-        getSensorIDRx(nodeID).remove(sensorID);
+        getElementIDRx(nodeID).remove(elementID);
     }
     //////////////////////////////////////////////////
     // frame control
@@ -379,20 +375,7 @@ public  class MacVLCMessage extends MacMessage
     // initialization
     //
  
-    /**
-     * Create a mac packet.
-     * 
-     * @param type packet type
-     * @param retry packet retry bit
-     */
-    /*protected MacMessageVLC(byte type, boolean retry)
-    {
-        //this.TimeCreated = JistAPI.getTime();
-        this.type = type;
-        this.retry = retry;
-        //this.setSensorIDRx(-1);
-        //this.setSensorIDTx(-1);
-    }*/
+
  
     //////////////////////////////////////////////////
     // initialization

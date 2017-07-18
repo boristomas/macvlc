@@ -16,7 +16,7 @@ import jist.swans.misc.Message;
 import jist.swans.net.NetInterface;
 import jist.swans.radio.RadioInfo;
 import jist.swans.radio.RadioInterface;
-import jist.swans.radio.VLCsensor;
+import jist.swans.radio.VLCelement;
 
 /**
  * A dumb, pass-through mac implementation.
@@ -323,7 +323,7 @@ public class MacDumb implements MacInterface.VlcMacInterface
   }
 
 @Override
-public void notifyInterference(MacMessage msg, VLCsensor sensors) {
+public void notifyInterference(MacMessage msg, VLCelement sensors) {
 	// T-ODO Auto-generated method stub
 	
 }
